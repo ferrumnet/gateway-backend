@@ -1,0 +1,22 @@
+{
+  "Parameters" : {
+    "DevPrefix": "${DevPrefix}",
+    "AppName": "${AppName}",
+    "Environment": "${Environment}",
+    "PipelineArtifactsBucket": "${PipelineArtifactsBucket}",
+    "AppVersion" : "${AppVersion}"
+  },
+  "Tags" : {
+    "Version" : "${AppVersion}"
+  },
+  "StackPolicy" : {
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : "Update:*",
+        "Principal": "*",
+        "Resource" : "*"
+      }
+    ]
+  }
+}

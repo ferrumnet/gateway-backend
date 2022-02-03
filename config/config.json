@@ -1,0 +1,92 @@
+{
+  "specialization": {},
+  "middleware": {
+    "static": {
+      "module": {
+        "arguments": ["path:./.build"]
+      }
+    },
+    "router": {
+      "module": {
+        "arguments": [
+          {
+            "directory": "path:./app/controllers"
+          }
+        ]
+      }
+    },
+    "response-sender": {
+      "enabled": true,
+      "priority": 80,
+      "route": "/api",
+      "module": {
+        "name": "path:./app/lib/response/responseAppender"
+      }
+    },
+    "authenticationSuperAdmin": {
+      "enabled": true,
+      "priority": 100,
+      "route": "\/api\/v1\/super-admin((?!$))((?!\/users\/forgot-password))((?!\/users\/reset-password))((?!\/users\/sign-in))((?!\/users\/sign-up))*",
+      "module": {
+        "name": "path:./app/lib/auth"
+      }
+    },
+    "authenticationAdmin": {
+      "enabled": true,
+      "priority": 100,
+      "route": "\/api\/v1\/admin((?!$))((?!\/users\/forgot-password))((?!\/users\/reset-password))((?!\/users\/sign-in))((?!\/users\/sign-up))*",
+      "module": {
+        "name": "path:./app/lib/auth"
+      }
+    },
+    "authenticationCommunityMember": {
+      "enabled": true,
+      "priority": 100,
+      "route": "\/api\/v1\/community-member((?!$))((?!\/users\/forgot-password))((?!\/users\/reset-password))((?!\/users\/sign-in))((?!\/users\/sign-up))*",
+      "module": {
+        "name": "path:./app/lib/auth"
+      }
+    },
+    "authenticationApplicationUser": {
+      "enabled": true,
+      "priority": 100,
+      "route": "\/api\/v1\/application-user((?!$))((?!\/token))*",
+      "module": {
+        "name": "path:./app/lib/auth"
+      }
+    },
+    "authenticationPublicMember": {
+      "enabled": true,
+      "priority": 100,
+      "route": "\/api\/v1\/users((?!$))((?!\/forgot-password))((?!\/forgot-password\/authenticate\/link))((?!\/re-send\/email\/otp))((?!\/authenticate\/email\/otp))*",
+      "module": {
+        "name": "path:./app/lib/auth"
+      }
+    },
+    "pagination": {
+      "enabled": true,
+      "priority": 100,
+      "route": "/api",
+      "module": {
+        "name": "path:./app/lib/middlewares/pagination"
+      }
+    }
+  },
+  "app": {
+    "url": "",
+    "jwtSecret": "Leaderboard backend"
+  },
+  "gmail": {
+    "service": "gmail",
+    "transportMethod": "SMTP",
+    "appName": "Leaderboard",
+    "auth": {
+      "user": "noreply2@ferrum.network",
+      "pass": "jnponcvedalcqarn"
+    }
+  },
+  "appInfo": {
+    "appName": "Leaderboard",
+    "environment":"production"
+  }
+}
