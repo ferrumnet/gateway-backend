@@ -1,0 +1,246 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  DevPrefix:
+    Type: String
+    Default: ""
+
+  AppName:
+    Type: String
+    AllowedPattern: "[A-Za-z0-9-]+"
+
+  GitHubOAuthToken:
+    Type: String
+    NoEcho: true
+    MinLength: 40
+    MaxLength: 40
+    #AllowedPattern: '[a-z0-9]*'
+
+  GitHubOwner:
+    Type: String
+    Default: ferrumnet
+    AllowedPattern: "[A-Za-z0-9-]+"
+
+  GitHubRepo:
+    Type: String
+    Default: hello-world
+    AllowedPattern: "[A-Za-z0-9-]+"
+
+  GitHubBranch:
+    Type: String
+    Default: master
+    AllowedPattern: "[A-Za-z0-9-]+"
+
+  PipelineArtifactsBucket:
+    Type: String
+    Default: ferrum-pipeline-artifacts
+    AllowedPattern: "[A-Za-z0-9-]+"
+
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - qa
+      - stage
+      - prod
+
+  CodebuildImage:
+    Type: String
+    Default: 'aws/codebuild/standard:5.0'
+
+Resources:
+  CodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      ArtifactStore:
+        Type: S3
+        Location: !Ref PipelineArtifactsBucket
+      RestartExecutionOnUpdate: true
+      RoleArn: !GetAtt CodePipelineRole.Arn
+      Stages:
+      - Name: Source
+        Actions:
+        - Name: Source
+          InputArtifacts: []
+          ActionTypeId:
+            Category: Source
+            Owner: ThirdParty
+            Version: 1
+            Provider: GitHub
+          OutputArtifacts:
+          - Name: SourceCode
+          Configuration:
+            Owner: !Ref GitHubOwner
+            Repo: !Ref GitHubRepo
+            Branch: !Ref GitHubBranch
+            PollForSourceChanges: false
+            OAuthToken: !Ref GitHubOAuthToken
+          RunOrder: 1
+      - Name: Build
+        Actions:
+        - Name: Build
+          ActionTypeId:
+            Category: Build
+            Owner: AWS
+            Provider: CodeBuild
+            Version: '1'
+          Configuration:
+            ProjectName: !Ref CodeBuildProject
+          InputArtifacts:
+            - Name: SourceCode
+          OutputArtifacts:
+            - Name: BuildArtifacts
+          RunOrder: '2'
+      - Name: Release
+        Actions:
+          - Name: PackageReleaseChangeset
+            InputArtifacts:
+                - Name: BuildArtifacts
+            OutputArtifacts: []
+            ActionTypeId:
+              Category: Deploy
+              Owner: AWS
+              Version: "1"
+              Provider: CloudFormation
+            Configuration:
+              StackName: !Sub "${DevPrefix}${AppName}-${Environment}"
+              TemplateConfiguration: BuildArtifacts::app-deploy.json
+              TemplatePath: !Sub "BuildArtifacts::deploy/cloudformation/application.yaml"
+              ActionMode: CHANGE_SET_REPLACE
+              ChangeSetName: !Sub ${DevPrefix}${AppName}-${Environment}-changeset
+              RoleArn: !GetAtt CloudformationRole.Arn
+              Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+            RunOrder: 3
+          - Name: ExecuteReleaseChangeset
+            InputArtifacts: []
+            OutputArtifacts: []
+            ActionTypeId:
+              Category: Deploy
+              Owner: AWS
+              Provider: CloudFormation
+              Version: "1"
+            Configuration:
+              StackName: !Sub "${DevPrefix}${AppName}-${Environment}"
+              ActionMode: CHANGE_SET_EXECUTE
+              ChangeSetName: !Sub ${DevPrefix}${AppName}-${Environment}-changeset
+              Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+            RunOrder: 4
+          - Name: ElasticBeanstalkDeploy
+            InputArtifacts:
+              - Name: BuildArtifacts
+            Name: EBApp
+            ActionTypeId:
+              Category: Deploy
+              Owner: AWS
+              Version: '1'
+              Provider: ElasticBeanstalk
+            OutputArtifacts: []
+            Configuration:
+              ApplicationName: !Sub "${DevPrefix}${AppName}-${Environment}"
+              EnvironmentName: !Sub "${DevPrefix}${AppName}-${Environment}"
+            RunOrder: 5
+
+      #
+      #
+      #
+      # - Name: Deploy
+      #   Actions:
+      #   - Name: CloudFormationDeploy
+      #     ActionTypeId:
+      #       Category: Deploy
+      #       Owner: AWS
+      #       Provider: CloudFormation
+      #       Version: '1'
+      #     InputArtifacts:
+      #       - Name: BuildArtifacts
+      #     Configuration:
+      #       ActionMode: CREATE_UPDATE
+      #       Capabilities: CAPABILITY_IAM,CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+      #       RoleArn: !GetAtt CloudformationRole.Arn
+      #       StackName: !Sub "${DevPrefix}${AppName}-${Environment}"
+      #       #ParameterOverrides: !Sub '{"DevPrefix": "${DevPrefix}", "AppName": "${AppName}", "Environment": "${Environment}", "PipelineArtifactsBucket": "${PipelineArtifactsBucket}"}'
+      #       TemplatePath: !Sub "BuildArtifacts::deploy/cloudformation/application.yaml"
+      #       TemplateConfiguration: BuildArtifacts::app-deploy.json
+      #     RunOrder: 3
+
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub "${DevPrefix}${AppName}-${Environment}"
+      ServiceRole: !Ref CodeBuildRole
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: deploy/codebuild/pre-deploy-buildspec.yaml
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: !Ref CodebuildImage
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+        - Name: DevPrefix
+          Value: !Ref DevPrefix
+        - Name: AppName
+          Value: !Ref AppName
+        - Name: Environment
+          Value: !Ref Environment
+        - Name: PipelineArtifactsBucket
+          Value: !Ref PipelineArtifactsBucket
+      TimeoutInMinutes: 10
+
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: codebuild.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+  # 'GithubWebhook' satisfies two requirements:
+  # -- Means that updates are pushed from GitHub, rather than AWS having to poll
+  # -- Means we can filter for required changes
+  GithubWebhook:
+    Type: 'AWS::CodePipeline::Webhook'
+    Properties:
+      Authentication: GITHUB_HMAC
+      AuthenticationConfiguration:
+        SecretToken: !Ref GitHubOAuthToken
+      RegisterWithThirdParty: 'true'
+      Filters:
+      - JsonPath: "$.ref"
+        MatchEquals: refs/heads/{Branch}
+      TargetPipeline: !Ref CodePipeline
+      TargetAction: Source
+      TargetPipelineVersion: !GetAtt CodePipeline.Version
+
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: codepipeline.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess #TODO: Reduce permissions
+
+  CloudformationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: cloudformation.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess #TODO: Reduce permissions

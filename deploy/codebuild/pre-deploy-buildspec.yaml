@@ -1,0 +1,29 @@
+version: 0.2
+environment_variables:
+  plaintext:
+    ARTIFACT_FILE_NAME: ""
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+      nodejs: 14
+  pre_build:
+    commands:
+      - AppVersion='SNAPSHOT'
+      - envsubst '$DevPrefix $AppName $AppVersion  $Environment $PipelineArtifactsBucket' <deploy/cloudformation/parameters/app-deploy.json >app-deploy.json
+      - cat app-deploy.json
+      - echo "Zip up artifacts ${AppName}.zip"
+      - ARTIFACT_FILE_NAME="${DevPrefix}${AppName}-${AppVersion}.zip"
+      - node --version
+      - npm -v
+  build:
+    commands:
+      - npm install
+      - zip -r "${ARTIFACT_FILE_NAME}" *
+      - aws s3 cp ${ARTIFACT_FILE_NAME} s3://${PipelineArtifactsBucket}/${DevPrefix}${AppName}/artifacts/
+  post_build:
+    commands:
+      - rm -f "${ARTIFACT_FILE_NAME}"
+artifacts:
+  files:
+    - '**/*'

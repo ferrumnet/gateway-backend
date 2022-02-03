@@ -1,0 +1,390 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  DevPrefix:
+    Type: String
+    Default: ""
+
+  AppName:
+    Type: String
+    AllowedPattern: "[A-Za-z0-9-]+"
+
+  AppVersion:
+    Type: String
+    AllowedPattern: "[A-Za-z0-9-]+"
+
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - qa
+      - stage
+      - prod
+  PipelineArtifactsBucket:
+    Type: String
+    Default: ferrum-pipeline-artifacts
+    AllowedPattern: "[A-Za-z0-9-]+"
+
+  Subdomain:
+    Type: String
+    Default: 'leaderboard.'
+    Description: Application subdomain
+
+  SSLCertificateArn:
+    Description: The SSL/TLS certificate ARN
+    Type: String
+    MinLength: 0
+    MaxLength: 2048
+    Default: ""
+
+Mappings:
+  EnvironmentMap:
+    dev:
+      VpcStackName: VPC-Dev
+      InstanceType: t2.micro
+      ASGMinSize: 1
+      ASGMaxSize: 1
+      LogsRetentionInDays: 3
+      HZ: dev.svcs.ferrumnetwork.io.
+      HZID: Z023933617DZKHOV0K81T
+    qa:
+      VpcStackName: VPC-QA
+      InstanceType: t2.micro
+      ASGMinSize: 1
+      ASGMaxSize: 1
+      LogsRetentionInDays: 3
+      HZ: qa.svcs.ferrumnetwork.io.
+      HZID: Z0240670SQQZ2UZZEDES
+    stage:
+      VpcStackName: VPC-Stage
+      InstanceType: t2.micro
+      ASGMinSize: 1
+      ASGMaxSize: 1
+      LogsRetentionInDays: 3
+      HZ: stage.svcs.ferrumnetwork.io.
+      HZID: Z0293094648X636OW0F6
+    prod:
+      VpcStackName: VPC-Prod
+      InstanceType: t2.medium
+      ASGMinSize: 1
+      ASGMaxSize: 1
+      LogsRetentionInDays: 90
+      HZ: svcs.ferrumnetwork.io.
+      HZID: Z00629592FDQOHKWP2CAQ
+  # Grabbed these HZ IDs from https://docs.aws.amazon.com/general/latest/gr/elasticbeanstalk.html
+  Beanstalk2Route53HostedZoneId:
+    us-east-1:
+      HostedZoneId: Z117KPS5GTRQ2G
+    us-east-2:
+      HostedZoneId: Z14LCN19Q5QHIC
+Conditions:
+  CreateProdEnv: !Equals [ !Ref Environment, prod ]
+  TlsEnabled: !Not [ !Equals [ !Ref SSLCertificateArn, "" ] ]
+
+Resources:
+  WaitHandle:
+    Type: AWS::CloudFormation::WaitConditionHandle
+  #########
+  # Security Groups
+  ELBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP/HTTPs ingress
+      VpcId:
+        Fn::ImportValue: !Join [ "", [ !FindInMap [ EnvironmentMap, !Ref Environment, VpcStackName ], "-VPCID" ] ]
+      SecurityGroupIngress:
+      - CidrIp: 0.0.0.0/0
+        IpProtocol: tcp
+        ToPort: 80
+        FromPort: 80
+      - CidrIp: 0.0.0.0/0
+        IpProtocol: tcp
+        ToPort: 443
+        FromPort: 443
+      Tags:
+      - Key: Name
+        Value: !Sub "${AWS::StackName}-ELBSecurityGroup"
+
+  ELBSecurityGroupToAppEgress:
+    Type: AWS::EC2::SecurityGroupEgress  # prevent security group circular references
+    Properties:
+      GroupId: !Ref ELBSecurityGroup
+      IpProtocol: tcp
+      ToPort: 80
+      FromPort: 80
+      DestinationSecurityGroupId: !Ref AppSecurityGroup
+
+  AppSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable access from ELB to app
+      VpcId:
+        Fn::ImportValue: !Join [ "", [ !FindInMap [ EnvironmentMap, !Ref Environment, VpcStackName ], "-VPCID" ] ]
+      SecurityGroupIngress:
+      - SourceSecurityGroupId: !Ref ELBSecurityGroup
+        IpProtocol: tcp
+        ToPort: 80
+        FromPort: 80
+      Tags:
+      - Key: Name
+        Value: !Sub "${AWS::StackName}-AppSecurityGroup"
+
+  AppSecurityGroupFromELBIngress:
+    Type: AWS::EC2::SecurityGroupIngress  # prevent security group circular references
+    Properties:
+      GroupId: !Ref AppSecurityGroup
+      IpProtocol: tcp
+      ToPort: 80
+      FromPort: 80
+      SourceSecurityGroupId: !Ref ELBSecurityGroup
+
+  # IAM resources
+  AppRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+  AppPolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: App
+      Roles:
+      - !Ref AppRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Action: "*"
+            Resource: "*"
+
+  AppInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+      - !Ref AppRole
+
+  #########################
+  ### Elastic Beanstalk
+  ElasticBeanstalkServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument: |
+        {
+          "Statement": [{
+            "Effect": "Allow",
+            "Principal": { "Service": [ "elasticbeanstalk.amazonaws.com" ]},
+            "Action": [ "sts:AssumeRole" ]
+          }]
+        }
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth
+        - arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkService
+
+  Application:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      ApplicationName: !Sub "${DevPrefix}${AppName}-${Environment}"
+
+  ApplicationVersion:
+    Type: AWS::ElasticBeanstalk::ApplicationVersion
+    Properties:
+      ApplicationName: !Ref Application
+      SourceBundle:
+        S3Bucket: !Ref PipelineArtifactsBucket
+        S3Key: !Sub "${DevPrefix}${AppName}/artifacts/${DevPrefix}${AppName}-${AppVersion}.zip"
+
+  AppEnvironment:
+    Type: AWS::ElasticBeanstalk::Environment
+    Properties:
+      CNAMEPrefix: !Sub "${DevPrefix}${AppName}"
+      EnvironmentName: !Sub "${DevPrefix}${AppName}-${Environment}"
+      ApplicationName: !Ref Application
+      TemplateName: !Ref ConfigurationTemplate
+      VersionLabel: !Ref ApplicationVersion
+      #SolutionStackName
+    DependsOn:
+      - ConfigurationTemplate
+      - ApplicationVersion
+
+  # The configuration template contains environment parameters such as those
+  # that relate to the autoscaling group (e.g. size, triggers), placement of
+  # resources in the VPC, load balancer setup, and environment variables
+  ConfigurationTemplate:
+    Type: AWS::ElasticBeanstalk::ConfigurationTemplate
+    Properties:
+      ApplicationName: !Ref Application
+      SolutionStackName: "64bit Amazon Linux 2 v5.4.7 running Node.js 14"
+      OptionSettings:
+
+      - Namespace: aws:elasticbeanstalk:environment
+        OptionName: EnvironmentType
+        Value: LoadBalanced
+
+      - Namespace: aws:elasticbeanstalk:environment
+        OptionName: LoadBalancerType
+        Value: application
+
+      - Namespace: aws:elasticbeanstalk:environment
+        OptionName: ServiceRole
+        Value: !Ref ElasticBeanstalkServiceRole
+
+        # AUTOSCALING OPTIONS
+      - Namespace: aws:autoscaling:asg
+        OptionName: MinSize
+        Value: !FindInMap [ EnvironmentMap, !Ref Environment, ASGMinSize ]
+
+      - Namespace: aws:autoscaling:asg
+        OptionName: MaxSize
+        Value: !FindInMap [ EnvironmentMap, !Ref Environment, ASGMaxSize ]
+
+      - Namespace: aws:autoscaling:launchconfiguration
+        OptionName: SecurityGroups
+        Value: !GetAtt AppSecurityGroup.GroupId
+
+      - Namespace: aws:autoscaling:launchconfiguration
+        OptionName: InstanceType
+        Value: !FindInMap [ EnvironmentMap, !Ref Environment, InstanceType ]
+
+      - Namespace: aws:autoscaling:launchconfiguration
+        OptionName: IamInstanceProfile
+        Value: !Ref AppInstanceProfile
+
+      - Namespace: aws:autoscaling:updatepolicy:rollingupdate
+        OptionName: RollingUpdateEnabled
+        Value: true
+
+      - Namespace: aws:autoscaling:updatepolicy:rollingupdate
+        OptionName: RollingUpdateType
+        Value: Health
+
+      - Namespace: aws:autoscaling:trigger
+        OptionName: MeasureName
+        Value: CPUUtilization
+
+      - Namespace: aws:autoscaling:trigger
+        OptionName: Unit
+        Value: Percent
+
+      - Namespace: aws:autoscaling:trigger
+        OptionName: UpperThreshold
+        Value: 80
+
+      - Namespace: aws:autoscaling:trigger
+        OptionName: LowerThreshold
+        Value: 40
+
+        # VPC OPTIONS (PLACEMENT OF RESOURCES IN SUBNETS)
+      - Namespace: aws:ec2:vpc
+        OptionName: VPCId
+        Value:
+          Fn::ImportValue: !Join [ "", [ !FindInMap [ EnvironmentMap, !Ref Environment, VpcStackName ], "-VPCID" ] ]
+
+      - Namespace: aws:ec2:vpc
+        OptionName: Subnets
+        Value:
+          "Fn::Join":
+          - ','
+          - - Fn::ImportValue: !Join [ "", [ !FindInMap [ EnvironmentMap, !Ref Environment, VpcStackName ], "-SubnetPrivateL" ] ]
+            - Fn::ImportValue: !Join [ "", [ !FindInMap [ EnvironmentMap, !Ref Environment, VpcStackName ], "-SubnetPrivateR" ] ]
+
+      - Namespace: aws:ec2:vpc
+        OptionName: ELBSubnets
+        Value:
+          "Fn::Join":
+          - ','
+          - - Fn::ImportValue: !Join [ "", [ !FindInMap [ EnvironmentMap, !Ref Environment, VpcStackName ], "-SubnetPublicL" ] ]
+            - Fn::ImportValue: !Join [ "", [ !FindInMap [ EnvironmentMap, !Ref Environment, VpcStackName ], "-SubnetPublicR" ] ]
+
+      - Namespace: aws:elbv2:listener:default
+        OptionName: ListenerEnabled
+        Value: !If [ TlsEnabled, false, true ]
+
+      - Namespace: aws:elbv2:loadbalancer
+        OptionName: SecurityGroups
+        Value: !GetAtt ELBSecurityGroup.GroupId
+
+      - Namespace: aws:elbv2:loadbalancer
+        OptionName: ManagedSecurityGroup
+        Value: !GetAtt ELBSecurityGroup.GroupId
+
+      - Namespace: aws:elbv2:listenerrule:default
+        OptionName: PathPatterns
+        Value: "/*"
+
+      - Namespace: !Sub
+        - "aws:elbv2:listener:${ListenPort}"
+        - ListenPort: 80
+        OptionName: Protocol
+        Value: !If [ TlsEnabled, HTTPS, HTTP ]
+
+      - Namespace: !Sub
+        - "aws:elbv2:listener:${ListenPort}"
+        - ListenPort: 80
+        OptionName: Rules
+        Value: default
+
+
+      # - Namespace: !Sub
+      #   - "aws:elbv2:listener:${ListenPort}"
+      #   - ListenPort: 80
+      #   OptionName: SSLCertificateArns
+      #   Value: !Ref SSLCertificateArn
+
+        # CLOUDWATCH LOGS
+      - Namespace: aws:elasticbeanstalk:cloudwatch:logs
+        OptionName: StreamLogs
+        Value: true
+
+      - Namespace: aws:elasticbeanstalk:cloudwatch:logs
+        OptionName: DeleteOnTerminate
+        Value: true
+
+      - Namespace: aws:elasticbeanstalk:cloudwatch:logs
+        OptionName: RetentionInDays
+        Value: !FindInMap [ EnvironmentMap, !Ref Environment, LogsRetentionInDays ]
+
+      # ENVIRONMENT VARIABLES - COMMON TO ALL STACKS
+      - Namespace: aws:elasticbeanstalk:application:environment
+        OptionName: AWS_REGION
+        Value: !Ref AWS::Region
+
+  # Route53
+  ARecord:
+    Type: AWS::Route53::RecordSet
+    DependsOn: AppEnvironment
+    Properties:
+      HostedZoneId: !FindInMap [ EnvironmentMap, !Ref Environment, HZID ]
+      Name: !Join  [ "", [ !Ref DevPrefix, !Ref Subdomain, !FindInMap [ EnvironmentMap, !Ref Environment, HZ ]]]
+      Type: A
+      AliasTarget:
+        HostedZoneId: !FindInMap [ Beanstalk2Route53HostedZoneId, !Ref "AWS::Region", HostedZoneId]
+        DNSName: !Sub "${DevPrefix}${AppName}.${AWS::Region}.elasticbeanstalk.com."
+
+
+Outputs:
+  NodeApplication:
+    Description: Node Application
+    Value: !Ref Application
+  NodeEnvironment:
+    Description: Node Environment
+    Value: !Ref AppEnvironment
+  ApplicationBeanstalkEndpointURL:
+    Description: Application Beanstalk Endpoint URL
+    Value: !GetAtt AppEnvironment.EndpointURL
+  ApplicationEndpointURL:
+    Description: Application Endpoint URL
+    Value: !Ref ARecord
