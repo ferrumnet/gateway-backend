@@ -18,6 +18,7 @@ var NetworksModel = function () {
     isTestnet: { type: Boolean, default: false },
     parentId: { type: mongoose.Schema.Types.ObjectId, ref: 'networks' },
     isActive: { type: Boolean, default: true },
+    isAllowedOnGateway: { type: Boolean, default: false },
 
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
