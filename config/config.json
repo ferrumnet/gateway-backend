@@ -81,8 +81,8 @@
     "transportMethod": "SMTP",
     "appName": "Leaderboard",
     "auth": {
-      "user": "noreply2@ferrum.network",
-      "pass": "jnponcvedalcqarn"
+      "user": "",
+      "pass": ""
     }
   },
   "appInfo": {
