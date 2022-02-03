@@ -1,3 +1,3 @@
 # gateway-backend
 
-test transition close
+test transition closed
