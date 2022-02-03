@@ -4,6 +4,8 @@ var ejs = require("ejs");
 var Users = require('../models/users');
 var smtpTransport = require('nodemailer-smtp-transport');
 var gmailConfig = require('../../config/config.json').gmail;
+gmailConfig.auth.user = global.environment.SMTPUser
+gmailConfig.auth.pass = global.environment.SMTPPass
 var nodemailer = nodemailer.createTransport(smtpTransport(gmailConfig));
 const fs = require('fs')
 
