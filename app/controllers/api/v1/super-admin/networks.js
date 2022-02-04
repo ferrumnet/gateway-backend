@@ -1,7 +1,7 @@
 
 const { db, asyncMiddleware, commonFunctions, stringHelper } = global
 const mailer = global.mailer;
-var mongoose = require('mongoose');
+var mongoose , {isValidObjectId} = require('mongoose');
 
 module.exports = function (router) {
 
@@ -117,27 +117,17 @@ module.exports = function (router) {
 
   });
 
-
-
   router.put('/allow/on/gateway/:id', async (req, res) => {
     
     let filter = { _id: req.params.id }
     let isAllowedOnGateway = req.body.isAllowedOnGateway
 
-    if(!filter._id || typeof isAllowedOnGateway != 'boolean'){
-      return res.http400('networkId & isAllowedOnGateway are required.');
+    if(!isValidObjectId(filter._id) || typeof isAllowedOnGateway != 'boolean'){
+      return res.http400('valid networkId & isAllowedOnGateway are required.');
     }
+   let network = await db.Networks.findOneAndUpdate(filter, {isAllowedOnGateway}, { new: true })
+   return network ? res.http200({ network }) : res.http404('network not found');
 
-    let network = await db.Networks.findOne(filter)
-    if(!network){
-      return res.http404('newtork not found');
-    }
-     
-    network.isAllowedOnGateway = isAllowedOnGateway
-    network = await db.Networks.findOneAndUpdate(filter, network, { new: true })
-    return res.http200({
-        network: network
-    });
   });
 
 };
