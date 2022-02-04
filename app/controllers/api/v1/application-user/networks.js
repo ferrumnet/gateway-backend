@@ -3,16 +3,12 @@ const { db, asyncMiddleware, commonFunctions, stringHelper } = global
 module.exports = function (router) {
     
     router.get('/allow/on/gateway', async (req, res) => {
-
-        const identifierCond =  { ferrumNetworkIdentifier: req.query.ferrumNetworkIdentifier }   
-        const allowedCond =  { isAllowedOnGateway: true }   
+        let filter = {$or: []}
+        filter.$or.push( { ferrumNetworkIdentifier: req.query.ferrumNetworkIdentifier })
+        filter.$or.push( { isAllowedOnGateway: true } )
+        
+        let networks = await db.Networks.find(filter)
         let status = false
-        let networks = await db.Networks.find({
-            $or: [
-                identifierCond,
-                allowedCond
-            ]
-        })
         const index = networks.findIndex(network => network.ferrumNetworkIdentifier == req.query.ferrumNetworkIdentifier )
         if(index > -1) {
             status = networks[index].isAllowedOnGateway
