@@ -15,14 +15,18 @@ module.exports = function (router) {
       return res.http400('parentId is required.');
     }
 
-    if(req.body.isTestnet == false){
+    if (req.body.isTestnet == false) {
       req.body.parentId = null
+    }
+
+    if (!req.body.networkCurrencyAddressByNetwork) {
+      req.body.networkCurrencyAddressByNetwork = null
     }
 
     let ferrumNetworkIdentifierCount = await db.Networks.count({ ferrumNetworkIdentifier: req.body.ferrumNetworkIdentifier });
 
     if (ferrumNetworkIdentifierCount > 0) {
-      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorFerrumNetworkIdentifierAlreadyExists),stringHelper.strErrorFerrumNetworkIdentifierAlreadyExists,);
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorFerrumNetworkIdentifierAlreadyExists), stringHelper.strErrorFerrumNetworkIdentifierAlreadyExists,);
     }
 
     req.body.user = req.user._id
@@ -50,11 +54,15 @@ module.exports = function (router) {
       return res.http400('parentId is required.');
     }
 
-    if(req.body.isTestnet == false){
+    if (req.body.isTestnet == false) {
       req.body.parentId = null
     }
 
-    let ferrumNetworkIdentifierCount = await db.Networks.count({ ferrumNetworkIdentifier: req.body.ferrumNetworkIdentifier, _id: { $ne: req.params.id }  });
+    if (!req.body.networkCurrencyAddressByNetwork) {
+      req.body.networkCurrencyAddressByNetwork = null
+    }
+
+    let ferrumNetworkIdentifierCount = await db.Networks.count({ ferrumNetworkIdentifier: req.body.ferrumNetworkIdentifier, _id: { $ne: req.params.id } });
 
     if (ferrumNetworkIdentifierCount > 0) {
       return res.http400(stringHelper.strErrorFerrumNetworkIdentifierAlreadyExists);
@@ -63,7 +71,7 @@ module.exports = function (router) {
     req.body.nameInLower = (req.body.name).toLowerCase()
     req.body.updatedAt = new Date()
 
-    let network = await db.Networks.findOneAndUpdate(filter, req.body, { new: true }).populate('parentId')
+    let network = await db.Networks.findOneAndUpdate(filter, req.body, { new: true }).populate('parentId').populate('networkCurrencyAddressByNetwork')
 
     return res.http200({
       network: network
@@ -77,12 +85,12 @@ module.exports = function (router) {
     filter = { _id: req.params.id }
 
     let network = await db.Networks.findOne(filter)
-    if(network){
+    if (network) {
       network.isActive = !network.isActive
     }
     req.body.updatedAt = new Date()
 
-    network = await db.Networks.findOneAndUpdate(filter, network, { new: true }).populate('parentId')
+    network = await db.Networks.findOneAndUpdate(filter, network, { new: true }).populate('parentId').populate('networkCurrencyAddressByNetwork')
 
     return res.http200({
       network: network
@@ -95,6 +103,23 @@ module.exports = function (router) {
     var filter = {}
 
     let netwroks = await db.Networks.find(filter).populate('parentId')
+      .populate({
+        path: 'networkCurrencyAddressByNetwork',
+        populate: {
+          path: 'currency',
+          model: 'currencies'
+        }
+      })
+      .populate({
+        path: 'networkCurrencyAddressByNetwork',
+        populate: {
+          path: 'networkDex',
+          populate: {
+            path: 'dex',
+            model: 'decentralizedExchanges'
+          }
+        }
+      })
       .sort({ createdAt: -1 })
       .skip(req.query.offset ? parseInt(req.query.offset) : 0)
       .limit(req.query.limit ? parseInt(req.query.limit) : 10)
@@ -110,6 +135,23 @@ module.exports = function (router) {
     filter = { _id: req.params.id }
 
     let network = await db.Networks.findOne(filter).populate('parentId')
+      .populate({
+        path: 'networkCurrencyAddressByNetwork',
+        populate: {
+          path: 'currency',
+          model: 'currencies'
+        }
+      })
+      .populate({
+        path: 'networkCurrencyAddressByNetwork',
+        populate: {
+          path: 'networkDex',
+          populate: {
+            path: 'dex',
+            model: 'decentralizedExchanges'
+          }
+        }
+      })
 
     return res.http200({
       network: network
