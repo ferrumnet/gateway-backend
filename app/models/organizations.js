@@ -7,7 +7,6 @@ var OrganizationsModel = function () {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
     name: { type: String, default: "" },
     nameInLower: { type: String, default: ""},
-    websiteUrl: { type: String, default: "" },
     siteName: { type: String, default: "" },
     status: { type: String, default: "pending" },
     isActive: { type: Boolean, default: true },

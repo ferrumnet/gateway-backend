@@ -180,7 +180,8 @@ module.exports = function (router) {
     }
 
     body.user = user._id
-    body.websiteUrl = body.organizationWebsiteUrl
+    body.links = {}
+    body.links.websiteUrl = [body.organizationWebsiteUrl]
     body.siteName = body.organizationSiteName
 
     return new Promise(async (resolve, reject) => {
