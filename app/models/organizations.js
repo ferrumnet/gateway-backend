@@ -11,6 +11,22 @@ var OrganizationsModel = function () {
     siteName: { type: String, default: "" },
     status: { type: String, default: "pending" },
     isActive: { type: Boolean, default: true },
+    logo: { type: String, default: "" },
+    shortDescription: { type: String, default: "" },
+    description: { type: String, default: "" },
+    links: {
+      websiteUrl: [],
+      whitepaper: { type: String, default: "" },
+      pitchDeck: { type: String, default: "" },
+      social: {
+        twitterUrl: { type: String, default: "" },
+        telegramUrl: { type: String, default: "" },
+        mediumUrl: { type: String, default: "" },
+        discordUrl: { type: String, default: "" },
+        instagramUrl: { type: String, default: "" },
+        linkedInUrl: { type: String, default: "" }
+       }
+    },
 
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
