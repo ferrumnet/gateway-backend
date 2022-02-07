@@ -61,22 +61,22 @@ global.timeoutHelper = require('./app/lib/middlewares/timeoutHelper');
 global.fetchCompetitionBlocksJob = require('./app/lib/crons/fetchCompetitionBlocksJob');
 global.fetchTokenHoldersJob = require('./app/lib/crons/fetchTokenHoldersJob');
 global.kraken = app.kraken
-const whitelist = global.environment.whitelist;
-const corsOptions = {
-  origin: function (origin, callback) {
-    console.log("Origin: ", origin);
-    if(origin){
-      if (whitelist.indexOf(origin) !== -1) {
-        callback(null, true)
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    }else {
-      callback(null, true)
-    }
-  }
-};
-app.use(cors(corsOptions));
+// const whitelist = global.environment.whitelist;
+// const corsOptions = {
+//   origin: function (origin, callback) {
+//     console.log("Origin: ", origin);
+//     if(origin){
+//       if (whitelist.indexOf(origin) !== -1) {
+//         callback(null, true)
+//       } else {
+//         callback(new Error('Not allowed by CORS'));
+//       }
+//     }else {
+//       callback(null, true)
+//     }
+//   }
+// };
+// app.use(cors(corsOptions));
 app.use(kraken(options))
 app.on('start', function () {
   global.kraken = app.kraken
