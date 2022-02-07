@@ -24,6 +24,7 @@ var strErrorContractTokenAddressIsRequired = "Backend_Error_Contract_Token_Addre
 var strErrorUniqueContractTokenAddress = "Backend_Error_Unique_Contract_Token_Address"
 var strErrorFerrumNetworkIdentifierAlreadyExists = "Backend_Error_Ferrum_Network_Identifier_Already_Exists"
 var strErrorUniqueXContractTokenAddress = "Backend_Error_Unique_X_ContractTokenAddress"
+var strErrorNetwrokNotFound = "Backend_Error_Network_Not_Found"
 
 // success messages
 let strSuccessResetPasswordLink = 'Backend_Success_Reset_Password_Link'
@@ -64,6 +65,7 @@ module.exports = {
   strErrorTheCompetitionIDIsIncorrectOrNotAvailable,
   strErrorTheLeaderboardIDIsIncorrectOrNotAvailable,
   tagStartBlock,
-  tagEndBlock
+  tagEndBlock,
+  strErrorNetwrokNotFound
 }
 

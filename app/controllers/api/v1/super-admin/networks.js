@@ -160,15 +160,15 @@ module.exports = function (router) {
   });
 
   router.put('/allow/on/gateway/:id', async (req, res) => {
-    
+
     let filter = { _id: req.params.id }
     let isAllowedOnGateway = req.body.isAllowedOnGateway
 
-    if(!isValidObjectId(filter._id) || typeof isAllowedOnGateway != 'boolean'){
+    if (!isValidObjectId(filter._id) || typeof isAllowedOnGateway != 'boolean') {
       return res.http400('valid networkId & isAllowedOnGateway are required.');
     }
-   let network = await db.Networks.findOneAndUpdate(filter, {isAllowedOnGateway}, { new: true })
-   return network ? res.http200({ network }) : res.http404('network not found');
+    let network = await db.Networks.findOneAndUpdate(filter, { isAllowedOnGateway }, { new: true })
+    return network ? res.http200({ network }) : res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorNetwrokNotFound), stringHelper.strErrorNetwrokNotFound);
 
   });
 
