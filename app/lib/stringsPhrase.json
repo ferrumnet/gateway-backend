@@ -13,6 +13,7 @@
   "Backend_Error_Invalid_Otp": "Invalid One Time Password (OTP)",
   "Backend_Error_Leaderboard_Create_Limit": "You can create only 1 leaderboard",
   "Backend_Error_Link_Message": "This link is either invalid or has expired",
+  "Backend_Error_Network_Not_Found": "Network not found",
   "Backend_Error_Not_Found_Organization": "The organization ID is incorrect or not available",
   "Backend_Error_SiteName_Already_Exists": "Site name already exists",
   "Backend_Error_The_competition_ID_Is_Incorrect_Or_Not_Available": "The competition ID is incorrect or not available",

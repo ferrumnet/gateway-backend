@@ -1,7 +1,7 @@
 
 const { db, asyncMiddleware, commonFunctions, stringHelper } = global
 const mailer = global.mailer;
-var mongoose = require('mongoose');
+var mongoose , {isValidObjectId} = require('mongoose');
 
 module.exports = function (router) {
 
@@ -156,6 +156,19 @@ module.exports = function (router) {
     return res.http200({
       network: network
     });
+
+  });
+
+  router.put('/allow/on/gateway/:id', async (req, res) => {
+
+    let filter = { _id: req.params.id }
+    let isAllowedOnGateway = req.body.isAllowedOnGateway
+
+    if (!isValidObjectId(filter._id) || typeof isAllowedOnGateway != 'boolean') {
+      return res.http400('valid networkId & isAllowedOnGateway are required.');
+    }
+    let network = await db.Networks.findOneAndUpdate(filter, { isAllowedOnGateway }, { new: true })
+    return network ? res.http200({ network }) : res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorNetwrokNotFound), stringHelper.strErrorNetwrokNotFound);
 
   });
 
