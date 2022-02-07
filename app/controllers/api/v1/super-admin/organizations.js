@@ -8,8 +8,8 @@ module.exports = function (router) {
 
   router.post('/create', async (req, res) => {
 
-    if (!req.body.name || !req.body.websiteUrl) {
-      return res.http400('name & websiteUrl are required.');
+    if (!req.body.name || !req.body.siteName) {
+      return res.http400('name & siteName are required.');
     }
     req.body.user = req.user._id
 
@@ -29,8 +29,8 @@ module.exports = function (router) {
     let filter = {}
     filter = { _id: req.params.id }
 
-    if (!req.body.name || !req.body.websiteUrl) {
-      return res.http400('name & websiteUrl are required.');
+    if (!req.body.name || !req.body.siteName) {
+      return res.http400('name & siteName are required.');
     }
 
     req.body.nameInLower = (req.body.name).toLowerCase()
