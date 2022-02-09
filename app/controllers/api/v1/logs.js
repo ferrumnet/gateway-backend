@@ -4,11 +4,15 @@ const { db, asyncMiddleware, commonFunctions, stringHelper, logsHelper } = globa
 module.exports = function (router) {
 
   router.post('/create', async (req, res) => {
+
     logsHelper.createLog(req, res)
+
   });
 
   router.put('/update/:id', async (req, res) => {
+
     logsHelper.updateLog(req, res)
+
   });
 
 };
