@@ -1,5 +1,5 @@
 
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global
+const { db, asyncMiddleware, commonFunctions, stringHelper, usersHelper } = global
 const mailer = global.mailer;
 var jwt = require('jsonwebtoken');
 var mongoose = require('mongoose');
@@ -123,6 +123,10 @@ module.exports = function (router) {
 
     }
 
+  });
+
+  router.put('/sign-out', async (req, res) => {
+    usersHelper.signOut(req, res)
   });
 
 };
