@@ -1,0 +1,21 @@
+'use strict';
+
+var mongoose = require('mongoose');
+
+var LogsModel = function () {
+  var schema = mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
+    browser: { type: String, default: "" },
+    userDevice: { type: String, default: ""},
+    ipAddress: { type: String, default: ""},
+    type: { type: String, default: "" },
+    metadata: [{ key: {type: String, default: "" }, value: {type: String, default: "" } }],
+
+    createdAt: { type: Date, default: new Date() },
+    updatedAt: { type: Date, default: new Date() },
+  },{ collection: 'logs' });
+
+  return mongoose.model('logs', schema);
+};
+
+module.exports = new LogsModel();
