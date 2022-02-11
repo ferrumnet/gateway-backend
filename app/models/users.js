@@ -24,13 +24,7 @@ var UsersModel = function () {
     lastName: { type: String, default: "" },
     lastNameInLower: { type: String, default: "" },
     userName: { type: String, default: "" },
-    email: {
-      type: String,
-      lowercase: true,
-      required: true,
-      unique: true,
-      validate: [emailValidate, 'Email is not valid']
-    },
+    email: { type: String, default: ""},
     password: { type: String, default: "" },
     telegramHandle: { type: String, default: "" },
     symbol: { type: String, default: "" },
