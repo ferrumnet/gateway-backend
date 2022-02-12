@@ -24,13 +24,7 @@ var UsersModel = function () {
     lastName: { type: String, default: "" },
     lastNameInLower: { type: String, default: "" },
     userName: { type: String, default: "" },
-    email: {
-      type: String,
-      lowercase: true,
-      required: true,
-      unique: true,
-      validate: [emailValidate, 'Email is not valid']
-    },
+    email: { type: String, default: ""},
     password: { type: String, default: "" },
     telegramHandle: { type: String, default: "" },
     symbol: { type: String, default: "" },
@@ -62,6 +56,10 @@ var UsersModel = function () {
   usersSchema.methods.toClientObject = function () {
     var rawObject = this.toObject();
     delete rawObject.password;
+    delete rawObject.emailVerificationCode;
+    delete rawObject.forgotPasswordAuthenticationToken;
+    delete rawObject.emailVerificationCodeGenratedAt;
+
     delete rawObject.__v;
     return rawObject;
   };

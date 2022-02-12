@@ -45,7 +45,7 @@ module.exports = function (router) {
     }
 
     res.http200({
-      user: user,
+      user: user.toClientObject(),
       token: user.createAPIToken(user)
     });
 
@@ -83,7 +83,7 @@ module.exports = function (router) {
 
     let user = await db.Users.findOne(filter)
     res.http200({
-      user: user
+      user: user.toClientObject()
     });
 
   });
@@ -98,7 +98,7 @@ module.exports = function (router) {
 
     if (user) {
       return res.http200({
-        user: user
+        user: user.toClientObject()
       });
     } else {
       return res.http400(global.stringHelper.strErrorUserNotFound);
@@ -135,7 +135,7 @@ module.exports = function (router) {
     try {
       let user = await db.Users.create(req.body)
       return res.http200({
-        user: user,
+        user: user.toClientObject(),
         token: user.createAPIToken(user)
       });
     } catch (err) {
@@ -152,7 +152,7 @@ module.exports = function (router) {
     try {
       let user = await db.Users.findOne(filter)
       return res.http200({
-        user: user
+        user: user.toClientObject()
       });
     } catch (err) {
       return res.http400(err.message);
@@ -233,6 +233,7 @@ module.exports = function (router) {
       filter = [
         { $lookup: { from: 'addresses', localField: 'addresses', foreignField: '_id', as: 'addresses' } },
         { $unwind: { "path": "$addresses","preserveNullAndEmptyArrays": true}},
+        { $unset: [ "password", "emailVerificationCode", "forgotPasswordAuthenticationToken", "emailVerificationCodeGenratedAt" ]},
         { $match: matchFilter },
         { $sort: sort },
         { $skip: req.query.offset ? parseInt(req.query.offset) : 0 },
