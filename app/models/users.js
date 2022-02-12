@@ -56,6 +56,10 @@ var UsersModel = function () {
   usersSchema.methods.toClientObject = function () {
     var rawObject = this.toObject();
     delete rawObject.password;
+    delete rawObject.emailVerificationCode;
+    delete rawObject.forgotPasswordAuthenticationToken;
+    delete rawObject.emailVerificationCodeGenratedAt;
+
     delete rawObject.__v;
     return rawObject;
   };
