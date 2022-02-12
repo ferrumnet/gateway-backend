@@ -51,7 +51,7 @@ module.exports = function (router) {
     }
 
     res.http200({
-      user: user,
+      user: user.toClientObject(),
       token: user.createAPIToken(user)
     });
 
@@ -89,7 +89,7 @@ module.exports = function (router) {
 
     let user = await db.Users.findOne(filter).populate('organization')
     res.http200({
-      user: user
+      user: user.toClientObject()
     });
 
   });
@@ -114,7 +114,7 @@ module.exports = function (router) {
     if (user) {
 
       return res.http200({
-        user: user
+        user: user.toClientObject()
       });
 
     } else {
