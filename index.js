@@ -60,6 +60,7 @@ global.timeoutCallBack = require('./app/lib/middlewares/timeoutCallBack');
 global.timeoutHelper = require('./app/lib/middlewares/timeoutHelper');
 global.logsHelper = require('./app/lib/middlewares/logsHelper');
 global.usersHelper = require('./app/lib/middlewares/usersHelper');
+global.addressesHelper = require('./app/lib/middlewares/addressesHelper');
 global.fetchCompetitionBlocksJob = require('./app/lib/crons/fetchCompetitionBlocksJob');
 global.fetchTokenHoldersJob = require('./app/lib/crons/fetchTokenHoldersJob');
 global.kraken = app.kraken
