@@ -135,8 +135,8 @@ module.exports = function (router) {
   router.post("/email/is-unique", async (req, res) => {
     try {
       const email = req.body.email;
-      const status = await commonFunctions.isUniqueEmail(email);
-      return res.http200({ status });
+      const isUnique = await commonFunctions.isUniqueEmail(email);
+      return res.http200({ isUnique });
     } catch (e) {
       return res.http401(e);
     }
