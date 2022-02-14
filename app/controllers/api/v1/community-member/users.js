@@ -141,4 +141,36 @@ module.exports = function (router) {
       return res.http401(e);
     }
   });
+
+  router.post("/edit/profile/otp/send/by-email", async (req, res) => {
+    if (!req.body.email) {
+      return res.http400("email is required.");
+    }
+
+    let where = { _id: req.user._id };
+    let update = {
+      emailVerificationCode: global.helper.getOtp(),
+      emailVerificationCodeGenratedAt: new Date(),
+      emailToVerify: req.body.email,
+    };
+
+    let user = await db.Users.findOneAndUpdate(where, update, { new: true });
+
+    if (user) {
+      global.sendGrid.sendGridEmail(user, "otp", user.emailToVerify);
+      return res.http200({
+        message: await commonFunctions.getValueFromStringsPhrase(
+          stringHelper.strSuccessOtp
+        ),
+        phraseKey: stringHelper.strSuccessOtp,
+      });
+    } else {
+      return res.http400(
+        await commonFunctions.getValueFromStringsPhrase(
+          stringHelper.strErrorUserNotFound
+        ),
+        stringHelper.strErrorUserNotFound
+      );
+    }
+  });
 };
