@@ -143,8 +143,11 @@ module.exports = function (router) {
   });
 
   router.post("/edit/profile/otp/send/by-email", async (req, res) => {
-    if (!req.body.email) {
-      return res.http400("email is required.");
+    const uniqueEmail = await global.commonFunctions.isUniqueEmail(
+      req.body.email
+    );
+    if (!req.body.email || !uniqueEmail) {
+      return res.http400("unique email is required.");
     }
 
     let where = { _id: req.user._id };
