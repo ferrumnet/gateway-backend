@@ -176,4 +176,32 @@ module.exports = function (router) {
       );
     }
   });
+
+  router.post("/edit/profile/update/email", async (req, res) => {
+    //#check if 2nd session for profile add is pressent
+    // const profileEditToken = req.headers.profileToken;
+    //if (profileEditToken && isValidSession(profileEditToken)) {
+    let user = req.user;
+    if (
+      user.emailToVerify &&
+      global.commonFunctions.isUniqueEmail(user.emailToVerify) &&
+      user.emailVerificationCode === req.body.token
+    ) {
+      const email = user.emailToVerify;
+      var filter = { _id: user._id };
+      var update = {
+        email,
+        emailVerificationCode: "",
+        emailToVerify: "",
+        isEmailAuthenticated: true,
+      };
+      user = await db.Users.findOneAndUpdate(filter, update, { new: true });
+      return res.http200("updated");
+    } else {
+      return res.http400("invalid email or token");
+    }
+    // }else{
+    // 401 session validation problem
+    //}
+  });
 };
