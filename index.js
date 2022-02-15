@@ -32,8 +32,6 @@ app.use(function (req, res, next) {
 app.use(cors())
 global.pusher = require('./app/lib/notifications');
 global.db = require('./app/models/index')
-global.helper = require('./app/lib/middlewares/dateHelper')
-global.stringHelper = require('./app/lib/middlewares/stringHelper')
 global.utils = require('./app/lib/middlewares/utils')
 global.dockerEnvironment = require('./config/docker.environment.json');
 if(global.dockerEnvironment.environmentTag == 'dev'
@@ -55,11 +53,14 @@ global._ = require('lodash')
 global.moment = require('moment')
 global.stripeConnect = require('./config/stripe.json');
 global.asyncMiddleware = asyncMiddleware
-global.commonFunctions = require('./app/lib/middlewares/common')
-global.timeoutCallBack = require('./app/lib/middlewares/timeoutCallBack');
-global.timeoutHelper = require('./app/lib/middlewares/timeoutHelper');
-global.logsHelper = require('./app/lib/middlewares/logsHelper');
-global.usersHelper = require('./app/lib/middlewares/usersHelper');
+global.commonFunctions = require('./app/lib/middlewares/common');
+global.timeoutCallBack = require('./app/lib/middlewares/helpers/timeoutCallBack');
+global.helper = require('./app/lib/middlewares/helpers/dateHelper')
+global.stringHelper = require('./app/lib/middlewares/helpers/stringHelper');
+global.timeoutHelper = require('./app/lib/middlewares/helpers/timeoutHelper');
+global.logsHelper = require('./app/lib/middlewares/helpers/logsHelper');
+global.usersHelper = require('./app/lib/middlewares/helpers/usersHelper');
+global.addressesHelper = require('./app/lib/middlewares/helpers/addressesHelper');
 global.fetchCompetitionBlocksJob = require('./app/lib/crons/fetchCompetitionBlocksJob');
 global.fetchTokenHoldersJob = require('./app/lib/crons/fetchTokenHoldersJob');
 global.kraken = app.kraken
