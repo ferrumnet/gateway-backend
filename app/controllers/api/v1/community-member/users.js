@@ -4,6 +4,7 @@ const {
   asyncMiddleware,
   commonFunctions,
   stringHelper,
+  usersHelper,
 } = global;
 const mailer = global.mailer;
 var jwt = require("jsonwebtoken");
@@ -66,7 +67,7 @@ module.exports = function (router) {
     }
 
     res.http200({
-      user: user,
+      user: user.toClientObject(),
       token: user.createAPIToken(user),
     });
   });
@@ -105,7 +106,7 @@ module.exports = function (router) {
 
     let user = await db.Users.findOne(filter).populate("organization");
     res.http200({
-      user: user,
+      user: user.toClientObject(),
     });
   });
 
@@ -131,7 +132,7 @@ module.exports = function (router) {
 
     if (user) {
       return res.http200({
-        user: user,
+        user: user.toClientObject(),
       });
     } else {
       return res.http400(global.stringHelper.strErrorUserNotFound);
@@ -223,5 +224,8 @@ module.exports = function (router) {
     } else {
       return res.http400("insufficient data");
     }
+  });
+  router.put("/sign-out", async (req, res) => {
+    usersHelper.signOut(req, res);
   });
 };

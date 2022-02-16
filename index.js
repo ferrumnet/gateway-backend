@@ -35,8 +35,8 @@ app.use(function (req, res, next) {
 app.use(cors());
 global.pusher = require("./app/lib/notifications");
 global.db = require("./app/models/index");
-global.helper = require("./app/lib/middlewares/dateHelper");
-global.stringHelper = require("./app/lib/middlewares/stringHelper");
+global.helper = require("./app/lib/middlewares/helpers/dateHelper");
+global.stringHelper = require("./app/lib/middlewares/helpers/stringHelper");
 global.utils = require("./app/lib/middlewares/utils");
 global.dockerEnvironment = require("./config/docker.environment.json");
 if (
@@ -62,8 +62,8 @@ global.stripeConnect = require("./config/stripe.json");
 global.asyncMiddleware = asyncMiddleware;
 global.profileMiddleware = require("./app/lib/middlewares/profileMiddleware");
 global.commonFunctions = require("./app/lib/middlewares/common");
-global.timeoutCallBack = require("./app/lib/middlewares/timeoutCallBack");
-global.timeoutHelper = require("./app/lib/middlewares/timeoutHelper");
+global.timeoutCallBack = require("./app/lib/middlewares/helpers/timeoutCallBack");
+global.timeoutHelper = require("./app/lib/middlewares/helpers/timeoutHelper");
 global.fetchCompetitionBlocksJob = require("./app/lib/crons/fetchCompetitionBlocksJob");
 global.fetchTokenHoldersJob = require("./app/lib/crons/fetchTokenHoldersJob");
 global.kraken = app.kraken;

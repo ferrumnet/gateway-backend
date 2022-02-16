@@ -1,5 +1,5 @@
 
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global
+const { db, asyncMiddleware, commonFunctions, stringHelper, usersHelper } = global
 const mailer = global.mailer;
 var jwt = require('jsonwebtoken');
 var mongoose = require('mongoose');
@@ -61,7 +61,7 @@ module.exports = function (router) {
     }
 
     res.http200({
-      user: user,
+      user: user.toClientObject(),
       token: user.createAPIToken(user)
     });
 
@@ -99,7 +99,7 @@ module.exports = function (router) {
 
     let user = await db.Users.findOne(filter).populate('organization')
     res.http200({
-      user: user
+      user: user.toClientObject()
     });
 
   });
@@ -123,7 +123,7 @@ module.exports = function (router) {
     if (user) {
 
       return res.http200({
-        user: user
+        user: user.toClientObject()
       });
 
     } else {
@@ -170,6 +170,10 @@ module.exports = function (router) {
       users: users
     });
 
+  });
+
+  router.put('/sign-out', async (req, res) => {
+    usersHelper.signOut(req, res)
   });
 
   async function createOrganization(req,user){
