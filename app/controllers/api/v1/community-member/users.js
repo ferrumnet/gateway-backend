@@ -1,4 +1,10 @@
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global;
+const {
+  db,
+  profileMiddleware,
+  asyncMiddleware,
+  commonFunctions,
+  stringHelper,
+} = global;
 const mailer = global.mailer;
 var jwt = require("jsonwebtoken");
 var mongoose = require("mongoose");
@@ -132,7 +138,7 @@ module.exports = function (router) {
     }
   });
 
-  router.post("/email/is-unique", async (req, res) => {
+  router.post("/email/is/unique", async (req, res) => {
     try {
       const email = req.body.email;
       const isUnique = await commonFunctions.isUniqueEmail(email);
@@ -142,66 +148,80 @@ module.exports = function (router) {
     }
   });
 
-  router.post("/edit/profile/otp/send/by-email", async (req, res) => {
-    const uniqueEmail = await global.commonFunctions.isUniqueEmail(
-      req.body.email
-    );
-    if (!req.body.email || !uniqueEmail) {
-      return res.http400("unique email is required.");
-    }
-
-    let where = { _id: req.user._id };
-    let update = {
-      emailVerificationCode: global.helper.getOtp(),
-      emailVerificationCodeGenratedAt: new Date(),
-      emailToVerify: req.body.email,
-    };
-
-    let user = await db.Users.findOneAndUpdate(where, update, { new: true });
-
-    if (user) {
-      global.sendGrid.sendGridEmail(user, "otp", user.emailToVerify);
-      return res.http200({
-        message: await commonFunctions.getValueFromStringsPhrase(
-          stringHelper.strSuccessOtp
-        ),
-        phraseKey: stringHelper.strSuccessOtp,
-      });
-    } else {
-      return res.http400(
-        await commonFunctions.getValueFromStringsPhrase(
-          stringHelper.strErrorUserNotFound
-        ),
-        stringHelper.strErrorUserNotFound
+  router.put(
+    "/profile/re-send/email/otp",
+    profileMiddleware(),
+    async (req, res) => {
+      const uniqueEmail = await global.commonFunctions.isUniqueEmail(
+        req.body.email
       );
-    }
-  });
+      if (!req.body.email || !uniqueEmail) {
+        return res.http400("unique email is required.");
+      }
 
-  router.post("/edit/profile/update/email", async (req, res) => {
-    //#check if 2nd session for profile add is pressent
-    // const profileEditToken = req.headers.profileToken;
-    //if (profileEditToken && isValidSession(profileEditToken)) {
-    let user = req.user;
-    if (
-      user.emailToVerify &&
-      global.commonFunctions.isUniqueEmail(user.emailToVerify) &&
-      user.emailVerificationCode === req.body.token
-    ) {
-      const email = user.emailToVerify;
-      var filter = { _id: user._id };
-      var update = {
-        email,
-        emailVerificationCode: "",
-        emailToVerify: "",
-        isEmailAuthenticated: true,
+      let where = { _id: req.user._id };
+      let update = {
+        emailVerificationCode: global.helper.getOtp(),
+        emailVerificationCodeGenratedAt: new Date(),
+        emailToVerify: req.body.email,
       };
-      user = await db.Users.findOneAndUpdate(filter, update, { new: true });
-      return res.http200("updated");
-    } else {
-      return res.http400("invalid email or token");
+
+      let user = await db.Users.findOneAndUpdate(where, update, { new: true });
+
+      if (user) {
+        global.sendGrid.sendGridEmail(user, "otp", user.emailToVerify);
+        return res.http200({
+          message: await commonFunctions.getValueFromStringsPhrase(
+            stringHelper.strSuccessOtp
+          ),
+          phraseKey: stringHelper.strSuccessOtp,
+        });
+      } else {
+        return res.http400(
+          await commonFunctions.getValueFromStringsPhrase(
+            stringHelper.strErrorUserNotFound
+          ),
+          stringHelper.strErrorUserNotFound
+        );
+      }
     }
-    // }else{
-    // 401 session validation problem
-    //}
+  );
+
+  router.post(
+    "/edit/profile/update/email",
+    profileMiddleware(),
+    async (req, res) => {
+      let user = req.user;
+      if (
+        user.emailToVerify &&
+        global.commonFunctions.isUniqueEmail(user.emailToVerify) &&
+        user.emailVerificationCode === req.body.token
+      ) {
+        const email = user.emailToVerify;
+        var filter = { _id: user._id };
+        var update = {
+          email,
+          emailVerificationCode: "",
+          emailToVerify: "",
+          isEmailAuthenticated: true,
+        };
+        user = await db.Users.findOneAndUpdate(filter, update, { new: true });
+        return res.http200("updated");
+      } else {
+        return res.http400("invalid email or token");
+      }
+    }
+  );
+
+  router.post("/edit/profile/mock/token", async (req, res) => {
+    const signature = req.body.signature;
+    const user = req.user;
+    if (signature) {
+      let token = req.headers.authorization.substring(7);
+      const profileToken = user.createProfileUpdateToken(token, signature);
+      return res.http200({ token: profileToken });
+    } else {
+      return res.http400("insufficient data");
+    }
   });
 };

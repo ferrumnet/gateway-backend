@@ -73,6 +73,9 @@ var UsersModel = function () {
       global.kraken.get("app:jwtSecret")
     );
   };
+  usersSchema.methods.createProfileUpdateToken = function (token, signature) {
+    return jwt.sign({ token, signature }, global.kraken.get("app:jwtSecret"));
+  };
   usersSchema.methods.toClientObject = function () {
     var rawObject = this.toObject();
     delete rawObject.password;
