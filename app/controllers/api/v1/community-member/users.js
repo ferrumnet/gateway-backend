@@ -196,7 +196,7 @@ module.exports = function (router) {
       if (
         user.emailToVerify &&
         global.commonFunctions.isUniqueEmail(user.emailToVerify) &&
-        user.emailVerificationCode === req.body.token
+        user.emailVerificationCode === req.body.otp
       ) {
         const email = user.emailToVerify;
         var filter = { _id: user._id };
@@ -209,11 +209,12 @@ module.exports = function (router) {
         user = await db.Users.findOneAndUpdate(filter, update, { new: true });
         return res.http200("updated");
       } else {
-        return res.http400("invalid email or token");
+        return res.http400("invalid email or otp");
       }
     }
   );
 
+  //temp end point need to be removed after feb-2020
   router.post("/edit/profile/mock/token", async (req, res) => {
     const signature = req.body.signature;
     const user = req.user;
