@@ -36,8 +36,9 @@ module.exports = function (router) {
   router.post('/verify-signature', async (req, res) => {
 
     let addressObject = null
-
-    if (!req.body.signature) {
+    const signature = req.body.signature
+    const token = req.headers.authorization.substring(7)
+    if (!signature) {
       return res.http400('signature is required.');
     }
 
@@ -55,12 +56,14 @@ module.exports = function (router) {
       try {
         const decryptedAddress = await recoverPersonalSignature({
           data: data,
-          sig: req.body.signature
+          sig: signature
         });
+      
         console.log(decryptedAddress)
         if (decryptedAddress && decryptedAddress.toLowerCase() == addressObject.address) {
           await db.Addresses.findOneAndUpdate({_id: addressObject._id}, {nonce: ''}, { new: true })
-          return res.http200('success');
+          const profileToken = user.createProfileUpdateToken(token, signature);
+          return res.http200({ token: profileToken });
         }
       } catch (err) {
         return res.http400(err.message);
