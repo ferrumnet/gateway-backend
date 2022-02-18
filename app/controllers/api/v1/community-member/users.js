@@ -149,49 +149,43 @@ module.exports = function (router) {
     }
   });
 
-  router.put(
-    "/profile/re-send/email/otp",
-    profileMiddleware(),
-    async (req, res) => {
-      const uniqueEmail = await global.commonFunctions.isUniqueEmail(
-        req.body.email
-      );
-      if (!req.body.email || !uniqueEmail) {
-        return res.http400("unique email is required.");
-      }
-
-      let where = { _id: req.user._id };
-      let update = {
-        emailVerificationCode: global.helper.getOtp(),
-        emailVerificationCodeGenratedAt: new Date(),
-        emailToVerify: req.body.email,
-      };
-
-      let user = await db.Users.findOneAndUpdate(where, update, { new: true });
-
-      if (user) {
-        global.sendGrid.sendGridEmail(user, "otp", user.emailToVerify);
-        return res.http200({
-          message: await commonFunctions.getValueFromStringsPhrase(
-            stringHelper.strSuccessOtp
-          ),
-          phraseKey: stringHelper.strSuccessOtp,
-        });
-      } else {
-        return res.http400(
-          await commonFunctions.getValueFromStringsPhrase(
-            stringHelper.strErrorUserNotFound
-          ),
-          stringHelper.strErrorUserNotFound
-        );
-      }
+  router.put("/profile/re-send/email/otp", profileMiddleware(), async (req, res) => {
+    const uniqueEmail = await global.commonFunctions.isUniqueEmail(
+      req.body.email
+    );
+    if (!req.body.email || !uniqueEmail) {
+      return res.http400("unique email is required.");
     }
+
+    let where = { _id: req.user._id };
+    let update = {
+      emailVerificationCode: global.helper.getOtp(),
+      emailVerificationCodeGenratedAt: new Date(),
+      emailToVerify: req.body.email,
+    };
+
+    let user = await db.Users.findOneAndUpdate(where, update, { new: true });
+
+    if (user) {
+      global.sendGrid.sendGridEmail(user, "otp", user.emailToVerify);
+      return res.http200({
+        message: await commonFunctions.getValueFromStringsPhrase(
+          stringHelper.strSuccessOtp
+        ),
+        phraseKey: stringHelper.strSuccessOtp,
+      });
+    } else {
+      return res.http400(
+        await commonFunctions.getValueFromStringsPhrase(
+          stringHelper.strErrorUserNotFound
+        ),
+        stringHelper.strErrorUserNotFound
+      );
+    }
+  }
   );
 
-  router.post(
-    "/edit/profile/update/email",
-    profileMiddleware(),
-    async (req, res) => {
+  router.post("/edit/profile/update/email", profileMiddleware(), async (req, res) => {
       let user = req.user;
       if (
         user.emailToVerify &&
@@ -226,6 +220,7 @@ module.exports = function (router) {
       return res.http400("insufficient data");
     }
   });
+
   router.put("/sign-out", async (req, res) => {
     usersHelper.signOut(req, res);
   });
