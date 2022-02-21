@@ -153,8 +153,13 @@ module.exports = function (router) {
     const uniqueEmail = await global.commonFunctions.isUniqueEmail(
       req.body.email
     );
-    if (!req.body.email || !uniqueEmail) {
-      return res.http400("unique email is required.");
+    if (!req.body.email || !uniqueEmail) {     
+      return res.http400(
+        await commonFunctions.getValueFromStringsPhrase(
+          stringHelper.strErrorUniqueEmailRequired
+        ),
+        stringHelper.strErrorUniqueEmailRequired
+      );
     }
 
     let where = { _id: req.user._id };

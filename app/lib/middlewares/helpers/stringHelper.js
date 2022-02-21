@@ -5,6 +5,7 @@ var moment = require('moment');
 let strErrorInvalidCredentials = 'Backend_Error_Invalid_Credentials'
 var strErrorSiteNameAlreadyExists = "Backend_Error_SiteName_Already_Exists"
 let strErrorEmailIdAlreadyExists = 'Backend_Error_Email_Id_Already_Exists'
+let strErrorUniqueEmailRequired = 'Backend_Error_Unique_Email_Required'
 let strErrorCreateCompetitionsLimit = 'Backend_Error_Create_Competitions_Limit'
 let strErrorCurrencyShouldAssociateWithAtleastOneNetwork = 'Backend_Error_Currency_Should_Associate_With_Atleast_One_Network'
 let strErrorCurrencyAddressesByNetworkMustContainValue = 'Backend_Error_Currency_AddressesByNetwork_Must_Contain_Values'
@@ -43,6 +44,7 @@ module.exports = {
   strSuccessOtp,
   strErrorInvalidCredentials,
   strErrorEmailIdAlreadyExists,
+  strErrorUniqueEmailRequired,
   strErrorUserNotFound,
   strErrorInvalidOtp,
   strSuccessResetPasswordLink,
