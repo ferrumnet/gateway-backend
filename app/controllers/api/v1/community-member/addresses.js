@@ -62,7 +62,7 @@ module.exports = function (router) {
         console.log(decryptedAddress)
         if (decryptedAddress && decryptedAddress.toLowerCase() == addressObject.address) {
           await db.Addresses.findOneAndUpdate({_id: addressObject._id}, {nonce: ''}, { new: true })
-          const profileToken = user.createProfileUpdateToken(token, signature);
+          const profileToken = req.user.createProfileUpdateToken(token, signature);
           return res.http200({ token: profileToken });
         }
       } catch (err) {
