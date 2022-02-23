@@ -2,6 +2,7 @@
   "Baakend_Error_Signature_Verification_Failed": "Signature verification failed",
   "Backend_Error_Api_Key_Is_Invalid": "ApiKey is invalid",
   "Backend_Error_Change_FerrumNetworkIdentifier": "Current network identifier is not supported. Please try another one or contact our support team",
+  "Backend_Error_Wrong_Address_Or_FerrumNetworkIdentifier":"Current address or network identifier is invalid. Please contact our support team",
   "Backend_Error_Contract_Token_Address_Is_Required": "ContractTokenAddress is required",
   "Backend_Error_Create_Competitions_Limit": "You can create only 3 competitions",
   "Backend_Error_Currency_AddressesByNetwork_Must_Contain_Value": "currencyAddressesByNetwork must be contain at-least 1 value",
