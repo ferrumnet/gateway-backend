@@ -37,13 +37,14 @@ module.exports = {
     })
   },
 
-  http404: function (err) {
+  http404: function (err, key='') {
     console.log('\x1b[31m', '\n\n', JSON.stringify(err, null, 12) == {} || err, '\n\n')
 
     return this.status(404).send({
       status: {
         code: 404,
-        message: err
+        message: err,
+        phraseKey: key
       }
     })
   }
