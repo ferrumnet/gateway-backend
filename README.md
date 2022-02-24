@@ -1,4 +1,4 @@
-# Leaderboard backend
+# Gateway Backend
 
 install latest node packages
 install latest npm packages
