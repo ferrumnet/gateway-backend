@@ -27,6 +27,7 @@ var strErrorUniqueXContractTokenAddress = "Backend_Error_Unique_X_ContractTokenA
 var strErrorNetwrokNotFound = "Backend_Error_Network_Not_Found"
 var strErrorWrongAddressOrFerrumNetworkIdentifier = "Backend_Error_Wrong_Address_Or_FerrumNetworkIdentifier"
 var strErrorTheRaisePoolIDIsIncorrectOrNotAvailable = "Backend_Error_The_RaisePool_ID_Is_Incorrect"
+let strErrorUniqueEmailRequired = 'Backend_Error_Unique_Email_Required'
 
 // success messages
 let strSuccessResetPasswordLink = 'Backend_Success_Reset_Password_Link'
@@ -70,6 +71,7 @@ module.exports = {
   tagEndBlock,
   strErrorNetwrokNotFound,
   strErrorWrongAddressOrFerrumNetworkIdentifier,
-  strErrorTheRaisePoolIDIsIncorrectOrNotAvailable
+  strErrorTheRaisePoolIDIsIncorrectOrNotAvailable,
+  strErrorUniqueEmailRequired
 }
 

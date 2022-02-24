@@ -26,6 +26,6 @@
   "Backend_Success_ContractToken_Address_Is_Unique": "ContractTokenAddress is unique",
   "Backend_Success_Otp": "One Time Password (OTP) sent to your email",
   "Backend_Success_Reset_Password_Link": "Link is sent to your verified email",
-  "Backend_Error_The_RaisePool_ID_Is_Incorrect": "The raise pool ID is incorrect or not available"
-
+  "Backend_Error_The_RaisePool_ID_Is_Incorrect": "The raise pool ID is incorrect or not available",
+  "Backend_Error_Unique_Email_Required": "Unique Email Required"
 }
