@@ -154,7 +154,12 @@ module.exports = function (router) {
       req.body.email
     );
     if (!req.body.email || !uniqueEmail) {
-      return res.http400("unique email is required.");
+      return res.http400(
+        await commonFunctions.getValueFromStringsPhrase(
+          stringHelper.strErrorUniqueEmailRequired
+        ),
+        stringHelper.strErrorUniqueEmailRequired
+      );
     }
 
     let where = { _id: req.user._id };
@@ -207,19 +212,6 @@ module.exports = function (router) {
       }
     }
   );
-
-  //temp end point need to be removed after feb-2020
-  router.post("/edit/profile/mock/token", async (req, res) => {
-    const signature = req.body.signature;
-    const user = req.user;
-    if (signature) {
-      let token = req.headers.authorization.substring(7);
-      const profileToken = user.createProfileUpdateToken(token, signature);
-      return res.http200({ token: profileToken });
-    } else {
-      return res.http400("insufficient data");
-    }
-  });
 
   router.put("/sign-out", async (req, res) => {
     usersHelper.signOut(req, res);
