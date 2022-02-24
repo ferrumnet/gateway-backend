@@ -16,6 +16,7 @@
   "dependencies": {
     "array-unique": "^0.3.2",
     "authorizenet": "^1.0.8",
+    "aws-sdk": "^2.1075.0",
     "bluebird": "^3.7.2",
     "bunyan": "^1.8.12",
     "construx": "^1.0.1",
