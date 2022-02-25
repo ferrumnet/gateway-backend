@@ -28,6 +28,8 @@ var strErrorNetwrokNotFound = "Backend_Error_Network_Not_Found"
 var strErrorWrongAddressOrFerrumNetworkIdentifier = "Backend_Error_Wrong_Address_Or_FerrumNetworkIdentifier"
 var strErrorProductNotFound = "Backend_Error_Product_Not_Found"
 let strErrorUniqueEmailRequired = 'Backend_Error_Unique_Email_Required'
+var strErrorActiveProductRequired = "Backend_Error_Active_Product_Required" 
+var strErrorPackageNotFound = "Backend_Error_Package_Not_Found" 
 
 // success messages
 let strSuccessResetPasswordLink = 'Backend_Success_Reset_Password_Link'
@@ -72,6 +74,8 @@ module.exports = {
   strErrorNetwrokNotFound,
   strErrorWrongAddressOrFerrumNetworkIdentifier,
   strErrorProductNotFound,
-  strErrorUniqueEmailRequired
+  strErrorUniqueEmailRequired,
+  strErrorActiveProductRequired,
+  strErrorPackageNotFound
 }
 
