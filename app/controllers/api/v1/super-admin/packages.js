@@ -4,17 +4,6 @@ const { isValidObjectId } = require("mongoose");
 
 module.exports = function (router) {
 
-  router.get("/list", asyncMiddleware(async (req, res) => {
-    var filter = {}
-
-    let Packages = await db.Package.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(req.query.offset ? parseInt(req.query.offset) : 0)
-      .limit(req.query.limit ? parseInt(req.query.limit) : 10)
-
-      return res.http200({ Packages });
-  }));
-
   router.post("/create", asyncMiddleware(async (req, res) => {
     const productFilter = { _id:req.body.product, isActive:true}
     var payload = utils.pick(req.body, ["name", "product", "price", "limit", "isFree" ]);
