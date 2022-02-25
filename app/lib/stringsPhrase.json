@@ -27,5 +27,7 @@
   "Backend_Success_ContractToken_Address_Is_Unique": "ContractTokenAddress is unique",
   "Backend_Success_Otp": "One Time Password (OTP) sent to your email",
   "Backend_Success_Reset_Password_Link": "Link is sent to your verified email",
-  "Backend_Error_Product_Not_Found": "Product not found"
+  "Backend_Error_Product_Not_Found": "Product not found",
+  "Backend_Error_Active_Product_Required": "Active product required",
+  "Backend_Error_Package_Not_Found": "Package not found"
 }
