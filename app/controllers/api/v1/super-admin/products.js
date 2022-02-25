@@ -1,32 +1,35 @@
 const { asyncMiddleware, commonFunctions, utils } = global;
-const productHelper = require('../../../../lib/middlewares/helpers/productHelper')
+
 
 const { isValidObjectId } = require("mongoose");
 module.exports = function (router) {
 
-  router.get("/list", async (req, res) => {
-    const filter = utils.pick(req.query, ["name"]);
-    const options = utils.pick(req.query, ["sortBy", "limit", "page"]);
-    const products = await productHelper.queryProducts(filter, options);
+  router.get("/list", asyncMiddleware(async (req, res) => {
+    const filter = req.query.name ? {'nameInLower': { $regex: '.*' + (req.query.name).toLowerCase() + '.*' }} : {} 
+    const products = await db.Product.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(req.query.offset ? parseInt(req.query.offset) : 0)
+      .limit(req.query.limit ? parseInt(req.query.limit) : 10);
     return res.http200({ products });
-  });
+  }));
 
-  router.post("/create", async (req, res) => {
-    const payload = {name:req.body.name, createdBy:req.user.id};
-    if (payload.name) {      
+  router.post("/create", asyncMiddleware(async (req, res) => {
+    const payload = {name:req.body.name, createdByUser:req.user.id};
+    if (payload.name) { 
+
       const product = await db.Product.create(payload);
       return res.http200({ product });
     }
       return res.http400("Name is required.");
     
-  });
+  }));
 
-  router.put("/update/:id", async (req, res) => {
+  router.put("/update/:id", asyncMiddleware(async (req, res) => {
     const filter = { _id:req.params.id };
-    const payload = {name: req.body.name, createdBy:req.user._id }   
+    const payload = {name: req.body.name, createdByUser:req.user._id }   
    
     if (payload.name && isValidObjectId(filter._id)) {
-      const productCount = await productHelper.countById(filter._id);
+      const productCount = await db.Product.countDocuments(filter);
       if (productCount > 0) {
         const product =  await db.Product.findOneAndUpdate(filter, payload, { new: true })
         return res.http200({ product });
@@ -38,9 +41,9 @@ module.exports = function (router) {
     } 
       return res.http400("Name and valid ID is required.");
     
-  });
+  }));
 
-  router.put("/active/inactive/:id", async (req, res) => {
+  router.put("/active/inactive/:id", asyncMiddleware(async (req, res) => {
     const filter = { _id: req.params.id };
     const payload = {isActive: req.body.active};
 
@@ -59,9 +62,9 @@ module.exports = function (router) {
     }
       return res.http400("Valid id and active is required.");
     
-  });
+  }));
 
-  router.get("/:id", async (req, res) => {
+  router.get("/:id", asyncMiddleware(async (req, res) => {
     const filter = { _id:req.params.id };
     if (isValidObjectId(filter._id)) {
       const product = await  db.Product.findOne(filter);
@@ -76,5 +79,5 @@ module.exports = function (router) {
     } 
       return res.http400("Valid id is required.");
     
-  });
+  }));
 };
