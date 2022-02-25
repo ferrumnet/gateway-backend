@@ -4,7 +4,7 @@ const { isValidObjectId } = require("mongoose");
 
 module.exports = function (router) {
 
-  router.get("/list", async (req, res) => {
+  router.get("/list", asyncMiddleware(async (req, res) => {
     var filter = {}
 
     let Packages = await db.Package.find(filter)
@@ -13,9 +13,9 @@ module.exports = function (router) {
       .limit(req.query.limit ? parseInt(req.query.limit) : 10)
 
       return res.http200({ Packages });
-  });
+  }));
 
-  router.post("/create", async (req, res) => {
+  router.post("/create", asyncMiddleware(async (req, res) => {
     const productFilter = { _id:req.body.product, isActive:true}
     var payload = utils.pick(req.body, ["name", "product", "price", "limit", "isFree" ]);
     payload.createBy = req.user._id
@@ -35,9 +35,9 @@ module.exports = function (router) {
     } else {
       return res.http400("Name, product, price, limit and isFree are required.");
     }
-  });
+  }));
 
-  router.put("/update/:id", async (req, res) => {
+  router.put("/update/:id", asyncMiddleware(async (req, res) => {
     const filter = { _id:req.params.id }
     const payload = utils.pick(req.body, ["name", "price", "limit", "isFree" ]);
     payload.createBy = req.user._id
@@ -59,10 +59,10 @@ module.exports = function (router) {
     } else {
       return res.http400("Name, price, limit, isFree and valid ID are required.");
     }
-  });
+  }));
 
 
-  router.get("/:id", async (req, res) => {
+  router.get("/:id", asyncMiddleware(async (req, res) => {
     const filter = { _id : req.params.id }
     if (isValidObjectId(filter._id)) {
  
@@ -80,7 +80,7 @@ module.exports = function (router) {
     } else {
       return res.http400("Valid id is required.");
     }
-  });
+  }));
 
   
 };
