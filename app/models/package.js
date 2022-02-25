@@ -6,11 +6,11 @@ const packageSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
     nameInLower: { type: String, lowercase: true },
-    product: { type: mongoose.Schema.Types.ObjectId, ref: 'product', required: true  },
+    product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true  },
     limitation: { type: Number, default: false },
     isFree: { type: Boolean, default: false },
     isActive: { type: Boolean, default: false },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+    createdByUser: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     price: {  
       type: Number,
       get: v => (v/100).toFixed(2),
@@ -29,6 +29,7 @@ packageSchema.pre("save", async function (next) {
 });
 
 packageSchema.pre("findOneAndUpdate", async function (next) {
+  if(this._update.name)
   this._update.nameInLower = this._update.name;
   next();
 });
