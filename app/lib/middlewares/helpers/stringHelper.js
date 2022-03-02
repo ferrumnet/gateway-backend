@@ -30,6 +30,7 @@ var strErrorProductNotFound = "Backend_Error_Product_Not_Found"
 let strErrorUniqueEmailRequired = 'Backend_Error_Unique_Email_Required'
 var strErrorActiveProductRequired = "Backend_Error_Active_Product_Required" 
 var strErrorPackageNotFound = "Backend_Error_Package_Not_Found" 
+var strErrorSubscriptionNotFound = "Backend_Error_Not_Found_Subscription" 
 
 // success messages
 let strSuccessResetPasswordLink = 'Backend_Success_Reset_Password_Link'
@@ -76,6 +77,7 @@ module.exports = {
   strErrorProductNotFound,
   strErrorUniqueEmailRequired,
   strErrorActiveProductRequired,
-  strErrorPackageNotFound
+  strErrorPackageNotFound,
+  strErrorSubscriptionNotFound
 }
 
