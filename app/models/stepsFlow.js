@@ -2,14 +2,13 @@
 
 var mongoose = require('mongoose');
 
-var StepFlowsModel = function () {
-  var PreSalesStepFlowsSchema = mongoose.Schema({
+var StepsFlowModel = function () {
+  var StepsFlowSchema = mongoose.Schema({
     productId: { type: mongoose.Schema.Types.ObjectId, ref: 'products' },
     name: { type: String, default: "" },
     nameInLower: { type: String, default: ""},
-    status: { type: String, default: "pending" },
     isActive: { type: Boolean, default: true },
-    orderIndex: { type: Array, default: []},
+    stepFlowSteps: [{ type: mongoose.Schema.Types.ObjectId, ref: 'stepFlowSteps' }],
     organization: { type: mongoose.Schema.Types.ObjectId, ref: 'organization' },
 
     createdByUser: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
@@ -17,9 +16,9 @@ var StepFlowsModel = function () {
 
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
-  },{ collection: 'stepFlows' });
+  },{ collection: 'stepsFlow' });
 
-  return mongoose.model('stepFlows', PreSalesStepFlowsSchema);
+  return mongoose.model('stepsFlow', StepsFlowSchema);
 };
 
-module.exports = new StepFlowsModel();
+module.exports = new StepsFlowModel();

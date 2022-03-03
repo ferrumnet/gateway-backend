@@ -3,11 +3,10 @@
 var mongoose = require('mongoose');
 
 var StepModel = function () {
-  var PreSalesStepSchema = mongoose.Schema({
+  var StepSchema = mongoose.Schema({
     name: { type: String, default: "" },
     nameInLower: { type: String, default: ""},
     isActive: { type: Boolean, default: true },
-    stepJson: { type: Object,  default: {}},
 
     createdByUser: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
     updatedByUser:  { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
@@ -16,7 +15,7 @@ var StepModel = function () {
     updatedAt: { type: Date, default: new Date() },
   },{ collection: 'steps' });
 
-  return mongoose.model('steps', PreSalesStepSchema);
+  return mongoose.model('steps', StepSchema);
 };
 
 module.exports = new StepModel();
