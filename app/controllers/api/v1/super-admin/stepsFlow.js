@@ -35,7 +35,7 @@ module.exports = function (router) {
 
         filter = { _id: req.params.id }
 
-        if (!req.body.isActive) {
+        if (!req.body.isActive.toString()) {
 
             return res.http400('isActive option is required for status update.');
 
@@ -51,21 +51,6 @@ module.exports = function (router) {
         });
     })
 
-    router.get('/:id', async (req, res) => {
-               
-        req.body.createdByUser = req.user._id
-
-        req.body.organizationId = req.user.organization
-
-        filter = { _id: req.params.id }
-
-        const stepFlow = await db.StepsFlow.findOne(filter)
-
-        return res.http200({
-            stepFlow: stepFlow
-        });
-        
-    })
 
     router.get('/list', async (req, res) => {
 
@@ -97,6 +82,26 @@ module.exports = function (router) {
 
         return res.http200({
             stepFlows: stepsFlow
+        });
+        
+    })
+
+    router.get('/:id', async (req, res) => {
+               
+        req.body.createdByUser = req.user._id
+
+        req.body.organizationId = req.user.organization
+
+        if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+            return res.http400('Invalid id provided');
+        }
+
+        filter = { _id: req.params.id }
+
+        const stepFlow = await db.StepsFlow.findOne(filter)
+
+        return res.http200({
+            stepFlow: stepFlow
         });
         
     })

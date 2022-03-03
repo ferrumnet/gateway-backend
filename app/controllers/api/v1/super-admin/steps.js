@@ -98,4 +98,28 @@ module.exports = function (router) {
             step: step
         });
     })
+
+    router.get('/:id', async (req, res) => {
+               
+        req.body.createdByUser = req.user._id
+
+        filter = { _id: req.params.id }
+
+        if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+            return res.http400('Invalid id provided');
+        }
+
+        const stepFlowStep = await db.Steps.findOne(filter)
+
+        if(stepFlowStep){
+
+            return res.http200({
+                stepFlowStep: stepFlowStep
+            });
+
+        }
+        
+        return res.http400('stepFlowStep not found.');
+        
+    })
 }

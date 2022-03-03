@@ -11,25 +11,19 @@ var StepFlowStepsModel = function () {
     stepId: { type: mongoose.Schema.Types.ObjectId, ref: 'step' },
     stepsFlowId: { type: mongoose.Schema.Types.ObjectId, ref: 'stepFlow' },
 
-    stepsRenderingJson: { type: mongoose.Schema.Types.ObjectId },
+    stepsRenderingJson: { type: mongoose.Schema.Types.Mixed },
     orderIndex: { type: mongoose.Schema.Types.Number },
+    
+    organization: { type: mongoose.Schema.Types.ObjectId, ref: 'organization' },
 
     createdByUser: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
     updatedByUser:  { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
 
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
-  },{ collection: 'steps' });
+  },{ collection: 'stepFlowSteps' });
 
-  return mongoose.model('steps', StepFlowStepsSchema);
+  return mongoose.model('stepFlowSteps', StepFlowStepsSchema);
 };
 
 module.exports = new StepFlowStepsModel();
-
-stepId (reference)
-
-stepsRenderingJson
-
-orderIndex
-
-stepsFlowId (reference)
