@@ -5,8 +5,8 @@ module.exports = function (router) {
 
     router.post('/create', async (req, res) => {
 
-        if (!req.body.name || !req.body.stepJson) {
-            return res.http400('name & stepJson are required.');
+        if (!req.body.name) {
+            return res.http400('name is required in request.');
         }
 
         req.body.createdByUser = req.user._id
@@ -24,6 +24,18 @@ module.exports = function (router) {
     router.get('/list', async (req, res) => {
 
         let steps = []
+
+        if (req.query.name) {
+
+            let reg = new RegExp(unescape(req.query.name), 'i');
+            filter.name = reg
+        }
+
+        if(req.query.isActive){
+
+            filter.isActive = req.query.isActive
+            
+        }
 
         if (req.query.isPagination != null && req.query.isPagination == 'false') {
 
@@ -48,18 +60,16 @@ module.exports = function (router) {
         let filter = {}
         filter = { _id: req.params.id }
 
-        if (!req.body.name && !req.body.stepJson) {
-            return res.http400('name or stepJson option is required.');
+        if (!req.body.name) {
+            return res.http400('name option is required for update.');
         }
-
-        req.body.updatedBy = req.user._id
 
         if(req.body.name){
             req.body.nameInLower = (req.body.name).toLowerCase()
         }
 
         req.body.updatedAt = new Date()
-
+        req.body.updatedBy = req.user._id
        
         const step = await db.Steps.findOneAndUpdate(filter, req.body, { new: true });
            

@@ -13,7 +13,9 @@ module.exports = function (router) {
         }
 
         if(req.query.isActive){
-          filter.isActive = req.query.isActive
+
+            filter.isActive = req.query.isActive
+            
         }
       
         let steps = []
@@ -50,7 +52,7 @@ module.exports = function (router) {
             });
 
         }
-        
+
         return res.http400('step not found , Invalid step id provided');
        
     })
