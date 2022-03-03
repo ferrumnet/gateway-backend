@@ -6,6 +6,8 @@ module.exports = function (router) {
 
     router.get('/list', async (req, res) => {
 
+        filter = {}
+
         if (req.query.name) {
 
             let reg = new RegExp(unescape(req.query.name), 'i');
@@ -15,7 +17,7 @@ module.exports = function (router) {
         if(req.query.isActive){
 
             filter.isActive = req.query.isActive
-            
+
         }
       
         let steps = []
@@ -43,6 +45,10 @@ module.exports = function (router) {
 
         var filter = { _id: req.params.id }
 
+        if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+            return res.http400('Invalid id provided');
+        }
+        
         step = await db.Steps.findOne(filter)
 
         if(step){
