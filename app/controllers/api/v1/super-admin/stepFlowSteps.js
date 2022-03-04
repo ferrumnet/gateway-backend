@@ -9,30 +9,30 @@ module.exports = function (router) {
 
         filter = { _id: req.params.id }
 
-        if (!req.body.name && !req.body.stepId && !req.body.stepsFlowId && !req.body.stepsRenderingJson && !req.body.orderIndex.toString()) {
+        if (!req.body.name && !req.body.step && !req.body.stepsFlow && !req.body.stepsRenderingJson && !req.body.orderIndex.toString()) {
 
-            return res.http400('name ,stepId ,stepsFlowId ,stepsRenderingJson or orderIndex required in request.');
+            return res.http400('name ,step ,stepsFlow ,stepsRenderingJson or orderIndex required in request.');
 
         }
 
-        if(req.body.stepId){
+        if(req.body.step){
 
-            const step = await db.Steps.findOne({_id: mongoose.Types.ObjectId(req.body.stepId)})
+            const step = await db.Steps.findOne({_id: mongoose.Types.ObjectId(req.body.step)})
 
             if(!step){
 
-                return res.http400('Invalid StepId field provided');
+                return res.http400('Invalid step field provided');
     
             }
         }
 
-        if(req.body.stepsFlowId){
+        if(req.body.stepsFlow){
 
-            const stepsFlow = await db.StepsFlow.findOne({_id: mongoose.Types.ObjectId(req.body.stepsFlowId)})
+            const stepsFlow = await db.StepsFlow.findOne({_id: mongoose.Types.ObjectId(req.body.stepsFlow)})
 
             if(!stepsFlow){
     
-                return res.http400('Invalid stepsFlowId field provided');
+                return res.http400('Invalid stepsFlow field provided');
     
             }
         }
