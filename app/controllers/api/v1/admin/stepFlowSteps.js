@@ -5,26 +5,26 @@ module.exports = function (router) {
 
     router.post('/create', async (req, res) => {
 
-        if (!req.body.name || !req.body.stepId || !req.body.stepsFlowId || !req.body.stepsRenderingJson || !req.body.orderIndex) {
+        if (!req.body.name || !req.body.step || !req.body.stepsFlow || !req.body.stepsRenderingJson || !req.body.orderIndex) {
             
-            return res.http400('name ,stepId ,stepsFlowId ,stepsRenderingJson and orderIndex is required in request.');
+            return res.http400('name ,step ,stepsFlow ,stepsRenderingJson and orderIndex is required in request.');
         
         }       
 
-        if(!mongoose.Types.ObjectId.isValid(req.body.stepId) || !mongoose.Types.ObjectId.isValid(req.body.stepsFlowId) ){
-            return res.http400('Invalid StepId or stepsFlowId provided');
+        if(!mongoose.Types.ObjectId.isValid(req.body.step) || !mongoose.Types.ObjectId.isValid(req.body.stepsFlow) ){
+            return res.http400('Invalid step or stepsFlow provided');
         }
 
-        const step = await db.Steps.findById(mongoose.Types.ObjectId(req.body.stepId))
-        const stepsFlow =  await db.StepsFlow.findById(mongoose.Types.ObjectId(req.body.stepsFlowId))
+        const step = await db.Steps.findById(mongoose.Types.ObjectId(req.body.step))
+        const stepsFlow =  await db.StepsFlow.findById(mongoose.Types.ObjectId(req.body.stepsFlow))
 
         if(!step){
-            return res.http400('Invalid StepId field provided');
+            return res.http400('Invalid step field provided');
         }
 
         if(!stepsFlow){
 
-            return res.http400('Invalid stepsFlowId field provided');
+            return res.http400('Invalid stepsFlow field provided');
 
         }
 
