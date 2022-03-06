@@ -9,6 +9,7 @@ module.exports = function () {
     } else {
       try {
         const token = req.headers.authorization.split(' ')[1];
+
         const decoded = jwt.verify(token, global.kraken.get('app:jwtSecret'));
         if (!decoded) {
           return res.http401('Invalid token');

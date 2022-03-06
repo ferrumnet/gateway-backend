@@ -8,7 +8,7 @@ var StepFlowStepsModel = function () {
     nameInLower: { type: String, default: ""},
     isActive: { type: Boolean, default: true },
 
-    step: { type: mongoose.Schema.Types.ObjectId, ref: 'step' },
+    step: { type: mongoose.Schema.Types.ObjectId, ref: 'steps' },
     stepsFlow: { type: mongoose.Schema.Types.ObjectId, ref: 'stepFlow' },
 
     stepsRenderingJson: { type: mongoose.Schema.Types.Mixed },
