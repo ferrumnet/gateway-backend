@@ -40,38 +40,95 @@ module.exports = function (router) {
 
         let stepFlowStepsHistory = []
 
-        let filter  = {}
-
-        if (req.query.name) {
-
-            let reg = new RegExp(unescape(req.query.name), 'i');
-            filter.name = reg
-        }
-
-        if(req.query.isActive){
-
-            filter.isActive = req.query.isActive
-            
-        }
-
-        if(req.query.status){
-
-            filter.status = req.query.status
-            
-        }
-    
-        filter._id = req.user._id
-
         if (req.query.isPagination != null && req.query.isPagination == 'false') {
             
-            stepFlowStepsHistory = await db.StepFlowStepsHistory.find(filter)
-
+            stepFlowStepsHistory = await db.StepsFlowStepsHistory
+            .aggregate( [
+                {
+                   $lookup:
+                      {
+                        from: "stepFlowSteps",
+                        localField: "stepFlow",
+                        foreignField: "stepsFlow",
+                        pipeline: [
+                            {    
+                              $unwind: { 
+                                  "path": "$stepFlowSteps","preserveNullAndEmptyArrays": true}
+                            }
+                        ],
+                        as: "stepFlowStep"
+                      }
+                },
+                {
+                    $lookup:
+                       {
+                         from: "stepFlowSteps",
+                         localField: "step",
+                         foreignField: "step",
+                         pipeline: [
+                             {    
+                               $unwind: { 
+                                   "path": "$stepFlowSteps","preserveNullAndEmptyArrays": true}
+                             }
+                         ],
+                         as: "stepFlowStep"
+                       }
+                }
+            ])
+            
         }else {
 
-            stepFlowStepsHistory = await db.StepFlowStepsHistory.find(filter)
-            .skip(req.query.offset ? parseInt(req.query.offset) : 0)
-            .limit(req.query.limit ? parseInt(req.query.limit) : 10)
-
+            stepFlowStepsHistory = await db.StepsFlowStepsHistory
+            .aggregate( [
+                {
+                   $lookup:
+                      {
+                        from: "stepFlowSteps",
+                        localField: "stepFlow",
+                        foreignField: "stepsFlow",
+                        pipeline: [
+                            {    
+                              $unwind: { 
+                                  "path": "$stepFlowSteps","preserveNullAndEmptyArrays": true}
+                            },
+                            {$project:{
+                                stepFlowSteps:'$stepFlowSteps.name',
+                                stepsRenderingJson: 1, 
+                                orderIndex: 1, 
+                                name: 1,
+                                status: 1,
+                                isActive: 1
+                           }}
+                        ],
+                        as: "stepFlowStep"
+                      }
+                },
+                {
+                    $lookup:
+                       {
+                         from: "stepFlowSteps",
+                         localField: "step",
+                         foreignField: "step",
+                         pipeline: [
+                             {    
+                               $unwind: { 
+                                   "path": "$stepFlowSteps","preserveNullAndEmptyArrays": true}
+                             },
+                             {$project:{
+                                 stepFlowSteps:'$stepFlowSteps.name',
+                                 stepsRenderingJson: 1, 
+                                 orderIndex: 1, 
+                                 name: 1,
+                                 status: 1,
+                                 isActive: 1
+                            }}
+                         ],
+                         as: "stepFlowStep"
+                       }
+                },
+                { $skip: req.query.offset ? parseInt(req.query.offset) : 0 },
+                { $limit: req.query.limit ? parseInt(req.query.limit) : 10 }
+            ])
         }  
 
         return res.http200({
@@ -79,7 +136,6 @@ module.exports = function (router) {
         });
         
     })
-
 
     router.get('user/history/:id', async (req, res) => {
 
@@ -90,12 +146,6 @@ module.exports = function (router) {
 
         if(!mongoose.Types.ObjectId.isValid(req.params.id)){
             return res.http400('Invalid id provided');
-        }
-
-        if(req.query.stepFlow){
-
-            filter.stepFlow = req.query.stepFlow
-            
         }
 
         if (!req.params.id) {
@@ -109,10 +159,12 @@ module.exports = function (router) {
         if (req.query.isPagination != null && req.query.isPagination == 'false') {
             
             stepFlowStepsHistory = await db.StepFlowStepsHistory.find(filter)
+            .populate('step','name').populate('stepFlow','name')
 
         }else {
 
             stepFlowStepsHistory = await db.StepFlowStepsHistory.find(filter)
+            .populate('step','name').populate('stepFlow','name')
             .skip(req.query.offset ? parseInt(req.query.offset) : 0)
             .limit(req.query.limit ? parseInt(req.query.limit) : 10)
 
@@ -127,10 +179,6 @@ module.exports = function (router) {
 
     router.get('/:id', async (req, res) => {
                
-        req.body.createdByUser = req.user._id
-
-        req.body.organizationId = req.user.organization
-
         if(!mongoose.Types.ObjectId.isValid(req.params.id)){
             return res.http400('Invalid id provided');
         }
@@ -138,6 +186,7 @@ module.exports = function (router) {
         filter = { _id: req.params.id }
 
         const stepFlowStepsHistory = await db.StepFlowStepsHistory.findOne(filter)
+        .populate('step','name').populate('stepFlow','name')
 
         if(stepFlowStepsHistory){
 

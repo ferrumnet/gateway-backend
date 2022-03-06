@@ -5,7 +5,8 @@ module.exports = function (router) {
 
     router.post('/create', async (req, res) => {
 
-        if (!req.body.name || !req.body.step || !req.body.stepsFlow || !req.body.stepsRenderingJson || !req.body.orderIndex) {
+        console.log(req.body);
+        if (!req.body.name || !req.body.step || !req.body.stepsFlow || !req.body.stepsRenderingJson || !req.body.orderIndex.toString()) {
             
             return res.http400('name ,step ,stepsFlow ,stepsRenderingJson and orderIndex is required in request.');
         
@@ -48,7 +49,7 @@ module.exports = function (router) {
         let filter = {}
 
         filter = { _id: req.params.id }
-        console.log(req.body)
+
         if (!(req.body.isActive).toString()) {
 
             return res.http400('isActive option is required for status update.');
