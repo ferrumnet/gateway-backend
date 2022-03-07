@@ -70,11 +70,12 @@ module.exports = function (router) {
     
         if (req.query.isPagination != null && req.query.isPagination == 'false') {
             
-            stepFlows = await db.StepsFlow.find()
+            stepFlows = await db.StepsFlow.find().populate('stepFlowSteps')
 
         }else {
 
             stepFlows = await db.StepsFlow.find()
+            .populate('stepFlowSteps')
             .skip(req.query.offset ? parseInt(req.query.offset) : 0)
             .limit(req.query.limit ? parseInt(req.query.limit) : 10)
 
@@ -98,7 +99,7 @@ module.exports = function (router) {
 
         filter = { _id: req.params.id }
 
-        const stepFlow = await db.StepsFlow.findOne(filter)
+        const stepFlow = await db.StepsFlow.findOne(filter).populate('stepFlowSteps')
 
         return res.http200({
             stepFlow: stepFlow
