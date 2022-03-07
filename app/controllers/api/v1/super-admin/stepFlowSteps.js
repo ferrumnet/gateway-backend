@@ -9,15 +9,19 @@ module.exports = function (router) {
 
         filter = { _id: req.params.id }
 
-        if (!req.body.name && !req.body.stepId && !req.body.stepsFlowId && !req.body.stepsRenderingJson && !req.body.orderIndex.toString()) {
+        if (!req.body.name && !req.body.step && !req.body.stepsFlow && !req.body.stepsRenderingJson && !req.body.orderIndex.toString()) {
 
             return res.http400('name ,stepId ,stepsFlowId ,stepsRenderingJson or orderIndex required in request.');
 
         }
 
+        if(!mongoose.Types.ObjectId.isValid(req.body.step) || !mongoose.Types.ObjectId.isValid(req.body.stepsFlow) ){
+            return res.http400('Invalid Step or stepsFlow provided');
+        }
+
         if(req.body.stepId){
 
-            const step = await db.Steps.findOne({_id: mongoose.Types.ObjectId(req.body.stepId)})
+            const step = await db.Steps.findOne({_id: req.body.stepId})
 
             if(!step){
 
@@ -28,7 +32,7 @@ module.exports = function (router) {
 
         if(req.body.stepsFlowId){
 
-            const stepsFlow = await db.StepsFlow.findOne({_id: mongoose.Types.ObjectId(req.body.stepsFlowId)})
+            const stepsFlow = await db.StepsFlow.findOne({_id: req.body.stepsFlowId})
 
             if(!stepsFlow){
     
@@ -121,6 +125,8 @@ module.exports = function (router) {
         }
 
         const stepFlowStep = await db.StepFlowSteps.findOne(filter)
+        .populate('step')
+        .populate('stepsFlow')
 
         if(stepFlowStep){
 

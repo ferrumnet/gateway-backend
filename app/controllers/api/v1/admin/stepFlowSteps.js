@@ -5,27 +5,23 @@ module.exports = function (router) {
 
     router.post('/create', async (req, res) => {
 
-        if (!req.body.name || !req.body.stepId || !req.body.stepsFlowId || !req.body.stepsRenderingJson || !req.body.orderIndex) {
-            
-            return res.http400('name ,stepId ,stepsFlowId ,stepsRenderingJson and orderIndex is required in request.');
-        
+        if (!req.body.name || !req.body.step || !req.body.stepsFlow || !req.body.stepsRenderingJson || !req.body.orderIndex) {
+            return res.http400('name ,step ,stepsFlow ,stepsRenderingJson and orderIndex is required in request.');
         }       
 
-        if(!mongoose.Types.ObjectId.isValid(req.body.stepId) || !mongoose.Types.ObjectId.isValid(req.body.stepsFlowId) ){
-            return res.http400('Invalid StepId or stepsFlowId provided');
+        if(!mongoose.Types.ObjectId.isValid(req.body.step) || !mongoose.Types.ObjectId.isValid(req.body.stepsFlow) ){
+            return res.http400('Invalid Step or stepsFlow provided');
         }
 
-        const step = await db.Steps.findById(mongoose.Types.ObjectId(req.body.stepId))
-        const stepsFlow =  await db.StepsFlow.findById(mongoose.Types.ObjectId(req.body.stepsFlowId))
+        const step = await db.Steps.findById(mongoose.Types.ObjectId(req.body.step))
+        const stepsFlow =  await db.StepsFlow.findById(mongoose.Types.ObjectId(req.body.stepsFlow))
 
         if(!step){
-            return res.http400('Invalid StepId field provided');
+            return res.http400('Invalid Step field provided');
         }
 
         if(!stepsFlow){
-
-            return res.http400('Invalid stepsFlowId field provided');
-
+            return res.http400('Invalid stepsFlow field provided');
         }
 
         req.body.organization = req.user.organization
@@ -47,8 +43,8 @@ module.exports = function (router) {
 
         let filter = {}
 
-        filter = { _id: req.params.id }
-        console.log(req.body)
+        filter = { _id: req.params.id, organization: req.user.organization }
+
         if (!(req.body.isActive).toString()) {
 
             return res.http400('isActive option is required for status update.');
@@ -59,19 +55,12 @@ module.exports = function (router) {
 
         if(StepFlowStep){
 
-            if(req.user.organization.toString() === StepFlowStep.organization.toString()){
-
-                req.body.updatedByUser = req.user._id
-                req.body.updatedAt = new Date()
+            req.body.updatedByUser = req.user._id
+            req.body.updatedAt = new Date()
+        
+            const stepFlow = await db.StepFlowSteps.findOneAndUpdate(filter, req.body, { new: true });
             
-                const stepFlow = await db.StepFlowSteps.findOneAndUpdate(filter, req.body, { new: true });
-                
-                return res.http200({
-                    stepFlow: stepFlow
-                });
-            }
-
-            return res.http400('Not permitted to carry out operation on this item');
+            return res.http200({stepFlow: stepFlow});
 
         }
         
@@ -132,6 +121,8 @@ module.exports = function (router) {
         filter = { _id: req.params.id,organization: req.user.organization }
 
         const stepFlowStep = await db.StepFlowSteps.findOne(filter)
+        .populate('step')
+        .populate('stepsFlow')
 
         return res.http200({
             stepFlowStep: stepFlowStep
