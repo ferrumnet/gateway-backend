@@ -21,8 +21,9 @@ router.post("/create", asyncMiddleware(async (req, res) => {
     
   }));
 
-  router.get("/of/associated/organization", asyncMiddleware(async (req, res) => {  
-    const filter = {organization:req.user.organization }
+  router.get("/of/associated/organization", asyncMiddleware(async (req, res) => { 
+    const filter = { isActive: req.isActive}
+    filter.organization = req.user.organization 
     const subscription = await db.Subscription.find(filter)
     return res.http200(subscription)  
   }));
