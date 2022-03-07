@@ -19,6 +19,25 @@ module.exports = function (router) {
 
         req.body.createdAt = new Date()
 
+        
+        if(req.body.stepFlowSteps){
+
+            for (stepFlowStepId of req.body.stepFlowSteps){
+
+                if(!mongoose.Types.ObjectId.isValid(stepFlowStepId)){
+                    return res.http400('Invalid stepflowstep id provided');
+                }
+
+                const StepFlowStep = await db.StepFlowSteps.findById(stepFlowStepId);
+
+                if(!StepFlowStep){
+                    return res.http400('stepflowstep item provided not found');
+                }
+
+            }
+
+        }
+
         const stepFlow = await db.StepsFlow.create(req.body)
            
         return res.http200({
@@ -27,27 +46,14 @@ module.exports = function (router) {
 
     })
 
-    router.get('/:id', async (req, res) => {
-               
-        req.body.organization = req.user.organization
-
-        filter = { _id: req.params.id, organization: req.user.organization }
-
-        const stepFlow = await db.StepsFlow.findOne(filter)
-
-        return res.http200({
-            stepFlow: stepFlow
-        });
-        
-    })
-
+ 
     router.get('/list', async (req, res) => {
 
         req.body.organization = req.user.organization
 
         let stepFlows = []
         
-        filter = {organization : req.body.organization }
+        filter = {organization : req.user.organization }
 
         if (req.query.name) {
 
@@ -67,14 +73,14 @@ module.exports = function (router) {
 
         }else {
 
-            steps = await db.Steps.find(filter)
+            stepFlows = await db.StepsFlow.find(filter)
             .skip(req.query.offset ? parseInt(req.query.offset) : 0)
             .limit(req.query.limit ? parseInt(req.query.limit) : 10)
 
         }  
 
         return res.http200({
-            organization:  user[0].organization,
+            organization:  req.user.organization,
             stepFlows: stepFlows
         });
 
@@ -84,7 +90,7 @@ module.exports = function (router) {
 
         let filter = {}
 
-        filter = { _id: req.params.id }
+        filter = { _id: req.params.id,organization:  req.user.organization}
 
         if (!req.body.name && !req.body.productId && !req.body.stepFlowSteps) {
 
@@ -96,21 +102,35 @@ module.exports = function (router) {
 
         if(stepFlow){
 
-            if(req.user.organization != stepFlow[0].organization){
-                return res.http400('Not permitted to carry out operation on this item');
-            }
-
             if(req.body.name){
                 req.body.nameInLower = (req.body.name).toLowerCase()
             }
     
             req.body.updatedAt = new Date()
             req.body.updatedBy = req.user._id
+
+            if(req.body.stepFlowSteps){
+
+                for (stepFlowStepId of req.body.stepFlowSteps){
+
+                    if(!mongoose.Types.ObjectId.isValid(stepFlowStepId)){
+                        return res.http400('Invalid stepflowstep id provided');
+                    }
+
+                    const StepFlowStep = await db.StepFlowSteps.findById(stepFlowStepId);
+
+                    if(!StepFlowStep){
+                        return res.http400('stepflowstep item provided not found');
+                    }
+
+                }
+
+            }
            
-            const stepFlow = await db.StepsFlow.findOneAndUpdate(filter, req.body, { new: true });
+            const stepFlows = await db.StepsFlow.findOneAndUpdate(filter, req.body, { new: true });
                
             return res.http200({
-                stepFlow: stepFlow
+                stepFlow: stepFlows
             });
 
         }else{
@@ -122,5 +142,30 @@ module.exports = function (router) {
     })
 
 
-  
+    router.get('/:id', async (req, res) => {
+               
+        req.body.organization = req.user.organization
+
+        filter = { _id: req.params.id, organization: req.user.organization }
+
+        if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+            return res.http400('Invalid id provided');
+        }
+
+        const stepFlow = await db.StepsFlow.findOne(filter).populate('stepFlowSteps')
+        
+        if(stepFlow){
+
+            return res.http200({
+                stepFlow: stepFlow
+            });
+            
+        }else{
+
+            return res.http400('stepflow not found');
+
+        }
+       
+    })
+
 }

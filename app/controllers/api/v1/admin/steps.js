@@ -3,8 +3,27 @@ var mongoose = require('mongoose');
 
 module.exports = function (router) {
 
+    router.post('/create', async (req, res) => {
+
+        if (!req.body.name) {
+            return res.http400('name is required in request.');
+        }
+
+        req.body.createdByUser = req.user._id
+
+        req.body.nameInLower = (req.body.name).toLowerCase()
+        req.body.createdAt = new Date()
+
+        const step = await db.Steps.create(req.body)
+           
+        return res.http200({
+            step: step
+        });
+    })
 
     router.get('/list', async (req, res) => {
+
+        filter = {}
 
         if (req.query.name) {
 
@@ -15,7 +34,7 @@ module.exports = function (router) {
         if(req.query.isActive){
 
             filter.isActive = req.query.isActive
-            
+
         }
       
         let steps = []
@@ -39,9 +58,11 @@ module.exports = function (router) {
 
     router.get('/:id', async (req, res) => {
 
-        user = await db.Users.find({_id: req.user._id})
-
         var filter = { _id: req.params.id }
+
+        if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+            return res.http400('Invalid id provided');
+        }
 
         step = await db.Steps.findOne(filter)
 
