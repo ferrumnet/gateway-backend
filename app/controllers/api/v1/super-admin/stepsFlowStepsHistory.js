@@ -23,10 +23,10 @@ module.exports = function (router) {
             req.body.updatedByUser = req.user._id
             req.body.updatedAt = new Date()
         
-            const stepFlow = await db.StepFlowStepsHistory.findOneAndUpdate(filter, req.body, { new: true });
+            const stepFlowStepsHistory = await db.StepFlowStepsHistory.findOneAndUpdate(filter, req.body, { new: true });
             
             return res.http200({
-                stepFlow: stepFlow
+                stepsHistory: stepFlowStepsHistory
             });
 
         }
@@ -40,92 +40,30 @@ module.exports = function (router) {
 
         let stepFlowStepsHistory = []
 
+        let filter =  [
+            {$match: {$and: [{ user: req.user._id},{ stepFlow: mongoose.Types.ObjectId(req.params.id)}]}},
+            {$lookup:{from: "stepFlowSteps",localField: "stepFlow",foreignField: "stepsFlow",as: "stepFlowStep"}},
+            {$unwind: "$stepFlowStep"},
+            { "$redact": { "$cond": [{ "$eq": [ "$step", "$stepFlowStep.step" ] }, "$$KEEP", "$$PRUNE"]}},
+            {$lookup: {from: "steps",localField: "step",foreignField: "_id",
+            pipeline: [{$unwind: {"path": "$step","preserveNullAndEmptyArrays": true}},
+            {$project:{_id: 1,name: 1,isActive: 1}}],as: "step"}},
+            {"$addFields": {"step": {"$arrayElemAt": [ "$step", 0 ]}}},
+            {"$sort" : { "sequence" : 1 }}
+        ]
+
         if (req.query.isPagination != null && req.query.isPagination == 'false') {
             
             stepFlowStepsHistory = await db.StepsFlowStepsHistory
             .aggregate( [
-                {
-                   $lookup:
-                      {
-                        from: "stepFlowSteps",
-                        localField: "stepFlow",
-                        foreignField: "stepsFlow",
-                        pipeline: [
-                            {    
-                              $unwind: { 
-                                  "path": "$stepFlowSteps","preserveNullAndEmptyArrays": true}
-                            }
-                        ],
-                        as: "stepFlowStep"
-                      }
-                },
-                {
-                    $lookup:
-                       {
-                         from: "stepFlowSteps",
-                         localField: "step",
-                         foreignField: "step",
-                         pipeline: [
-                             {    
-                               $unwind: { 
-                                   "path": "$stepFlowSteps","preserveNullAndEmptyArrays": true}
-                             }
-                         ],
-                         as: "stepFlowStep"
-                       }
-                }
+                ...filter
             ])
             
         }else {
 
             stepFlowStepsHistory = await db.StepsFlowStepsHistory
             .aggregate( [
-                {
-                   $lookup:
-                      {
-                        from: "stepFlowSteps",
-                        localField: "stepFlow",
-                        foreignField: "stepsFlow",
-                        pipeline: [
-                            {    
-                              $unwind: { 
-                                  "path": "$stepFlowSteps","preserveNullAndEmptyArrays": true}
-                            },
-                            {$project:{
-                                stepFlowSteps:'$stepFlowSteps.name',
-                                stepsRenderingJson: 1, 
-                                orderIndex: 1, 
-                                name: 1,
-                                status: 1,
-                                isActive: 1
-                           }}
-                        ],
-                        as: "stepFlowStep"
-                      }
-                },
-                {
-                    $lookup:
-                       {
-                         from: "stepFlowSteps",
-                         localField: "step",
-                         foreignField: "step",
-                         pipeline: [
-                             {    
-                               $unwind: { 
-                                   "path": "$stepFlowSteps","preserveNullAndEmptyArrays": true}
-                             },
-                             {$project:{
-                                 stepFlowSteps:'$stepFlowSteps.name',
-                                 stepsRenderingJson: 1, 
-                                 orderIndex: 1, 
-                                 name: 1,
-                                 status: 1,
-                                 isActive: 1
-                            }}
-                         ],
-                         as: "stepFlowStep"
-                       }
-                },
+                ...filter,
                 { $skip: req.query.offset ? parseInt(req.query.offset) : 0 },
                 { $limit: req.query.limit ? parseInt(req.query.limit) : 10 }
             ])
