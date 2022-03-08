@@ -72,7 +72,6 @@ module.exports = function (router) {
             stepFlows = await db.StepsFlow.find(filter)
 
         }else {
-
             stepFlows = await db.StepsFlow.find(filter)
             .skip(req.query.offset ? parseInt(req.query.offset) : 0)
             .limit(req.query.limit ? parseInt(req.query.limit) : 10)

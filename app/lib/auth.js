@@ -22,9 +22,6 @@ module.exports = function () {
 
           });
 
-
-
-
         if (!user) {
           return res.http401('Invalid token');
 

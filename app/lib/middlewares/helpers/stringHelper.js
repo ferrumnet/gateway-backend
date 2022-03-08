@@ -27,6 +27,8 @@ var strErrorUniqueXContractTokenAddress = "Backend_Error_Unique_X_ContractTokenA
 var strErrorNetwrokNotFound = "Backend_Error_Network_Not_Found"
 var strErrorWrongAddressOrFerrumNetworkIdentifier = "Backend_Error_Wrong_Address_Or_FerrumNetworkIdentifier"
 let strErrorUniqueEmailRequired = 'Backend_Error_Unique_Email_Required'
+let strErrorPreviousSequenceNotCompleted='Backend_Error_Previous_Sequence_Not_Completed'
+let strNoUserStepFlowHistoryAvailable='Backend_No_StepFlow_History_Available'
 
 // success messages
 let strSuccessResetPasswordLink = 'Backend_Success_Reset_Password_Link'
@@ -70,6 +72,8 @@ module.exports = {
   tagEndBlock,
   strErrorNetwrokNotFound,
   strErrorWrongAddressOrFerrumNetworkIdentifier,
-  strErrorUniqueEmailRequired
+  strErrorUniqueEmailRequired,
+  strErrorPreviousSequenceNotCompleted,
+  strNoUserStepFlowHistoryAvailable
 }
 

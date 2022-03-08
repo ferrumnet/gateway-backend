@@ -1,45 +1,7 @@
-const { db, } = global
+const { db,stringHelper } = global
 var mongoose = require('mongoose');
 
 module.exports = function (router) {
-
-    router.post('/create', async (req, res) => {
-
-        req.body.user = req.user._id;
-
-        if (!req.body.stepFlow || !req.body.step) {
-            
-            return res.http400('step and stepsFlow is required in request.');
-        
-        }       
-
-        if(!mongoose.Types.ObjectId.isValid(req.body.step) || !mongoose.Types.ObjectId.isValid(req.body.stepsFlow) ){
-            return res.http400('Invalid step or stepsFlow provided');
-        }
-
-        const step = await db.Steps.findById(mongoose.Types.ObjectId(req.body.step))
-        const stepsFlow =  await db.StepsFlow.findById(mongoose.Types.ObjectId(req.body.stepsFlow))
-
-        if(!step){
-            return res.http400('Invalid step field provided');
-        }
-
-        if(!stepsFlow){
-
-            return res.http400('Invalid stepsFlow field provided');
-
-        }
-
-        req.body.createdByUser = req.user._id
-
-        req.body.createdAt = new Date()
-
-        const stepFlowStep = await db.StepFlowStepsHistory.create(req.body)
-           
-        return res.http200({
-            stepFlowStep: stepFlowStep
-        });
-    })
 
     router.put('/update/status/:id', async (req, res) => {
 
@@ -53,25 +15,24 @@ module.exports = function (router) {
 
         }
 
-        const stepFlowStepsHistory = await db.StepFlowStepsHistory.findOne(filter);
+        const stepFlowStepsHistory = await db.StepsFlowStepsHistory.findOne(filter);
 
         if(stepFlowStepsHistory){
 
             req.body.updatedByUser = req.user._id
             req.body.updatedAt = new Date()
         
-            const stepFlow = await db.StepFlowStepsHistory.findOneAndUpdate(filter, req.body, { new: true });
+            const stepsFlowHistory = await db.StepsFlowStepsHistory.findOneAndUpdate(filter, req.body, { new: true });
             
             return res.http200({
-                stepFlow: stepFlow
+                stepsFlowStepHistory: stepsFlowHistory
             });
 
         }
         
-        return res.http400('user stepFlowStepsHistory not found');
+        return res.http400('user stepFlowStepsHistory item not found');
 
     })
-
 
     router.get('/list', async (req, res) => {
 
@@ -91,15 +52,15 @@ module.exports = function (router) {
             
         }
     
-        filter._id = req.user._id
+        filter.user = req.user._id
 
         if (req.query.isPagination != null && req.query.isPagination == 'false') {
             
-            stepFlowStepsHistory = await db.StepFlowStepsHistory.find(filter)
+            stepFlowStepsHistory = await db.StepsFlowStepsHistory.find(filter)
 
         }else {
 
-            stepFlowStepsHistory = await db.StepFlowStepsHistory.find(filter)
+            stepFlowStepsHistory = await db.StepsFlowStepsHistory.find(filter)
             .skip(req.query.offset ? parseInt(req.query.offset) : 0)
             .limit(req.query.limit ? parseInt(req.query.limit) : 10)
 
@@ -119,7 +80,7 @@ module.exports = function (router) {
 
         if (!req.params.id) {
 
-            return res.http400('id param is is required for status update.');
+            return res.http400('id param is required for status update.');
 
         }
 
@@ -127,100 +88,32 @@ module.exports = function (router) {
             return res.http400('Invalid id provided');
         }
 
-        filter.stepFlow = req.params.id
-
-        filter.user = req.user._id
+        filter =  [
+            {$match: {$and: [{ user: req.user._id},{ stepFlow: mongoose.Types.ObjectId(req.params.id)}]}},
+            {$lookup:{from: "stepFlowSteps",localField: "stepFlow",foreignField: "stepsFlow",as: "stepFlowStep"}},
+            {$unwind: "$stepFlowStep"},
+            { "$redact": { "$cond": [{ "$eq": [ "$step", "$stepFlowStep.step" ] }, "$$KEEP", "$$PRUNE"]}},
+            {$lookup: {from: "steps",localField: "step",foreignField: "_id",
+            pipeline: [{$unwind: {"path": "$step","preserveNullAndEmptyArrays": true}},
+            {$project:{_id: 1,name: 1,isActive: 1}}],as: "step"}},
+            {"$addFields": {"step": {"$arrayElemAt": [ "$step", 0 ]}}},
+            {"$sort" : { "sequence" : 1 }}
+        ]
 
         if (req.query.isPagination != null && req.query.isPagination == 'false') {
             
             stepFlowStepsHistory = await db.StepsFlowStepsHistory
             .aggregate( [
-                {
-                   $lookup:
-                      {
-                        from: "stepFlowSteps",
-                        localField: "stepFlow",
-                        foreignField: "stepsFlow",
-                        pipeline: [
-                            {    
-                              $unwind: { 
-                                  "path": "$stepFlowSteps","preserveNullAndEmptyArrays": true}
-                            }
-                        ],
-                        as: "stepFlowStep"
-                      }
-                },
-                {
-                    $lookup:
-                       {
-                         from: "stepFlowSteps",
-                         localField: "step",
-                         foreignField: "step",
-                         pipeline: [
-                             {    
-                               $unwind: { 
-                                   "path": "$stepFlowSteps","preserveNullAndEmptyArrays": true}
-                             }
-                         ],
-                         as: "stepFlowStep"
-                       }
-                },
-                { $match: { $and: [ { "user": req.user._id } ] } }
+                ...filter
             ])
             
         }else {
 
             stepFlowStepsHistory = await db.StepsFlowStepsHistory
             .aggregate( [
-                {
-                   $lookup:
-                      {
-                        from: "stepFlowSteps",
-                        localField: "stepFlow",
-                        foreignField: "stepsFlow",
-                        pipeline: [
-                            {    
-                              $unwind: { 
-                                  "path": "$stepFlowSteps","preserveNullAndEmptyArrays": true}
-                            },
-                            {$project:{
-                                stepFlowSteps:'$stepFlowSteps.name',
-                                stepsRenderingJson: 1, 
-                                orderIndex: 1, 
-                                name: 1,
-                                status: 1,
-                                isActive: 1
-                           }}
-                        ],
-                        as: "stepFlowStep"
-                      }
-                },
-                {
-                    $lookup:
-                       {
-                         from: "stepFlowSteps",
-                         localField: "step",
-                         foreignField: "step",
-                         pipeline: [
-                             {    
-                               $unwind: { 
-                                   "path": "$stepFlowSteps","preserveNullAndEmptyArrays": true}
-                             },
-                             {$project:{
-                                 stepFlowSteps:'$stepFlowSteps.name',
-                                 stepsRenderingJson: 1, 
-                                 orderIndex: 1, 
-                                 name: 1,
-                                 status: 1,
-                                 isActive: 1
-                            }}
-                         ],
-                         as: "stepFlowStep"
-                       }
-                },
+                ...filter,
                 { $skip: req.query.offset ? parseInt(req.query.offset) : 0 },
-                { $limit: req.query.limit ? parseInt(req.query.limit) : 10 },
-                { $match: { $and: [ { "user": req.user._id } ] } }
+                { $limit: req.query.limit ? parseInt(req.query.limit) : 10 }
             ])
         }  
         
@@ -234,13 +127,22 @@ module.exports = function (router) {
 
                     stepFlowStep = await db.StepFlowSteps.findOne({_id: StepsFlow })
                     
-                    await db.StepsFlowStepsHistory.create({
-                        stepFlow: stepFlowStep.stepsFlow,
-                        step: stepFlowStep.step,
-                        user: req.user._id
-                    })
-
+                    if(stepFlowStep.stepsFlow.toString() === req.params.id.toString()){
+                        await db.StepsFlowStepsHistory.create({
+                            stepFlow: stepFlowStep.stepsFlow,
+                            step: stepFlowStep.step,
+                            user: req.user._id,
+                            sequence: 1
+                        })
+                    }
+                    
                 }
+                stepFlowStepsHistory = await db.StepsFlowStepsHistory
+                .aggregate( [
+                    ...filter,
+                    { $skip: req.query.offset ? parseInt(req.query.offset) : 0 },
+                    { $limit: req.query.limit ? parseInt(req.query.limit) : 10 }
+                ])
 
             }
         }
@@ -251,12 +153,80 @@ module.exports = function (router) {
         
     })
 
-
-    router.get('reset/stepFlow/:id', async (req, res) => {
+    router.get('/stepFlow/latest/:id', async (req, res) => {
 
         let stepFlowStepsHistory = []
 
         let filter  = {}
+
+        if (!req.params.id) {
+
+            return res.http400('id param is is required for status update.');
+
+        }
+
+        if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+            return res.http400('Invalid id provided');
+        }
+
+        const lastItem = await db.StepsFlowStepsHistory.findOne().sort({_id: -1})
+
+        if(lastItem){
+            filter =  [
+                {$match: {$and: [{ user: req.user._id},{ stepFlow: mongoose.Types.ObjectId(req.params.id)},{ sequence: lastItem.sequence}]}},
+                {$lookup:{from: "stepFlowSteps",localField: "stepFlow",foreignField: "stepsFlow",as: "stepFlowStep"}},
+                {$unwind: "$stepFlowStep"},
+                { "$redact": { "$cond": [{ "$eq": [ "$step", "$stepFlowStep.step" ] }, "$$KEEP", "$$PRUNE"]}},
+                {$lookup: {from: "steps",localField: "step",foreignField: "_id",
+                pipeline: [{$unwind: {"path": "$step","preserveNullAndEmptyArrays": true}},
+                {$project:{_id: 1,name: 1,isActive: 1}}],as: "step"}},
+                {"$addFields": {"step": {"$arrayElemAt": [ "$step", 0 ]}}},
+                {"$sort" : { "sequence" : 1 }}
+            ]
+
+            if (req.query.isPagination != null && req.query.isPagination == 'false') {
+                
+                stepFlowStepsHistory = await db.StepsFlowStepsHistory
+                .aggregate( [
+                    ...filter
+                ])
+                
+            }else {
+
+                stepFlowStepsHistory = await db.StepsFlowStepsHistory
+                .aggregate( [
+                    ...filter,
+                    { $skip: req.query.offset ? parseInt(req.query.offset) : 0 },
+                    { $limit: req.query.limit ? parseInt(req.query.limit) : 10 }
+                ])
+            }
+
+        }else{
+            return res.http400('User as no stepFlowStepsHistory for specified stepflow');
+        }
+        
+
+        return res.http200({
+            stepFlowStepsHistory: stepFlowStepsHistory
+        });
+        
+    })
+
+    router.get('/restart/stepFlow/:id', async (req, res) => {
+
+        let stepFlowStepsHistory = []
+
+        filter =  [
+            {$match: {$and: [{ user: req.user._id},{ stepFlow: mongoose.Types.ObjectId(req.params.id)}]}},
+            {$lookup:{from: "stepFlowSteps",localField: "stepFlow",foreignField: "stepsFlow",as: "stepFlowStep"}},
+            {$unwind: "$stepFlowStep"},
+            { "$redact": { "$cond": [{ "$eq": [ "$step", "$stepFlowStep.step" ] }, "$$KEEP", "$$PRUNE"]}},
+            {$lookup: {from: "steps",localField: "step",foreignField: "_id",
+            pipeline: [{$unwind: {"path": "$step","preserveNullAndEmptyArrays": true}},
+            {$project:{_id: 1,name: 1,isActive: 1}}],as: "step"}},
+            {"$addFields": {"step": {"$arrayElemAt": [ "$step", 0 ]}}},
+            {"$sort" : { "sequence" : 1 }}
+        ]
 
         if (!req.params.id) {
 
@@ -276,125 +246,64 @@ module.exports = function (router) {
             
             stepFlowStepsHistory = await db.StepsFlowStepsHistory
             .aggregate( [
-                {
-                   $lookup:
-                      {
-                        from: "stepFlowSteps",
-                        localField: "stepFlow",
-                        foreignField: "stepsFlow",
-                        pipeline: [
-                            {    
-                              $unwind: { 
-                                  "path": "$stepFlowSteps","preserveNullAndEmptyArrays": true}
-                            }
-                        ],
-                        as: "stepFlowStep"
-                      }
-                },
-                {
-                    $lookup:
-                       {
-                         from: "stepFlowSteps",
-                         localField: "step",
-                         foreignField: "step",
-                         pipeline: [
-                             {    
-                               $unwind: { 
-                                   "path": "$stepFlowSteps","preserveNullAndEmptyArrays": true}
-                             }
-                         ],
-                         as: "stepFlowStep"
-                       }
-                },
-                { $match: { $and: [ { "user": req.user._id } ] } }
+               ...filter
             ])
             
         }else {
 
             stepFlowStepsHistory = await db.StepsFlowStepsHistory
             .aggregate( [
-                {
-                   $lookup:
-                      {
-                        from: "stepFlowSteps",
-                        localField: "stepFlow",
-                        foreignField: "stepsFlow",
-                        pipeline: [
-                            {    
-                              $unwind: { 
-                                  "path": "$stepFlowSteps","preserveNullAndEmptyArrays": true}
-                            },
-                            {$project:{
-                                stepFlowSteps:'$stepFlowSteps.name',
-                                stepsRenderingJson: 1, 
-                                orderIndex: 1, 
-                                name: 1,
-                                status: 1,
-                                isActive: 1
-                           }}
-                        ],
-                        as: "stepFlowStep"
-                      }
-                },
-                {
-                    $lookup:
-                       {
-                         from: "stepFlowSteps",
-                         localField: "step",
-                         foreignField: "step",
-                         pipeline: [
-                             {    
-                               $unwind: { 
-                                   "path": "$stepFlowSteps","preserveNullAndEmptyArrays": true}
-                             },
-                             {$project:{
-                                 stepFlowSteps:'$stepFlowSteps.name',
-                                 stepsRenderingJson: 1, 
-                                 orderIndex: 1, 
-                                 name: 1,
-                                 status: 1,
-                                 isActive: 1
-                            }}
-                         ],
-                         as: "stepFlowStep"
-                       }
-                },
+                ...filter,
                 { $skip: req.query.offset ? parseInt(req.query.offset) : 0 },
-                { $limit: req.query.limit ? parseInt(req.query.limit) : 10 },
-                { $match: { $and: [ { "user": req.user._id } ] } }
+                { $limit: req.query.limit ? parseInt(req.query.limit) : 10 }
             ])
         }  
         
         if(stepFlowStepsHistory.length){
-
+            const lastHistory = stepFlowStepsHistory[(stepFlowStepsHistory.length-1)];
             const StepsFlowItem =  await db.StepsFlow.findOne({_id: req.params.id })
 
             if(StepsFlowItem){
-                
-                for(StepsFlow of StepsFlowItem.stepFlowSteps){
+                if(lastHistory.status === 'completed'){
+                    for(StepsFlow of StepsFlowItem.stepFlowSteps){
 
-                    stepFlowStep = await db.StepFlowSteps.findOne({_id: StepsFlow })
-                    
-                    await db.StepsFlowStepsHistory.create({
-                        stepFlow: stepFlowStep.stepsFlow,
-                        step: stepFlowStep.step,
-                        user: req.user._id
-                    })
+                        stepFlowStep = await db.StepFlowSteps.findOne({_id: StepsFlow })
+                        
+                        await db.StepsFlowStepsHistory.create({
+                            stepFlow: stepFlowStep.stepsFlow,
+                            step: stepFlowStep.step,
+                            user: req.user._id,
+                            sequence: Number(lastHistory.sequence) + 1
+                        })
 
+                    }
+                }else{
+
+                    return res.http400( await commonFunctions.getValueFromStringsPhrase(
+                            stringHelper.strErrorPreviousSequenceNotCompleted
+                    ))
                 }
             }
-
+            stepFlowStepsHistory = await db.StepsFlowStepsHistory
+            .aggregate( [
+                ...filter,
+                { $skip: req.query.offset ? parseInt(req.query.offset) : 0 },
+                { $limit: req.query.limit ? parseInt(req.query.limit) : 10 }
+            ])
             return res.http200({
                 stepFlowStepsHistory: stepFlowStepsHistory
             });
             
         }else{
 
-            return res.http400('user as no stepFlowStepsHistory for specified stepflow to reset');
+            return res.http400(
+                await commonFunctions.getValueFromStringsPhrase(
+                    stringHelper.strNoUserStepFlowHistoryAvailable
+                )
+            );
 
         }
     })
-
 
     router.get('/:id', async (req, res) => {
                
@@ -408,21 +317,16 @@ module.exports = function (router) {
 
         filter = { _id: req.params.id }
 
-        const stepFlowStepsHistory = await db.StepFlowStepsHistory.findOne(filter)
+        const stepFlowStepsHistory = await db.StepsFlowStepsHistory.findOne(filter)
 
         if(stepFlowStepsHistory){
 
-            if(req.user._id.toString() === stepFlowStepsHistory.user._id.toString()){
-
-                req.body.updatedByUser = req.user._id
-                req.body.updatedAt = new Date()
-                            
-                return res.http200({
-                    stepFlowStepsHistory: stepFlowStepsHistory
-                });
-            }
-
-            return res.http400('Not permitted to carry out operation on this item');
+            req.body.updatedByUser = req.user._id
+            req.body.updatedAt = new Date()
+                        
+            return res.http200({
+                stepFlowStepsHistory: stepFlowStepsHistory
+            });
 
         }
         

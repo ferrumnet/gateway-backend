@@ -65,10 +65,10 @@ module.exports = function (router) {
                 req.body.updatedByUser = req.user._id
                 req.body.updatedAt = new Date()
             
-                const stepFlow = await db.StepFlowSteps.findOneAndUpdate(filter, req.body, { new: true });
+                const stepFlowStep = await db.StepFlowSteps.findOneAndUpdate(filter, req.body, { new: true });
                 
                 return res.http200({
-                    stepFlow: stepFlow
+                    stepFlowStep: stepFlowStep
                 });
             }
 

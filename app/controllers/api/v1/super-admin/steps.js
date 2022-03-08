@@ -109,12 +109,12 @@ module.exports = function (router) {
             return res.http400('Invalid id provided');
         }
 
-        const stepFlowStep = await db.Steps.findOne(filter)
+        const step = await db.Steps.findOne(filter)
 
-        if(stepFlowStep){
+        if(step){
 
             return res.http200({
-                stepFlowStep: stepFlowStep
+                step: step
             });
 
         }
