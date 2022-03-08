@@ -72,6 +72,9 @@ global.profileMiddleware = require('./app/lib/middlewares/profileMiddleware');
 global.awsHelper = require('./app/lib/middlewares/helpers/awsHelper');
 global.fetchCompetitionBlocksJob = require('./app/lib/crons/fetchCompetitionBlocksJob');
 global.fetchTokenHoldersJob = require('./app/lib/crons/fetchTokenHoldersJob');
+global.raisePoolsHelper = require('./app/lib/middlewares/helpers/raisePoolsHelper');
+global.organizationHelper = require('./app/lib/middlewares/helpers/organizationHelper');
+
 global.kraken = app.kraken
 // const whitelist = global.environment.whitelist;
 // const corsOptions = {

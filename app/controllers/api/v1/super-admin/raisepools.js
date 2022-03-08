@@ -91,4 +91,48 @@ module.exports = function (router) {
 
   });
 
+  router.get('/all/pledged/users/:id', asyncMiddleware(async (req, res) => {
+    let sort = {createdAt: -1}
+    let filter = {}
+    filter.raisePoolId = req.params.id
+    let pledgeRaisePools = []
+
+    if (req.query.isPagination != null && req.query.isPagination == 'false') {
+      pledgeRaisePools = await db.PledgeRaisePools.find(filter).populate('pledgedUserId')
+      .sort(sort)
+    } else {
+      pledgeRaisePools = await db.PledgeRaisePools.find(filter).populate('pledgedUserId')
+      .skip(req.query.offset ? parseInt(req.query.offset) : 0)
+      .limit(req.query.limit ? parseInt(req.query.limit) : 10)
+      .sort(sort)
+    }
+
+    return res.http200({
+      pledgeRaisePoolsUser: pledgeRaisePools
+    });
+
+  }));
+
+  router.get('/all/pledged/againts/single/user/:userId', asyncMiddleware(async (req, res) => {
+    let sort = {createdAt: -1}
+    let filter = {}
+    filter.pledgedUserId = req.params.userId
+    let pledgeRaisePools = []
+
+    if (req.query.isPagination != null && req.query.isPagination == 'false') {
+      pledgeRaisePools = await db.PledgeRaisePools.find(filter).populate('raisePoolId')
+      .sort(sort)
+    } else {
+      pledgeRaisePools = await db.PledgeRaisePools.find(filter).populate('raisePoolId')
+      .skip(req.query.offset ? parseInt(req.query.offset) : 0)
+      .limit(req.query.limit ? parseInt(req.query.limit) : 10)
+      .sort(sort)
+    }
+
+    return res.http200({
+      pledgeRaisePools: pledgeRaisePools
+    });
+
+  }));
+
 };

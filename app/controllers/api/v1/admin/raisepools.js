@@ -1,5 +1,5 @@
 
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global
+const { db, asyncMiddleware, commonFunctions, stringHelper, organizationHelper } = global
 const mailer = global.mailer;
 var mongoose = require('mongoose');
 
@@ -12,6 +12,7 @@ module.exports = function (router) {
     }
 
     req.body.createdByUser = req.user._id
+    req.body.organization = req.user.organization
     req.body.nameInLower = (req.body.name).toLowerCase()
     req.body.createdAt = new Date()
 
@@ -32,7 +33,7 @@ module.exports = function (router) {
       return res.http400('name & startDateTime & endDateTime are required.');
     }
 
-    let oldData = await db.RaisePools.findOne({_id: req.params.id, createdByUser: req.user._id})
+    let oldData = await db.RaisePools.findOne({_id: req.params.id, organization: req.user.organization})
 
     if(oldData){
       req.body.nameInLower = (req.body.name).toLowerCase()
@@ -58,7 +59,7 @@ module.exports = function (router) {
       return res.http400('status is required.');
     }
 
-    let oldData = await db.RaisePools.findOne({_id: req.params.id, createdByUser: req.user._id})
+    let oldData = await db.RaisePools.findOne({_id: req.params.id, organization: req.user.organization})
 
     if(oldData){
       req.body.updatedAt = new Date()
@@ -101,5 +102,30 @@ module.exports = function (router) {
     });
 
   });
+
+  router.get('/all/pledged/users/:id', asyncMiddleware(async (req, res) => {
+    let sort = {createdAt: -1}
+    let filter = {}
+    filter.raisePoolId = req.params.id
+    let pledgeRaisePools = []
+
+    let raisePool = await db.RaisePools.findOne({_id: req.params.id, organization: req.user.organization})
+    if(raisePool){
+      if (req.query.isPagination != null && req.query.isPagination == 'false') {
+        pledgeRaisePools = await db.PledgeRaisePools.find(filter).populate('pledgedUserId')
+        .sort(sort)
+      } else {
+        pledgeRaisePools = await db.PledgeRaisePools.find(filter).populate('pledgedUserId')
+        .skip(req.query.offset ? parseInt(req.query.offset) : 0)
+        .limit(req.query.limit ? parseInt(req.query.limit) : 10)
+        .sort(sort)
+      }
+    }
+
+    return res.http200({
+      pledgeRaisePoolsUser: pledgeRaisePools
+    });
+
+  }));
 
 };
