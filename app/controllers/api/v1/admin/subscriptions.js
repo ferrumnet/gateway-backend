@@ -13,7 +13,7 @@ module.exports = function (router) {
       };
       const org = await db.Organizations.countDocuments(orgFilter);
       if (org > 0) {
-        const package = await db.Package.find(packFilter);
+        const package = await db.Package.findOne(packFilter);
         if (package) {
           let subscription = await db.Subscription.countDocuments(subFilter);
           if (subscription < 1) {
