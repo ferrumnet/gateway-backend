@@ -38,11 +38,13 @@ module.exports = function (router) {
     })
   );
 
-  router.get("/of/associated/organization", asyncMiddleware(async (req, res) => {
-      const filter = { isActive: req.isActive };
-      filter.organization = req.user.organization;
-      const subscription = await db.Subscription.find(filter);
-      return res.http200(subscription);
+  router.get("/of/associated/organization", asyncMiddleware(async (req, res) => {    
+    let filter = { organization: req.user.organization };
+    if(req.query.isActive){
+      filter.isActive = req.query.isActive
+    }      
+    const subscription = await db.Subscription.find(filter);
+    return res.http200(subscription);
     })
   );
 };
