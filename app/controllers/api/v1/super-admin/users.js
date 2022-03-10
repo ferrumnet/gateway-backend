@@ -60,7 +60,7 @@ module.exports = function (router) {
     filter.role = 'superAdmin'
 
     filter.email = req.body.email
-    filter.password = db.Users.getHashedPassword(req.body.password)
+    //filter.password = req.body.password
 
     let user = await db.Users.findOne(filter);
 

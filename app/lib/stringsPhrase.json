@@ -33,12 +33,7 @@
   "Backend_Error_Wrong_Address_Or_FerrumNetworkIdentifier": "Current address or network identifier is invalid. Please contact our support team",
   "Backend_Success_ContractToken_Address_Is_Unique": "ContractTokenAddress is unique",
   "Backend_Success_Otp": "One Time Password (OTP) sent to your email",
-  "Backend_Success_Reset_Password_Link": "Link is sent to your verified email"
   "Backend_Success_Reset_Password_Link": "Link is sent to your verified email",
-  "Backend_Error_Product_Not_Found": "Product not found",
-  "Backend_Error_Unique_Email_Required": "Unique Email Required",
-  "Backend_Error_Active_Product_Required": "Active product required",
-  "Backend_Error_Package_Not_Found": "Package not found",
-  "Backend_Error_Not_Found_Subscription": "Subscription not found",
-  "Backend_Error_Subscription_Already_Exists": "Subscription already exists"
+  "Backend_No_StepFlow_History_Available": "User as no history for the specified stepflow.",
+  "Backend_Error_Previous_Sequence_Not_Completed": "Cannot restart workflow,  Previous sequence for stepFlow not completed."
 }
