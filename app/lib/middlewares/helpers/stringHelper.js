@@ -30,8 +30,13 @@ var strErrorTheRaisePoolIDIsIncorrectOrNotAvailable = "Backend_Error_The_RaisePo
 var strErrorProductNotFound = "Backend_Error_Product_Not_Found"
 let strErrorUniqueEmailRequired = 'Backend_Error_Unique_Email_Required'
 var strErrorActiveProductRequired = "Backend_Error_Active_Product_Required"
-var strErrorPackageNotFound = "Backend_Error_Package_Not_Found"
 var strErrorAlreadyPledged = "Backend_Error_Already_Pledged"
+var strErrorActiveProductRequired = "Backend_Error_Active_Product_Required" 
+var strErrorPackageNotFound = "Backend_Error_Package_Not_Found" 
+var strErrorSubscriptionNotFound = "Backend_Error_Not_Found_Subscription" 
+var strErrorSubscriptionAlreadyExists = "Backend_Error_Subscription_Already_Exists" 
+
+
 // success messages
 let strSuccessResetPasswordLink = 'Backend_Success_Reset_Password_Link'
 let strSuccessOtp = 'Backend_Success_Otp'
@@ -79,6 +84,8 @@ module.exports = {
   strErrorUniqueEmailRequired,
   strErrorActiveProductRequired,
   strErrorPackageNotFound,
-  strErrorAlreadyPledged
+  strErrorAlreadyPledged,
+  strErrorSubscriptionNotFound,
+  strErrorSubscriptionAlreadyExists
 }
 

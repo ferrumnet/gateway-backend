@@ -18,9 +18,10 @@ const packageSchema = mongoose.Schema(
   },
   },
   {
-    toJSON: { getters: true }
+    toJSON: { getters: true },
+    timestamps: true
   },
-  { timestamps: true },
+
 );
 
 packageSchema.pre("save", async function (next) {
