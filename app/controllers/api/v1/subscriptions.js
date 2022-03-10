@@ -15,14 +15,13 @@ module.exports = function (router) {
           filter = { _id: organization.user, isActive: true };
           const user = await db.Users.findOne(filter);
           if (user) {
+            currencies = await subscriptionHelper.activeCurrenciesDetailsByOrg(organization._id)
             subscriptions = await subscriptionHelper.subscriptionWithProduct(organization._id);       
             const subscribedProducts = subscriptions.map((subscription) => subscription.product.nameInLower)         
-            currencies = await subscriptionHelper.activeCurrenciesDetailsByOrg(organization._id)
-           
             if (subscribedProducts.indexOf("leaderboard") > -1) {
               leaderboards = await subscriptionHelper.activeLeaderBoardsByUser(user._id);
 
-              if (leaderboards.length > 0 && subscribedProducts.indexOf("compition") > -1) {
+              if (leaderboards.length > 0 && subscribedProducts.indexOf("competition") > -1) {
                 Competitions = await subscriptionHelper.activeCompitionsByLeaderboard( leaderboards);
               }
 
