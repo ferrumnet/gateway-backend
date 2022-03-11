@@ -57,10 +57,12 @@ module.exports = function (router) {
         if (req.query.isPagination != null && req.query.isPagination == 'false') {
             
             stepFlowStepsHistory = await db.StepsFlowStepsHistory.find(filter)
+            .sort({"sequence":1})
 
         }else {
 
             stepFlowStepsHistory = await db.StepsFlowStepsHistory.find(filter)
+            .sort({"sequence":1})
             .skip(req.query.offset ? parseInt(req.query.offset) : 0)
             .limit(req.query.limit ? parseInt(req.query.limit) : 10)
 
@@ -92,12 +94,12 @@ module.exports = function (router) {
             {$match: {$and: [{ user: req.user._id},{ stepFlow: mongoose.Types.ObjectId(req.params.id)}]}},
             {$lookup:{from: "stepFlowSteps",localField: "stepFlow",foreignField: "stepsFlow",as: "stepFlowStep"}},
             {$unwind: "$stepFlowStep"},
+            {"$sort" : { "sequence": 1,"stepFlowStep.orderIndex" : 1 }},
             { "$redact": { "$cond": [{ "$eq": [ "$step", "$stepFlowStep.step" ] }, "$$KEEP", "$$PRUNE"]}},
             {$lookup: {from: "steps",localField: "step",foreignField: "_id",
             pipeline: [{$unwind: {"path": "$step","preserveNullAndEmptyArrays": true}},
             {$project:{_id: 1,name: 1,isActive: 1}}],as: "step"}},
-            {"$addFields": {"step": {"$arrayElemAt": [ "$step", 0 ]}}},
-            {"$sort" : { "sequence" : 1 }}
+            {"$addFields": {"step": {"$arrayElemAt": [ "$step", 0 ]}}}
         ]
 
         if (req.query.isPagination != null && req.query.isPagination == 'false') {
@@ -124,7 +126,6 @@ module.exports = function (router) {
             if(StepsFlowItem){
                 
                 for(StepsFlow of StepsFlowItem.stepFlowSteps){
-
                     stepFlowStep = await db.StepFlowSteps.findOne({_id: StepsFlow })
                     
                     if(stepFlowStep.stepsFlow.toString() === req.params.id.toString()){
@@ -169,19 +170,19 @@ module.exports = function (router) {
             return res.http400('Invalid id provided');
         }
 
-        const lastItem = await db.StepsFlowStepsHistory.findOne().sort({_id: -1})
-
+        let lastItem = await db.StepsFlowStepsHistory.find().sort({sequence: 1})
+        lastItem = lastItem[(lastItem.length-1)]
         if(lastItem){
             filter =  [
                 {$match: {$and: [{ user: req.user._id},{ stepFlow: mongoose.Types.ObjectId(req.params.id)},{ sequence: lastItem.sequence}]}},
                 {$lookup:{from: "stepFlowSteps",localField: "stepFlow",foreignField: "stepsFlow",as: "stepFlowStep"}},
                 {$unwind: "$stepFlowStep"},
+                {"$sort" : { "sequence": 1,"stepFlowStep.orderIndex" : 1 }},
                 { "$redact": { "$cond": [{ "$eq": [ "$step", "$stepFlowStep.step" ] }, "$$KEEP", "$$PRUNE"]}},
                 {$lookup: {from: "steps",localField: "step",foreignField: "_id",
                 pipeline: [{$unwind: {"path": "$step","preserveNullAndEmptyArrays": true}},
                 {$project:{_id: 1,name: 1,isActive: 1}}],as: "step"}},
-                {"$addFields": {"step": {"$arrayElemAt": [ "$step", 0 ]}}},
-                {"$sort" : { "sequence" : 1 }}
+                {"$addFields": {"step": {"$arrayElemAt": [ "$step", 0 ]}}}
             ]
 
             if (req.query.isPagination != null && req.query.isPagination == 'false') {
@@ -220,12 +221,12 @@ module.exports = function (router) {
             {$match: {$and: [{ user: req.user._id},{ stepFlow: mongoose.Types.ObjectId(req.params.id)}]}},
             {$lookup:{from: "stepFlowSteps",localField: "stepFlow",foreignField: "stepsFlow",as: "stepFlowStep"}},
             {$unwind: "$stepFlowStep"},
+            {"$sort" : { "sequence": 1,"stepFlowStep.orderIndex" : 1 }},
             { "$redact": { "$cond": [{ "$eq": [ "$step", "$stepFlowStep.step" ] }, "$$KEEP", "$$PRUNE"]}},
             {$lookup: {from: "steps",localField: "step",foreignField: "_id",
             pipeline: [{$unwind: {"path": "$step","preserveNullAndEmptyArrays": true}},
             {$project:{_id: 1,name: 1,isActive: 1}}],as: "step"}},
-            {"$addFields": {"step": {"$arrayElemAt": [ "$step", 0 ]}}},
-            {"$sort" : { "sequence" : 1 }}
+            {"$addFields": {"step": {"$arrayElemAt": [ "$step", 0 ]}}}
         ]
 
         if (!req.params.id) {

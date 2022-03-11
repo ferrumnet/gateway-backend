@@ -5,7 +5,6 @@ module.exports = function (router) {
 
     router.post('/create', async (req, res) => {
 
-        console.log(req.body);
         if (!req.body.name || !req.body.step || !req.body.stepsFlow || !req.body.stepsRenderingJson || !req.body.orderIndex.toString()) {
             
             return res.http400('name ,step ,stepsFlow ,stepsRenderingJson and orderIndex is required in request.');
