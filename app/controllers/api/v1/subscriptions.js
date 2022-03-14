@@ -6,9 +6,8 @@ module.exports = function (router) {
       let filter = { siteName: req.params.name, isActive: true };
       let organization = null,
         subscriptions = [],
-        leaderboards = [],
-        currencies = [],
-        Competitions = [];
+        currencies = []
+     
       if (filter.siteName) {
         organization = await db.Organizations.findOne(filter);
         if (organization) {
@@ -17,16 +16,19 @@ module.exports = function (router) {
           if (user) {
             currencies = await subscriptionHelper.activeCurrenciesDetailsByOrg(organization._id)
             subscriptions = await subscriptionHelper.subscriptionWithProduct(organization._id);       
-            const subscribedProducts = subscriptions.map((subscription) => subscription.product.nameInLower)         
-            if (subscribedProducts.indexOf("leaderboard") > -1) {
-              leaderboards = await subscriptionHelper.activeLeaderBoardsByUser(user._id);
-
-              if (leaderboards.length > 0 && subscribedProducts.indexOf("competition") > -1) {
-                Competitions = await subscriptionHelper.activeCompitionsByLeaderboard( leaderboards);
+            const subscribedProducts = subscriptions.map((subscription) => subscription.product.nameInLower)            
+           
+            const LBSIndex =   subscribedProducts.indexOf("leaderboard")  
+            if (LBSIndex > -1) {              
+              const  LBSPName = subscriptions[LBSIndex].product.name;     
+              subscriptions[LBSIndex][LBSPName] = await subscriptionHelper.activeLeaderBoardsByUser(user._id);
+              const CSIndex = subscribedProducts.indexOf("competition")
+              if (subscriptions[LBSIndex][LBSPName].length > 0 && CSIndex > -1) {
+                const CSPName = subscriptions[CSIndex].product.name; 
+                subscriptions[CSIndex][CSPName] = await subscriptionHelper.activeCompitionsByLeaderboard(subscriptions[LBSIndex][LBSPName]);
               }
-
             }
-            return res.http200({organization, subscriptions, leaderboards, Competitions, currencies});
+            return res.http200({organization, subscriptions, currencies});
           }
           return res.http404("user not found");
         }
