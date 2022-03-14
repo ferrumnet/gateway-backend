@@ -28,81 +28,81 @@ module.exports = function (router) {
       .limit(req.query.limit ? parseInt(req.query.limit) : 10)
     }
     return res.http200({packages})
-   
+
   }));
 
   router.post("/create", asyncMiddleware(async (req, res) => {
     const productFilter = { _id:req.body.product, isActive:true}
-    var payload = utils.pick(req.body, ["name", "product", "price", "limit", "isFree" ]);
+    var payload = utils.pick(req.body, ["name", "product", "price", "limitation", "isFree" ]);
     payload.createdByUser = req.user._id
-    
-    if (payload.name && isValidObjectId(payload.product) && payload.price && payload.limit && typeof payload.isFree == "boolean") {      
-        const productCount = await db.Product.countDocuments(productFilter) 
-              
-        if(productCount > 0){ 
-            const package = await db.Package.create(payload);      
-            return res.http200({ package });      
-          }                         
+
+    if (payload.name && isValidObjectId(payload.product) && payload.price && payload.limitation && typeof payload.isFree == "boolean") {
+        const productCount = await db.Product.countDocuments(productFilter)
+
+        if(productCount > 0){
+            const package = await db.Package.create(payload);
+            return res.http200({ package });
+          }
           return res.http400(
               await commonFunctions.getValueFromStringsPhrase( stringHelper.strErrorActiveProductRequired),
-              stringHelper.strErrorActiveProductRequired           
-            ); 
-          
-    }       
-    return res.http400("Name, product, price, limit and isFree are required.");
-    
+              stringHelper.strErrorActiveProductRequired
+            );
+
+    }
+    return res.http400("Name, product, price, limitation and isFree are required.");
+
   }));
 
   router.put("/update/:id", asyncMiddleware(async (req, res) => {
     const filter = { _id:req.params.id }
-    const payload = utils.pick(req.body, ["name", "price", "limit", "isFree" ]);
+    const payload = utils.pick(req.body, ["name", "price", "limitation", "isFree" ]);
     payload.createdByUser = req.user._id
 
-    if (payload.name && isValidObjectId(filter._id) && payload.price && payload.limit && typeof payload.isFree == "boolean") {
-          
+    if (payload.name && isValidObjectId(filter._id) && payload.price && payload.limitation && typeof payload.isFree == "boolean") {
+
         const package = await db.Package.findOneAndUpdate(filter, payload, { new: true });
-    
-        return package ? res.http200({ package }) :        
+
+        return package ? res.http200({ package }) :
         res.http404(
           await commonFunctions.getValueFromStringsPhrase(
             stringHelper.strErrorPackageNotFound
           ),
           stringHelper.strErrorPackageNotFound
         );
-      
-    } 
-      return res.http400("Name, price, limit, isFree and valid ID are required.");
-    
+
+    }
+      return res.http400("Name, price, limitation, isFree and valid ID are required.");
+
   }));
 
 
   router.get("/:id", asyncMiddleware(async (req, res) => {
     const filter = { _id : req.params.id }
-    
-    if (isValidObjectId(filter._id)) { 
-    
+
+    if (isValidObjectId(filter._id)) {
+
       const package = await db.Package.findOne(filter);
-     
+
       return package ? res.http200({ package }) :
          res.http404(
           await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorPackageNotFound),
-          stringHelper.strErrorPackageNotFound 
-        ); 
+          stringHelper.strErrorPackageNotFound
+        );
 
-    } 
+    }
 
       return res.http400("Valid id is required.");
-    
+
   }));
 
   router.put("/active/inactive/:id", asyncMiddleware(async (req, res) => {
     const filter = { _id: req.params.id };
     const payload = {isActive: req.body.active};
 
-    if (isValidObjectId(filter._id) && typeof payload.isActive == "boolean") {    
-        
-      const package = await db.Package.findOneAndUpdate(filter, payload, { new: true });                      
-               
+    if (isValidObjectId(filter._id) && typeof payload.isActive == "boolean") {
+
+      const package = await db.Package.findOneAndUpdate(filter, payload, { new: true });
+
       return package ? res.http200({ package }) :
         res.http404(
            await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorPackageNotFound ),
@@ -110,7 +110,7 @@ module.exports = function (router) {
         );
     }
       return res.http400("Valid id and active is required.");
-    
+
   }));
-  
+
 };

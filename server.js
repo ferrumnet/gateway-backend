@@ -13,7 +13,7 @@ mongoose.Promise = require('bluebird');
     global.log.debug(coll + '.' + method + '( ' + JSON.stringify(query) +  ', ' + JSON.stringify(doc) + ' )');
   };
 
-  mongoose.set('debug', false); // mongoose.set('debug', mongoLogger)
+  mongoose.set('debug', true); // mongoose.set('debug', mongoLogger)
 
   mongoose.connect(mongoString, function(error, db) {
     if (error) {
