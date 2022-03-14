@@ -48,6 +48,7 @@ module.exports = {
         '$project': {           
           '_id': 1, 
           'name':1,
+          'isActive':1,
           numberOfCurrencies: { $cond: { if: { $isArray: "$leaderboardCurrencyAddressesByNetwork" }, then: { $size: "$leaderboardCurrencyAddressesByNetwork" }, else: "NA"} }     
         }    
       }
@@ -63,7 +64,7 @@ module.exports = {
       status: "published",
       isActive: true,
     };
-    return await db.Competitions.find(filter).select("_id name leaderboard");
+    return await db.Competitions.find(filter).select("_id name leaderboard isActive");
   },
 
   async subscriptionWithProduct(organizationId) {
@@ -86,6 +87,7 @@ module.exports = {
         'createdByUser': 1, 
         'product._id': 1, 
         'product.nameInLower': 1, 
+        'product.name': 1, 
         'product.isActive': 1,
         }
       }
