@@ -28,6 +28,14 @@ module.exports = function (router) {
 
         }
 
+        const indexTaken =  await db.StepFlowSteps.find({stepsFlow: mongoose.Types.ObjectId(req.body.stepsFlow),orderIndex: req.body.orderIndex})
+
+        if(indexTaken.length){
+
+            return res.http400("The orderIndex position provided is already taken in the referred stepsFlow");
+
+        }
+
         req.body.organization = req.user.organization
 
         req.body.createdByUser = req.user._id
@@ -37,7 +45,9 @@ module.exports = function (router) {
         req.body.createdAt = new Date()
 
         const stepFlowStep = await db.StepFlowSteps.create(req.body)
-           
+        
+        await db.StepsFlow.findOneAndUpdate({_id: stepsFlow}, { $push: { stepFlowSteps: stepFlowStep._id } }, { new: true });
+
         return res.http200({
             stepFlowStep: stepFlowStep
         });
