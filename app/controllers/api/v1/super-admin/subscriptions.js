@@ -45,9 +45,9 @@ module.exports = function (router) {
   router.get("/organization/:id", asyncMiddleware(async (req, res) => {
     const filter = { organization:req.params.id };
     if (isValidObjectId(filter.organization)) {
-      const subscription = await  db.Subscription.findOne(filter);
-     return subscription
-     ? res.http200({ subscription }):     
+      const subscriptions = await  db.Subscription.find(filter);
+     return subscriptions
+     ? res.http200({ subscriptions }):     
        res.http404(
           await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorSubscriptionNotFound),
           stringHelper.strErrorSubscriptionNotFound
