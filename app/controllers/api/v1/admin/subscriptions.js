@@ -19,7 +19,7 @@ module.exports = function (router) {
           if (subscription < 1) {
             payload.actualLimit = package.limitation;
             subscription = await db.Subscription.create(payload);
-            return res.http200(subscription);
+            return res.http200({subscription});
           }          
           return res.http404(
             await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorSubscriptionAlreadyExists ),
@@ -43,8 +43,8 @@ module.exports = function (router) {
     if(req.query.isActive){
       filter.isActive = req.query.isActive
     }      
-    const subscription = await db.Subscription.find(filter);
-    return res.http200(subscription);
+    const subscriptions = await db.Subscription.find(filter);
+    return res.http200({subscriptions});
     })
   );
 };
