@@ -57,9 +57,8 @@ module.exports = function (router) {
         const decryptedAddress = await recoverPersonalSignature({
           data: data,
           sig: signature
-        });
-      
-        console.log(decryptedAddress)
+        });      
+        // console.log(decryptedAddress)
         if (decryptedAddress && decryptedAddress.toLowerCase() == addressObject.address) {
           await db.Addresses.findOneAndUpdate({_id: addressObject._id}, {nonce: ''}, { new: true })
           const profileToken = req.user.createProfileUpdateToken(token, signature);
