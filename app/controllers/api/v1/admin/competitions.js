@@ -10,7 +10,7 @@ var ejs = require("ejs");
 
 module.exports = function (router) {
 
-  router.post('/create', async (req, res) => {
+  router.post('/create', asyncMiddleware(async (req, res) => {
 
     if (!req.body.name || !req.body.leaderboard || !req.body.startDate || !req.body.endDate) {
       return res.http400('name & leaderboard & startDate & endDate are required.');
@@ -38,9 +38,9 @@ module.exports = function (router) {
       competition: competition
     });
 
-  });
+  }));
 
-  router.put('/update/:id', async (req, res) => {
+  router.put('/update/:id', asyncMiddleware(async (req, res) => {
     let isDateChanged = false
     let filter = {}
     filter = { _id: req.params.id }
@@ -64,7 +64,7 @@ module.exports = function (router) {
       }
     }
 
-    let competition = await db.Competitions.findOneAndUpdate(filter, req.body, { new: true })
+    let competition = await db.Competitions.findOneAndUpdate(filter, req.body, { new: true,runValidators: true })
     // if(isDateChanged){
     //   await db.Jobs.remove({ competition: competition._id })
     //   let jobBody = {type: 'competition', competition: competition._id, status: stringHelper.tagStartBlock}
@@ -75,7 +75,7 @@ module.exports = function (router) {
       competition: competition
     });
 
-  });
+  }));
 
   router.put('/update/status/:id', async (req, res) => {
 
