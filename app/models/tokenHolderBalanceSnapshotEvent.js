@@ -6,7 +6,7 @@ const schema = mongoose.Schema(
   {
     type: { type: String, enum : ['manual','schedule'], default: 'schedule'},
     triggeredSnapshotDateTime: { type: Date, required: true },
-    actualSnapshotDateTime: { type: Date, required: true },
+    actualSnapshotDateTime: { type: Date},
     blockNumbers: { type: Array },
     leaderboard: { type: mongoose.Schema.Types.ObjectId, ref: 'leaderboards' },
     createdByUser: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
@@ -17,11 +17,11 @@ const schema = mongoose.Schema(
     errorMessage: { type: String },
   },
   {
-    timestamps: true
+    timestamps: true,
+    collection: 'tokenHolderBalanceSnapshotEvents'
   },
 
 );
 
 const TokenHolderBalanceSnapshotEvent = mongoose.model("TokenHolderBalanceSnapshotEvent", schema);
 module.exports = TokenHolderBalanceSnapshotEvent;
-
