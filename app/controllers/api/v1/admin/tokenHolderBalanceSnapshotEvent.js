@@ -26,7 +26,7 @@ module.exports = function (router) {
             return res.http404('org not found')
         }
 
-        return res.http200('orgnization, type, loaderboard and triggeredSnapshotDateTime are required')
+        return res.http200('Type, Loaderboard and TriggeredSnapshotDateTime are required')
       }));
 
     router.get("/list", asyncMiddleware(async (req, res) => {
@@ -34,21 +34,21 @@ module.exports = function (router) {
         let events = [];
         let filter = {organization:user.organization}
         
-        if(res.query.isActive){
-            filter.isActive = res.query.isActive
+        if(req.query.isActive){
+            filter.isActive = req.query.isActive
         }
 
-        if(res.query.status){
-            filter.status = res.query.status
+        if(req.query.status){
+            filter.status = req.query.status
         }
 
-        if(res.query.fromDate){
+        if(req.query.fromDate){
             filter.triggeredSnapshotDateTime = {
                 $gte:moment(req.query.fromDate).utc()
             }
         }
 
-        if(res.query.toDate){
+        if(req.query.toDate){
             filter.triggeredSnapshotDateTime = {
                 $lte:moment(req.query.toDate).utc()
             }
