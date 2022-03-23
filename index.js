@@ -74,6 +74,7 @@ global.fetchCompetitionBlocksJob = require('./app/lib/crons/fetchCompetitionBloc
 global.fetchTokenHoldersJob = require('./app/lib/crons/fetchTokenHoldersJob');
 global.raisePoolsHelper = require('./app/lib/middlewares/helpers/raisePoolsHelper');
 global.organizationHelper = require('./app/lib/middlewares/helpers/organizationHelper');
+global.leaderboardHelper = require('./app/lib/middlewares/helpers/leaderboardHelper');
 
 global.kraken = app.kraken
 // const whitelist = global.environment.whitelist;

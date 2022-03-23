@@ -2,4 +2,11 @@ const { db, asyncMiddleware, commonFunctions, stringHelper, timeoutHelper, timeo
 var mongoose , {isValidObjectId} = require('mongoose');
 
 module.exports = {
+
+  async getOrganizationsCountById(req){
+    const filter = { _id: req.user.organization, isActive: true }
+    console.log(filter)
+    return await db.Organizations.countDocuments(filter)
+  }
+
 }
