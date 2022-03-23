@@ -1,4 +1,4 @@
-const { asyncMiddleware, commonFunctions, utils, db, leaderboardHelper, organizationHelper } = global;
+const { asyncMiddleware, commonFunctions, utils, db, leaderboardHelper, organizationHelper, timeoutHelper } = global;
 
 module.exports = function (router) {
 
@@ -22,7 +22,8 @@ module.exports = function (router) {
     req.body.createdAt = new Date()
     req.body.updatedAt = new Date()
 
-    const tokenHolderBalanceSnapshotEvent = await db.TokenHolderBalanceSnapshotEvents.create(req.body);
+    const tokenHolderBalanceSnapshotEvent = await db.TokenHolderBalanceSnapshotEvents.create(req.body)
+    timeoutHelper.setSnapshotEventsTimeout(tokenHolderBalanceSnapshotEvent)
     return res.http200({
       tokenHolderBalanceSnapshotEvent: tokenHolderBalanceSnapshotEvent
     });
