@@ -51,6 +51,7 @@
     "stripe": "^8.61.0",
     "twilio": "^3.46.0",
     "unique-array-objects": "^2.1.0",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "web3": "^1.7.1"
   }
 }

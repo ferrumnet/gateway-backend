@@ -1,85 +1,87 @@
-const { db, asyncMiddleware, commonFunctions } = global
-var cron = require('node-cron');
-const competitions = require('../../models/competitions');
-const axios = require('axios').default;
+var cron = require("node-cron");
+var calcaluteGrowthVolume = require("./crons_helpers/competitionGrowthCalculater");
+var bscScanHelper = require("../httpCalls/bscScanHelper");
+var CGTrackerHelper = require("../middlewares/helpers/competitionGrowthTrackerHelper");
+var cTSnapshotHelper = require("../middlewares/helpers/competitionTransactionsSnapshotHelper");
+var competitionHelper = require("../middlewares/helpers/competitionHelper");
 
-module.exports = function () {
-  if (global.environment.isCronEnvironmentSupportedForFindBlockNo === 'yes') {
-    start(); 
-  }
-}
+module.exports =  async function () {
+ try{
+   //temporary conditions
+    //let startBlock = await bscScanHelper.queryBlockNumber(getTimeStamp());
+    await cTSnapshotHelper.createSnapshotMeta('0xa719b8ab7ea7af0ddb4358719a34631bb79d15dc', '16309980');
+    //end temporary conditions
 
-async function start() {
-  try {
-    const cabns  = await getActiveCABNsOfCompitions()
+    let isLock = false
+    cron.schedule("*/2  * * * *", async () => {
+      if(!isLock){
+        isLock = true;  
+        await transactionSnapshotJob();
+        isLock = false 
+      }
+    });  
+ }catch(error){
+   console.log(error)
+ }
 
-     cron.schedule('10 * * * * *', () => {      
-      cabns.forEach(cabn => {        
-        fetchFromBscScan(cabn)
-      });
+};
+const transactionSnapshotJob = async () => {
+  try {       
+      //for future when we will have multi cabns 
+      // approch 1
+      //1: get active cabns from active competitions
+      //2:  store in snapshotMeta
+      // alternative 
+      //1: on time of activate competion register with cTSnapshotHelper.createSnapshotMeta  
+      console.log('cron')
+      snapshotMetas = await cTSnapshotHelper.getActiveSnapshotMetas();    
+      console.log('snapshotMetas.lenth' , snapshotMetas.length)  
 
-    });
+      if(snapshotMetas.length > 0){      
+         let endBlock = await calculateEndBlockNumber();
+         for(let i= 0; i<snapshotMetas.length; i++){
+                    
+          let transations = await bscScanHelper.queryByCABN(snapshotMetas[i].tokenContractAddress, snapshotMetas[i].currentBlockNumber, endBlock.toString());
+          //let transations = await bscScanHelper.queryByCABN(snapshotMetas[i].tokenContractAddress, "16310378", "16315222");
+          console.log('transations.length',transations.length)
+          if(transations.length > 0){                                
+            await cTSnapshotHelper.insertTransactionsSnapshot(transations);                        
+            await competitionGrowthTrackerJob(snapshotMetas[i].tokenContractAddress, transations)                      
+          }           
+          await cTSnapshotHelper.updateMetaByContractAddress(snapshotMetas[i].tokenContractAddress, snapshotMetas[i].currentBlockNumber, endBlock);
+          console.log('job compeleted')                    
+        }
+      } 
+       
   } catch (e) {
     console.log(e);
   }
+};
+
+
+const competitionGrowthTrackerJob = async(tokenContractAddress, transactions)=>{
+  if(transactions.length > 0){
+   let competions = await competitionHelper.getActiveCompetitionForGrowth(tokenContractAddress);
+   console.log('competions.lenght=> ',competions.length)
+   for(let i=0; i<competions.length;i++){
+    let participants = await CGTrackerHelper.getCompetitionParticipants(tokenContractAddress, competions[i]._id)    
+    console.log('participants.lenght=> ',participants.length)
+    if(participants.length>0){
+      let participantsGrowth = await calcaluteGrowthVolume( "tradingVolumeFlow", transactions, participants, competions[i].dexLiquidityPoolCurrencyAddressByNetwork, competions[i]._id ); 
+      console.log('participantsGrowth.lenght=> ',participantsGrowth.length)
+      await CGTrackerHelper.storeCompetitionGrowth(tokenContractAddress, competions[i]._id, participantsGrowth)          
+    }      
+  }
 }
+};
 
-async function fetchFromBscScan(currencyAddress){
-  console.log('currency balance cron triggered')
-  axios
-  // .get('https://api.bscscan.com/api?module=account&action=tokentx&contractaddress=0xa719b8ab7ea7af0ddb4358719a34631bb79d15dc&page=1&offset=10000&startblock=0&endblock=999999999&sort=asc&apikey=QFQI7J6GMJXYJW6T5GYNGNNFCWI41S21JI')
-  .get(`https://api.bscscan.com/api?module=account&action=tokentx&contractaddress=${currencyAddress}&page=1&offset=10000&startblock=0&endblock=999999999&sort=asc&apikey=7KWGURV44D717REVIGCY6F4TBARXCQS6XW`)
-  .then((response) => {
-    let result = response.data.result
-    if(result){
-      console.log('data recived')
-      storeToDB(result)
-    }
-  })
-  .catch((error) => {
-    console.log(error);   
-  });
+const getTimeStamp = () => {
+  return Date.now().toString().substring(0, 10);
+};
 
+const calculateEndBlockNumber = async()=>{  
+  let endBlock = await bscScanHelper.queryBlockNumber(getTimeStamp());
+  endBlock = parseInt(endBlock);
+  --endBlock
+  return endBlock 
 }
-async function storeToDB(data){
- //console.log({data})
- if(data){
-   let temp = data[0]
-   console.log(temp)
- }else{
-   console('no data')
- }
-
-  // db.TestBalanceTracker.insertMany(data)
- console.log('stored')
-}
-
-async function getActiveCABNsOfCompitions(){
- let cabns = []
-  let filter = [
-    {'$match': {'isActive': true }},     
-    {'$lookup': {'from': 'leaderboards','localField': 'leaderboard', 'foreignField': '_id', 'as': 'leaderboard'}},
-    {'$unwind': {'path': '$leaderboard', 'preserveNullAndEmptyArrays': true }}, 
-    {'$match': {'leaderboard.isActive': true} }, 
-    {'$lookup': {'from': 'leaderboardCurrencyAddressesByNetwork', 'localField': 'leaderboard.leaderboardCurrencyAddressesByNetwork','foreignField': '_id',  'as': 'LCABN'}},
-    {'$unwind': { 'path': '$LCABN','preserveNullAndEmptyArrays': true }}, 
-    {'$match': {'LCABN.isActive': true}},
-    {'$lookup': {'from': 'currencyAddressesByNetwork','localField': 'LCABN.currencyAddressesByNetwork','foreignField': '_id', 'as': 'CABN'}},
-    {'$unwind': {'path': '$CABN','preserveNullAndEmptyArrays': true }}, 
-    {'$match': {'CABN.isActive': true }},
-    {'$project':{
-      '_id':1,'isActive':1,
-      'leaderboard._id':1,'leaderboard.isActive':1,
-      'LCABN._id.sActive':1,'LCABN.isActive':1,
-      'CABN._ID':1,'CABN.isActive':1,'CABN.tokenContractAddress':1
-    }}
-  ] 
-  $competitions = await db.Competitions.aggregate(filter)
-
-  $competitions.array.forEach(competition => {
-    if(competition.CABN)
-    cabns.push(competition.CABN.tokenContractAddress)
-  });
-  return cabns;
-}
-
