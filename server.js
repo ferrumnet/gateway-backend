@@ -21,6 +21,7 @@ mongoose.Promise = require('bluebird');
     } else {
       // global.fetchCompetitionBlocksJob()
       global.fetchTokenHoldersJob()
+      global.fetchTokenHolderBalanceSnapshotEventsJob()
       global.log.info('Connected to MongoDB');
     }
   });

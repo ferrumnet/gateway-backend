@@ -24,6 +24,33 @@ module.exports = {
         global.covalenthqBlock.findCovalenthqBlock(model)
       }
     }
-  }
+  },
 
+  async setSnapshotEventsTimeout(model) {
+
+    model = await db.TokenHolderBalanceSnapshotEvents.findOne({_id: model._id}).populate({
+      path: 'leaderboard',
+      populate: {
+        path: 'leaderboardCurrencyAddressesByNetwork',
+        populate: {
+          path: 'currencyAddressesByNetwork',
+          model: 'currencyAddressesByNetwork'
+        }
+      }
+    })
+
+    var now = moment().utc()
+    if(model && model.type && model.type == 'schedule' && model.triggeredSnapshotDateTime){
+      let time = moment(model.triggeredSnapshotDateTime).utc()
+      var duration = moment.duration(time.diff(now));
+      let milliseconds = duration.asMilliseconds()
+      if(milliseconds > 0){
+      let timeout = setTimeout(function(){timeoutCallBack.triggerTokenHolderBalanceSnapshotEvent(model)}, milliseconds);
+      }else {
+        global.commonFunctions.fetchTokenHolderBalanceSnapshotAgainstCABNs(model)
+      }
+    }else if(model && model.type && model.type == 'manual'){
+      global.commonFunctions.fetchTokenHolderBalanceSnapshotAgainstCABNs(model)
+    }
+  }
 }

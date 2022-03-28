@@ -28,5 +28,16 @@ module.exports = {
         global.covalenthqBlock.findCovalenthqBlock(job)
       }
     }
+  },
+  async fetchTokenHolderBalanceSnapshotEvent(model, isFromSetTimeout = false) {
+    if(model){
+      let count = await db.TokenHoldersBalanceSnapshots.countDocuments({tokenHolderBalanceSnapshotEvent: model.tokenHolderBalanceSnapshotEvent, currencyAddressesByNetwork: model._id})
+      if(count == 0){
+        global.bscScanTokenHolders.findTokenHolders(model, true)
+      }
+    }
+  },
+  async triggerTokenHolderBalanceSnapshotEvent(model) {
+    global.commonFunctions.fetchTokenHolderBalanceSnapshotAgainstCABNs(model)
   }
 }

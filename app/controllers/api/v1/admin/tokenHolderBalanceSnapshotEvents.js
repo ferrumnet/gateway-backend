@@ -1,4 +1,5 @@
-const { asyncMiddleware, commonFunctions, utils, db, leaderboardHelper, organizationHelper } = global;
+const { asyncMiddleware, commonFunctions, utils, db, leaderboardHelper, organizationHelper, timeoutHelper, tokenHolderBalanceSnapshotEventHelper, stringHelper } = global;
+let snapshotskeys = ['_id', 'tokenHolderAddress', 'tokenHolderQuantity', 'currentBlock', 'currencyAddressesByNetwork']
 
 module.exports = function (router) {
 
@@ -9,11 +10,11 @@ module.exports = function (router) {
     }
 
     if (await organizationHelper.getOrganizationsCountById(req) == 0) {
-      return res.http404('organization not found')
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorNotFoundOrganization), stringHelper.strErrorNotFoundOrganization,);
     }
 
     if (await leaderboardHelper.getLeaderboardsCountById(req) == 0) {
-      return res.http404('leaderboard not found')
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorTheLeaderboardIDIsIncorrectOrNotAvailable), stringHelper.strErrorTheLeaderboardIDIsIncorrectOrNotAvailable,);
     }
 
     req.body.organization = req.user.organization
@@ -22,7 +23,8 @@ module.exports = function (router) {
     req.body.createdAt = new Date()
     req.body.updatedAt = new Date()
 
-    const tokenHolderBalanceSnapshotEvent = await db.TokenHolderBalanceSnapshotEvents.create(req.body);
+    const tokenHolderBalanceSnapshotEvent = await db.TokenHolderBalanceSnapshotEvents.create(req.body)
+    timeoutHelper.setSnapshotEventsTimeout(tokenHolderBalanceSnapshotEvent)
     return res.http200({
       tokenHolderBalanceSnapshotEvent: tokenHolderBalanceSnapshotEvent
     });
@@ -107,4 +109,70 @@ module.exports = function (router) {
     });
 
   }));
+
+  router.get("/snapshot/associated/organization/list/:tokenHolderEventId", asyncMiddleware(async (req, res) => {
+
+    let tokenHoldersBalanceSnapshots = [];
+    let sort = { createdAt: 1 }
+    let filter = {}
+
+    if (await tokenHolderBalanceSnapshotEventHelper.isEventAssociatedWithUser(req.user.organization, req.params.tokenHolderEventId) == 0) {
+      return res.http200({
+        tokenHoldersBalanceSnapshots: tokenHoldersBalanceSnapshots
+      })
+    }
+
+    filter.tokenHolderBalanceSnapshotEvent = req.params.tokenHolderEventId
+    if (req.query.cabnId) {
+      filter.currencyAddressesByNetwork = req.query.cabnId
+    }
+
+    if (req.query.isPagination != null && req.query.isPagination == 'false') {
+      tokenHoldersBalanceSnapshots = await db.TokenHoldersBalanceSnapshots.find(filter, snapshotskeys)
+    } else {
+      tokenHoldersBalanceSnapshots = await db.TokenHoldersBalanceSnapshots.find(filter, snapshotskeys)
+        .skip(req.query.offset ? parseInt(req.query.offset) : 0)
+        .limit(req.query.limit ? parseInt(req.query.limit) : 10)
+    }
+
+    return res.http200({
+      tokenHoldersBalanceSnapshots: tokenHoldersBalanceSnapshots
+    })
+  }));
+
+  router.get("/snapshot/list/:tokenHolderEventId", asyncMiddleware(async (req, res) => {
+
+    let tokenHoldersBalanceSnapshots = [];
+    let sort = { createdAt: 1 }
+    let filter = {}
+
+    filter.tokenHolderBalanceSnapshotEvent = req.params.tokenHolderEventId
+    if (req.query.cabnId) {
+      filter.currencyAddressesByNetwork = req.query.cabnId
+    }
+
+    if (req.query.isPagination != null && req.query.isPagination == 'false') {
+      tokenHoldersBalanceSnapshots = await db.TokenHoldersBalanceSnapshots.find(filter, snapshotskeys)
+    } else {
+      tokenHoldersBalanceSnapshots = await db.TokenHoldersBalanceSnapshots.find(filter, snapshotskeys)
+        .skip(req.query.offset ? parseInt(req.query.offset) : 0)
+        .limit(req.query.limit ? parseInt(req.query.limit) : 10)
+    }
+
+    return res.http200({
+      tokenHoldersBalanceSnapshots: tokenHoldersBalanceSnapshots
+    })
+  }));
+
+  router.delete('/:id', asyncMiddleware(async (req, res) => {
+    let filter = {}
+
+    await db.TokenHoldersBalanceSnapshots.remove({ tokenHolderBalanceSnapshotEvent: req.params.id })
+    await db.TokenHolderBalanceSnapshotEvents.remove({ _id: req.params.id })
+
+    return res.http200({
+      message: stringHelper.strSuccess
+    });
+  }))
+
 };
