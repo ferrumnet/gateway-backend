@@ -6,23 +6,26 @@ var cTSnapshotHelper = require("../middlewares/helpers/competitionTransactionsSn
 var competitionHelper = require("../middlewares/helpers/competitionHelper");
 
 module.exports =  async function () {
- try{
-   //temporary conditions
-    //let startBlock = await bscScanHelper.queryBlockNumber(getTimeStamp());
-    await cTSnapshotHelper.createSnapshotMeta('0xa719b8ab7ea7af0ddb4358719a34631bb79d15dc', '16309980');
-    //end temporary conditions
-
-    let isLock = false
-    cron.schedule("*/2  * * * *", async () => {
-      if(!isLock){
-        isLock = true;  
-        await transactionSnapshotJob();
-        isLock = false 
-      }
-    });  
- }catch(error){
-   console.log(error)
+ if(global.dockerEnvironment.isCronEnvironmentSupportedForCompetitionTransactionsSnapshot === "yes"){
+  try{
+    //temporary conditions
+     //let startBlock = await bscScanHelper.queryBlockNumber(getTimeStamp());
+     await cTSnapshotHelper.createSnapshotMeta('0xa719b8ab7ea7af0ddb4358719a34631bb79d15dc', '16309980');
+     //end temporary conditions
+ 
+     let isLock = false
+     cron.schedule("*/2  * * * *", async () => {
+       if(!isLock){
+         isLock = true;  
+         await transactionSnapshotJob();
+         isLock = false 
+       }
+     });  
+  }catch(error){
+    console.log(error)
+  }
  }
+
 
 };
 const transactionSnapshotJob = async () => {
