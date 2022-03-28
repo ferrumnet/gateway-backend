@@ -97,6 +97,7 @@ const rankCalculator = (participants)=>{
    return participant1Growth.lt(participant2Growth) ? 1 : -1
   });
   for(let i=0; i< sortedParticipants.length; i++){
+    sortedParticipants[i].humanReadableGrowth = Web3.utils.fromWei(sortedParticipants[i].growth,'ether')
     sortedParticipants[i].rank = i+1
   }
   return sortedParticipants
