@@ -1,5 +1,5 @@
 const axios = require("axios").default;
-const apikey = "KM1X17TJEZTI5Z7N9KHGJ2FSJ78KS2T66S";
+const apikey = global.dockerEnvironment.bscScanApikey;
 
 module.exports = {
   async queryByCABN(cabn, startBlock, endBlock) {
