@@ -1,9 +1,9 @@
 const axios = require("axios").default;
-const apikey = global.dockerEnvironment.bscscanApikeyForCompetition;
+const apikey = global.environment.bscscanApikeyForCompetition;
 
 module.exports = {
   async queryByCABN(cabn, startBlock, endBlock) {
-    try {    
+    try {
       const res = await axios.get(`https://api.bscscan.com/api?module=account&action=tokentx&contractaddress=${cabn}&page=1&offset=10000&startblock=${startBlock}&endblock=${endBlock}&sort=asc&apikey=${apikey}`);
       return res.data.result ? res.data.result : [];
     } catch (error) {
