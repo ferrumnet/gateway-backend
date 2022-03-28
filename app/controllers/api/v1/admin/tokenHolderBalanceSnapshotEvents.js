@@ -1,4 +1,4 @@
-const { asyncMiddleware, commonFunctions, utils, db, leaderboardHelper, organizationHelper, timeoutHelper, tokenHolderBalanceSnapshotEventHelper } = global;
+const { asyncMiddleware, commonFunctions, utils, db, leaderboardHelper, organizationHelper, timeoutHelper, tokenHolderBalanceSnapshotEventHelper, stringHelper } = global;
 let snapshotskeys = ['_id', 'tokenHolderAddress', 'tokenHolderQuantity', 'currentBlock', 'currencyAddressesByNetwork']
 
 module.exports = function (router) {
@@ -163,4 +163,16 @@ module.exports = function (router) {
       tokenHoldersBalanceSnapshots: tokenHoldersBalanceSnapshots
     })
   }));
+
+  router.delete('/:id', asyncMiddleware(async (req, res) => {
+    let filter = {}
+
+    await db.TokenHoldersBalanceSnapshots.remove({ tokenHolderBalanceSnapshotEvent: req.params.id })
+    await db.TokenHolderBalanceSnapshotEvents.remove({ _id: req.params.id })
+
+    return res.http200({
+      message: stringHelper.strSuccess
+    });
+  }))
+
 };
