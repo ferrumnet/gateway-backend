@@ -35,6 +35,8 @@ module.exports = function (router) {
                 return res.http400('Invalid stepsFlow field provided');
     
             }
+
+
         }
       
 
@@ -45,11 +47,23 @@ module.exports = function (router) {
         req.body.updatedAt = new Date()
         req.body.updatedBy = req.user._id
        
-        const stepFlow = await db.StepFlowSteps.findOneAndUpdate(filter, req.body, { new: true });
-           
+        const stepFlowStep = await db.StepFlowSteps.findOneAndUpdate(filter, req.body, { new: true });
+
+        if (req.body.orderIndex) {
+
+            const indexTaken =  await db.StepFlowSteps.find({stepsFlow: mongoose.Types.ObjectId(req.body.stepsFlow),orderIndex: req.body.orderIndex})
+
+            if(indexTaken.length){
+
+                return res.http400("The orderIndex position provided is already taken in the referred stepsFlow");
+
+            }
+        }
+
         return res.http200({
-            stepFlow: stepFlow
+            stepFlowStep: stepFlowStep
         });
+
     })
 
 
