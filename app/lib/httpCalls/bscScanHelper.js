@@ -1,5 +1,5 @@
 const axios = require("axios").default;
-const apikey = global.dockerEnvironment.bscScanApikey;
+const apikey = global.dockerEnvironment.bscscanApikeyForCompetition;
 
 module.exports = {
   async queryByCABN(cabn, startBlock, endBlock) {
