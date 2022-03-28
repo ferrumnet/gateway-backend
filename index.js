@@ -71,6 +71,7 @@ global.addressesHelper = require('./app/lib/middlewares/helpers/addressesHelper'
 global.profileMiddleware = require('./app/lib/middlewares/profileMiddleware');
 global.awsHelper = require('./app/lib/middlewares/helpers/awsHelper');
 global.fetchCompetitionBlocksJob = require('./app/lib/crons/fetchCompetitionBlocksJob');
+global.fetchCompetitionTransactionsJob = require('./app/lib/crons/fetchCompetitionTransactionsJob');
 global.fetchTokenHoldersJob = require('./app/lib/crons/fetchTokenHoldersJob');
 global.fetchTokenHolderBalanceSnapshotEventsJob = require('./app/lib/crons/fetchTokenHolderBalanceSnapshotEventsJob');
 global.raisePoolsHelper = require('./app/lib/middlewares/helpers/raisePoolsHelper');
