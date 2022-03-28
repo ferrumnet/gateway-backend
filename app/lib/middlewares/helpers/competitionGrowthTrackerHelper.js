@@ -32,6 +32,8 @@ module.exports = {
                          update: {
                           "$set": {
                             "growth": participant.growth,
+                            "humanReadableGrowth": participant.humanReadableGrowth,
+                            "levelUpAmount": participant.levelUpAmount,
                             "rank": participant.rank
                           }
                         },

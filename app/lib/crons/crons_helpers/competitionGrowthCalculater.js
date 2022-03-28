@@ -67,7 +67,8 @@ const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurr
   }
   });
   
-   return rankCalculator(participants)
+   const sortedParticipants = sortParticipants(participants)
+   return participantsDataCalculation(sortedParticipants)
 
 
 }
@@ -90,15 +91,34 @@ const addGrowth =(current , toAdd )=>{
    return result.toString()
 }
 
-const rankCalculator = (participants)=>{
+const sortParticipants = (participants) =>{
   let sortedParticipants = participants.sort((participant1, participant2) => {
-   let participant1Growth = Web3.utils.toBN(participant1.growth) 
-   let participant2Growth = Web3.utils.toBN(participant2.growth)  
-   return participant1Growth.lt(participant2Growth) ? 1 : -1
-  });
-  for(let i=0; i< sortedParticipants.length; i++){
+    let participant1Growth = Web3.utils.toBN(participant1.growth) 
+    let participant2Growth = Web3.utils.toBN(participant2.growth)  
+    return participant1Growth.lt(participant2Growth) ? 1 : -1
+   });
+   return sortedParticipants
+}
+
+const participantsDataCalculation = (sortedParticipants)=>{
+  for(let i=0; i< sortedParticipants.length; i++){ 
     sortedParticipants[i].humanReadableGrowth = Web3.utils.fromWei(sortedParticipants[i].growth,'ether')
     sortedParticipants[i].rank = i+1
+    if(i>0){
+      sortedParticipants[i].levelUpAmount = calculateLevelUpAmount(sortedParticipants[i-1].growth, sortedParticipants[i].growth, i )
+    }
   }
   return sortedParticipants
+}
+
+const calculateLevelUpAmount = (previousParticipantGrowth, currentParticipantGrowth, index)=>{
+  let levelUpAmount = ""
+  let growthFactor =  Web3.utils.toBN(1) 
+  if(index > 0){
+     let previousParticipantGrowthBN = Web3.utils.toBN(previousParticipantGrowth) 
+     let currentParticipantGrowthBN = Web3.utils.toBN(currentParticipantGrowth)    
+     levelUpAmount =previousParticipantGrowthBN.sub(currentParticipantGrowthBN) 
+     levelUpAmount.add(growthFactor)
+  }
+  return levelUpAmount
 }

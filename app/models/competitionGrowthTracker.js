@@ -10,6 +10,7 @@ const schema = mongoose.Schema(
        tokenHolderQuantity:{type: String, default: ''},
        growth: {type:String, default:'0'},
        humanReadableGrowth: {type:String, default: "0"},
+       levelUpAmount: {type:String, default: ""},
        rank: {type:Number, default:null}
 
     }, { collection: 'competitionGrowthTracker'}
