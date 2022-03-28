@@ -18,7 +18,6 @@ module.exports = async (CompetitionType, transations, participants, dex, competi
 
 const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurrencyAddressByNetwork, competionId) => {
  const dex = dexLiquidityPoolCurrencyAddressByNetwork;
-  // let queries = [];
   let toIndex = -1;
   let formIndex = -1;
   transactions.forEach((transaction) => {
@@ -37,31 +36,26 @@ const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurr
       if(formIndex == -1){   
         // New participant sell (+ growth)       
         newparticipant =  getNewParticipantObject(competionId, transaction, transaction.from, transaction.value)         
-       // queries[newparticipant.tokenHolderAddress] = newparticipant
         participants.push(newparticipant)
       }else{
          // Old participant sell (+ growth)   
         participants[formIndex].growth  = addGrowth(participants[formIndex].growth, transaction.value)
-       // queries[participants[formIndex].tokenHolderAddress] = participants[formIndex]
       }
       
       if(toIndex == -1 ){
           // new participant purchases from other then dex (0 growth)   
-        let newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, "0")
-        //  queries[newparticipant.tokenHolderAddress] = newparticipant
-          participants.push(newparticipant)
+        let newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, "0")          
+        participants.push(newparticipant)
       }  
      //else{ no need to check old participant purchases from other then dex (0 growth)}
   }else{
     if(toIndex == -1){
       // New participant purchases from dex (growth = transaction.value)
      newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, transaction.value)
-    // queries[newparticipant.tokenHolderAddress] = newparticipant
      participants.push(newparticipant)
     }else{
       // old participant purchases from dex (+ growth)
       participants[toIndex].growth =  addGrowth(participants[toIndex].growth, transaction.value)
-    //  queries[participants[toIndex].tokenHolderAddress] = participants[toIndex]
     }
 
   }
