@@ -132,6 +132,20 @@ module.exports = function (router) {
 
   });
 
+  router.get("/participants/growth/:competition",asyncMiddleware(async (req, res) => {
+    let filter = {competition: req.params.competition}
+    let participants = []
+    let sort = { rank: 1 }
+    if (req.query.isPagination != null && req.query.isPagination == 'false') {
+      participants = await db.CompetitionGrowthTracker.find(filter).sort(sort)
+    } else {
+      participants = await db.CompetitionGrowthTracker.find(filter).sort(sort)
+        .skip(req.query.offset ? parseInt(req.query.offset) : 0)
+        .limit(req.query.limit ? parseInt(req.query.limit) : 10)
+    }
+    return res.http200({ participants });
+    })
+  )
 
 
 
