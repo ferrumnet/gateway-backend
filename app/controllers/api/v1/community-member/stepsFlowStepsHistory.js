@@ -170,8 +170,10 @@ module.exports = function (router) {
             return res.http400('Invalid id provided');
         }
 
-        let lastItem = await db.StepsFlowStepsHistory.find().sort({sequence: 1})
+        let lastItem = await db.StepsFlowStepsHistory.find({stepFlow: req.params.id}).sort({sequence: 1})
+        
         lastItem = lastItem[(lastItem.length-1)]
+
         if(lastItem){
             filter =  [
                 {$match: {$and: [{ user: req.user._id},{ stepFlow: mongoose.Types.ObjectId(req.params.id)},{ sequence: lastItem.sequence}]}},

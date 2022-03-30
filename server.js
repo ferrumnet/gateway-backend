@@ -13,14 +13,16 @@ mongoose.Promise = require('bluebird');
     global.log.debug(coll + '.' + method + '( ' + JSON.stringify(query) +  ', ' + JSON.stringify(doc) + ' )');
   };
 
-  mongoose.set('debug', true); // mongoose.set('debug', mongoLogger)
+  //mongoose.set('debug', true); // mongoose.set('debug', mongoLogger)
 
   mongoose.connect(mongoString, function(error, db) {
     if (error) {
       global.log.error(error);
     } else {
       // global.fetchCompetitionBlocksJob()
+      global.fetchCompetitionTransactionsJob()
       global.fetchTokenHoldersJob()
+      global.fetchTokenHolderBalanceSnapshotEventsJob()
       global.log.info('Connected to MongoDB');
     }
   });
