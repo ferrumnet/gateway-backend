@@ -4,7 +4,7 @@ var mongoose = require("mongoose");
 
 const schema = mongoose.Schema(
   {
-    blocksNumbers: [{ type: String }],
+    blockNumberRange: [{ type: String }],
     currentBlockNumber: {type:String, default:"0"},
     tokenContractAddress: { type: String, require:true },
     isActive:{ type: Boolean, default:false}
