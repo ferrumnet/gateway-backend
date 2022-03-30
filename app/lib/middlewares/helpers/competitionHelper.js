@@ -1,6 +1,13 @@
 const { db } = global;
 
 module.exports = {
+  async updateCompetitionCurrentBlock(competitionId, currentBlock) {
+    const filter = {_id: competitionId}
+    const payload = {currentBlock}
+    const competition = await db.Competitions.updateOne(filter,payload);
+    return competition
+   },
+
 async getActiveCompetitionForGrowth(tokenContractAddress) {    
     let result =[];
     let filter = [  
