@@ -6,7 +6,7 @@ let filter = {}
 let limit = 20
 
 module.exports = function () {
-  if (global.dockerEnvironment.shouldRunOnCronIntance == 'no') {
+  if (global.dockerEnvironment.isCronIntance == 'no') {
     start();
   }
 }
