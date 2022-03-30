@@ -20,7 +20,7 @@ module.exports = {
         const filter = {tokenContractAddress, isActive:true};  
         let meta = await db.CompetitionTransactionsSnapshotMeta.findOne(filter);     
         if(meta){
-            meta.blocksNumbers.push(`${startBlockNumber} - ${endBlockNumber}`);
+            meta.blockNumberRange.push(`${startBlockNumber} - ${endBlockNumber}`);
             meta.currentBlockNumber = ++endBlockNumber;
             meta.save();
         }
