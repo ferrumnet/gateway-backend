@@ -73,8 +73,11 @@ global.awsHelper = require('./app/lib/middlewares/helpers/awsHelper');
 global.fetchCompetitionBlocksJob = require('./app/lib/crons/fetchCompetitionBlocksJob');
 global.fetchCompetitionTransactionsJob = require('./app/lib/crons/fetchCompetitionTransactionsJob');
 global.fetchTokenHoldersJob = require('./app/lib/crons/fetchTokenHoldersJob');
+global.fetchTokenHolderBalanceSnapshotEventsJob = require('./app/lib/crons/fetchTokenHolderBalanceSnapshotEventsJob');
 global.raisePoolsHelper = require('./app/lib/middlewares/helpers/raisePoolsHelper');
 global.organizationHelper = require('./app/lib/middlewares/helpers/organizationHelper');
+global.leaderboardHelper = require('./app/lib/middlewares/helpers/leaderboardHelper');
+global.tokenHolderBalanceSnapshotEventHelper = require('./app/lib/middlewares/helpers/tokenHolderBalanceSnapshotEventHelper');
 
 global.kraken = app.kraken
 // const whitelist = global.environment.whitelist;

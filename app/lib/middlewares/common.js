@@ -88,8 +88,21 @@ module.exports = {
       });
     global.timeoutHelper.setCompetitionTimeout(job);
   },
+
   async isUniqueEmail(email) {
     const count = await db.Users.count({ email: email });
     return count == 0;
+  },
+
+  async fetchTokenHolderBalanceSnapshotAgainstCABNs(model) {
+
+    if(model && model.leaderboard && model.leaderboard.leaderboardCurrencyAddressesByNetwork &&
+      model.leaderboard.leaderboardCurrencyAddressesByNetwork.length > 0){
+        for(let i=0; i<model.leaderboard.leaderboardCurrencyAddressesByNetwork.length; i++){
+          let item = model.leaderboard.leaderboardCurrencyAddressesByNetwork[i].currencyAddressesByNetwork
+          item.tokenHolderBalanceSnapshotEvent = model._id
+          global.timeoutCallBack.fetchTokenHolderBalanceSnapshotEvent(item);
+        }
+    }
   },
 };
