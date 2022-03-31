@@ -41,18 +41,21 @@ const transactionSnapshotJob = async () => {
 
       if(snapshotMetas.length > 0){      
          let endBlock = await calculateEndBlockNumber();
-         for(let i= 0; i<snapshotMetas.length; i++){
+         if(typeof endBlock === 'number'){
+          for(let i= 0; i<snapshotMetas.length; i++){
                     
-          let transations = await bscScanHelper.queryByCABN(snapshotMetas[i].tokenContractAddress, snapshotMetas[i].currentBlockNumber, endBlock.toString());
-          //let transations = await bscScanHelper.queryByCABN(snapshotMetas[i].tokenContractAddress, "16310378", "16315222");
-          console.log('transations.length',transations.length)
-          if(transations.length > 0){                                
-            await cTSnapshotHelper.insertTransactionsSnapshot(transations);                        
-            await competitionGrowthTrackerJob(snapshotMetas[i].tokenContractAddress, transations, endBlock)                      
-          }           
-          await cTSnapshotHelper.updateMetaByContractAddress(snapshotMetas[i].tokenContractAddress, snapshotMetas[i].currentBlockNumber, endBlock);
-          console.log('job compeleted')                    
-        }
+            let transations = await bscScanHelper.queryByCABN(snapshotMetas[i].tokenContractAddress, snapshotMetas[i].currentBlockNumber, endBlock.toString());
+            //let transations = await bscScanHelper.queryByCABN(snapshotMetas[i].tokenContractAddress, "16310378", "16315222");
+            console.log('transations.length',transations.length)
+            if(transations.length > 0){                                
+              await cTSnapshotHelper.insertTransactionsSnapshot(transations);                        
+              await competitionGrowthTrackerJob(snapshotMetas[i].tokenContractAddress, transations, endBlock)                      
+            }           
+            await cTSnapshotHelper.updateMetaByContractAddress(snapshotMetas[i].tokenContractAddress, snapshotMetas[i].currentBlockNumber, endBlock);
+            console.log('job compeleted')                    
+          }
+         }
+        
       } 
        
   } catch (e) {
