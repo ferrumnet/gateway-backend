@@ -35,14 +35,14 @@ module.exports = {
                             "humanReadableGrowth": participant.humanReadableGrowth,
                             "levelUpAmount": participant.levelUpAmount,
                             "rank": participant.rank
-                          }
+                          },
                         },
                         upsert: true                
                     },
                 });
             }
         });        
-       await db.CompetitionGrowthTracker.bulkWrite(data)
+       await db.CompetitionGrowthTracker.collection.bulkWrite(data)
        return true
     }
 }
