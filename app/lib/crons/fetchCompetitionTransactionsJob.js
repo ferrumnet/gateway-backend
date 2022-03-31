@@ -34,7 +34,7 @@ const transactionSnapshotJob = async () => {
       //1: get active cabns from active competitions
       //2:  store in snapshotMeta
       // alternative
-      //1: on time of activate competion register with cTSnapshotHelper.createSnapshotMeta
+      //1: on time of activate competition register with cTSnapshotHelper.createSnapshotMeta
       console.log('cron')
       snapshotMetas = await cTSnapshotHelper.getActiveSnapshotMetas();
       console.log('snapshotMetas.lenth' , snapshotMetas.length)
@@ -50,7 +50,7 @@ const transactionSnapshotJob = async () => {
             if(transations.length > 0){
               await cTSnapshotHelper.insertTransactionsSnapshot(transations);
               await competitionGrowthTrackerJob(snapshotMetas[i].tokenContractAddress, transations, endBlock)
-            }
+            }           
             await cTSnapshotHelper.updateMetaByContractAddress(snapshotMetas[i].tokenContractAddress, snapshotMetas[i].currentBlockNumber, endBlock);
             console.log('job compeleted')
           }
@@ -66,16 +66,16 @@ const transactionSnapshotJob = async () => {
 
 const competitionGrowthTrackerJob = async(tokenContractAddress, transactions, endBlock)=>{
   if(transactions.length > 0){
-   let competions = await competitionHelper.getActiveCompetitionForGrowth(tokenContractAddress);
-   console.log('competions.lenght=> ',competions.length)
-   for(let i=0; i<competions.length;i++){
-    let participants = await CGTrackerHelper.getCompetitionParticipants(tokenContractAddress, competions[i]._id, competions[i])
+   let competitions = await competitionHelper.getActiveCompetitionForGrowth(tokenContractAddress);
+   console.log('competitions.lenght=> ',competitions.length)
+   for(let i=0; i<competitions.length;i++){
+    let participants = await CGTrackerHelper.getCompetitionParticipants(tokenContractAddress, competitions[i]._id, competitions[i])
     console.log('participants.lenght=> ',participants.length)
     if(participants.length>0){
-      let participantsGrowth = await calcaluteGrowthVolume( "tradingVolumeFlow", transactions, participants, competions[i].dexLiquidityPoolCurrencyAddressByNetwork, competions[i]._id );
+      let participantsGrowth = await calcaluteGrowthVolume( "tradingVolumeFlow", transactions, participants, competitions[i].dexLiquidityPoolCurrencyAddressByNetwork, competitions[i]._id, competitions[i].startBlock );
       console.log('participantsGrowth.lenght=> ',participantsGrowth.length)
-      await CGTrackerHelper.storeCompetitionGrowth(tokenContractAddress, competions[i]._id, participantsGrowth)
-      await competitionHelper.updateCompetitionCurrentBlock(competions[i]._id, endBlock)
+      await CGTrackerHelper.storeCompetitionGrowth(tokenContractAddress, competitions[i]._id, participantsGrowth)
+      await competitionHelper.updateCompetitionCurrentBlock(competitions[i]._id, endBlock)
     }
   }
 }
