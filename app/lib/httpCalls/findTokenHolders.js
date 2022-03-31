@@ -90,7 +90,7 @@ const sendCallForTokenHolders = async (model, isFromSnapshotEvent) => {
     if (res.statusCode === 202 || res.statusCode === 201 || res.statusCode === 200) {
       res.on('end', () => {
         var res = JSON.parse(data);
-        console.log(res)
+        // console.log(res)
         if (res && res.result && typeof res.result != 'string' && res.result.length > 0) {
           updateTokenHolders(model, res.result, isFromSnapshotEvent)
         }else {
