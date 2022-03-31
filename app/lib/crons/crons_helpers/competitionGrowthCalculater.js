@@ -4,7 +4,7 @@ module.exports = async (CompetitionType, transations, participants, dex, competi
   let result = [];
   switch (CompetitionType) {
     case "tradingVolumeFlow":
-      result = await calcaluteTradingVolume(transations, participants, dex, competionId);
+      result =  calcaluteTradingVolume(transations, participants, dex, competionId);
     
       break;
     case "purchaseFlow":
@@ -17,11 +17,11 @@ module.exports = async (CompetitionType, transations, participants, dex, competi
 };
 
 
-const calcaluteTradingVolume = async(transactions, participants, dexLiquidityPoolCurrencyAddressByNetwork, competionId) => {
+const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurrencyAddressByNetwork, competionId) => {
  const dex = dexLiquidityPoolCurrencyAddressByNetwork;
   let toIndex = -1;
   let formIndex = -1;
-  transactions.forEach(async(transaction) => {
+  transactions.forEach((transaction) => {
     toIndex = -1;
     formIndex = -1;
    
@@ -39,7 +39,7 @@ const calcaluteTradingVolume = async(transactions, participants, dexLiquidityPoo
         participants.push(newparticipant)
       }else{
          // Old participant sell (+ growth)   
-        participants[formIndex].growth  = await addGrowth(participants[formIndex].growth, transaction.value)
+        participants[formIndex].growth  = addGrowth(participants[formIndex].growth, transaction.value)
       }
       
       if(toIndex == -1 ){
@@ -55,7 +55,7 @@ const calcaluteTradingVolume = async(transactions, participants, dexLiquidityPoo
      participants.push(newparticipant)
     }else{
       // // old participant purchases from dex (+ growth)
-      participants[toIndex].growth  = await addGrowth(participants[toIndex].growth, transaction.value)
+      participants[toIndex].growth  =  addGrowth(participants[toIndex].growth, transaction.value)
      
     }
 
@@ -77,7 +77,7 @@ const getNewParticipantObject=(competionId, transaction, tokenHolderAddress, gro
 }
 
 
-const addGrowth =async (current , toAdd )=>{ 
+const addGrowth = (current , toAdd )=>{ 
   if(current === '0' || current === undefined){
     return Web3.utils.fromWei(toAdd, 'ether')
   }
