@@ -41,7 +41,7 @@ const transactionSnapshotJob = async () => {
 
       if(snapshotMetas.length > 0){
          let endBlock = await calculateEndBlockNumber();
-         if(typeof endBlock === 'number'){
+         if(!isNaN(endBlock)){
           for(let i= 0; i<snapshotMetas.length; i++){
 
             let transations = await bscScanHelper.queryByCABN(snapshotMetas[i].tokenContractAddress, snapshotMetas[i].currentBlockNumber, endBlock.toString());
