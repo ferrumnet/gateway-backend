@@ -9,8 +9,9 @@ module.exports =  async function () {
  if(global.dockerEnvironment.isCronEnvironmentSupportedForCompetitionTransactionsSnapshot === "yes"){
   try{
     //temporary conditions
-     //let startBlock = await bscScanHelper.queryBlockNumber(getTimeStamp());
-     await cTSnapshotHelper.createSnapshotMeta('0xa719b8ab7ea7af0ddb4358719a34631bb79d15dc', '16309980');
+    //let startBlock = await bscScanHelper.queryBlockNumber(getTimeStamp());
+     await cTSnapshotHelper.createSnapshotMeta('0x5732a2a84ec469fc95ac32e12515fd337e143eed', '16565403');
+     await cTSnapshotHelper.createSnapshotMeta('0x422a9c44e52a2ea96422f0caf4a00e30b3e26a0d', '16565403');
      //end temporary conditions
 
      let isLock = false
