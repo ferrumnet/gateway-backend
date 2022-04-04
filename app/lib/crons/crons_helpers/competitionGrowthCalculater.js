@@ -23,7 +23,7 @@ const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurr
   let formIndex = -1;
   competitionStartBlock = parseInt( competitionStartBlock)
   transactions.forEach((transaction) => {
-   if(isNaN(competitionStartBlock) || competitionStartBlock >= parseInt(transaction.blockNumber)){         
+   if(isNaN(competitionStartBlock) || competitionStartBlock <= parseInt(transaction.blockNumber)){         
       toIndex = -1;   
       formIndex = -1;
       
