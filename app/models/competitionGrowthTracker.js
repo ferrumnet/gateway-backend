@@ -8,11 +8,11 @@ const schema = mongoose.Schema(
        tokenContractAddress:{ type: String },
        tokenHolderAddress: { type: String, default: '' },
        tokenHolderQuantity:{type: String, default: ''},
-       growth: {type:String, default:'0'},
+       growth: {type:String, default: '0'},
        humanReadableGrowth: {type:String, default: "0"},
        levelUpAmount: {type:String, default: ""},
-       rank: {type:Number, default:null}
-
+       rank: {type:Number, default: null},
+       excludedWalletAddress:{type:Boolean, default: false}
     }, { collection: 'competitionGrowthTracker'}
 );
 
