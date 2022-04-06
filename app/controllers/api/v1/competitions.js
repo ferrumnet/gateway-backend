@@ -133,9 +133,13 @@ module.exports = function (router) {
   });
 
   router.get("/participants/growth/:competition",asyncMiddleware(async (req, res) => {
+    let excludedWalletAddress = req.query.withExcludedWalletAddress == "true" ? true : false 
     let filter = {competition: req.params.competition}
     let participants = []
     let sort = { rank: 1 }
+    if(!excludedWalletAddress){
+      filter.excludedWalletAddress = false
+    }
     if (req.query.isPagination != null && req.query.isPagination == 'false') {
       participants = await db.CompetitionGrowthTracker.find(filter).sort(sort)
     } else {
