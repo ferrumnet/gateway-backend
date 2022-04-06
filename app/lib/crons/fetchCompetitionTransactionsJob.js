@@ -1,9 +1,9 @@
 var cron = require("node-cron");
-var calcaluteGrowthVolume = require("./crons_helpers/competitionGrowthCalculater");
-var bscScanHelper = require("../httpCalls/bscScanHelper");
-var CGTrackerHelper = require("../middlewares/helpers/competitionGrowthTrackerHelper");
-var cTSnapshotHelper = require("../middlewares/helpers/competitionTransactionsSnapshotHelper");
-var competitionHelper = require("../middlewares/helpers/competitionHelper");
+var calcaluteGrowthVolume = global.calcaluteGrowthVolume;
+var bscScanHelper = global.bscScanHelper;
+var CGTrackerHelper = global.CGTrackerHelper;
+var cTSnapshotHelper = global.cTSnapshotHelper;
+var competitionHelper = global.competitionHelper;
 
 module.exports =  async function () {
  if(global.dockerEnvironment.isCronEnvironmentSupportedForCompetitionTransactionsSnapshot === "yes"){
@@ -51,7 +51,7 @@ const transactionSnapshotJob = async () => {
             if(transations.length > 0){
               await cTSnapshotHelper.insertTransactionsSnapshot(transations);
               await competitionGrowthTrackerJob(snapshotMetas[i].tokenContractAddress, transations, endBlock)
-            }           
+            }
             await cTSnapshotHelper.updateMetaByContractAddress(snapshotMetas[i].tokenContractAddress, snapshotMetas[i].currentBlockNumber, endBlock);
             console.log('job compeleted')
           }
