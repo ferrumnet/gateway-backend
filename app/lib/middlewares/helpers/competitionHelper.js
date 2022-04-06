@@ -53,6 +53,7 @@ async getActiveCompetitionForGrowth(tokenContractAddress) {
           "endBlock":1,
           "dexLiquidityPoolCurrencyAddressByNetwork":1,
           "leaderboard._id": 1,
+          "leaderboard.exclusionWalletAddressList": 1,
           "leaderboard.isActive": 1,
           "LCABN._id": 1,
           "LCABN.isActive": 1,

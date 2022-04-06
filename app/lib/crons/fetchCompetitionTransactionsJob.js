@@ -73,7 +73,7 @@ const competitionGrowthTrackerJob = async(tokenContractAddress, transactions, en
     let participants = await CGTrackerHelper.getCompetitionParticipants(tokenContractAddress, competitions[i]._id, competitions[i])
     console.log('participants.lenght=> ',participants.length)
     if(participants.length>0){
-      let participantsGrowth = await calcaluteGrowthVolume( "tradingVolumeFlow", transactions, participants, competitions[i].dexLiquidityPoolCurrencyAddressByNetwork, competitions[i]._id, competitions[i].startBlock );
+      let participantsGrowth = await calcaluteGrowthVolume( "tradingVolumeFlow", transactions, participants, competitions[i].dexLiquidityPoolCurrencyAddressByNetwork, competitions[i]._id, competitions[i].startBlock, competitions[i].leaderboard );
       console.log('participantsGrowth.lenght=> ',participantsGrowth.length)
       await CGTrackerHelper.storeCompetitionGrowth(tokenContractAddress, competitions[i]._id, participantsGrowth)
       await competitionHelper.updateCompetitionCurrentBlock(competitions[i]._id, endBlock)

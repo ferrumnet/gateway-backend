@@ -1,10 +1,10 @@
 const Web3= require("web3")
 
-module.exports = async (CompetitionType, transations, participants, dex, competionId, competitionStartBlock) => {
+module.exports = async (CompetitionType, transations, participants, dex, competionId, competitionStartBlock, leaderboard) => {
   let result = [];
   switch (CompetitionType) {
     case "tradingVolumeFlow":
-      result =  calcaluteTradingVolume(transations, participants, dex, competionId, competitionStartBlock);
+      result =  calcaluteTradingVolume(transations, participants, dex, competionId, competitionStartBlock, leaderboard);
     
       break;
     case "purchaseFlow":
@@ -17,7 +17,7 @@ module.exports = async (CompetitionType, transations, participants, dex, competi
 };
 
 
-const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurrencyAddressByNetwork, competionId, competitionStartBlock) => {
+const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurrencyAddressByNetwork, competionId, competitionStartBlock, leaderboard) => {
  const dex = dexLiquidityPoolCurrencyAddressByNetwork;
   let toIndex = -1;
   let formIndex = -1;
@@ -66,7 +66,7 @@ const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurr
   });
   
    const sortedParticipants = sortParticipants(participants)
-   return participantsDataCalculation(sortedParticipants)
+   return participantsDataCalculation(sortedParticipants, leaderboard)
 
 
 }
@@ -97,13 +97,15 @@ const sortParticipants = (participants) =>{
    });
    return sortedParticipants
 }
-const participantsDataCalculation = (sortedParticipants)=>{
+const participantsDataCalculation = (sortedParticipants, leaderboard)=>{
   for(let i=0; i< sortedParticipants.length; i++){ 
     sortedParticipants[i].rank = i+1
     sortedParticipants[i].humanReadableGrowth = Web3.utils.fromWei(sortedParticipants[i].growth,'ether')
     if(i>0){
       sortedParticipants[i].levelUpAmount = calculateLevelUpAmount(sortedParticipants[i-1].growth, sortedParticipants[i].growth, i )
     }
+    let excludedAddress = leaderboard.exclusionWalletAddressList.findIndex((walletAddress)=> walletAddress === sortedParticipants[i].tokenHolderAddress)
+    sortedParticipants[i].excludedWalletAddress = excludedAddress != -1
   }
   return sortedParticipants
 }
