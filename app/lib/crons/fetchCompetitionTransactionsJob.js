@@ -6,7 +6,7 @@ var cTSnapshotHelper = global.cTSnapshotHelper;
 var competitionHelper = global.competitionHelper;
 
 module.exports =  async function () {
- if(global.dockerEnvironment.isCronEnvironmentSupportedForCompetitionTransactionsSnapshot === "yes"){
+ if(global.starterEnvironment.isCronEnvironmentSupportedForCompetitionTransactionsSnapshot === "yes"){
   try{
     //temporary conditions
     //let startBlock = await bscScanHelper.queryBlockNumber(getTimeStamp());
