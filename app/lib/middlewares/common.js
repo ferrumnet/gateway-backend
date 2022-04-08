@@ -16,11 +16,11 @@ module.exports = {
     if (expiresIn) {
       options.expiresIn = expiresIn;
     }
-    return jwt.sign(object, global.kraken.get("app:jwtSecret"), options);
+    return jwt.sign(object, global.environment.jwtSecret, options);
   },
 
   decodeAPiToken: function (token) {
-    return jwtVerify(token, global.kraken.get("app:jwtSecret"));
+    return jwtVerify(token, global.environment.jwtSecret);
   },
 
   async validationForUniqueCBN(req, res) {

@@ -47,4 +47,3 @@ public/
 /.serverless
 dockerBuild.sh
 package-lock.json
-config/config.json
