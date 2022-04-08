@@ -23,48 +23,48 @@ const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurr
   let formIndex = -1;
   competitionStartBlock = parseInt( competitionStartBlock)
   transactions.forEach((transaction) => {
-   if(isNaN(competitionStartBlock) || competitionStartBlock <= parseInt(transaction.blockNumber)){         
-      toIndex = -1;   
+   if(isNaN(competitionStartBlock) || competitionStartBlock <= parseInt(transaction.blockNumber)){
+      toIndex = -1;
       formIndex = -1;
-      
-      toIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.to);   
-      if(dex != transaction.form){   
+
+      toIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.to);
+      if(dex != transaction.form){
         formIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.form);
       }
-       
-      let newparticipant = null   
-      if(dex != transaction.form){      
-   
-        if(formIndex == -1){          
-          // New participant sell (+ growth)               
-          newparticipant =  getNewParticipantObject(competionId, transaction, transaction.from, transaction.value)                 
-          participants.push(newparticipant)      
-        }else{        
-          // Old participant sell (+ growth)          
-          participants[formIndex].growth  = addGrowth(participants[formIndex].growth, transaction.value)    
+
+      let newparticipant = null
+      if(dex != transaction.form){
+
+        if(formIndex == -1){
+          // New participant sell (+ growth)
+          newparticipant =  getNewParticipantObject(competionId, transaction, transaction.from, transaction.value)
+          participants.push(newparticipant)
+        }else{
+          // Old participant sell (+ growth)
+          participants[formIndex].growth  = addGrowth(participants[formIndex].growth, transaction.value)
         }
-           
+
         if(toIndex == -1 ){
-          // new participant purchases from other then dex (0 growth)          
-          let newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, "0")                  
-          participants.push(newparticipant)      
-        }  
-    
+          // new participant purchases from other then dex (0 growth)
+          let newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, "0")
+          participants.push(newparticipant)
+        }
+
         //else{ no need to check old participant purchases from other then dex (0 growth)}
-  
-      }else{   
-        if(toIndex == -1){     
-          // New participant purchases from dex (growth = transaction.value)     
-          newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, transaction.value)     
-          participants.push(newparticipant)    
-        }else{      
-          // // old participant purchases from dex (+ growth)      
-          participants[toIndex].growth  =  addGrowth(participants[toIndex].growth, transaction.value)         
-        }  
+
+      }else{
+        if(toIndex == -1){
+          // New participant purchases from dex (growth = transaction.value)
+          newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, transaction.value)
+          participants.push(newparticipant)
+        }else{
+          // // old participant purchases from dex (+ growth)
+          participants[toIndex].growth  =  addGrowth(participants[toIndex].growth, transaction.value)
+        }
       }
     }
   });
-  
+
    const sortedParticipants = sortParticipants(participants)
    return participantsDataCalculation(sortedParticipants, leaderboard)
 

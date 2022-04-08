@@ -6,6 +6,7 @@ var StepFlowStepsHistoryModel = function () {
   var StepFlowStepsHistorySchema = mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
     stepFlow:  { type: mongoose.Schema.Types.ObjectId, ref: 'stepsFlow' },
+    stepFlowStep:  { type: mongoose.Schema.Types.ObjectId, ref: 'stepFlowSteps' },
     status: { type: String, enum : ['started','pending','completed'], default: "pending"},
     sequence: {type: Number },
     isActive: { type: Boolean, default: true },
