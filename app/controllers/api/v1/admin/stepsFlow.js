@@ -17,9 +17,18 @@ module.exports = function (router) {
 
         req.body.nameInLower = (req.body.name).toLowerCase()
 
-        req.body.createdAt = new Date()
+        req.body.createdAt,req.body.updatedAt = new Date()
 
-        
+        if(req.body.productId){
+
+            const product = await db.products.findById(req.body.productId);
+
+            if(!product){
+                return res.http400('invalid product detail provided.');
+            }
+
+        }
+
         if(req.body.stepFlowSteps){
 
             for (stepFlowStepId of req.body.stepFlowSteps){
@@ -98,6 +107,16 @@ module.exports = function (router) {
         }
 
         const stepFlow = await db.StepsFlow.findOne(filter);
+
+        if(req.body.productId){
+
+            const product = await db.products.findById(req.body.productId);
+
+            if(!product){
+                return res.http400('invalid product detail provided.');
+            }
+
+        }
 
         if(stepFlow){
 
