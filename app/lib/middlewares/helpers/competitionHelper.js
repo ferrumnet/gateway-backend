@@ -11,7 +11,7 @@ module.exports = {
 async getActiveCompetitionForGrowth(tokenContractAddress) {
     let result =[];
     let filter = [
-      { $match: { isActive: true,  endDate: { $gte: new Date()} } },
+      { $match: { isActive: true,  startBlock: {$lte:  new Date()}, endDate: { $gte: new Date()} } },
       {
         $lookup: {
           from: "leaderboards",
@@ -51,8 +51,10 @@ async getActiveCompetitionForGrowth(tokenContractAddress) {
           "status":1,
           "startBlock":1,
           "endBlock":1,
+          "type":1,
           "dexLiquidityPoolCurrencyAddressByNetwork":1,
           "leaderboard._id": 1,
+          "leaderboard.exclusionWalletAddressList": 1,
           "leaderboard.isActive": 1,
           "LCABN._id": 1,
           "LCABN.isActive": 1,
