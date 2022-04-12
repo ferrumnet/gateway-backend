@@ -5,7 +5,7 @@ module.exports = async (CompetitionType, transations, participants, dex, competi
   switch (CompetitionType) {
     case "tradingVolumeFlow":
       result =  calcaluteTradingVolume(transations, participants, dex, competionId, competitionStartBlock, leaderboard);
-    
+
       break;
     case "purchaseFlow":
       //CalcalutePurchase
@@ -20,28 +20,28 @@ module.exports = async (CompetitionType, transations, participants, dex, competi
 const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurrencyAddressByNetwork, competionId, competitionStartBlock, leaderboard) => {
  const dex = dexLiquidityPoolCurrencyAddressByNetwork;
   let toIndex = -1;
-  let formIndex = -1;
+  let fromIndex = -1;
   competitionStartBlock = parseInt( competitionStartBlock)
   transactions.forEach((transaction) => {
    if(isNaN(competitionStartBlock) || competitionStartBlock <= parseInt(transaction.blockNumber)){
       toIndex = -1;
-      formIndex = -1;
+      fromIndex = -1;
 
       toIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.to);
-      if(dex != transaction.form){
-        formIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.form);
+      if(dex != transaction.from){
+        fromIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.from);
       }
 
       let newparticipant = null
-      if(dex != transaction.form){
+      if(dex != transaction.from){
 
-        if(formIndex == -1){
+        if(fromIndex == -1){
           // New participant sell (+ growth)
           newparticipant =  getNewParticipantObject(competionId, transaction, transaction.from, transaction.value)
           participants.push(newparticipant)
         }else{
           // Old participant sell (+ growth)
-          participants[formIndex].growth  = addGrowth(participants[formIndex].growth, transaction.value)
+          participants[fromIndex].growth  = addGrowth(participants[fromIndex].growth, transaction.value)
         }
 
         if(toIndex == -1 ){
@@ -76,7 +76,7 @@ const getNewParticipantObject=(competionId, transaction, tokenHolderAddress, gro
 }
 
 
-const addGrowth = (current, toAdd )=>{ 
+const addGrowth = (current, toAdd )=>{
   if(current === '0' || current === undefined){
     return toAdd
   }
@@ -91,14 +91,14 @@ const addGrowth = (current, toAdd )=>{
 
 const sortParticipants = (participants) =>{
   let sortedParticipants = participants.sort((participant1, participant2) => {
-    let participant1Growth = Web3.utils.toBN(participant1.growth) 
-    let participant2Growth = Web3.utils.toBN(participant2.growth)  
+    let participant1Growth = Web3.utils.toBN(participant1.growth)
+    let participant2Growth = Web3.utils.toBN(participant2.growth)
     return participant1Growth.lt(participant2Growth) ? 1 : -1
    });
    return sortedParticipants
 }
 const participantsDataCalculation = (sortedParticipants, leaderboard)=>{
-  for(let i=0; i< sortedParticipants.length; i++){ 
+  for(let i=0; i< sortedParticipants.length; i++){
     sortedParticipants[i].rank = i+1
     sortedParticipants[i].humanReadableGrowth = Web3.utils.fromWei(sortedParticipants[i].growth,'ether')
     if(i>0){
@@ -112,11 +112,11 @@ const participantsDataCalculation = (sortedParticipants, leaderboard)=>{
 
 const calculateLevelUpAmount = (previousParticipantGrowth, currentParticipantGrowth, index)=>{
   let levelUpAmount = ""
-  let growthFactor = Web3.utils.toBN(1) 
+  let growthFactor = Web3.utils.toBN(1)
   if(index > 0){
-    let previousParticipantGrowthBN = Web3.utils.toBN(previousParticipantGrowth) 
-     let currentParticipantGrowthBN = Web3.utils.toBN(currentParticipantGrowth)    
-     levelUpAmount = previousParticipantGrowthBN.sub(currentParticipantGrowthBN) 
+    let previousParticipantGrowthBN = Web3.utils.toBN(previousParticipantGrowth)
+     let currentParticipantGrowthBN = Web3.utils.toBN(currentParticipantGrowth)
+     levelUpAmount = previousParticipantGrowthBN.sub(currentParticipantGrowthBN)
      levelUpAmount.add(growthFactor)
     }
     levelUpAmount = Web3.utils.fromWei(levelUpAmount,'ether')
