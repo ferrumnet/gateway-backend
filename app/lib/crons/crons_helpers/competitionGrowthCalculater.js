@@ -20,28 +20,28 @@ module.exports = async (CompetitionType, transations, participants, dex, competi
 const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurrencyAddressByNetwork, competionId, competitionStartBlock) => {
  const dex = dexLiquidityPoolCurrencyAddressByNetwork;
   let toIndex = -1;
-  let formIndex = -1;
+  let fromIndex = -1;
   competitionStartBlock = parseInt( competitionStartBlock)
   transactions.forEach((transaction) => {
    if(isNaN(competitionStartBlock) || competitionStartBlock <= parseInt(transaction.blockNumber)){         
       toIndex = -1;   
-      formIndex = -1;
+      fromIndex = -1;
       
       toIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.to);   
-      if(dex != transaction.form){   
-        formIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.form);
+      if(dex != transaction.from){   
+        fromIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.from);
       }
        
       let newparticipant = null   
-      if(dex != transaction.form){      
+      if(dex != transaction.from){      
    
-        if(formIndex == -1){          
+        if(fromIndex == -1){          
           // New participant sell (+ growth)               
           newparticipant =  getNewParticipantObject(competionId, transaction, transaction.from, transaction.value)                 
           participants.push(newparticipant)      
         }else{        
           // Old participant sell (+ growth)          
-          participants[formIndex].growth  = addGrowth(participants[formIndex].growth, transaction.value)    
+          participants[fromIndex].growth  = addGrowth(participants[fromIndex].growth, transaction.value)    
         }
            
         if(toIndex == -1 ){
