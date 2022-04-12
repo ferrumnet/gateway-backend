@@ -6,7 +6,7 @@ let filter = {}
 let limit = 20
 
 module.exports = function () {
-  if (global.dockerEnvironment.isCronEnvironmentSupportedForFindTokenHolders === 'yes') {
+  if (global.starterEnvironment.isCronEnvironmentSupportedForFindTokenHolders === 'yes') {
     start();
   }
 }

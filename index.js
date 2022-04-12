@@ -38,16 +38,19 @@ global.db = require("./app/models/index");
 global.helper = require("./app/lib/middlewares/helpers/dateHelper");
 global.stringHelper = require("./app/lib/middlewares/helpers/stringHelper");
 global.utils = require("./app/lib/middlewares/utils");
-global.dockerEnvironment = require("./config/docker.environment.json");
+global.startHelper = require("./app/lib/middlewares/helpers/startHelper");
+global.starterEnvironment = global.startHelper.startHelperInit(process)
+console.log(global.starterEnvironment)
+
 if (
-  global.dockerEnvironment.environmentTag == "dev" ||
-  global.dockerEnvironment.environmentTag == "qa" ||
-  global.dockerEnvironment.environmentTag == "uat"
+  global.starterEnvironment.environmentTag == "dev" ||
+  global.starterEnvironment.environmentTag == "qa" ||
+  global.starterEnvironment.environmentTag == "uat"
 ) {
   global.environment = require("./config/dev.qa.uat.environment.json");
-} else if (global.dockerEnvironment.environmentTag == "staging") {
+} else if (global.starterEnvironment.environmentTag == "staging") {
   global.environment = require("./config/staging.environment.json");
-} else if (global.dockerEnvironment.environmentTag == "prod") {
+} else if (global.starterEnvironment.environmentTag == "prod") {
   global.environment = require("./config/production.environment.json");
 }
 global.sendGrid = require('./app/lib/httpCalls/sendGridEmail');
@@ -58,6 +61,9 @@ global.log = require('./app/lib/logger')
 global.appRoot = path.resolve(__dirname)
 global._ = require('lodash')
 global.moment = require('moment')
+global.CGTrackerHelper = require('./app/lib/middlewares/helpers/competitionGrowthTrackerHelper');
+global.cTSnapshotHelper = require('./app/lib/middlewares/helpers/competitionTransactionsSnapshotHelper');
+global.competitionHelper = require('./app/lib/middlewares/helpers/competitionHelper');
 global.stripeConnect = require('./config/stripe.json');
 global.asyncMiddleware = asyncMiddleware
 global.commonFunctions = require('./app/lib/middlewares/common');
@@ -80,9 +86,6 @@ global.leaderboardHelper = require('./app/lib/middlewares/helpers/leaderboardHel
 global.tokenHolderBalanceSnapshotEventHelper = require('./app/lib/middlewares/helpers/tokenHolderBalanceSnapshotEventHelper');
 global.calcaluteGrowthVolume = require('./app/lib/middlewares/helpers/cronsHelpers/competitionGrowthCalculater');
 global.bscScanHelper = require('./app/lib/httpCalls/bscScanHelper');
-global.CGTrackerHelper = require('./app/lib/middlewares/helpers/competitionGrowthTrackerHelper');
-global.cTSnapshotHelper = require('./app/lib/middlewares/helpers/competitionTransactionsSnapshotHelper');
-global.competitionHelper = require('./app/lib/middlewares/helpers/competitionHelper');
 
 global.kraken = app.kraken
 // const whitelist = global.environment.whitelist;

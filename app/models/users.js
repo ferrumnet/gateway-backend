@@ -64,11 +64,11 @@ var UsersModel = function () {
     var payload = this.toClientObject();
     return jwt.sign(
       { _id: payload._id, email: payload.email },
-      global.kraken.get("app:jwtSecret")
+      global.environment.jwtSecret
     );
   };
   usersSchema.methods.createProfileUpdateToken = function (token, signature) {
-    return jwt.sign({ token, signature }, global.kraken.get("app:jwtSecret"));
+    return jwt.sign({ token, signature }, global.environment.jwtSecret);
   };
   usersSchema.methods.toClientObject = function () {
     var rawObject = this.toObject();
