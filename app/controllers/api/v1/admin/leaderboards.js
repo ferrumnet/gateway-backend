@@ -28,7 +28,9 @@ module.exports = function (router) {
     }
 
     req.body.exclusionWalletAddressList = convertListIntoLowercase(req.body.exclusionWalletAddressList)
-    req.body.user = req.user._id
+    req.body.createdByUser = req.user._id
+    req.body.updatedByUser = req.user._id
+    req.body.organization = req.user.organization
     req.body.nameInLower = (req.body.name).toLowerCase()
     req.body.createdAt = new Date()
 
@@ -65,6 +67,7 @@ module.exports = function (router) {
 
     req.body.exclusionWalletAddressList = convertListIntoLowercase(req.body.exclusionWalletAddressList)
     req.body.nameInLower = (req.body.name).toLowerCase()
+    req.body.updatedByUser = req.user._id
     req.body.updatedAt = new Date()
 
     let leaderboard = await db.Leaderboards.findOneAndUpdate(filter, req.body, { new: true });
@@ -84,7 +87,7 @@ module.exports = function (router) {
       return res.http400('status is required.');
     }
 
-    let leaderboard = await db.Leaderboards.findOneAndUpdate(filter, { status: req.body.status, updatedAt: new Date() }, { new: true });
+    let leaderboard = await db.Leaderboards.findOneAndUpdate(filter, { status: req.body.status, updatedAt: new Date(), updatedByUser : req.user._id }, { new: true });
 
     res.http200({
       leaderboard: leaderboard
@@ -95,7 +98,7 @@ module.exports = function (router) {
   router.get('/list', async (req, res) => {
 
     var filter = {}
-    filter.user = req.user._id
+    filter.organization = req.user.organization
 
     db.Leaderboards.find(filter)
       .populate({
