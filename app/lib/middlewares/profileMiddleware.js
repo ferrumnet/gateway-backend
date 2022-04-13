@@ -3,7 +3,7 @@ var jwt = require("jsonwebtoken");
 module.exports = () => (req, res, next) => {
   try {
     if (req.headers.authorization && req.headers["profile-authorization"]) {
-      const jwtSecret = global.kraken.get("app:jwtSecret");
+      const jwtSecret = global.environment.jwtSecret;
       const profileToken = req.headers["profile-authorization"];
       const authToken = req.headers.authorization.split(" ")[1];
       const profileDecoded = jwt.verify(profileToken, jwtSecret);

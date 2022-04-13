@@ -5,7 +5,7 @@ module.exports = async (CompetitionType, transations, participants, dex, competi
   switch (CompetitionType) {
     case "tradingVolumeFlow":
       result =  calcaluteTradingVolume(transations, participants, dex, competionId, competitionStartBlock, leaderboard);
-    
+
       break;
     case "purchaseFlow":
       result = calcalutePurchaseVolume(transations, participants, dex, competionId, competitionStartBlock, leaderboard);
@@ -128,7 +128,7 @@ const getNewParticipantObject=(competionId, transaction, tokenHolderAddress, gro
 }
 
 
-const addGrowth = (current, toAdd )=>{ 
+const addGrowth = (current, toAdd )=>{
   if(current === '0' || current === undefined){
     return toAdd
   }
@@ -156,14 +156,14 @@ const subGrowth = (current, toSub )=>{
 
 const sortParticipants = (participants) =>{
   let sortedParticipants = participants.sort((participant1, participant2) => {
-    let participant1Growth = Web3.utils.toBN(participant1.growth) 
-    let participant2Growth = Web3.utils.toBN(participant2.growth)  
+    let participant1Growth = Web3.utils.toBN(participant1.growth)
+    let participant2Growth = Web3.utils.toBN(participant2.growth)
     return participant1Growth.lt(participant2Growth) ? 1 : -1
    });
    return sortedParticipants
 }
 const participantsDataCalculation = (sortedParticipants, leaderboard)=>{
-  for(let i=0; i< sortedParticipants.length; i++){ 
+  for(let i=0; i< sortedParticipants.length; i++){
     sortedParticipants[i].rank = i+1
     sortedParticipants[i].humanReadableGrowth = Web3.utils.fromWei(sortedParticipants[i].growth,'ether')
     if(i>0){
