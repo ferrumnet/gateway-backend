@@ -4,7 +4,6 @@ var mongoose = require('mongoose');
 
 var LeaderboardsModel = function () {
   var leaderboardsSchema = mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
     name: { type: String, default: "" },
     nameInLower: { type: String, default: ""},
     exclusionWalletAddressList: [],
@@ -12,6 +11,9 @@ var LeaderboardsModel = function () {
     status: { type: String, default: "pending" },
     isPublished: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
+    createdByUser: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    updatedByUser: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organizations', required: true  },
 
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },

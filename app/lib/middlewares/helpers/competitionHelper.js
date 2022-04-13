@@ -11,7 +11,7 @@ module.exports = {
 async getActiveCompetitionForGrowth(tokenContractAddress) {
     let result =[];
     let filter = [
-      { $match: { isActive: true,  startBlock: {$lte:  new Date()}, endDate: { $gte: new Date()} } },
+      { $match: { isActive: true, status:"published", startDate: {$lte:  new Date()}, endDate: { $gte: new Date()} } },
       {
         $lookup: {
           from: "leaderboards",
