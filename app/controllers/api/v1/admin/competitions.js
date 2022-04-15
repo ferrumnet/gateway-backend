@@ -47,8 +47,8 @@ module.exports = function (router) {
     let filter = {}
     filter = { _id: req.params.id }
 
-    if (!req.body.name || !req.body.leaderboard || !req.body.startDate || !req.body.endDate) {
-      return res.http400('name & leaderboard & startDate & endDate are required.');
+    if (!req.body.name) {
+      return res.http400('name is required.');
     }
     req.body.nameInLower = (req.body.name).toLowerCase()
     req.body.updatedByUser = req.user._id
