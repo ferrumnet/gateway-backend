@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 
 var LeaderboardsModel = function () {
   var leaderboardsSchema = mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     name: { type: String, default: "" },
     nameInLower: { type: String, default: ""},
     exclusionWalletAddressList: [],

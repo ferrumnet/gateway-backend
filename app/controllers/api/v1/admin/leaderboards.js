@@ -33,6 +33,7 @@ module.exports = function (router) {
     req.body.organization = req.user.organization
     req.body.nameInLower = (req.body.name).toLowerCase()
     req.body.createdAt = new Date()
+    req.body.updatedAt = new Date()
 
     let leaderboard = await db.Leaderboards.create(req.body)
     leaderboard.leaderboardCurrencyAddressesByNetwork = await createLeaderboardCurrencyAddressesByNetwork(req.body, leaderboard)
