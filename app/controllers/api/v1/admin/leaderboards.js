@@ -28,6 +28,7 @@ module.exports = function (router) {
     }
 
     req.body.exclusionWalletAddressList = convertListIntoLowercase(req.body.exclusionWalletAddressList)
+    req.body.user = req.user._id
     req.body.createdByUser = req.user._id
     req.body.updatedByUser = req.user._id
     req.body.organization = req.user.organization
