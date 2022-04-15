@@ -11,9 +11,10 @@ var LeaderboardsModel = function () {
     status: { type: String, default: "pending" },
     isPublished: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
-    createdByUser: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    updatedByUser: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organizations', required: true  },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "users" , required: true },
+    createdByUser: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true }, // this key needs be replaced on all over the app. Right now key user is used on every where. So once this will replaced we will remove user from the model
+    updatedByUser: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+    organization: { type: mongoose.Schema.Types.ObjectId, ref: 'organizations', required: true  },
 
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
