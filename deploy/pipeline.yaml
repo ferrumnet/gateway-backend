@@ -92,77 +92,54 @@ Resources:
           OutputArtifacts:
             - Name: BuildArtifacts
           RunOrder: '2'
-      - Name: Release
-        Actions:
-          - Name: PackageReleaseChangeset
-            InputArtifacts:
-                - Name: BuildArtifacts
-            OutputArtifacts: []
-            ActionTypeId:
-              Category: Deploy
-              Owner: AWS
-              Version: "1"
-              Provider: CloudFormation
-            Configuration:
-              StackName: !Sub "${DevPrefix}${AppName}-${Environment}"
-              TemplateConfiguration: BuildArtifacts::app-deploy.json
-              TemplatePath: !Sub "BuildArtifacts::deploy/cloudformation/application.yaml"
-              ActionMode: CHANGE_SET_REPLACE
-              ChangeSetName: !Sub ${DevPrefix}${AppName}-${Environment}-changeset
-              RoleArn: !GetAtt CloudformationRole.Arn
-              Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
-            RunOrder: 3
-          - Name: ExecuteReleaseChangeset
-            InputArtifacts: []
-            OutputArtifacts: []
-            ActionTypeId:
-              Category: Deploy
-              Owner: AWS
-              Provider: CloudFormation
-              Version: "1"
-            Configuration:
-              StackName: !Sub "${DevPrefix}${AppName}-${Environment}"
-              ActionMode: CHANGE_SET_EXECUTE
-              ChangeSetName: !Sub ${DevPrefix}${AppName}-${Environment}-changeset
-              Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
-            RunOrder: 4
-          - Name: ElasticBeanstalkDeploy
-            InputArtifacts:
-              - Name: BuildArtifacts
-            Name: EBApp
-            ActionTypeId:
-              Category: Deploy
-              Owner: AWS
-              Version: '1'
-              Provider: ElasticBeanstalk
-            OutputArtifacts: []
-            Configuration:
-              ApplicationName: !Sub "${DevPrefix}${AppName}-${Environment}"
-              EnvironmentName: !Sub "${DevPrefix}${AppName}-${Environment}"
-            RunOrder: 5
-
-      #
-      #
-      #
-      # - Name: Deploy
+      # - Name: Release
       #   Actions:
-      #   - Name: CloudFormationDeploy
-      #     ActionTypeId:
-      #       Category: Deploy
-      #       Owner: AWS
-      #       Provider: CloudFormation
-      #       Version: '1'
-      #     InputArtifacts:
-      #       - Name: BuildArtifacts
-      #     Configuration:
-      #       ActionMode: CREATE_UPDATE
-      #       Capabilities: CAPABILITY_IAM,CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
-      #       RoleArn: !GetAtt CloudformationRole.Arn
-      #       StackName: !Sub "${DevPrefix}${AppName}-${Environment}"
-      #       #ParameterOverrides: !Sub '{"DevPrefix": "${DevPrefix}", "AppName": "${AppName}", "Environment": "${Environment}", "PipelineArtifactsBucket": "${PipelineArtifactsBucket}"}'
-      #       TemplatePath: !Sub "BuildArtifacts::deploy/cloudformation/application.yaml"
-      #       TemplateConfiguration: BuildArtifacts::app-deploy.json
-      #     RunOrder: 3
+      #     - Name: PackageReleaseChangeset
+      #       InputArtifacts:
+      #           - Name: BuildArtifacts
+      #       OutputArtifacts: []
+      #       ActionTypeId:
+      #         Category: Deploy
+      #         Owner: AWS
+      #         Version: "1"
+      #         Provider: CloudFormation
+      #       Configuration:
+      #         StackName: !Sub "${DevPrefix}${AppName}-${Environment}"
+      #         TemplateConfiguration: BuildArtifacts::app-deploy.json
+      #         TemplatePath: !Sub "BuildArtifacts::deploy/cloudformation/application.yaml"
+      #         ActionMode: CHANGE_SET_REPLACE
+      #         ChangeSetName: !Sub ${DevPrefix}${AppName}-${Environment}-changeset
+      #         RoleArn: !GetAtt CloudformationRole.Arn
+      #         Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+      #       RunOrder: 3
+      #     - Name: ExecuteReleaseChangeset
+      #       InputArtifacts: []
+      #       OutputArtifacts: []
+      #       ActionTypeId:
+      #         Category: Deploy
+      #         Owner: AWS
+      #         Provider: CloudFormation
+      #         Version: "1"
+      #       Configuration:
+      #         StackName: !Sub "${DevPrefix}${AppName}-${Environment}"
+      #         ActionMode: CHANGE_SET_EXECUTE
+      #         ChangeSetName: !Sub ${DevPrefix}${AppName}-${Environment}-changeset
+      #         Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+      #       RunOrder: 4
+      #     - Name: ElasticBeanstalkDeploy
+      #       InputArtifacts:
+      #         - Name: BuildArtifacts
+      #       Name: EBApp
+      #       ActionTypeId:
+      #         Category: Deploy
+      #         Owner: AWS
+      #         Version: '1'
+      #         Provider: ElasticBeanstalk
+      #       OutputArtifacts: []
+      #       Configuration:
+      #         ApplicationName: !Sub "${DevPrefix}${AppName}-${Environment}"
+      #         EnvironmentName: !Sub "${DevPrefix}${AppName}-${Environment}"
+      #       RunOrder: 5
 
   CodeBuildProject:
     Type: AWS::CodeBuild::Project
@@ -244,3 +221,35 @@ Resources:
           Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess #TODO: Reduce permissions
+
+# Create Ec2
+
+  # Ec2Instance:
+  #   WebAppInstance:
+  #     Type: AWS::EC2::Instance
+  #     Properties:
+  #       ImageId: ami-0d5eff06f840b45e9 # ImageID valid only in us-east-1 region
+  #       InstanceType: t2.micro
+  #       KeyName: jenna # <-- Change to use your key-pair name
+  #       SecurityGroupIds:
+  #         - !Ref Ec2SecurityGroup
+  
+  #   Ec2SecurityGroup:
+  #     Type: AWS::EC2::SecurityGroup
+  #     Properties:
+  #       GroupName: !Join ["-", [webapp-security-group, dev]]
+  #       GroupDescription: "Allow HTTP/HTTPS and SSH inbound and outbound traffic"
+  #       SecurityGroupIngress:
+  #         - IpProtocol: tcp
+  #           FromPort: 80
+  #           ToPort: 80
+  #           CidrIp: 0.0.0.0/0
+  #         - IpProtocol: tcp
+  #           FromPort: 443
+  #           ToPort: 443
+  #           CidrIp: 0.0.0.0/0
+  #         - IpProtocol: tcp
+  #           FromPort: 22
+  #           ToPort: 22
+  #           CidrIp: 0.0.0.0/0
+     

@@ -2,12 +2,12 @@
 
 # *** Change this to the desired name of the Cloudformation stack of
 # your Pipeline (*not* the stack name of your app)
-GITHUB_OWNER="zikriya"
-GITHUB_REPO="leaderboard"
-GITHUB_BRANCH="dev"
+GITHUB_OWNER="sheraz-ferrum"
+GITHUB_REPO="ferrum-gateway"
+GITHUB_BRANCH="CI/CD"
 GITHUB_OAUTH_TOKEN=$1
-DEV_PREFIX="zikria-"
-APP_NAME="ferrum-network-backend"
+DEV_PREFIX="sheraz-"
+APP_NAME="ferrum-gateway"
 ENVIRONMENT="dev"
 CODEPIPELINE_STACK_NAME="${DEV_PREFIX}${APP_NAME}-${ENVIRONMENT}-pipeline"
 
@@ -20,7 +20,7 @@ fi
 
 set -eu
 
-aws cloudformation create-stack \
+aws cloudformation create-stack --region us-east-2 \
   --capabilities CAPABILITY_IAM \
   --stack-name $CODEPIPELINE_STACK_NAME \
   --parameters ParameterKey=DevPrefix,ParameterValue=${DEV_PREFIX} \
