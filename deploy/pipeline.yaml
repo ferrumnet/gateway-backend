@@ -29,7 +29,7 @@ Parameters:
   GitHubBranch:
     Type: String
     Default: master
-    AllowedPattern: "[A-Za-z0-9-]+"
+    # AllowedPattern: "[A-Za-z0-9-]+"
 
   PipelineArtifactsBucket:
     Type: String
@@ -92,54 +92,96 @@ Resources:
           OutputArtifacts:
             - Name: BuildArtifacts
           RunOrder: '2'
-      # - Name: Release
-      #   Actions:
-      #     - Name: PackageReleaseChangeset
-      #       InputArtifacts:
-      #           - Name: BuildArtifacts
-      #       OutputArtifacts: []
-      #       ActionTypeId:
-      #         Category: Deploy
-      #         Owner: AWS
-      #         Version: "1"
-      #         Provider: CloudFormation
-      #       Configuration:
-      #         StackName: !Sub "${DevPrefix}${AppName}-${Environment}"
-      #         TemplateConfiguration: BuildArtifacts::app-deploy.json
-      #         TemplatePath: !Sub "BuildArtifacts::deploy/cloudformation/application.yaml"
-      #         ActionMode: CHANGE_SET_REPLACE
-      #         ChangeSetName: !Sub ${DevPrefix}${AppName}-${Environment}-changeset
-      #         RoleArn: !GetAtt CloudformationRole.Arn
-      #         Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
-      #       RunOrder: 3
-      #     - Name: ExecuteReleaseChangeset
-      #       InputArtifacts: []
-      #       OutputArtifacts: []
-      #       ActionTypeId:
-      #         Category: Deploy
-      #         Owner: AWS
-      #         Provider: CloudFormation
-      #         Version: "1"
-      #       Configuration:
-      #         StackName: !Sub "${DevPrefix}${AppName}-${Environment}"
-      #         ActionMode: CHANGE_SET_EXECUTE
-      #         ChangeSetName: !Sub ${DevPrefix}${AppName}-${Environment}-changeset
-      #         Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
-      #       RunOrder: 4
-      #     - Name: ElasticBeanstalkDeploy
-      #       InputArtifacts:
-      #         - Name: BuildArtifacts
-      #       Name: EBApp
-      #       ActionTypeId:
-      #         Category: Deploy
-      #         Owner: AWS
-      #         Version: '1'
-      #         Provider: ElasticBeanstalk
-      #       OutputArtifacts: []
-      #       Configuration:
-      #         ApplicationName: !Sub "${DevPrefix}${AppName}-${Environment}"
-      #         EnvironmentName: !Sub "${DevPrefix}${AppName}-${Environment}"
-      #       RunOrder: 5
+      - Name: Release
+        Actions:
+          # - Name: PackageReleaseChangeset
+          #   InputArtifacts:
+          #       - Name: BuildArtifacts
+          #   OutputArtifacts: []
+          #   ActionTypeId:
+          #     Category: Deploy
+          #     Owner: AWS
+          #     Version: "1"
+          #     Provider: CloudFormation
+          #   Configuration:
+          #     StackName: !Sub "${DevPrefix}${AppName}-${Environment}"
+          #     TemplateConfiguration: BuildArtifacts::app-deploy.json
+          #     TemplatePath: !Sub "BuildArtifacts::deploy/cloudformation/application.yaml"
+          #     ActionMode: CHANGE_SET_REPLACE
+          #     ChangeSetName: !Sub ${DevPrefix}${AppName}-${Environment}-changeset
+          #     RoleArn: !GetAtt CloudformationRole.Arn
+          #     Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+          #   RunOrder: 3
+          # - Name: ExecuteReleaseChangeset
+          #   InputArtifacts: []
+          #   OutputArtifacts: []
+          #   ActionTypeId:
+          #     Category: Deploy
+          #     Owner: AWS
+          #     Provider: CloudFormation
+          #     Version: "1"
+          #   Configuration:
+          #     StackName: !Sub "${DevPrefix}${AppName}-${Environment}"
+          #     ActionMode: CHANGE_SET_EXECUTE
+          #     ChangeSetName: !Sub ${DevPrefix}${AppName}-${Environment}-changeset
+          #     Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+          #   RunOrder: 4
+          - Name: CodeDeploy
+            InputArtifacts:
+              - Name: SourceCode
+            Name: Ec2-Deploy
+            ActionTypeId:
+              Category: Deploy
+              Owner: AWS
+              Version: '1'
+              Provider: CodeDeploy
+            OutputArtifacts: []
+            Configuration:
+              ApplicationName: !Ref WebappApplication
+              DeploymentGroupName: !Ref WebappDeploymentGroup
+            RunOrder: 5
+
+  WebappApplication: 
+    Type: AWS::CodeDeploy::Application 
+    Properties:
+      ComputePlatform: Server
+  WebappDeploymentGroup:
+    Type: "AWS::CodeDeploy::DeploymentGroup"
+    Properties:
+      ApplicationName: !Ref WebappApplication
+      ServiceRoleArn: !GetAtt CodeDeployRole.Arn
+      DeploymentConfigName: CodeDeployDefault.AllAtOnce
+      Ec2TagFilters:
+        - Key: "Name"
+          Value: !Sub "${DevPrefix}${AppName}-${Environment}"
+          Type: KEY_AND_VALUE
+
+  CodeDeployRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "codedeploy.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        -
+          PolicyName: allow-autoscaling
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: Allow
+                Action:
+                  - ec2:*
+                  - autoscaling:*
+                Resource: "*"
+
 
   CodeBuildProject:
     Type: AWS::CodeBuild::Project
@@ -208,6 +250,7 @@ Resources:
           Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess #TODO: Reduce permissions
+    DependsOn: Ec2Instance
 
   CloudformationRole:
     Type: AWS::IAM::Role
@@ -222,34 +265,71 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess #TODO: Reduce permissions
 
-# Create Ec2
+  Ec2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0fb653ca2d3203ac1 # ImageID valid only in us-east-1 region
+      UserData:
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash
+            sudo apt update
+            sudo apt install docker.io ruby-full wget -y
+            wget https://aws-codedeploy-us-east-2.s3.us-east-2.amazonaws.com/latest/install
+            chmod +x ./install
+            sudo ./install auto > /tmp/logfile
+            sudo service codedeploy-agent start
 
-  # Ec2Instance:
-  #   WebAppInstance:
-  #     Type: AWS::EC2::Instance
-  #     Properties:
-  #       ImageId: ami-0d5eff06f840b45e9 # ImageID valid only in us-east-1 region
-  #       InstanceType: t2.micro
-  #       KeyName: jenna # <-- Change to use your key-pair name
-  #       SecurityGroupIds:
-  #         - !Ref Ec2SecurityGroup
+      InstanceType: t2.micro
+      IamInstanceProfile: !Ref Ec2InstanceProfile
+        # KeyName: jenna # <-- Change to use your key-pair name
+      SecurityGroupIds:
+        - !Ref Ec2SecurityGroup
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${DevPrefix}${AppName}-${Environment}"
+
   
-  #   Ec2SecurityGroup:
-  #     Type: AWS::EC2::SecurityGroup
-  #     Properties:
-  #       GroupName: !Join ["-", [webapp-security-group, dev]]
-  #       GroupDescription: "Allow HTTP/HTTPS and SSH inbound and outbound traffic"
-  #       SecurityGroupIngress:
-  #         - IpProtocol: tcp
-  #           FromPort: 80
-  #           ToPort: 80
-  #           CidrIp: 0.0.0.0/0
-  #         - IpProtocol: tcp
-  #           FromPort: 443
-  #           ToPort: 443
-  #           CidrIp: 0.0.0.0/0
-  #         - IpProtocol: tcp
-  #           FromPort: 22
-  #           ToPort: 22
-  #           CidrIp: 0.0.0.0/0
+  Ec2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Join ["-", [webapp-security-group, dev]]
+      GroupDescription: "Allow HTTP/HTTPS and SSH inbound and outbound traffic"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0 
+
+  IamRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: "Ec2RoleForSSM"
+      Description: "EC2 IAM role for SSM access"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "ec2.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+      Policies: []
+  Ec2InstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      InstanceProfileName: "Ec2RoleForSSM"
+      Roles:
+        - Ref: "IamRole"
      
