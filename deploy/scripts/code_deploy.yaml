@@ -1,2 +1,2 @@
 #!/bin/bash
-ls -la > /tmp/output.txt
+ls
