@@ -7,7 +7,7 @@ on:
     pull_request:
 
 jobs:
-  deploy:
+  Build:
     runs-on: ubuntu-latest
     steps:
     - name: checkout code
@@ -32,4 +32,13 @@ jobs:
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+    - name: Create CodeDeploy Deployment
+      id: deploy
+      run: |
+        ls
+        # aws deploy create-deployment \
+        #   --application-name Git_Application \
+        #   --deployment-group-name development_gropup \
+        #   --deployment-config-name CodeDeployDefault.OneAtATime \
+        #   --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
 
