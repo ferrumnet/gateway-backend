@@ -32,10 +32,13 @@ jobs:
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-    - name: Create CodeDeploy Deployment
+  Deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: CodeDeploy Deployment
       id: deploy
       run: |
-        ls
+        aws s3 ls
         # aws deploy create-deployment \
         #   --application-name Git_Application \
         #   --deployment-group-name development_gropup \
