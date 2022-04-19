@@ -39,6 +39,14 @@ jobs:
   Deploy:
     needs: [Build]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # python-version: [3.8]
+        # node-version: ['12.x']
+        # appname: ['aws-codedeploy']
+        # deploy-group: ['staging']
+        s3-bucket: ['ferrum-pipeline-artifacts']
+        s3-filename: ['staging-aws-codedeploy-${{ github.sha }}']
     steps:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -46,6 +54,16 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-2
+
+    - name: AWS Deploy push
+      run: |
+        aws deploy push \
+          --application-name ${{ secrets.APPLICATION_NAME }}  \
+          --deployment-group-name ${{ secrets.DEPLOYMENT_GROUP }} \
+          --s3-location s3://${{ matrix.s3-bucket }}/${{ matrix.s3-filename }}.zip \
+          --source .
+          # --description "This is a revision for the ${{ matrix.appname }}-${{ github.sha }}" \
+          # --ignore-hidden-files \
     - name: CodeDeploy Deployment
       id: deploy
       run: |
@@ -53,5 +71,6 @@ jobs:
           --application-name ${{ secrets.APPLICATION_NAME }} \
           --deployment-group-name ${{ secrets.DEPLOYMENT_GROUP }} \
           --deployment-config-name CodeDeployDefault.OneAtATime \
-          --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
+          --s3-location bucket=${{ matrix.s3-bucket }},key=${{ matrix.s3-filename }}.zip,bundleType=zip
+          # --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
 
