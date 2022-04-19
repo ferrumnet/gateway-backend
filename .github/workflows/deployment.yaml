@@ -55,6 +55,9 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-2
 
+    - name: checkout code
+      uses: actions/checkout@v2
+
     - name: AWS Deploy push
       run: |
         ls -la
