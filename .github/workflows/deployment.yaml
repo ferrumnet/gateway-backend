@@ -30,12 +30,22 @@ jobs:
         ECR_REPOSITORY: sheraz-test-repo-gateway-backend
         IMAGE_TAG: latest
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        ls
+        # docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        # docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+
+
   Deploy:
     needs: [Build]
     runs-on: ubuntu-latest
     steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
     - name: CodeDeploy Deployment
       id: deploy
       run: |
