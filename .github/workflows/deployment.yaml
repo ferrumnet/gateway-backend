@@ -9,6 +9,14 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # python-version: [3.8]
+        # node-version: ['12.x']
+        # appname: ['aws-codedeploy']
+        # deploy-group: ['staging']
+        s3-bucket: ['ferrum-pipeline-artifacts']
+        s3-filename: ['staging-aws-codedeploy-${{ github.sha }}']
     steps:
     - name: checkout code
       uses: actions/checkout@v2
@@ -34,6 +42,17 @@ jobs:
         # docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         # docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
+    - name: AWS Deploy push
+      run: |
+        ls -la
+        pwd
+        aws deploy push \
+          --application-name ${{ secrets.APPLICATION_NAME }}  \
+          --s3-location s3://${{ matrix.s3-bucket }}/${{ matrix.s3-filename }}.zip \
+          --source .
+          # --description "This is a revision for the ${{ matrix.appname }}-${{ github.sha }}" \
+          # --ignore-hidden-files \
+
 
 
   Deploy:
@@ -55,19 +74,7 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-2
 
-    - name: checkout code
-      uses: actions/checkout@v2
 
-    - name: AWS Deploy push
-      run: |
-        ls -la
-        pwd
-        aws deploy push \
-          --application-name ${{ secrets.APPLICATION_NAME }}  \
-          --s3-location s3://${{ matrix.s3-bucket }}/${{ matrix.s3-filename }}.zip \
-          --source .
-          # --description "This is a revision for the ${{ matrix.appname }}-${{ github.sha }}" \
-          # --ignore-hidden-files \
     - name: CodeDeploy Deployment
       id: deploy
       run: |
