@@ -4,7 +4,7 @@ var mongoose = require("mongoose");
 
 const schema = mongoose.Schema(
   {
-       cronName:{ type: String, required:true },
+       cronName:{ type: String, required:true, unique: true },
        isActive:{type:Boolean, default: true},
        pause:{type:Boolean, default: false},
        pauseReason:{type:String, required:false},
