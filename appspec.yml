@@ -1,5 +1,8 @@
 version: 0.0
 os: linux
+files:
+  - source: .
+    destination: /root
 hooks:
   BeforeInstall:
     - location: deploy/scripts/code_deploy.yaml
