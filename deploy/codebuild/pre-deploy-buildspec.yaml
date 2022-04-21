@@ -10,6 +10,11 @@ phases:
   pre_build:
     commands:
       - ls
+      - ls -la > output.txt
+
+artifacts:
+  files:
+    - output.txt
   #     - ECR_URL="${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-${AppName}-${Environment}-${Branch}"
   #     - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin "${ECR_URL}"
   # build:
