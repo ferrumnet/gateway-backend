@@ -25,12 +25,7 @@ phases:
 
 artifacts:
   files:
-    - '**/*'
-  base-directory: 'deploy'
-  secondary-artifacts:
-    artifact1:
-      base-directory: $CODEBUILD_SRC_DIR
-      files:
-        - appspec.yml
-        - output.txt 
+    - appspec.yml
+    - output.txt 
+    - deploy/scripts
     
