@@ -26,6 +26,7 @@ phases:
 artifacts:
   files:
     - output.txt 
-    - deploy/**
     - appspec.yml
+    - '**/*'
+base-directory: 'deploy'
     
