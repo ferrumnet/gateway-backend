@@ -22,7 +22,7 @@ phases:
       - echo "export AppName=${AppName}" >> set_env.sh
       - echo "export DevPrefix=${DevPrefix}"  >> set_env.sh
       - echo $ECR_URL
-      - docker build -t ${ECR_URL}:latest .
+      - docker build -t 806611346442.dkr.ecr.us-east-2.amazonaws.com/sheraz-ferrum-gateway-dev-CICD:latest .
       - docker push  ${ECR_URL}:latest 
   # post_build:
   #   commands:
