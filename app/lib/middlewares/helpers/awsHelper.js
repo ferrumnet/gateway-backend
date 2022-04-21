@@ -2,7 +2,7 @@ const { db, asyncMiddleware, commonFunctions, stringHelper, timeoutHelper, timeo
 var mongoose = require('mongoose');
 var AWS = require('aws-sdk'),
       region = "us-east-2",
-      // secretName = global.environment.secretName,
+      secretName = "arn:aws:secretsmanager:us-east-2:806611346442:secret:gateway-backend-dev-asm-wpazqL",
       secret,
       decodedBinarySecret;
 
@@ -12,8 +12,6 @@ module.exports = {
     return new Promise(async (resolve, reject) => {
       var client = new AWS.SecretsManager({
         region: region,
-        // accessKeyId: global.environment.accessKeyId,
-        // secretAccessKey: global.environment.secretAccessKey,
       });
       client.getSecretValue({ SecretId: secretName }, function (err, data) {
         if (err) {
