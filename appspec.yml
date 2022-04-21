@@ -1,7 +1,7 @@
 version: 0.0
 os: linux
 files:
-  - source: output.txt
+  - source: .
     destination: /root
 hooks:
   BeforeInstall:
