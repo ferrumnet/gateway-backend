@@ -21,8 +21,8 @@ phases:
       - echo "export Branch=${Branch}" >> set_env.sh
       - echo "export AppName=${AppName}" >> set_env.sh
       - echo "export DevPrefix=${DevPrefix}"  >> set_env.sh
-      - docker build -t "${ECR_URL}":latest .
-      - docker push  "${ECR_URL}":latest 
+      - docker build -t ${ECR_URL}:latest .
+      - docker push  ${ECR_URL}:latest 
   # post_build:
   #   commands:
   #     - echo Build completed on `date`
