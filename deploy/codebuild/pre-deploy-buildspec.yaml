@@ -27,5 +27,5 @@ artifacts:
   files:
     - appspec.yml
     - output.txt 
-    - deploy/scripts
+    - deploy/scripts/*
     
