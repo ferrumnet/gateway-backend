@@ -39,17 +39,17 @@ global.helper = require("./app/lib/middlewares/helpers/dateHelper");
 global.stringHelper = require("./app/lib/middlewares/helpers/stringHelper");
 global.utils = require("./app/lib/middlewares/utils");
 global.dockerEnvironment = require("./config/docker.environment.json");
-if (
-  global.dockerEnvironment.environmentTag == "dev" ||
-  global.dockerEnvironment.environmentTag == "qa" ||
-  global.dockerEnvironment.environmentTag == "uat"
-) {
-  global.environment = require("./config/dev.qa.uat.environment.json");
-} else if (global.dockerEnvironment.environmentTag == "staging") {
-  global.environment = require("./config/staging.environment.json");
-} else if (global.dockerEnvironment.environmentTag == "prod") {
-  global.environment = require("./config/production.environment.json");
-}
+// if (
+//   global.dockerEnvironment.environmentTag == "dev" ||
+//   global.dockerEnvironment.environmentTag == "qa" ||
+//   global.dockerEnvironment.environmentTag == "uat"
+// ) {
+//   global.environment = require("./config/dev.qa.uat.environment.json");
+// } else if (global.dockerEnvironment.environmentTag == "staging") {
+//   global.environment = require("./config/staging.environment.json");
+// } else if (global.dockerEnvironment.environmentTag == "prod") {
+//   global.environment = require("./config/production.environment.json");
+// }
 global.sendGrid = require('./app/lib/httpCalls/sendGridEmail');
 global.covalenthqBlock = require('./app/lib/httpCalls/findCovalenthqBlock');
 global.bscScanTokenHolders = require('./app/lib/httpCalls/findTokenHolders');
