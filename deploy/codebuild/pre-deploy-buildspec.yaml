@@ -18,7 +18,7 @@ phases:
       - printenv >> variables.sh
       - echo "export Region=${Region}"  >> set_env.sh
       - echo "export Environment=${Environment}"  >> set_env.sh
-      - echo "export "Branch=${Branch}" >> set_env.sh
+      - echo "export Branch=${Branch}" >> set_env.sh
       - echo "export AppName=${AppName}" >> set_env.sh
       - echo "export DevPrefix=${DevPrefix}"  >> set_env.sh
       - docker build -t --tag "${ECR_URL}":latest .
