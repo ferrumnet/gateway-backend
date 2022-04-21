@@ -19,7 +19,6 @@ module.exports = async (CompetitionType, transations, participants, dex, competi
 
 
 const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurrencyAddressByNetwork, competionId, competitionStartBlock, leaderboard) => {
-  const transactionsGroupedByHash = transactions.groupBy( ({ hash }) => hash );
   const dex = dexLiquidityPoolCurrencyAddressByNetwork;
   let toIndex = -1;
   let fromIndex = -1;
@@ -55,7 +54,9 @@ const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurr
         //else{ no need to check old participant purchases from other then dex (0 growth)}
 
       }else{
-        let transactionValue = calcalutePurchaseAmount(transaction, transactionsGroupedByHash)
+        //some transaction have multiple records becase some token send transfer fee a saperate records 
+         //in case of transfer in,  purchase value = fee + actual amount      
+        let transactionValue = calcalutePurchaseAmount(transaction, transactions)
         if(toIndex == -1){
           // New participant purchases from dex (growth = transaction.value)
           newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, transactionValue)
@@ -75,7 +76,6 @@ const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurr
 }
 
 const calcalutePurchaseVolume = (transactions, participants, dexLiquidityPoolCurrencyAddressByNetwork, competionId, competitionStartBlock, leaderboard) => {
-   const transactionsGroupedByHash = transactions.groupBy( ({ hash }) => hash );
    const dex = dexLiquidityPoolCurrencyAddressByNetwork;
    let toIndex = -1;
    let fromIndex = -1;
@@ -111,7 +111,9 @@ const calcalutePurchaseVolume = (transactions, participants, dexLiquidityPoolCur
          //else{ no need to check old participant purchases from other then dex (0 growth)}
  
        }else{
-        let transactionValue = calcalutePurchaseAmount(transaction, transactionsGroupedByHash)
+         //some transaction have multiple records becase some token send transfer fee a saperate records 
+         //in case of transfer in,  purchase value = fee + actual amount          
+         let transactionValue = calcalutePurchaseAmount(transaction, transactions)
          if(toIndex == -1){
            // New participant purchases from dex (growth = transaction.value)
            newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, transactionValue)
@@ -194,11 +196,11 @@ const calculateLevelUpAmount = (previousParticipantGrowth, currentParticipantGro
 }
 
 
-const calcalutePurchaseAmount = (transaction, groupedTransactions) => {  
+const calcalutePurchaseAmount = (transaction, transactions) => {  
   if(transaction.hash){
-    let hashGroup = groupedTransactions[transaction.hash]
+    let hashGroup = transactions.filter(record => record.hash ==  transaction.hash)
     if(hashGroup.length > 1){
-      let sortedHashGroup = groupedTransactions.sort((transaction1, transaction2) => {
+      let sortedHashGroup = hashGroup.sort((transaction1, transaction2) => {
         let transaction1Value = Web3.utils.toBN(transaction1.value)
         let transaction2Value = Web3.utils.toBN(transaction2.value)
         return transaction1Value.lt(transaction2Value) ? 1 : -1
