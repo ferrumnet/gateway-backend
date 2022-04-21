@@ -1,9 +1,3 @@
 #!/bin/bash
-# aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 651813647277.dkr.ecr.us-west-2.amazonaws.com
-
-# docker stop
-
-# docker rmi -f
-
-# docker run -d -it
-ls
+source /root/set_env.sh
+aws ecr get-login-password --region ${AccountId} | docker login --username AWS --password-stdin ${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-${AppName}-${Environment}-${Branch}
