@@ -26,3 +26,6 @@ phases:
 artifacts:
   files:
     - output.txt 
+    - deploy
+    - appspec.yml
+    
