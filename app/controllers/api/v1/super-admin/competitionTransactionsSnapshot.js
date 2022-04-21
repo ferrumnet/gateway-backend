@@ -65,16 +65,16 @@ module.exports = function (router) {
             //fromblock and toblock should be less then  
           let transations = await bscScanHelper.queryByCABN(snapshotMeta.tokenContractAddress, fromBlockNumber, toBlockNumber);        
           if(transations.length > 0){
-             const snapShotFilter = {blockNumber:{$gte: fromBlockNumber}, blockNumber:{$lte: toBlockNumber}}
+             const snapShotFilter = {blockNumber:{$gte: fromBlockNumber, $lte: toBlockNumber}}                        
              await db.CompetitionTransactionsSnapshots.deleteMany(snapShotFilter)
              await db.CompetitionTransactionsSnapshots.insertMany(transations)
              return res.http200(`${transations.length} transactions are stored`)
           }
           return res.http200('Zero transactions received from BscScan')  
           }
-               
+          return res.http400('CompetitionTransactionsSnapshotMeta currentBlockNumber should be greater then toBlockNumber')
         }
-        return res.http200('TokenContractAddress not registered with Cron')
+        return res.http400('TokenContractAddress not registered with Cron')
       }
       return res.http400('Invalid block Range')
     }
