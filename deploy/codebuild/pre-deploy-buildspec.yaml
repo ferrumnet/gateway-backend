@@ -7,23 +7,22 @@ phases:
   # install:
   #   runtime-versions:
   #       docker: 18
-  pre_build:
-    commands:
-      - ls
-      - ls -la > output.txt
-
-artifacts:
-  files:
-    - output.txt
+  # pre_build:
+  #   commands:
   #     - ECR_URL="${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-${AppName}-${Environment}-${Branch}"
   #     - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin "${ECR_URL}"
-  # build:
-  #   commands:
-  #     - docker build -t --tag "${ECR_URL}":latest .
-  #     - docker push  "${ECR_URL}":latest 
+  build:
+    commands:
+      - ls -la > output.txt 
+      # - docker build -t --tag "${ECR_URL}":latest .
+      # - docker push  "${ECR_URL}":latest 
   # # post_build:
   # #   commands:
   # #     - echo Build completed on `date`
   # #     - echo Pushing the Docker image...
   # #     - echo "${ECR_URL}"
-  # #     - docker push  "${ECR_URL}":latest   
+  # #     - docker push  "${ECR_URL}":latest  
+
+artifacts:
+  files:
+    - output.txt 
