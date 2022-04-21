@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 
 module.exports = function (router) {
 
-  router.get('/recalculate/competitionsGrowth/by/tokenContractAddress/:tokenContractAddress/competitionId/:competitionId', async (req, res) => {
+  router.get('/recalculate/competitionsGrowth/by/tokenContractAddress/:tokenContractAddress/competitionId/:competitionId', asyncMiddleware(async (req, res) => {
     const tokenContractAddress = req.params.tokenContractAddress   
     const competitionId = req.params.competitionId
     const filter = {_id: competitionId, isActive:true} 
@@ -37,7 +37,7 @@ module.exports = function (router) {
       }
     return res.http400(`competition not found`)  
 
-  });
+  }));
 
   router.get('/recalculate/competitionsGrowth/by/tokenContractAddress/:tokenContractAddress', asyncMiddleware(async (req, res) => {
     const tokenContractAddress = req.params.tokenContractAddress    
