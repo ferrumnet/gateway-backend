@@ -180,6 +180,7 @@ Resources:
                 Action:
                   - ec2:*
                   - autoscaling:*
+                  - s3:*
                 Resource: "*"
 
 
@@ -194,9 +195,10 @@ Resources:
         Type: CODEPIPELINE
         BuildSpec: deploy/codebuild/pre-deploy-buildspec.yaml
       Environment:
-        ComputeType: BUILD_GENERAL1_SMALL
+        ComputeType: BUILD_GENERAL1_MEDIUM
         Image: !Ref CodebuildImage
         Type: LINUX_CONTAINER
+        PrivilegedMode: true
         EnvironmentVariables:
         - Name: DevPrefix
           Value: !Ref DevPrefix
@@ -206,6 +208,13 @@ Resources:
           Value: !Ref Environment
         - Name: PipelineArtifactsBucket
           Value: !Ref PipelineArtifactsBucket
+        - Name: Region
+          Value: !Ref AWS::Region
+        - Name: AccountId
+          Value: !Ref AWS::AccountId
+        - Name: Branch
+          Value: !Ref GitHubBranch
+
       TimeoutInMinutes: 10
 
   CodeBuildRole:
@@ -325,6 +334,7 @@ Resources:
               - "sts:AssumeRole"
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+        - "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
       Policies: []
   Ec2InstanceProfile:
     Type: "AWS::IAM::InstanceProfile"
@@ -332,4 +342,12 @@ Resources:
       InstanceProfileName: "Ec2RoleForSSM"
       Roles:
         - Ref: "IamRole"
+
+# ECR
+
+  ECR:
+    Type: AWS::ECR::Repository
+    Properties: 
+      ImageTagMutability: MUTABLE
+      RepositoryName: "sheraz-test-repo-gateway-backend"
      

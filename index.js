@@ -42,6 +42,7 @@ global.startHelper = require("./app/lib/middlewares/helpers/startHelper");
 global.starterEnvironment = global.startHelper.startHelperInit(process)
 console.log(global.starterEnvironment)
 
+global.environment={};
 // if (
 //   global.starterEnvironment.environmentTag == "dev" ||
 //   global.starterEnvironment.environmentTag == "qa" ||

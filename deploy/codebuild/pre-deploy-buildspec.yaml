@@ -2,29 +2,22 @@ version: 0.2
 environment_variables:
   plaintext:
     ARTIFACT_FILE_NAME: ""
+    ECR_URL: ""
 phases:
-  install:
-    runtime-versions:
-      python: 3.8
-      nodejs: 14
+  # install:
+  #   runtime-versions:
+  #       docker: 18
   pre_build:
     commands:
-      - ls
-      # - AppVersion='SNAPSHOT'
-#       - envsubst '$DevPrefix $AppName $AppVersion  $Environment $PipelineArtifactsBucket' <deploy/cloudformation/parameters/app-deploy.json >app-deploy.json
-#       - cat app-deploy.json
-#       - echo "Zip up artifacts ${AppName}.zip"
-#       - ARTIFACT_FILE_NAME="${DevPrefix}${AppName}-${AppVersion}.zip"
-#       - node --version
-#       - npm -v
-#   build:
-#     commands:
-#       - npm install
-#       - zip -r "${ARTIFACT_FILE_NAME}" *
-#       - aws s3 cp ${ARTIFACT_FILE_NAME} s3://${PipelineArtifactsBucket}/${DevPrefix}${AppName}/artifacts/
-#   post_build:
-#     commands:
-#       - rm -f "${ARTIFACT_FILE_NAME}"
-# artifacts:
-#   files:
-#     - '**/*'
+      - ECR_URL="${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-${AppName}-${Environment}-${Branch}"
+      - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin "${ECR_URL}"
+  build:
+    commands:
+      - docker build -t --tag "${ECR_URL}":latest .
+      - docker push  "${ECR_URL}":latest 
+  # post_build:
+  #   commands:
+  #     - echo Build completed on `date`
+  #     - echo Pushing the Docker image...
+  #     - echo "${ECR_URL}"
+  #     - docker push  "${ECR_URL}":latest   
