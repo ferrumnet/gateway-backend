@@ -5,11 +5,12 @@ module.exports = async (CompetitionType, transations, participants, dex, competi
   switch (CompetitionType) {
     case "tradingVolumeFlow":
       result =  calcaluteTradingVolume(transations, participants, dex, competionId, competitionStartBlock, leaderboard);
-
       break;
+
     case "purchaseFlow":
       result = calcalutePurchaseVolume(transations, participants, dex, competionId, competitionStartBlock, leaderboard);
       break;
+
     default:
     //balance
   }
@@ -18,7 +19,7 @@ module.exports = async (CompetitionType, transations, participants, dex, competi
 
 
 const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurrencyAddressByNetwork, competionId, competitionStartBlock, leaderboard) => {
- const dex = dexLiquidityPoolCurrencyAddressByNetwork;
+  const dex = dexLiquidityPoolCurrencyAddressByNetwork;
   let toIndex = -1;
   let fromIndex = -1;
   competitionStartBlock = parseInt( competitionStartBlock)
@@ -53,13 +54,16 @@ const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurr
         //else{ no need to check old participant purchases from other then dex (0 growth)}
 
       }else{
+        //some transaction have multiple records becase some token send transfer fee a saperate records 
+         //in case of transfer in,  purchase value = fee + actual amount      
+        let transactionValue = calcalutePurchaseAmount(transaction, transactions)
         if(toIndex == -1){
           // New participant purchases from dex (growth = transaction.value)
-          newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, transaction.value)
+          newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, transactionValue)
           participants.push(newparticipant)
         }else{
           // // old participant purchases from dex (+ growth)
-          participants[toIndex].growth  =  addGrowth(participants[toIndex].growth, transaction.value)
+          participants[toIndex].growth  =  addGrowth(participants[toIndex].growth, transactionValue)
         }
       }
     }
@@ -72,7 +76,7 @@ const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurr
 }
 
 const calcalutePurchaseVolume = (transactions, participants, dexLiquidityPoolCurrencyAddressByNetwork, competionId, competitionStartBlock, leaderboard) => {
-  const dex = dexLiquidityPoolCurrencyAddressByNetwork;
+   const dex = dexLiquidityPoolCurrencyAddressByNetwork;
    let toIndex = -1;
    let fromIndex = -1;
    competitionStartBlock = parseInt( competitionStartBlock)
@@ -107,13 +111,16 @@ const calcalutePurchaseVolume = (transactions, participants, dexLiquidityPoolCur
          //else{ no need to check old participant purchases from other then dex (0 growth)}
  
        }else{
+         //some transaction have multiple records becase some token send transfer fee a saperate records 
+         //in case of transfer in,  purchase value = fee + actual amount          
+         let transactionValue = calcalutePurchaseAmount(transaction, transactions)
          if(toIndex == -1){
            // New participant purchases from dex (growth = transaction.value)
-           newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, transaction.value)
+           newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, transactionValue)
            participants.push(newparticipant)
          }else{
            // // old participant purchases from dex (+ growth)
-           participants[toIndex].growth  =  addGrowth(participants[toIndex].growth, transaction.value)
+           participants[toIndex].growth  =  addGrowth(participants[toIndex].growth, transactionValue)
          }
        }
      }
@@ -188,3 +195,25 @@ const calculateLevelUpAmount = (previousParticipantGrowth, currentParticipantGro
   return levelUpAmount
 }
 
+
+const calcalutePurchaseAmount = (transaction, transactions) => {  
+  if(transaction.hash){
+    let hashGroup = transactions.filter(record => record.hash ==  transaction.hash)
+    if(hashGroup.length > 1){
+      let sortedHashGroup = hashGroup.sort((transaction1, transaction2) => {
+        let transaction1Value = Web3.utils.toBN(transaction1.value)
+        let transaction2Value = Web3.utils.toBN(transaction2.value)
+        return transaction1Value.lt(transaction2Value) ? 1 : -1
+       });
+      
+       if(sortedHashGroup[0].value === transaction.value){
+        let transactionValue = Web3.utils.toBN(sortedHashGroup[0].value)
+        let feeValue = Web3.utils.toBN(sortedHashGroup[1].value)
+        let total = transactionValue.add(feeValue)
+        return total.toString()
+      }  
+    }
+    return transaction.value
+  }
+  return '0'
+}
