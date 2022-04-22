@@ -50,7 +50,7 @@ module.exports = function (router) {
   router.put("/update/:id", asyncMiddleware(async (req, res) => {
     const filter = { _id:req.params.id };
     delete req.body["cronName"]
-    delete req.body["pause"]
+    delete req.body["paused"]
     if (isValidObjectId(filter._id)) {    
       const cron =  await db.TemporaryPauseCrons.findOneAndUpdate(filter, req.body, { new: true })
       return cron
