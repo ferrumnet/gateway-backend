@@ -17,12 +17,14 @@ module.exports =  async function () {
 
      let isLock = false
      cron.schedule("*/2 * * * *", async () => {
-     let pauseCron = await db.TemporaryPauseCrons.findOne({cronName:'competitiontransactionssnapshotjob'})
-     let paused = pauseCron._id ? pauseCron.isActive : true 
-     
-     if(!isLock && paused){
+    
+     if(!isLock){
+         let pauseCron = await db.TemporaryPauseCrons.findOne({cronName:'competitiontransactionssnapshotjob'})
+         let cronIsActive = pauseCron._id ? pauseCron.isActive : true 
          isLock = true;
-         await transactionSnapshotJob();
+         if(cronIsActive){
+           await transactionSnapshotJob();
+         }
          await updateTemporaryPauseCron(pauseCron)
          isLock = false   
        }
@@ -62,7 +64,6 @@ const transactionSnapshotJob = async () => {
             console.log('job compeleted')
           }
          }
-
       }
 
   } catch (e) {
@@ -101,10 +102,11 @@ const calculateEndBlockNumber = async()=>{
 
 const updateTemporaryPauseCron = async(cron) =>{
   if(cron._id){
-    if(cron.pause && isActive){
-      const filter = { _id: req.params.id };    
-      const payload = { isActive: false };
-      await db.TemporaryPauseCrons.findOneAndUpdate(filter, payload)
-    }
+    if(cron.paused == cron.isActive){        
+      const filter = { _id: cron._id};      
+      const payload = { paused: !cron.paused };     
+      console.log(`updating paused status of cron to ${payload.paused}`)     
+      await db.TemporaryPauseCrons.findOneAndUpdate(filter, payload, {useFindAndModify: false})
+   }
   }
 }

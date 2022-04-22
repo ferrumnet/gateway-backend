@@ -31,20 +31,21 @@ module.exports = function (router) {
     return res.http200({totalTransactionsCount, transactionsByContractAddress})
   }));
 
-  router.post('/blockNumbers/verify', asyncMiddleware(async (req, res) => { 
+  router.post('/blockNumbers/verify/byTokenContractAddress/:tokenContractAddress', asyncMiddleware(async (req, res) => { 
     const transactionsCount = parseInt(req.body.transactionsCount)
     const fromBlockNumber = req.body.fromBlockNumber
     const toBlockNumber = req.body.toBlockNumber
+    const contractAddress = req.params.tokenContractAddress
    
     if(transactionsCount && fromBlockNumber && toBlockNumber){
-      let filter = {$or:[{'verifiedBlockNumber': null}, {'verifiedBlockNumber': false}], blockNumber:{$gte: fromBlockNumber}, blockNumber:{$lte: toBlockNumber}}
+      let filter = { $or:[{'verifiedBlockNumber': null}, {'verifiedBlockNumber': false}], blockNumber:{$gte: fromBlockNumber, $lte: toBlockNumber}, contractAddress}
       const count = await db.CompetitionTransactionsSnapshots.countDocuments( filter)    
       if(transactionsCount == count){              
         await db.CompetitionTransactionsSnapshots.updateMany(
-            { blockNumber: { $gte: fromBlockNumber}, blockNumber:{$lte:toBlockNumber } },
+            { blockNumber: { $gte: fromBlockNumber, $lte:toBlockNumber }, contractAddress},
             { $set: { "verifiedBlockNumber" : true } }
          );
-         return res.http200('blockNumberRange verified successfully')
+         return res.http200(`${count} transactions from ${fromBlockNumber} to ${toBlockNumber} block numbers, for tokenContractAddress ${contractAddress} are verified successfully`)
         }
         return res.http400('Wrong TransactionsCount')  
       }  
@@ -65,16 +66,16 @@ module.exports = function (router) {
             //fromblock and toblock should be less then  
           let transations = await bscScanHelper.queryByCABN(snapshotMeta.tokenContractAddress, fromBlockNumber, toBlockNumber);        
           if(transations.length > 0){
-             const snapShotFilter = {blockNumber:{$gte: fromBlockNumber}, blockNumber:{$lte: toBlockNumber}}
+             const snapShotFilter = {blockNumber:{$gte: fromBlockNumber, $lte: toBlockNumber}}                        
              await db.CompetitionTransactionsSnapshots.deleteMany(snapShotFilter)
              await db.CompetitionTransactionsSnapshots.insertMany(transations)
              return res.http200(`${transations.length} transactions are stored`)
           }
           return res.http200('Zero transactions received from BscScan')  
           }
-               
+          return res.http400('CompetitionTransactionsSnapshotMeta currentBlockNumber should be greater then toBlockNumber')
         }
-        return res.http200('TokenContractAddress not registered with Cron')
+        return res.http400('TokenContractAddress not registered with Cron')
       }
       return res.http400('Invalid block Range')
     }

@@ -18,7 +18,7 @@ module.exports = function (router) {
     if (isValidObjectId(filter._id) && typeof payload.isActive == "boolean") {
       const cron = await db.TemporaryPauseCrons.findOneAndUpdate( filter, payload, { new: true } );
       return cron
-              ? res.http200({ subscription })
+              ? res.http200({ cron })
               : res.http404(
                   await commonFunctions.getValueFromStringsPhrase( stringHelper.strErrorCronNotFound ),
                   stringHelper.strErrorCronNotFound
@@ -49,10 +49,10 @@ module.exports = function (router) {
 
   router.put("/update/:id", asyncMiddleware(async (req, res) => {
     const filter = { _id:req.params.id };
-    delete res.body["cronName"]
-    return res.http200({body:res.body})
+    delete req.body["cronName"]
+    delete req.body["paused"]
     if (isValidObjectId(filter._id)) {    
-      const cron =  await db.TemporaryPauseCrons.findOneAndUpdate(filter, payload, { new: true })
+      const cron =  await db.TemporaryPauseCrons.findOneAndUpdate(filter, req.body, { new: true })
       return cron
       ? res.http200({ cron }):    
        res.http404( 
