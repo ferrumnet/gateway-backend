@@ -21,12 +21,12 @@ phases:
       # - echo $ECR_URL
       # - docker build -t  ${ECR_URL}:latest  .
       # - docker push  ${ECR_URL}:latest 
-  post_build:
-    commands:
-      - echo Build completed on `date`
-      - echo Pushing the Docker image...
-      - echo "${ECR_URL}"
-      - docker push  "${ECR_URL}":latest  
+  # post_build:
+  #   commands:
+  #     - echo Build completed on `date`
+  #     - echo Pushing the Docker image...
+  #     - echo "${ECR_URL}"
+  #     - docker push  "${ECR_URL}":latest  
 
 artifacts:
   files:
