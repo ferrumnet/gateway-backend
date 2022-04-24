@@ -4,7 +4,11 @@ files:
   - source: /
     destination: /root
 hooks:
-  BeforeInstall:
+  AfterInstall:
     - location: deploy/scripts/code_deploy.yaml
       timeout: 60
       runas: root
+  # AfterInstall:
+  #   - location: scripts/after_install.sh
+  #     timeout: 300
+  #     runas: root
