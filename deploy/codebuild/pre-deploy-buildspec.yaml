@@ -4,9 +4,6 @@ environment_variables:
     ARTIFACT_FILE_NAME: ""
     ECR_URL: ""
 phases:
-  # install:
-  #   runtime-versions:
-  #       docker: 18
   pre_build:
     commands:
       - ECR_URL="${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-${AppName}-${Environment}-${Branch}"
@@ -16,20 +13,20 @@ phases:
       - TIME=$(date '+%F-%H%M')
       - echo "export TIME=$TIME" >> set_env.sh
       - printenv >> variables.sh
-      - echo "export Region=${Region}"  >> set_env.sh
-      - echo "export Environment=${Environment}"  >> set_env.sh
-      - echo "export Branch=${Branch}" >> set_env.sh
-      - echo "export AppName=${AppName}" >> set_env.sh
-      - echo "export DevPrefix=${DevPrefix}"  >> set_env.sh
-      - echo $ECR_URL
-      - docker build -t test .
-      - docker push  ${ECR_URL}:latest 
-  # post_build:
-  #   commands:
-  #     - echo Build completed on `date`
-  #     - echo Pushing the Docker image...
-  #     - echo "${ECR_URL}"
-  #     - docker push  "${ECR_URL}":latest  
+      # - echo "export Region=${Region}"  >> set_env.sh
+      # - echo "export Environment=${Environment}"  >> set_env.sh
+      # - echo "export Branch=${Branch}" >> set_env.sh
+      # - echo "export AppName=${AppName}" >> set_env.sh
+      # - echo "export DevPrefix=${DevPrefix}"  >> set_env.sh
+      # - echo $ECR_URL
+      # - docker build -t  ${ECR_URL}:latest  .
+      # - docker push  ${ECR_URL}:latest 
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - echo "${ECR_URL}"
+      - docker push  "${ECR_URL}":latest  
 
 artifacts:
   files:
