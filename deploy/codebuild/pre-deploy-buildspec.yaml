@@ -10,17 +10,14 @@ phases:
       - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin "${ECR_URL}"
   build:
     commands:
-      - TIME=$(date '+%F-%H%M')
-      - echo "export TIME=$TIME" >> set_env.sh
-      - printenv >> variables.sh
       - echo "export Region=${Region}"  >> set_env.sh
       - echo "export Environment=${Environment}"  >> set_env.sh
       - echo "export Branch=${Branch}" >> set_env.sh
       - echo "export AppName=${AppName}" >> set_env.sh
       - echo "export DevPrefix=${DevPrefix}"  >> set_env.sh
       - echo $ECR_URL
-      # - docker build -t  ${ECR_URL}:latest  .
-      # - docker push  ${ECR_URL}:latest 
+      - docker build -t  ${ECR_URL}:latest  .
+      - docker push  ${ECR_URL}:latest 
   # post_build:
   #   commands:
   #     - echo Build completed on `date`
