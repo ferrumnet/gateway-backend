@@ -128,7 +128,7 @@ Resources:
           #   RunOrder: 4
           - Name: CodeDeploy
             InputArtifacts:
-              - Name: SourceCode
+              - Name: BuildArtifacts
             Name: Ec2-Deploy
             ActionTypeId:
               Category: Deploy
@@ -283,13 +283,13 @@ Resources:
           !Sub |
             #!/bin/bash
             sudo apt update
-            sudo apt install docker.io ruby-full wget -y
+            sudo apt install docker.io ruby-full wget awscli -y
             wget https://aws-codedeploy-us-east-2.s3.us-east-2.amazonaws.com/latest/install
             chmod +x ./install
             sudo ./install auto > /tmp/logfile
             sudo service codedeploy-agent start
 
-      InstanceType: t2.micro
+      InstanceType: t2.medium
       IamInstanceProfile: !Ref Ec2InstanceProfile
         # KeyName: jenna # <-- Change to use your key-pair name
       SecurityGroupIds:
@@ -335,6 +335,8 @@ Resources:
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
         - "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+        - "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"
+        - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
       Policies: []
   Ec2InstanceProfile:
     Type: "AWS::IAM::InstanceProfile"
@@ -349,5 +351,5 @@ Resources:
     Type: AWS::ECR::Repository
     Properties: 
       ImageTagMutability: MUTABLE
-      RepositoryName: "sheraz-test-repo-gateway-backend"
+      RepositoryName: !Sub "${DevPrefix}-${AppName}-${Environment}-${GitHubBranch}"
      
