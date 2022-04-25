@@ -16,7 +16,7 @@ module.exports = function (router) {
       req.user = await db.Users.findOne({ _id: decoded._id });
     }
 
-    if (req.user) {
+    if (req.user && req.user.role == 'organizationAdmin') {
       organization = await db.Organizations.findOne({ _id: req.user.organization })
     } else {
       if (req.query.siteName) {
