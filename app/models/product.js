@@ -8,7 +8,7 @@ var productSchema = mongoose.Schema(
     nameInLower: { type: String, lowercase: true },
     icon: { type: String, default: ""},
     tags: { type: String, default: ""},
-    metadata: [{ key: {type: String, default: "" }, value: {type: String, default: "" } }],
+    metaData: [{ key: {type: String, default: "" }, value: {type: String, default: "" } }],
     menuItems: [],
     menuPosition: {
       organizationAdminPosition: { type: Number, default: null},
