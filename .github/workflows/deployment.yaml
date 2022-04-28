@@ -93,7 +93,7 @@ jobs:
 
 
     - name: CodeDeploy Deployment  Api
-      id: deploy
+      id: deploy_api
       run: |
         aws deploy create-deployment \
           --application-name gateway-backend-dev \
@@ -103,7 +103,7 @@ jobs:
           # --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
 
     - name: CodeDeploy Deployment Cron
-      id: deploy
+      id: deploy_cron
       run: |
         aws deploy create-deployment \
           --application-name gateway-backend-dev \
