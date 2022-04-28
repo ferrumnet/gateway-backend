@@ -59,7 +59,7 @@ jobs:
             docker run -d -it --name ${matrix.AppName}-${matrix.Environment}-cron  -p 80:8080 --restart unless-stopped ${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-$   {AppName}-${Environment}-${Branch}:latest node server.js dev cron >> deploy/scripts/code_deploy.yaml \
           fi'  >> deploy/scripts/code_deploy.yaml
         aws deploy push \
-          --application-name ${{ secrets.APPLICATION_NAME }}  \
+          --application-name gateway-backend-dev-cron \
           --s3-location s3://${{ env.s3-bucket }}/${{ env.s3-filename }}.zip \
           --source .
           # --description "This is a revision for the ${{ matrix.appname }}-${{ github.sha }}" \
