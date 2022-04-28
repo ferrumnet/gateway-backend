@@ -90,4 +90,23 @@ module.exports = function (router) {
 
   });
 
+  router.get('/users/list/associated/:id', async (req, res) => {
+
+    var filter = {}
+    let sort = { createdAt: -1 }
+    let users = []
+
+    filter.organization = req.params.id
+
+    users = await db.Users.find(filter).populate('addresses', 'address')
+      .sort(sort)
+      .skip(req.query.offset ? parseInt(req.query.offset) : 0)
+      .limit(req.query.limit ? parseInt(req.query.limit) : 10)
+
+    return res.http200({
+      users: users
+    });
+
+  });
+
 };
