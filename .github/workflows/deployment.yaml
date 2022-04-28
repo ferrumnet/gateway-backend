@@ -55,9 +55,9 @@ jobs:
 
     - name: AWS Deploy push
       run: |
-        echo "export Region=${env.Region}"  >> set_env.sh
-        echo "export Environment=${env.Environment}"  >> set_env.sh
-        echo "export AppName=${env.AppName}"  >> set_env.sh
+        echo "export Region=${{ env.Region }}"  >> set_env.sh
+        echo "export Environment=${{ env.Environment }}"  >> set_env.sh
+        echo "export AppName=${{ env.AppName }}"  >> set_env.sh
         echo "export ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}"  >> set_env.sh
         aws deploy push \
           --application-name gateway-backend-dev \
