@@ -98,7 +98,7 @@ jobs:
       run: |
         aws deploy create-deployment \
           --application-name gateway-backend-dev \
-          --deployment-group-name gateway-backend-dg-dev \
+          --deployment-group-name gateway-backend-dev-api-dg \
           --deployment-config-name CodeDeployDefault.OneAtATime \
           --s3-location bucket=${{ env.s3-bucket }},key=${{ env.s3-filename }}.zip,bundleType=zip
           # --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
@@ -108,7 +108,7 @@ jobs:
       run: |
         aws deploy create-deployment \
           --application-name gateway-backend-dev \
-          --deployment-group-name gateway-backend-dev-cron \
+          --deployment-group-name gateway-backend-dev-cron-dg \
           --deployment-config-name CodeDeployDefault.OneAtATime \
           --s3-location bucket=${{ env.s3-bucket }},key=${{ env.s3-filename }}.zip,bundleType=zip
           # --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
