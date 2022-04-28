@@ -9,8 +9,6 @@ on:
 env:
   AppName: gateway-backend
   Region: us-east-2
-  AccountId: 806611346442
-  ECR: shex-gateway-backend-dev-cicd
 
 jobs:
   Build:
@@ -52,17 +50,15 @@ jobs:
         ECR_REPOSITORY: sheraz-test-repo-gateway-backend
         IMAGE_TAG: latest
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker build -t ${secrets.ECR_REGISTRY}:latest .
+        docker push ${secrets.ECR_REGISTRY}:latest
 
     - name: AWS Deploy push
       run: |
-        echo 'if [ "$DEPLOYMENT_GROUP_NAME" == "sheraz-codedeploy-api-test" ] \
-          then  \
-            docker run -d -it --name ${env.AppName}-${env.Environment}-api  -p 80:8080 --restart unless-stopped ${env.AccountId}.dkr.ecr.${env.Region}.amazonaws.com/${ECR}:latest node server.js dev api >> deploy/scripts/code_deploy.yaml \
-          else \
-            docker run -d -it --name ${matrix.AppName}-${matrix.Environment}-cron  -p 80:8080 --restart unless-stopped ${env.AccountId}.dkr.ecr.${env.Region}.amazonaws.com/${ECR}:latest node server.js dev cron >> deploy/scripts/code_deploy.yaml \
-          fi'  >> deploy/scripts/code_deploy.yaml
+        echo "export Region=${env.Region}"  >> set_env.sh
+        echo "export Environment=${env.Environment}"  >> set_env.sh
+        echo "export AppName=${env.AppName}"  >> set_env.sh
+        echo "export ECR_REGISTRY=${env.ECR_REGISTRY}"  >> set_env.sh
         aws deploy push \
           --application-name gateway-backend-dev \
           --s3-location s3://${{ env.s3-bucket }}/${{ env.s3-filename }}.zip \
