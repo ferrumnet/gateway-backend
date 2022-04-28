@@ -6,6 +6,12 @@ on:
             - cicd
     pull_request:
 
+env:
+  AppName: gateway-backend
+  Region: us-east-2
+  AccountId: 806611346442
+  ECR: shex-gateway-backend-dev-cicd
+
 jobs:
   Build:
     runs-on: ubuntu-latest
@@ -53,9 +59,9 @@ jobs:
       run: |
         echo 'if [ "$DEPLOYMENT_GROUP_NAME" == "sheraz-codedeploy-api-test" ] \
           then  \
-            docker run -d -it --name ${matrix.AppName}-${matrix.Environment}-api  -p 80:8080 --restart unless-stopped ${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-$   {AppName}-${Environment}-${Branch}:latest node server.js dev api >> deploy/scripts/code_deploy.yaml \
+            docker run -d -it --name ${env.AppName}-${env.Environment}-api  -p 80:8080 --restart unless-stopped ${env.AccountId}.dkr.ecr.${env.Region}.amazonaws.com/${ECR}:latest node server.js dev api >> deploy/scripts/code_deploy.yaml \
           else \
-            docker run -d -it --name ${matrix.AppName}-${matrix.Environment}-cron  -p 80:8080 --restart unless-stopped ${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-$   {AppName}-${Environment}-${Branch}:latest node server.js dev cron >> deploy/scripts/code_deploy.yaml \
+            docker run -d -it --name ${matrix.AppName}-${matrix.Environment}-cron  -p 80:8080 --restart unless-stopped ${env.AccountId}.dkr.ecr.${env.Region}.amazonaws.com/${ECR}:latest node server.js dev cron >> deploy/scripts/code_deploy.yaml \
           fi'  >> deploy/scripts/code_deploy.yaml
         aws deploy push \
           --application-name gateway-backend-dev \
