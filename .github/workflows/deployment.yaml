@@ -46,9 +46,8 @@ jobs:
         ECR_REPOSITORY: sheraz-test-repo-gateway-backend
         IMAGE_TAG: latest
       run: |
-        ls
-        # docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        # docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
     - name: AWS Deploy push
       run: |
@@ -59,7 +58,7 @@ jobs:
             docker run -d -it --name ${matrix.AppName}-${matrix.Environment}-cron  -p 80:8080 --restart unless-stopped ${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-$   {AppName}-${Environment}-${Branch}:latest node server.js dev cron >> deploy/scripts/code_deploy.yaml \
           fi'  >> deploy/scripts/code_deploy.yaml
         aws deploy push \
-          --application-name gateway-backend-dev-cron \
+          --application-name gateway-backend-dev \
           --s3-location s3://${{ env.s3-bucket }}/${{ env.s3-filename }}.zip \
           --source .
           # --description "This is a revision for the ${{ matrix.appname }}-${{ github.sha }}" \
