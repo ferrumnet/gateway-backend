@@ -3,7 +3,7 @@ name: Build, Upload and Deploy
 on:
     push:
         branches:
-            - CI/CD
+            - develop
     pull_request:
 
 jobs:
@@ -44,8 +44,12 @@ jobs:
 
     - name: AWS Deploy push
       run: |
-        ls -la
-        pwd
+        echo 'if [ "$DEPLOYMENT_GROUP_NAME" == "leaderboard-backend-dev" ] \
+          then  \
+            docker run -d -it --name ${AppName}-${Environment}-api  -p 80:8080 --restart unless-stopped ${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-$   {AppName}-${Environment}-${Branch}:latest node server.js dev api >> deploy/scripts/code_deploy.yaml \
+          else \
+            docker run -d -it --name ${AppName}-${Environment}-api  -p 80:8080 --restart unless-stopped ${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-$   {AppName}-${Environment}-${Branch}:latest node server.js dev api >> deploy/scripts/code_deploy.yaml \
+          fi'  >> deploy/scripts/code_deploy.yaml
         aws deploy push \
           --application-name ${{ secrets.APPLICATION_NAME }}  \
           --s3-location s3://${{ matrix.s3-bucket }}/${{ matrix.s3-filename }}.zip \
@@ -75,7 +79,17 @@ jobs:
         aws-region: us-east-2
 
 
-    - name: CodeDeploy Deployment
+    - name: CodeDeploy Deployment  Api
+      id: deploy
+      run: |
+        aws deploy create-deployment \
+          --application-name ${{ secrets.APPLICATION_NAME }} \
+          --deployment-group-name ${{ secrets.DEPLOYMENT_GROUP }} \
+          --deployment-config-name CodeDeployDefault.OneAtATime \
+          --s3-location bucket=${{ matrix.s3-bucket }},key=${{ matrix.s3-filename }}.zip,bundleType=zip
+          # --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
+
+    - name: CodeDeploy Deployment Cron
       id: deploy
       run: |
         aws deploy create-deployment \
