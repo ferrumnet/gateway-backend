@@ -17,8 +17,6 @@ phases:
       - echo "export DevPrefix=${DevPrefix}"  >> set_env.sh
       - echo "export AccountId=${AccountId}"  >> set_env.sh
       - docker build -t  ${ECR_URL}:latest  .
-      - docker run -d -it --name ${AppName}-${Environment}-api  -p 80:8080 --restart unless-stopped ${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-$   {AppName}-${Environment}-${Branch}:latest node server.js dev api >> deploy/scripts/code_deploy.yaml
-      - docker run -d -it --name ${AppName}-${Environment}-cron -p 8080:8080 --restart unless-stopped ${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-${AppName}-${Environment}-${Branch}:latest node server.js dev cron
   post_build:
     commands:
       - echo Build completed on `date`

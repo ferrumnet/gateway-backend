@@ -1,8 +1,0 @@
-#!/bin/bash
-source /root/set_env.sh
-docker stop ${AppName}-${Environment}-api || true
-docker stop ${AppName}-${Environment}-cron || true
-docker system prune -a -f || true
-aws ecr get-login-password --region ${Region} | docker login --username AWS --password-stdin ${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-${AppName}-${Environment}-${Branch}
-# docker run -d -it --name ${AppName}-${Environment}-api  -p 80:8080 --restart unless-stopped ${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-${AppName}-${Environment}-${Branch}:latest node server.js dev api
-# docker run -d -it --name ${AppName}-${Environment}-cron -p 8080:8080 --restart unless-stopped ${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-${AppName}-${Environment}-${Branch}:latest node server.js dev cron
