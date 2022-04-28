@@ -50,15 +50,15 @@ jobs:
         ECR_REPOSITORY: sheraz-test-repo-gateway-backend
         IMAGE_TAG: latest
       run: |
-        docker build -t ${secrets.ECR_REGISTRY}:latest .
-        docker push ${secrets.ECR_REGISTRY}:latest
+        docker build -t ${{ secrets.ECR_REGISTRY }}:latest .
+        docker push ${{ secrets.ECR_REGISTRY }}:latest
 
     - name: AWS Deploy push
       run: |
         echo "export Region=${env.Region}"  >> set_env.sh
         echo "export Environment=${env.Environment}"  >> set_env.sh
         echo "export AppName=${env.AppName}"  >> set_env.sh
-        echo "export ECR_REGISTRY=${env.ECR_REGISTRY}"  >> set_env.sh
+        echo "export ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}"  >> set_env.sh
         aws deploy push \
           --application-name gateway-backend-dev \
           --s3-location s3://${{ env.s3-bucket }}/${{ env.s3-filename }}.zip \
