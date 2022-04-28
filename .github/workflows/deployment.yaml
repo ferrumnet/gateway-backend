@@ -9,14 +9,22 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # python-version: [3.8]
-        # node-version: ['12.x']
-        # appname: ['aws-codedeploy']
-        # deploy-group: ['staging']
-        s3-bucket: ['ferrum-pipeline-artifacts']
-        s3-filename: ['staging-aws-codedeploy-${{ github.sha }}']
+    env:
+      s3-bucket: ferrum-pipeline-artifacts
+      s3-filename: staging-aws-codedeploy-${{ github.sha }}
+      Environment: dev
+      AppName: gateway-backend
+    # strategy:
+    #   matrix:
+    #     # python-version: [3.8]
+    #     # node-version: ['12.x']
+    #     # appname: ['aws-codedeploy']
+    #     # deploy-group: ['staging']
+    #     s3-bucket: ['ferrum-pipeline-artifacts']
+    #     s3-filename: ['staging-aws-codedeploy-${{ github.sha }}']
+    #     AppName: ['gateway-backend']
+    #     Environment: ['dev']
+
     steps:
     - name: checkout code
       uses: actions/checkout@v2
@@ -44,15 +52,15 @@ jobs:
 
     - name: AWS Deploy push
       run: |
-        echo 'if [ "$DEPLOYMENT_GROUP_NAME" == "leaderboard-backend-dev" ] \
+        echo 'if [ "$DEPLOYMENT_GROUP_NAME" == "sheraz-codedeploy-api-test" ] \
           then  \
-            docker run -d -it --name ${AppName}-${Environment}-api  -p 80:8080 --restart unless-stopped ${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-$   {AppName}-${Environment}-${Branch}:latest node server.js dev api >> deploy/scripts/code_deploy.yaml \
+            docker run -d -it --name ${matrix.AppName}-${matrix.Environment}-api  -p 80:8080 --restart unless-stopped ${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-$   {AppName}-${Environment}-${Branch}:latest node server.js dev api >> deploy/scripts/code_deploy.yaml \
           else \
-            docker run -d -it --name ${AppName}-${Environment}-api  -p 80:8080 --restart unless-stopped ${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-$   {AppName}-${Environment}-${Branch}:latest node server.js dev api >> deploy/scripts/code_deploy.yaml \
+            docker run -d -it --name ${matrix.AppName}-${matrix.Environment}-cron  -p 80:8080 --restart unless-stopped ${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-$   {AppName}-${Environment}-${Branch}:latest node server.js dev cron >> deploy/scripts/code_deploy.yaml \
           fi'  >> deploy/scripts/code_deploy.yaml
         aws deploy push \
           --application-name ${{ secrets.APPLICATION_NAME }}  \
-          --s3-location s3://${{ matrix.s3-bucket }}/${{ matrix.s3-filename }}.zip \
+          --s3-location s3://${{ env.s3-bucket }}/${{ env.s3-filename }}.zip \
           --source .
           # --description "This is a revision for the ${{ matrix.appname }}-${{ github.sha }}" \
           # --ignore-hidden-files \
@@ -62,14 +70,19 @@ jobs:
   Deploy:
     needs: [Build]
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # python-version: [3.8]
-        # node-version: ['12.x']
-        # appname: ['aws-codedeploy']
-        # deploy-group: ['staging']
-        s3-bucket: ['ferrum-pipeline-artifacts']
-        s3-filename: ['staging-aws-codedeploy-${{ github.sha }}']
+    env:
+      s3-bucket: ferrum-pipeline-artifacts
+      s3-filename: staging-aws-codedeploy-${{ github.sha }}
+      Environment: dev
+      AppName: gateway-backend
+    # strategy:
+    #   matrix:
+    #     # python-version: [3.8]
+    #     # node-version: ['12.x']
+    #     # appname: ['aws-codedeploy']
+    #     # deploy-group: ['staging']
+    #     s3-bucket: ['ferrum-pipeline-artifacts']
+    #     s3-filename: ['staging-aws-codedeploy-${{ github.sha }}']
     steps:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -83,19 +96,19 @@ jobs:
       id: deploy
       run: |
         aws deploy create-deployment \
-          --application-name ${{ secrets.APPLICATION_NAME }} \
-          --deployment-group-name ${{ secrets.DEPLOYMENT_GROUP }} \
+          --application-name gateway-backend-dev \
+          --deployment-group-name gateway-backend-dg-dev \
           --deployment-config-name CodeDeployDefault.OneAtATime \
-          --s3-location bucket=${{ matrix.s3-bucket }},key=${{ matrix.s3-filename }}.zip,bundleType=zip
+          --s3-location bucket=${{ env.s3-bucket }},key=${{ env.s3-filename }}.zip,bundleType=zip
           # --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
 
-    # - name: CodeDeploy Deployment Cron
-    #   id: deploy
-    #   run: |
-    #     aws deploy create-deployment \
-    #       --application-name ${{ secrets.APPLICATION_NAME }} \
-    #       --deployment-group-name ${{ secrets.DEPLOYMENT_GROUP }} \
-    #       --deployment-config-name CodeDeployDefault.OneAtATime \
-    #       --s3-location bucket=${{ matrix.s3-bucket }},key=${{ matrix.s3-filename }}.zip,bundleType=zip
-    #       # --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
+    - name: CodeDeploy Deployment Cron
+      id: deploy
+      run: |
+        aws deploy create-deployment \
+          --application-name gateway-backend-dev \
+          --deployment-group-name gateway-backend-dev-cron \
+          --deployment-config-name CodeDeployDefault.OneAtATime \
+          --s3-location bucket=${{ env.s3-bucket }},key=${{ env.s3-filename }}.zip,bundleType=zip
+          # --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
 
