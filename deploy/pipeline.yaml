@@ -5,6 +5,16 @@ Parameters:
     Type: String
     Default: ""
 
+  SubnetA:
+    Type: String
+    Default: ""
+  SubnetB:
+    Type: String
+    Default: ""
+  SubnetC:
+    Type: String
+    Default: ""
+
   AppName:
     Type: String
     AllowedPattern: "[A-Za-z0-9-]+"
@@ -29,6 +39,20 @@ Parameters:
   GitHubBranch:
     Type: String
     Default: master
+    AllowedPattern: "[A-Za-z0-9-]+"
+
+  HostedZoneId:
+    Type: String
+    Default: "Z023933617DZKHOV0K81T"
+    # AllowedPattern: "[A-Za-z0-9-]+"
+
+  HostedZone:
+    Type: String
+    Default: "dev.svcs.ferrumnetwork.io"
+
+  VPC:
+    Type: String
+    Default: "VPC"
     # AllowedPattern: "[A-Za-z0-9-]+"
 
   PipelineArtifactsBucket:
@@ -288,8 +312,7 @@ Resources:
             chmod +x ./install
             sudo ./install auto > /tmp/logfile
             sudo service codedeploy-agent start
-
-      InstanceType: t2.medium
+      InstanceType: t2.small
       IamInstanceProfile: !Ref Ec2InstanceProfile
         # KeyName: jenna # <-- Change to use your key-pair name
       SecurityGroupIds:
@@ -297,6 +320,8 @@ Resources:
       Tags:
         - Key: "Name"
           Value: !Sub "${DevPrefix}${AppName}-${Environment}"
+
+
 
   
   Ec2SecurityGroup:
@@ -317,6 +342,25 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: 0.0.0.0/0 
+
+  ELBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Join ["-", [alb-security-group, dev]]
+      GroupDescription: "Allow HTTP/HTTPS and SSH inbound and outbound traffic"
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: "-1"
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
 
   IamRole:
     Type: "AWS::IAM::Role"
@@ -345,6 +389,123 @@ Resources:
       Roles:
         - Ref: "IamRole"
 
+# Load balancer
+
+
+  # MyCertificate: 
+  #   Type: "AWS::CertificateManager::Certificate"
+  #   Properties: 
+  #     DomainName: sheraz.dev.svcs.ferrumnetwork.io
+  #     ValidationMethod: DNS
+
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties: 
+      Name:  !Sub "${DevPrefix}${AppName}-${Environment}-alb"
+      Scheme: "internet-facing"
+      SecurityGroups: 
+      - !Ref ELBSecurityGroup
+      Type: "application"
+      IpAddressType: "ipv4"
+      Subnets:
+      - !Ref SubnetA
+      - !Ref SubnetB
+      - !Ref SubnetC
+
+
+  HTTPListener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+        LoadBalancerArn: !Ref ApplicationLoadBalancer
+        Port: 80
+        Protocol: "HTTP"
+        DefaultActions:
+          -
+            Order: 1
+            RedirectConfig: 
+                Protocol: "HTTPS"
+                Port: "443"
+                Host: "#{host}"
+                Path: "/#{path}"
+                Query: "#{query}"
+                StatusCode: "HTTP_301"
+            Type: "redirect"
+
+  HTTPSListener:
+      Type: "AWS::ElasticLoadBalancingV2::Listener"
+      Properties:
+          LoadBalancerArn: !Ref ApplicationLoadBalancer
+          Port: 443
+          Protocol: "HTTPS"
+          SslPolicy: "ELBSecurityPolicy-2016-08"
+          Certificates: 
+            - 
+              CertificateArn: arn:aws:acm:us-east-2:806611346442:certificate/2792c302-054b-4165-970f-265dbdce6871
+              
+          DefaultActions: 
+            - 
+              Order: 1
+              TargetGroupArn: !Ref Test1TargetGroup
+              Type: "forward"
+      # DependsOn: MyCertificate
+
+  Test1TargetGroup:
+      Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+      DependsOn: Ec2Instance
+      Properties:
+          HealthCheckIntervalSeconds: 30
+          HealthCheckPath: "/"
+          Port: 80
+          Protocol: "HTTP"
+          HealthCheckPort: "traffic-port"
+          HealthCheckProtocol: "HTTP"
+          HealthCheckTimeoutSeconds: 5
+          UnhealthyThresholdCount: 2
+          TargetType: "instance"
+          Targets: 
+          -
+            # AvailabilityZone: !GetAtt Ec2Instance.AvailabilityZone
+            Id: !Ref Ec2Instance
+            Port: 80
+          Matcher: 
+              HttpCode: "200-499"
+          HealthyThresholdCount: 5
+          VpcId: !Ref VPC
+          Name: "target-group-1"
+          HealthCheckEnabled: true
+          TargetGroupAttributes: 
+            - 
+              Key: "stickiness.enabled"
+              Value: "false"
+            - 
+              Key: "deregistration_delay.timeout_seconds"
+              Value: "300"
+            - 
+              Key: "stickiness.type"
+              Value: "lb_cookie"
+            - 
+              Key: "stickiness.lb_cookie.duration_seconds"
+              Value: "86400"
+            - 
+              Key: "slow_start.duration_seconds"
+              Value: "0"
+            - 
+              Key: "load_balancing.algorithm.type"
+              Value: "round_robin"
+     
+
+  ALBDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      # HostedZoneName: !Ref 'HostedZoneName'
+      Comment: DNS name for my instance.
+      Name: !Sub ${ DevPrefix}-${AppName}.${HostedZone}
+      AliasTarget:
+        DNSName: !GetAtt ApplicationLoadBalancer.DNSName
+        HostedZoneId: !GetAtt ApplicationLoadBalancer.CanonicalHostedZoneID
+      Type: A
+
 # ECR
 
   ECR:
@@ -352,4 +513,14 @@ Resources:
     Properties: 
       ImageTagMutability: MUTABLE
       RepositoryName: !Sub "${DevPrefix}-${AppName}-${Environment}-${GitHubBranch}"
+
+
+# #!/bin/bash
+# sudo apt update
+# sudo apt install docker.io ruby-full wget awscli -y
+# wget https://aws-codedeploy-us-east-2.s3.us-east-2.amazonaws.com/latest/install
+# chmod +x ./install
+# sudo ./install auto > /tmp/logfile
+# sudo service codedeploy-agent start
+
      
