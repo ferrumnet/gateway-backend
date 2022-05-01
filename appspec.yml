@@ -5,7 +5,7 @@ files:
     destination: /root
 hooks:
   AfterInstall:
-    - location: deploy/scripts/code_deploy.yaml
+    - location: deploy/scripts/code_deploy.sh
       timeout: 60
       runas: root
   # AfterInstall:
