@@ -1,5 +1,5 @@
 
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global
+const { db, asyncMiddleware, commonFunctions, stringHelper, currencyHelper } = global
 const mailer = global.mailer;
 var jwt = require('jsonwebtoken');
 var mongoose = require('mongoose');
@@ -33,7 +33,7 @@ module.exports = function (router) {
 
 
     let currency = await db.Currencies.create(req.body)
-    currency.currencyAddressesByNetwork = await createCurrencyAddresses(req, currency, req.body)
+    currency.currencyAddressesByNetwork = await currencyHelper.createCurrencyAddresses(req, currency, req.body)
     currency = await db.Currencies.findOneAndUpdate({ _id: currency }, currency, { new: true });
 
     return res.http200({
@@ -148,31 +148,5 @@ module.exports = function (router) {
     return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorUniqueContractTokenAddress),stringHelper.strErrorUniqueContractTokenAddress,);
 
   });
-
-  async function createCurrencyAddresses(req, model, body) {
-
-    let results = []
-    if (model && body.networks && body.networks.length > 0) {
-      for (let i = 0; i < body.networks.length; i++) {
-        if (body.networks[i].tokenContractAddress) {
-          body.networks[i].tokenContractAddress = (body.networks[i].tokenContractAddress).toLowerCase()
-        }
-        let innerBody = {
-          network: body.networks[i].network,
-          currency: model._id,
-          networkDex: body.networks[i].networkDex,
-          tokenContractAddress: body.networks[i].tokenContractAddress,
-          createdByOrganization: req.user.organization
-        }
-        let result = await db.CurrencyAddressesByNetwork.create(innerBody)
-        results.push(result._id)
-        // let count = await db.CurrencyAddressesByNetwork.count({ network: body.networks[i].network, currency: model._id })
-        // if (count == 0) {
-        // }
-      }
-    }
-
-    return results
-  }
 
 };
