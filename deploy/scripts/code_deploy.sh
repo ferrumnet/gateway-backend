@@ -20,7 +20,7 @@ then
 
 echo CRON
 
-docker stop ${AppName}-${Environment}-api || true
+docker stop ${AppName}-${Environment}-cron || true
 docker system prune -a -f || true
 aws ecr get-login-password --region ${Region} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
 docker run -d -it --name ${AppName}-${Environment}-cron -p 8080:8080 --restart unless-stopped ${ECR_REGISTRY}:latest node server.js dev cron
