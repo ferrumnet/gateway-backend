@@ -3,7 +3,7 @@ name: Build, Upload and Deploy
 on:
     push:
         branches:
-            - develop
+            - cicd_configuration
     pull_request:
 
 env:
