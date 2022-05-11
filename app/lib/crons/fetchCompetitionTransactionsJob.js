@@ -10,8 +10,8 @@ module.exports =  async function () {
   try{
     //temporary conditions
     //let startBlock = await bscScanHelper.queryBlockNumber(getTimeStamp());
-     await cTSnapshotHelper.createSnapshotMeta('0x5732a2a84ec469fc95ac32e12515fd337e143eed', '16565403');
-     await cTSnapshotHelper.createSnapshotMeta('0x422a9c44e52a2ea96422f0caf4a00e30b3e26a0d', '16565403');
+     await cTSnapshotHelper.createSnapshotMeta('0xaf329a957653675613d0d98f49fc93326aeb36fc', '16565403');
+     await cTSnapshotHelper.createSnapshotMeta('0x1fc45f358d5292bee1e055ba7cebe4d4100972ae', '16565403');
      //end temporary conditions
 
      let isLock = false
