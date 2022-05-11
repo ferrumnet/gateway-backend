@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var CurrenciesModel = function () {
   var schema = mongoose.Schema({
     createdByUser: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
+    updatedByUser: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
     createdByOrganization: { type: mongoose.Schema.Types.ObjectId, ref: 'organizations' },
     currencyAddressesByNetwork: [{ type: mongoose.Schema.Types.ObjectId, ref: 'currencyAddressesByNetwork'}],
     name: { type: String, default: "" },

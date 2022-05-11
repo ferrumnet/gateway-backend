@@ -8,7 +8,7 @@ module.exports = {
     return competition
    },
 
-async getActiveCompetitionForGrowth(tokenContractAddress, applyFilter=true) {
+   async getActiveCompetitionForGrowth(tokenContractAddress, applyFilter=true) {
     let result =[];
     let filter = applyFilter ? { isActive: true, status:"published", startDate: {$lte:  new Date()}, endDate: { $gte: new Date()} }:{}
     let query = [
