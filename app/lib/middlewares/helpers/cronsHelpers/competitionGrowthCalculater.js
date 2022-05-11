@@ -11,6 +11,10 @@ module.exports = async (CompetitionType, transations, participants, dex, competi
       result = calcalutePurchaseVolume(transations, participants, dex, competionId, competitionStartBlock, leaderboard);
       break;
 
+    case "purchaseAndSellFlow":
+      result = calcalutePurchaseAndSellVolume(transations, participants, dex, competionId, competitionStartBlock, leaderboard);      
+      break;
+
     default:
     //balance
   }
@@ -129,6 +133,74 @@ const calcalutePurchaseVolume = (transactions, participants, dexLiquidityPoolCur
     const sortedParticipants = sortParticipants(participants)
     return participantsDataCalculation(sortedParticipants, leaderboard) 
  }
+
+
+const calcalutePurchaseAndSellVolume = (transactions, participants, dexLiquidityPoolCurrencyAddressByNetwork, competionId, competitionStartBlock, leaderboard) => {
+  const dex = dexLiquidityPoolCurrencyAddressByNetwork;
+  let toIndex = -1;
+  let fromIndex = -1;
+  competitionStartBlock = parseInt( competitionStartBlock)
+  transactions.forEach((transaction) => {
+   if(isNaN(competitionStartBlock) || competitionStartBlock <= parseInt(transaction.blockNumber)){
+      toIndex = -1;
+      fromIndex = -1;
+
+      toIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.to);
+      if(dex != transaction.from){
+       fromIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.from);
+      }
+
+      let newparticipant = null
+      if(dex != transaction.from){
+                
+        // -ve growth
+        if(fromIndex == -1){
+          if(dex == transaction.to){
+             // New participant sell to  dex (+ growth) 
+             newparticipant =  getNewParticipantObject(competionId, transaction, transaction.from, transaction.value)
+             participants.push(newparticipant)
+          }else{
+            // New participant sell to non dex (- growth) 
+            newparticipant =  getNewParticipantObject(competionId, transaction, transaction.from, '-'+transaction.value)
+            participants.push(newparticipant)
+          }         
+        }else{
+          if(dex == transaction.to){
+               // Old participant sell dex (+ growth)
+               participants[fromIndex].growth  = addGrowth(participants[fromIndex].growth, transactionValue) 
+          }else{
+            // Old participant sell non dex (- growth) 
+            participants[fromIndex].growth  = subGrowth(participants[fromIndex].growth, transaction.value)
+          }          
+        }
+
+        if(toIndex == -1 ){
+          // new participant purchases from other then dex (0 growth)
+          let newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, "0")
+          participants.push(newparticipant)
+        }
+
+        //else{ no need to check old participant purchases from other then dex (0 growth)}
+
+      }else{
+        //some transaction have multiple records becase some token send transfer fee a saperate records 
+        //in case of transfer in,  purchase value = fee + actual amount          
+        let transactionValue = calcalutePurchaseAmount(transaction, transactions)
+        if(toIndex == -1){
+          // New participant purchases from dex (growth = transaction.value)
+          newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, transactionValue)
+          participants.push(newparticipant)
+        }else{
+          // // old participant purchases from dex (+ growth)
+          participants[toIndex].growth  =  addGrowth(participants[toIndex].growth, transactionValue)
+        }
+      }
+    }
+  });
+
+   const sortedParticipants = sortParticipants(participants)
+   return participantsDataCalculation(sortedParticipants, leaderboard) 
+}
 
 const getNewParticipantObject=(competionId, transaction, tokenHolderAddress, growth )=>{
  return{competion:competionId, tokenContractAddress:transaction.contractAddress ,tokenHolderAddress, growth}
