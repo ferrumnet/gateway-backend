@@ -14,7 +14,7 @@ jobs:
   Build:
     runs-on: ubuntu-latest
     env:
-      s3-bucket: ferrum-pipeline-artifacts
+      s3-bucket: ferrum-gateway-pipeline-artifacts-dev
       s3-filename: dev-aws-codedeploy-${{ github.sha }}
       Environment: dev
       AppName: gateway-backend
@@ -68,7 +68,7 @@ jobs:
     needs: [Build]
     runs-on: ubuntu-latest
     env:
-      s3-bucket: ferrum-pipeline-artifacts
+      s3-bucket: ferrum-gateway-pipeline-artifacts-dev
       s3-filename: dev-aws-codedeploy-${{ github.sha }}
       Environment: dev
       AppName: gateway-backend
