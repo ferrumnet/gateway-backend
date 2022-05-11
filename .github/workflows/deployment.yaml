@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       s3-bucket: ferrum-pipeline-artifacts
-      s3-filename: staging-aws-codedeploy-${{ github.sha }}
+      s3-filename: dev-aws-codedeploy-${{ github.sha }}
       Environment: dev
       AppName: gateway-backend
     # strategy:
