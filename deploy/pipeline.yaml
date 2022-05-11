@@ -365,7 +365,7 @@ Resources:
   IamRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: "Ec2RoleForSSM"
+      RoleName: !Sub "${DevPrefix}-${AppName}-${Environment}-${GitHubBranch}"
       Description: "EC2 IAM role for SSM access"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
