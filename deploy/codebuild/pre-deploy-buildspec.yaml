@@ -28,6 +28,6 @@ artifacts:
   files:
     - appspec.yml
     - set_env.sh
-    - deploy/scripts/code_deploy.yaml
+    - deploy/scripts/code_deploy.sh
     - variables.sh
     
