@@ -31,6 +31,8 @@ else
 
 echo FEATURE
 
+export REPO=${DevPrefix}-${AppName}-${Environment}-${Branch}
+
 docker stop ${AppName}-${Environment}-api || true
 docker stop ${AppName}-${Environment}-cron || true
 docker system prune -a -f || true
