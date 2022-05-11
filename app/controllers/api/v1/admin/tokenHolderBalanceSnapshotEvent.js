@@ -4,7 +4,7 @@ module.exports = function (router) {
     router.post("/create", asyncMiddleware(async (req, res) => {
         const user = req.user;
         const orgFilter = {_id: user.organization, isActive:true, user: user._id}
-        const lBFilter = {_id: req.body.leaderboard, isActive:true, user: user._id};
+        const lBFilter = {_id: req.body.leaderboard, isActive:true};
         let payload = {
             createdByUser: user._id,
             organization:user.organization,
@@ -15,7 +15,7 @@ module.exports = function (router) {
         }
         if(payload.type && payload.leaderboard && payload.triggeredSnapshotDateTime){
             const orgCount = await db.Organizations.countDocuments(orgFilter);
-            if(orgCount > 0){       
+            if(orgCount > 0){
                 const lBCount = await db.Leaderboards.countDocuments(lBFilter)
                 if(lBCount > 0){
                     const snapEvent = await db.TokenHolderBalanceSnapshotEvent.create(payload);
@@ -33,7 +33,7 @@ module.exports = function (router) {
         const user = req.user;
         let events = [];
         let filter = {organization:user.organization}
-        
+
         if(req.query.isActive){
             filter.isActive = req.query.isActive
         }
@@ -52,9 +52,9 @@ module.exports = function (router) {
             filter.triggeredSnapshotDateTime = {
                 $lte:moment(req.query.toDate).utc()
             }
-        
+
         }
-        if (req.query.isPagination != null && req.query.isPagination == 'false') {       
+        if (req.query.isPagination != null && req.query.isPagination == 'false') {
             events = await db.TokenHolderBalanceSnapshotEvent.find(filter) .sort({ createdAt: -1 })
         }
         else{
@@ -62,8 +62,7 @@ module.exports = function (router) {
             .sort({ createdAt: -1 })
             .skip(req.query.offset ? parseInt(req.query.offset) : 0)
             .limit(req.query.limit ? parseInt(req.query.limit) : 10)
-        }       
+        }
         return res.http200(events)
     }));
   };
-  

@@ -2,12 +2,24 @@
 
 var mongoose = require("mongoose");
 
-const productSchema = mongoose.Schema(
+var productSchema = mongoose.Schema(
   {
-    name: { type: String, required: true },
+    name: { type: String, default: "", required: true },
     nameInLower: { type: String, lowercase: true },
+    icon: { type: String, default: ""},
+    tags: { type: String, default: ""},
+    metaData: [{ key: {type: String, default: "" }, value: {type: String, default: "" } }],
+    menuItems: [],
+    menuPosition: {
+      organizationAdminPosition: { type: Number, default: null},
+      communityMemberPosition: { type: Number, default: null},
+    },
+
     isActive: { type: Boolean, default: false },
-    createdByUser: { type: mongoose.Schema.Types.ObjectId, ref: "Users", required: true },
+    createdByUser: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true },
+    updatedByUser: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+    createdAt: { type: Date, default: new Date() },
+    updatedAt: { type: Date, default: new Date() },
   },
   { timestamps: true }
 );
