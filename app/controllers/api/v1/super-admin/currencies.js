@@ -1,19 +1,13 @@
 
 const { db, asyncMiddleware, commonFunctions, stringHelper, currencyHelper } = global
-const mailer = global.mailer;
-var jwt = require('jsonwebtoken');
-var mongoose = require('mongoose');
-var fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
-var path = require('path');
-var ejs = require("ejs");
 
 module.exports = function (router) {
 
+
   router.post('/create', async (req, res) => {
 
-    if (!req.body.name || !req.body.symbol || !req.body.networks) {
-      return res.http400('name & symbol & networks are required.');
+    if (!req.body.name || !req.body.symbol || !req.body.networks || !req.body.organization) {
+      return res.http400('name & symbol & networks & organization are required.');
     }
 
     if (req.body.networks && req.body.networks.length == 0) {
@@ -26,15 +20,41 @@ module.exports = function (router) {
     }
 
     req.body.createdByUser = req.user._id
-    req.body.createdByOrganization = req.user.organization
+    req.body.updatedByUser = req.user._id
+    req.body.createdByOrganization = req.body.organization
 
     req.body.nameInLower = (req.body.name).toLowerCase()
     req.body.createdAt = new Date()
-
+    req.body.updatedAt = new Date()
 
     let currency = await db.Currencies.create(req.body)
     currency.currencyAddressesByNetwork = await currencyHelper.createCurrencyAddresses(req, currency, req.body)
     currency = await db.Currencies.findOneAndUpdate({ _id: currency }, currency, { new: true });
+
+    return res.http200({
+      currency: currency
+    });
+
+  });
+
+  router.post('/update/:id', async (req, res) => {
+
+    if (!req.body.name || !req.body.symbol || !req.body.organization) {
+      return res.http400('name & symbol & organization are required.');
+    }
+
+    if (req.body.networks) {
+      delete req.body.networks
+    }
+
+    req.body.updatedByUser = req.user._id
+    req.body.createdByOrganization = req.body.organization
+
+    req.body.nameInLower = (req.body.name).toLowerCase()
+    req.body.updatedAt = new Date()
+    console.log(req.body)
+
+    let currency = await db.Currencies.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true });
 
     return res.http200({
       currency: currency
@@ -50,7 +70,6 @@ module.exports = function (router) {
     let currencies = []
     var sort = { "createdAt": -1 }
 
-    filterAndList.push({ createdByUser: new mongoose.Types.ObjectId(req.user._id) })
 
     if(req.query.search){
       let reg = new RegExp(unescape(req.query.search), 'i');
@@ -124,28 +143,6 @@ module.exports = function (router) {
     return res.http200({
       currency: currency
     });
-
-  });
-
-  router.get('/check/tokenContractAddress/is/unique', async (req, res) => {
-
-    var filter = {}
-    let count = 0
-
-    if (!req.query.tokenContractAddress) {
-      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorContractTokenAddressIsRequired),stringHelper.strErrorContractTokenAddressIsRequired,);
-    }
-
-    filter.tokenContractAddress = (req.query.tokenContractAddress).toLowerCase()
-    count = await db.CurrencyAddressesByNetwork.count(filter)
-    if (count == 0) {
-      return res.http200({
-        message: await commonFunctions.getValueFromStringsPhrase(stringHelper.strSuccessContractTokenAddressIsunique),
-        phraseKey: stringHelper.strSuccessContractTokenAddressIsunique,
-      });
-    }
-
-    return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorUniqueContractTokenAddress),stringHelper.strErrorUniqueContractTokenAddress,);
 
   });
 
