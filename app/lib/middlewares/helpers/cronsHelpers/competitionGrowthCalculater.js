@@ -73,10 +73,11 @@ const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurr
     }
   });
 
-   const sortedParticipants = sortParticipants(participants)
-   return participantsDataCalculation(sortedParticipants, leaderboard)
-
-
+  let excludedAddresses = separateExcludedAddresses(participants, leaderboard)
+  excludedAddresses = excludedAddressDataCalculation(excludedAddresses)
+  const sortedParticipants = sortParticipants(participants)
+  const growths = participantsDataCalculation(sortedParticipants) 
+  return growths.concat(excludedAddresses)
 }
 
 const calcalutePurchaseVolume = (transactions, participants, dexLiquidityPoolCurrencyAddressByNetwork, competionId, competitionStartBlock, leaderboard) => {
@@ -103,7 +104,7 @@ const calcalutePurchaseVolume = (transactions, participants, dexLiquidityPoolCur
            participants.push(newparticipant)
          }else{
            // Old participant sell (- growth) 
-           participants[fromIndex].growth  = subGrowth(participants[fromIndex].growth, transaction.value)
+           participants[fromIndex].growth  = subGrowth(participants[fromIndex].growth, '-'+transaction.value)
          }
  
          if(toIndex == -1 ){
@@ -130,8 +131,11 @@ const calcalutePurchaseVolume = (transactions, participants, dexLiquidityPoolCur
      }
    });
  
+    let excludedAddresses = separateExcludedAddresses(participants, leaderboard)
+    excludedAddresses = excludedAddressDataCalculation(excludedAddresses)
     const sortedParticipants = sortParticipants(participants)
-    return participantsDataCalculation(sortedParticipants, leaderboard) 
+    const growths = participantsDataCalculation(sortedParticipants) 
+    return growths.concat(excludedAddresses)
  }
 
 
@@ -197,9 +201,11 @@ const calcalutePurchaseAndSellVolume = (transactions, participants, dexLiquidity
       }
     }
   });
-
-   const sortedParticipants = sortParticipants(participants)
-   return participantsDataCalculation(sortedParticipants, leaderboard) 
+  let excludedAddresses = separateExcludedAddresses(participants, leaderboard)
+  excludedAddresses = excludedAddressDataCalculation(excludedAddresses)
+  const sortedParticipants = sortParticipants(participants)
+  const growths = participantsDataCalculation(sortedParticipants) 
+  return growths.concat(excludedAddresses)
 }
 
 const getNewParticipantObject=(competionId, transaction, tokenHolderAddress, growth )=>{
@@ -241,17 +247,37 @@ const sortParticipants = (participants) =>{
    });
    return sortedParticipants
 }
-const participantsDataCalculation = (sortedParticipants, leaderboard)=>{
+const participantsDataCalculation = (sortedParticipants)=>{
   for(let i=0; i< sortedParticipants.length; i++){
     sortedParticipants[i].rank = i+1
     sortedParticipants[i].humanReadableGrowth = Web3.utils.fromWei(sortedParticipants[i].growth,'ether')
     if(i>0){
       sortedParticipants[i].levelUpAmount = calculateLevelUpAmount(sortedParticipants[i-1].growth, sortedParticipants[i].growth, i )
     }
-    let excludedAddress = leaderboard.exclusionWalletAddressList.findIndex((walletAddress)=> walletAddress === sortedParticipants[i].tokenHolderAddress)
-    sortedParticipants[i].excludedWalletAddress = excludedAddress != -1
   }
   return sortedParticipants
+}
+
+const separateExcludedAddresses = (participants, leaderboard) =>{
+  let excludedAddress = []
+  for(let i=0; i<= leaderboard.exclusionWalletAddressList.length; i++){
+   let index = participants.findIndex((participant)=> leaderboard.exclusionWalletAddressList[i] === participant.tokenHolderAddress)
+   if(index != -1){
+    excludedAddress.push(participants[index])
+    participants.splice(index,1)
+   }    
+  }
+  return excludedAddress
+}
+
+const excludedAddressDataCalculation = (excludedParticipants) => {
+  for(let i=0; i< excludedParticipants.length; i++){
+    excludedParticipants[i].rank = null
+    excludedParticipants[i].humanReadableGrowth = Web3.utils.fromWei(excludedParticipants[i].growth,'ether')
+    excludedParticipants[i].levelUpAmount = "0";
+    excludedParticipants[i].excludedWalletAddress = true 
+  }
+  return excludedParticipants
 }
 
 const calculateLevelUpAmount = (previousParticipantGrowth, currentParticipantGrowth, index)=>{

@@ -22,7 +22,6 @@ module.exports = {
         return participants
     },
 
-
     async storeCompetitionGrowth(tokenContractAddress, competitionId, participants){
         let data = [];
         participants.forEach(participant => {
