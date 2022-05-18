@@ -94,6 +94,7 @@ module.exports = function (router) {
     var items = []
     var filter = {}
     filter.organization = organization._id
+    filter.isVisibleForPublicMenuItem = true
 
     let data = await db.Leaderboards.find(filter)
       .sort({ createdAt: -1 })
@@ -127,6 +128,7 @@ module.exports = function (router) {
     var items = []
     var filter = {}
     filter.organization = organization._id
+    filter.isVisibleForPublicMenuItem = true
 
     let data = await db.Competitions.find(filter)
       .populate({
@@ -174,6 +176,7 @@ module.exports = function (router) {
     var items = []
     var filter = {}
     filter.createdByOrganization = organization._id
+    filter.isVisibleForPublicMenuItem = true
 
     let data = await db.Currencies.find(filter).populate({
       path: 'currencyAddressesByNetwork',
