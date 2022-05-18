@@ -100,7 +100,7 @@ module.exports = function (router) {
     }
 
     let data = await db.Leaderboards.find(filter)
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: 1 })
 
     if (data && data.length > 0) {
 
@@ -150,7 +150,7 @@ module.exports = function (router) {
           }
         }
       })
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: 1 })
 
     if (data && data.length > 0) {
 
@@ -197,7 +197,7 @@ module.exports = function (router) {
         }
       }
     })
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: 1 })
 
     if (data && data.length > 0) {
 
