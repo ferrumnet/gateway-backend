@@ -138,7 +138,7 @@ module.exports = function (router) {
     let participants = []
     let sort = { rank: 1 }
     if(!excludedWalletAddress){
-      filter.excludedWalletAddress = false
+      filter.excludedWalletAddress = { $in: [false, null] }
     }
     if (req.query.isPagination != null && req.query.isPagination == 'false') {
       participants = await db.CompetitionGrowthTracker.find(filter).sort(sort)

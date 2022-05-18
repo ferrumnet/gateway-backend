@@ -5,7 +5,7 @@ module.exports = function (router) {
 
   router.get('/recalculate/competitionsGrowth/by/tokenContractAddress/:tokenContractAddress/competitionId/:competitionId', asyncMiddleware(async (req, res) => {
     const pauseCron = await db.TemporaryPauseCrons.findOne({cronName:'competitiontransactionssnapshotjob'}) 
-    const paused = pauseCron ? pauseCron.paused : true
+    const paused = pauseCron ? pauseCron.paused : false
     if(paused){
       const tokenContractAddress = req.params.tokenContractAddress   
       const competitionId = req.params.competitionId
@@ -45,7 +45,7 @@ module.exports = function (router) {
 
   router.get('/recalculate/competitionsGrowth/by/tokenContractAddress/:tokenContractAddress', asyncMiddleware(async (req, res) => {
     let pauseCron = await db.TemporaryPauseCrons.findOne({cronName:'competitiontransactionssnapshotjob'})   
-    const paused = pauseCron ? pauseCron.paused : true
+    const paused = pauseCron ? pauseCron.paused : false
     if(paused){
       const tokenContractAddress = req.params.tokenContractAddress   
       let transactions = await db.CompetitionTransactionsSnapshots.find({contractAddress:tokenContractAddress}) 
