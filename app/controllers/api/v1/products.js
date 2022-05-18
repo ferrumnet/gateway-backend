@@ -94,6 +94,10 @@ module.exports = function (router) {
     var items = []
     var filter = {}
     filter.organization = organization._id
+    if (req.user && req.user.role != null && req.user.role == 'organizationAdmin') {
+    }else {
+      filter.isVisibleForPublicMenuItem = true
+    }
 
     let data = await db.Leaderboards.find(filter)
       .sort({ createdAt: -1 })
@@ -127,6 +131,10 @@ module.exports = function (router) {
     var items = []
     var filter = {}
     filter.organization = organization._id
+    if (req.user && req.user.role && req.user.role == 'organizationAdmin') {
+    }else {
+      filter.isVisibleForPublicMenuItem = true
+    }
 
     let data = await db.Competitions.find(filter)
       .populate({
@@ -174,6 +182,10 @@ module.exports = function (router) {
     var items = []
     var filter = {}
     filter.createdByOrganization = organization._id
+    if (req.user && req.user.role && req.user.role == 'organizationAdmin') {
+    }else {
+      filter.isVisibleForPublicMenuItem = true
+    }
 
     let data = await db.Currencies.find(filter).populate({
       path: 'currencyAddressesByNetwork',
