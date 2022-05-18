@@ -19,6 +19,8 @@ module.exports = function (router) {
     req.body.startDateAfterDelay = moment(req.body.startDate).utc().add(10,'seconds')
     req.body.endDateAfterDelay = moment(req.body.endDate).utc().add(10,'seconds')
     req.body.user = req.user._id
+    req.body.updatedByUser = req.user._id
+    req.body.organization = req.user.organization
     // delete req.body.startBlock
     // delete req.body.endBlock
 
@@ -45,10 +47,11 @@ module.exports = function (router) {
     let filter = {}
     filter = { _id: req.params.id }
 
-    if (!req.body.name || !req.body.leaderboard || !req.body.startDate || !req.body.endDate) {
-      return res.http400('name & leaderboard & startDate & endDate are required.');
+    if (!req.body.name) {
+      return res.http400('name is required.');
     }
     req.body.nameInLower = (req.body.name).toLowerCase()
+    req.body.updatedByUser = req.user._id
     req.body.updatedAt = new Date()
     req.body.startDateAfterDelay = moment(req.body.startDate).utc().add(10,'seconds')
     req.body.endDateAfterDelay = moment(req.body.endDate).utc().add(10,'seconds')
@@ -86,7 +89,7 @@ module.exports = function (router) {
       return res.http400('status is required.');
     }
 
-    let competition = await db.Competitions.findOneAndUpdate(filter, {status: req.body.status, updatedAt:  new Date()}, { new: true });
+    let competition = await db.Competitions.findOneAndUpdate(filter, {status: req.body.status, updatedAt:  new Date(), updatedByUser : req.user._id}, { new: true });
 
     res.http200({
       competition: competition
@@ -97,7 +100,7 @@ module.exports = function (router) {
   router.get('/list', async (req, res) => {
 
     var filter = {}
-    filter.user = req.user._id
+    filter.organization = req.user.organization
 
     db.Competitions.find(filter)
       .sort({ createdAt: -1 })
@@ -110,6 +113,24 @@ module.exports = function (router) {
       })
 
   });
+
+  router.get("/participants/growth/:competition",asyncMiddleware(async (req, res) => {
+    let filter = {competition: req.params.competition}
+    let participants = []
+    let sort = { rank: 1 }
+    if(req.query.excludedWalletAddress){
+       filter.excludedWalletAddress = req.query.excludedWalletAddress == "true" ? true : false
+    }
+    if (req.query.isPagination != null && req.query.isPagination == 'false') {
+      participants = await db.CompetitionGrowthTracker.find(filter).sort(sort)
+    } else {
+      participants = await db.CompetitionGrowthTracker.find(filter).sort(sort)
+        .skip(req.query.offset ? parseInt(req.query.offset) : 0)
+        .limit(req.query.limit ? parseInt(req.query.limit) : 10)
+    }
+    return res.http200({ participants });
+    })
+  )
 
   router.get('/:id', async (req, res) => {
 

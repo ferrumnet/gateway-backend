@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var CurrenciesModel = function () {
   var schema = mongoose.Schema({
     createdByUser: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
+    updatedByUser: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
     createdByOrganization: { type: mongoose.Schema.Types.ObjectId, ref: 'organizations' },
     currencyAddressesByNetwork: [{ type: mongoose.Schema.Types.ObjectId, ref: 'currencyAddressesByNetwork'}],
     name: { type: String, default: "" },
@@ -13,6 +14,7 @@ var CurrenciesModel = function () {
     logo: { type: String, default: "" },
     totalSupply: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
+    isVisibleForPublicMenuItem: { type: Boolean, default: true },
 
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },

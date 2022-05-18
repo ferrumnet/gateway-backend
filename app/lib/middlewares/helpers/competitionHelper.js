@@ -8,10 +8,11 @@ module.exports = {
     return competition
    },
 
-async getActiveCompetitionForGrowth(tokenContractAddress) {
+async getActiveCompetitionForGrowth(tokenContractAddress, applyFilter=true) {
     let result =[];
-    let filter = [
-      { $match: { isActive: true,  endDate: { $gte: new Date()} } },
+    let filter = applyFilter ? { isActive: true, status:"published", startDate: {$lte:  new Date()}, endDate: { $gte: new Date()} }:{}
+    let query = [
+      { $match: filter},
       {
         $lookup: {
           from: "leaderboards",
@@ -51,8 +52,10 @@ async getActiveCompetitionForGrowth(tokenContractAddress) {
           "status":1,
           "startBlock":1,
           "endBlock":1,
+          "type":1,
           "dexLiquidityPoolCurrencyAddressByNetwork":1,
           "leaderboard._id": 1,
+          "leaderboard.exclusionWalletAddressList": 1,
           "leaderboard.isActive": 1,
           "LCABN._id": 1,
           "LCABN.isActive": 1,
@@ -62,7 +65,7 @@ async getActiveCompetitionForGrowth(tokenContractAddress) {
         },
       },
     ];
-    const competitions = await db.Competitions.aggregate(filter);
+    const competitions = await db.Competitions.aggregate(query);
 
     competitions.forEach((competition) => {
         if(competition.isActive ){ // can add for publish

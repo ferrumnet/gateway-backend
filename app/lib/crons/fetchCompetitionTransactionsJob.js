@@ -1,27 +1,35 @@
 var cron = require("node-cron");
-var calcaluteGrowthVolume = require("./crons_helpers/competitionGrowthCalculater");
-var bscScanHelper = require("../httpCalls/bscScanHelper");
-var CGTrackerHelper = require("../middlewares/helpers/competitionGrowthTrackerHelper");
-var cTSnapshotHelper = require("../middlewares/helpers/competitionTransactionsSnapshotHelper");
-var competitionHelper = require("../middlewares/helpers/competitionHelper");
+var calcaluteGrowthVolume = global.calcaluteGrowthVolume;
+var bscScanHelper = global.bscScanHelper;
+var CGTrackerHelper = global.CGTrackerHelper;
+var cTSnapshotHelper = global.cTSnapshotHelper;
+var competitionHelper = global.competitionHelper;
+var db = global.db;
 
 module.exports =  async function () {
- if(global.dockerEnvironment.isCronEnvironmentSupportedForCompetitionTransactionsSnapshot === "yes"){
+ if(global.starterEnvironment.isCronEnvironmentSupportedForCompetitionTransactionsSnapshot === "yes"){
   try{
     //temporary conditions
     //let startBlock = await bscScanHelper.queryBlockNumber(getTimeStamp());
-     await cTSnapshotHelper.createSnapshotMeta('0x5732a2a84ec469fc95ac32e12515fd337e143eed', '16565403');
-     await cTSnapshotHelper.createSnapshotMeta('0x422a9c44e52a2ea96422f0caf4a00e30b3e26a0d', '16565403');
+     await cTSnapshotHelper.createSnapshotMeta('0xaf329a957653675613d0d98f49fc93326aeb36fc', '16565403');
+     await cTSnapshotHelper.createSnapshotMeta('0x1fc45f358d5292bee1e055ba7cebe4d4100972ae', '16565403');
      //end temporary conditions
 
      let isLock = false
      cron.schedule("*/2 * * * *", async () => {
-       if(!isLock){
+    
+     if(!isLock){
+         let pauseCron = await db.TemporaryPauseCrons.findOne({cronName:'competitiontransactionssnapshotjob'})
+         let cronIsActive = pauseCron._id ? pauseCron.isActive : true 
          isLock = true;
-         await transactionSnapshotJob();
-         isLock = false
+         if(cronIsActive){
+           await transactionSnapshotJob();
+         }
+         await updateTemporaryPauseCron(pauseCron)
+         isLock = false   
        }
      });
+
   }catch(error){
     console.log(error)
   }
@@ -51,12 +59,11 @@ const transactionSnapshotJob = async () => {
             if(transations.length > 0){
               await cTSnapshotHelper.insertTransactionsSnapshot(transations);
               await competitionGrowthTrackerJob(snapshotMetas[i].tokenContractAddress, transations, endBlock)
-            }           
+            }
             await cTSnapshotHelper.updateMetaByContractAddress(snapshotMetas[i].tokenContractAddress, snapshotMetas[i].currentBlockNumber, endBlock);
             console.log('job compeleted')
           }
          }
-
       }
 
   } catch (e) {
@@ -73,7 +80,7 @@ const competitionGrowthTrackerJob = async(tokenContractAddress, transactions, en
     let participants = await CGTrackerHelper.getCompetitionParticipants(tokenContractAddress, competitions[i]._id, competitions[i])
     console.log('participants.lenght=> ',participants.length)
     if(participants.length>0){
-      let participantsGrowth = await calcaluteGrowthVolume( "tradingVolumeFlow", transactions, participants, competitions[i].dexLiquidityPoolCurrencyAddressByNetwork, competitions[i]._id, competitions[i].startBlock );
+      let participantsGrowth = await calcaluteGrowthVolume(competitions[i].type, transactions, participants, competitions[i].dexLiquidityPoolCurrencyAddressByNetwork, competitions[i]._id, competitions[i].startBlock, competitions[i].leaderboard );
       console.log('participantsGrowth.lenght=> ',participantsGrowth.length)
       await CGTrackerHelper.storeCompetitionGrowth(tokenContractAddress, competitions[i]._id, participantsGrowth)
       await competitionHelper.updateCompetitionCurrentBlock(competitions[i]._id, endBlock)
@@ -91,4 +98,15 @@ const calculateEndBlockNumber = async()=>{
   endBlock = parseInt(endBlock);
   --endBlock
   return endBlock
+}
+
+const updateTemporaryPauseCron = async(cron) =>{
+  if(cron._id){
+    if(cron.paused == cron.isActive){        
+      const filter = { _id: cron._id};      
+      const payload = { paused: !cron.paused };     
+      console.log(`updating paused status of cron to ${payload.paused}`)     
+      await db.TemporaryPauseCrons.findOneAndUpdate(filter, payload, {useFindAndModify: false})
+   }
+  }
 }
