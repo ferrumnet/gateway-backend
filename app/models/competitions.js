@@ -21,6 +21,7 @@ var CompetitionsModel = function () {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
     updatedByUser: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
     organization: { type: mongoose.Schema.Types.ObjectId, ref: 'organizations', required: true  },
+    isVisibleForPublicMenuItem: { type: Boolean, default: true },
 
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() }
