@@ -107,13 +107,13 @@ module.exports = function (router) {
       for (let i = 0; i < data.length; i++) {
         let item = data[i]
         let path = ''
-        if(req.user){
+        if(req.user && req.user.role && req.user.role == 'organizationAdmin'){
           path = getItemFromMetaData(product, 'internalDynamicPathForSingle').value
         }else {
           path = getItemFromMetaData(product, 'internalPubDynamicPathForSingle').value
         }
         if (item.leaderboardCurrencyAddressesByNetwork.length > 1) {
-          if(req.user){
+          if(req.user && req.user.role && req.user.role == 'organizationAdmin'){
             path = getItemFromMetaData(product, 'internalDynamicPathForMulti').value
           }else {
             path = getItemFromMetaData(product, 'internalPubDynamicPathForMulti').value
@@ -157,7 +157,7 @@ module.exports = function (router) {
       for (let i = 0; i < data.length; i++) {
         let item = data[i]
         let path = ''
-        if(req.user){
+        if(req.user && req.user.role && req.user.role == 'organizationAdmin'){
           path = getItemFromMetaData(product, 'internalDynamicPathForSingle').value
         }else {
           path = getItemFromMetaData(product, 'internalPubDynamicPathForSingle').value
