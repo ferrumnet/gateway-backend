@@ -1,0 +1,103 @@
+name: Build, Upload and Deploy
+
+on:
+    push:
+        branches:
+            - develop
+    pull_request:
+
+env:
+  AppName: gateway-backend
+  Region: us-east-2
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    env:
+      s3-bucket: ferrum-gateway-pipeline-artifacts-dev
+      s3-filename: dev-aws-codedeploy-${{ github.sha }}
+      Environment: dev
+      AppName: gateway-backend
+    # strategy:
+    #   matrix:
+    #     # python-version: [3.8]
+    #     # node-version: ['12.x']
+    #     # appname: ['aws-codedeploy']
+    #     # deploy-group: ['staging']
+    #     s3-bucket: ['ferrum-pipeline-artifacts']
+    #     s3-filename: ['staging-aws-codedeploy-${{ github.sha }}']
+    #     AppName: ['gateway-backend']
+    #     Environment: ['dev']
+
+    steps:
+    - name: checkout code
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, tag, and push image to Amazon ECR
+      run: |
+        docker build -t ${{ secrets.ECR_REGISTRY }}:latest .
+        docker push ${{ secrets.ECR_REGISTRY }}:latest
+
+    - name: AWS Deploy push
+      run: |
+        echo "export Region=${{ env.Region }}"  >> set_env.sh
+        echo "export Environment=${{ env.Environment }}"  >> set_env.sh
+        echo "export AppName=${{ env.AppName }}"  >> set_env.sh
+        echo "export ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}"  >> set_env.sh
+        aws deploy push \
+          --application-name gateway-backend-dev \
+          --s3-location s3://${{ env.s3-bucket }}/${{ env.s3-filename }}.zip \
+          --source .
+          # --description "This is a revision for the ${{ matrix.appname }}-${{ github.sha }}" \
+          # --ignore-hidden-files \
+
+
+
+  Deploy:
+    needs: [Build]
+    runs-on: ubuntu-latest
+    env:
+      s3-bucket: ferrum-gateway-pipeline-artifacts-dev
+      s3-filename: dev-aws-codedeploy-${{ github.sha }}
+      Environment: dev
+      AppName: gateway-backend
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
+
+
+    - name: CodeDeploy Deployment  Api
+      id: deploy_api
+      run: |
+        aws deploy create-deployment \
+          --application-name ${{ secrets.CODE_DEPLOY_APP }}  \
+          --deployment-group-name ${{ secrets.DEPLOYMENT_GROUP_API }}  \
+          --deployment-config-name CodeDeployDefault.OneAtATime \
+          --s3-location bucket=${{ env.s3-bucket }},key=${{ env.s3-filename }}.zip,bundleType=zip
+          # --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
+
+    - name: CodeDeploy Deployment Cron
+      id: deploy_cron
+      run: |
+        aws deploy create-deployment \
+          --application-name ${{ secrets.CODE_DEPLOY_APP }} \
+          --deployment-group-name ${{ secrets.DEPLOYMENT_GROUP_CRON }}  \
+          --deployment-config-name CodeDeployDefault.OneAtATime \
+          --s3-location bucket=${{ env.s3-bucket }},key=${{ env.s3-filename }}.zip,bundleType=zip
+          # --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
+
