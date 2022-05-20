@@ -46,9 +46,27 @@ module.exports = function (router) {
 
   router.get('/list', async (req, res) => {
 
-    var filter = {}
+    var matchFilter = {}
+    var filterOrList= []
+    var filterAndList= []
 
-    let organizations = await db.Organizations.find(filter)
+    if(req.query.search){
+      let reg = new RegExp(unescape(req.query.search), 'i');
+      filterOrList.push({nameInLower: reg})
+      filterOrList.push({siteName: reg})
+    }
+
+    if(filterOrList && filterOrList.length > 0){
+      matchFilter.$or = []
+      matchFilter.$or.push({$or: filterOrList})
+    }
+
+    if(filterAndList && filterAndList.length > 0){
+      matchFilter.$and = []
+      matchFilter.$and.push({$and: filterAndList})
+    }
+
+    let organizations = await db.Organizations.find(matchFilter)
       .sort({ createdAt: -1 })
       .skip(req.query.offset ? parseInt(req.query.offset) : 0)
       .limit(req.query.limit ? parseInt(req.query.limit) : 10)
@@ -68,6 +86,25 @@ module.exports = function (router) {
 
     return res.http200({
       organization: organization
+    });
+
+  });
+
+  router.get('/users/list/associated/:id', async (req, res) => {
+
+    var filter = {}
+    let sort = { createdAt: -1 }
+    let users = []
+
+    filter.organization = req.params.id
+
+    users = await db.Users.find(filter).populate('addresses', 'address')
+      .sort(sort)
+      .skip(req.query.offset ? parseInt(req.query.offset) : 0)
+      .limit(req.query.limit ? parseInt(req.query.limit) : 10)
+
+    return res.http200({
+      users: users
     });
 
   });

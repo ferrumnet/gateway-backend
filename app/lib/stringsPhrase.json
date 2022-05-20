@@ -35,5 +35,6 @@
   "Backend_Success_Otp": "One Time Password (OTP) sent to your email",
   "Backend_Success_Reset_Password_Link": "Link is sent to your verified email",
   "Backend_No_StepFlow_History_Available": "User as no history for the specified stepflow.",
-  "Backend_Error_Previous_Sequence_Not_Completed": "Cannot restart workflow,  Previous sequence for stepFlow not completed."
+  "Backend_Error_Previous_Sequence_Not_Completed": "Cannot restart workflow,  Previous sequence for stepFlow not completed.",
+  "Backend_Error_Cron_Not_Found": "Cron not found."
 }

@@ -4,7 +4,11 @@ var mongoose , {isValidObjectId} = require('mongoose');
 module.exports = {
 
   async getOrganizationsCountById(req){
-    const filter = { _id: req.user.organization, isActive: true }
+    let organization = req.user.organization
+    if(req.body.organization){
+        organization = req.body.organization
+    }
+    const filter = { _id: organization, isActive: true }
     return await db.Organizations.countDocuments(filter)
   }
 

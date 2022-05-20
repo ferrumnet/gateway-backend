@@ -15,6 +15,16 @@ module.exports = function (router) {
 
         }
 
+        if(req.body.productId){
+
+            const product = await db.products.findById(req.body.productId);
+
+            if(!product){
+                return res.http400('invalid product detail provided.');
+            }
+
+        }
+
         if(req.body.name){
             req.body.nameInLower = (req.body.name).toLowerCase()
         }

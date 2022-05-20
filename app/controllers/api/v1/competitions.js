@@ -133,9 +133,13 @@ module.exports = function (router) {
   });
 
   router.get("/participants/growth/:competition",asyncMiddleware(async (req, res) => {
+    let excludedWalletAddress = req.query.withExcludedWalletAddress == "true" ? true : false 
     let filter = {competition: req.params.competition}
     let participants = []
     let sort = { rank: 1 }
+    if(!excludedWalletAddress){
+      filter.excludedWalletAddress = { $in: [false, null] }
+    }
     if (req.query.isPagination != null && req.query.isPagination == 'false') {
       participants = await db.CompetitionGrowthTracker.find(filter).sort(sort)
     } else {
@@ -147,6 +151,29 @@ module.exports = function (router) {
     })
   )
 
-
+  router.get('/transactions/by/contractAddress/:contractAddress', asyncMiddleware(async (req, res) => {
+    let filter = {contractAddress:req.params.contractAddress}
+    let transactions = []
+    let sort = { rank: 1 }
+    
+    if(req.query.fromBlock || req.query.toBlock){
+      filter.blockNumber = {}
+      if(req.query.fromBlock){
+        filter.blockNumber.$gt = req.query.fromBlock
+      }
+      if(req.query.toBlock){
+        filter.blockNumber.$lt = req.query.toBlock
+      }
+    }
+   
+    if (req.query.isPagination != null && req.query.isPagination == 'false') {
+      transactions = await db.CompetitionTransactionsSnapshots.find(filter).sort(sort)
+    } else {
+      transactions = await db.CompetitionTransactionsSnapshots.find(filter).sort(sort)
+        .skip(req.query.offset ? parseInt(req.query.offset) : 0)
+        .limit(req.query.limit ? parseInt(req.query.limit) : 10)
+    }
+    return res.http200({ transactions });
+    }))
 
 };
