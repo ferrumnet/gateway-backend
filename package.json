@@ -14,6 +14,7 @@
     "dev-start": "concurrently --kill-others \"npm run server-start\" \"npm run client-start\""
   },
   "dependencies": {
+    "algosdk": "^1.16.0",
     "array-unique": "^0.3.2",
     "authorizenet": "^1.0.8",
     "aws-sdk": "^2.1075.0",
