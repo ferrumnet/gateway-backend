@@ -3,12 +3,12 @@ const {
   default: algosdk,
   ALGORAND_MIN_TX_FEE,
 } = require("algosdk");
-// const algosdk = require("algosdk");
 const fs = require("fs");
 const { spawn } = require("child_process");
 const { Promise, reject } = require("bluebird");
 const { resolve } = require("path");
 const { db } = global;
+require("dotenv").config();
 // const PythonShell = require("python-shell").PythonShell;
 
 const algodToken =
@@ -17,38 +17,6 @@ const algodServer = "http://3.145.206.208";
 const algodPort = 4001;
 const creatorMnemonic =
   "flight permit skill quick enforce strong hobby cloud letter foot can fee affair buddy exact link glare amused drama rain airport casual shoe abstract puppy";
-
-function test() {
-  let a;
-  const python = spawn("py", [
-    "./app/lib/middlewares/helpers/stakingHelpers/algorandAppIdToContractAddress.py",
-    123,
-  ]);
-  // collect data from script
-  // python.stdout.on("data", function (data) {
-  //   console.log(data.toString());
-  // });
-
-  let myPromise = new Promise((resolve, reject) => {
-    python.stdout.on("data", (data) => {
-      a = data.toString();
-      // console.log("data", a);
-      resolve(a);
-    });
-    python.stderr.on("error", (error) => {
-      reject(error);
-    });
-  });
-  let result = myPromise.then(
-    (res) => res,
-    (err) => err
-  );
-
-  setTimeout(() => {
-    console.log({ result });
-    return result;
-  });
-}
 
 async function deployContract(
   tokenAddress,
@@ -197,7 +165,8 @@ async function deployContract(
 
   // console.log("Deployed a smartContract on Algorand: ", appId, encodedAddress);
   let encodedAddress = "";
-  const python = spawn("py", [
+
+  const python = spawn(process.env.PYTHON_VARIABLE, [
     "./app/lib/middlewares/helpers/stakingHelpers/algorandAppIdToContractAddress.py",
     appId,
   ]);
@@ -587,5 +556,4 @@ module.exports = {
   deployContract,
   setup,
   addReward,
-  test,
 };
