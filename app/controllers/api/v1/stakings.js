@@ -40,6 +40,11 @@ module.exports = function (router) {
         staking._id,
         storageAppId
       );
+      Object.assign(staking, {
+        ...staking,
+        ...result,
+      });
+      await staking.save();
     } catch (e) {
       console.log(e);
       const staking = await db.Stakings.findOne({ _id: req.params.id });
