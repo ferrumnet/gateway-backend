@@ -166,7 +166,7 @@ async function deployContract(
   // console.log("Deployed a smartContract on Algorand: ", appId, encodedAddress);
   let encodedAddress = "";
 
-  const python = spawn(process.env.PYTHON_VARIABLE, [
+  const python = spawn("python", [
     "./app/lib/middlewares/helpers/stakingHelpers/algorandAppIdToContractAddress.py",
     appId,
   ]);
