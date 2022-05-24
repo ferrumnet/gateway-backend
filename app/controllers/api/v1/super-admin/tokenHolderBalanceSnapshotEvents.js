@@ -122,4 +122,28 @@ module.exports = function (router) {
     });
   }))
 
+  router.get("/snapshot/list/:tokenHolderEventId", asyncMiddleware(async (req, res) => {
+
+    let tokenHoldersBalanceSnapshots = [];
+    let sort = { createdAt: 1 }
+    let filter = {}
+
+    filter.tokenHolderBalanceSnapshotEvent = req.params.tokenHolderEventId
+    if (req.query.cabnId) {
+      filter.currencyAddressesByNetwork = req.query.cabnId
+    }
+
+    if (req.query.isPagination != null && req.query.isPagination == 'false') {
+      tokenHoldersBalanceSnapshots = await db.TokenHoldersBalanceSnapshots.find(filter, snapshotskeys)
+    } else {
+      tokenHoldersBalanceSnapshots = await db.TokenHoldersBalanceSnapshots.find(filter, snapshotskeys)
+        .skip(req.query.offset ? parseInt(req.query.offset) : 0)
+        .limit(req.query.limit ? parseInt(req.query.limit) : 10)
+    }
+
+    return res.http200({
+      tokenHoldersBalanceSnapshots: tokenHoldersBalanceSnapshots
+    })
+  }));
+
 };

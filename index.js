@@ -39,8 +39,8 @@ global.helper = require("./app/lib/middlewares/helpers/dateHelper");
 global.stringHelper = require("./app/lib/middlewares/helpers/stringHelper");
 global.utils = require("./app/lib/middlewares/utils");
 global.startHelper = require("./app/lib/middlewares/helpers/startHelper");
-global.starterEnvironment = global.startHelper.startHelperInit(process)
-console.log(global.starterEnvironment)
+global.starterEnvironment = global.startHelper.startHelperInit(process);
+console.log(global.starterEnvironment);
 
 if (
   global.starterEnvironment.environmentTag == "dev" ||
@@ -53,42 +53,43 @@ if (
 } else if (global.starterEnvironment.environmentTag == "prod") {
   global.environment = require("./config/production.environment.json");
 }
-global.sendGrid = require('./app/lib/httpCalls/sendGridEmail');
-global.covalenthqBlock = require('./app/lib/httpCalls/findCovalenthqBlock');
-global.bscScanTokenHolders = require('./app/lib/httpCalls/findTokenHolders');
-global.mailer = require('./app/lib/mailer')();
-global.log = require('./app/lib/logger')
-global.appRoot = path.resolve(__dirname)
-global._ = require('lodash')
-global.moment = require('moment')
-global.calcaluteGrowthVolume = require('./app/lib/middlewares/helpers/cronsHelpers/competitionGrowthCalculater');
-global.bscScanHelper = require('./app/lib/httpCalls/bscScanHelper');
-global.CGTrackerHelper = require('./app/lib/middlewares/helpers/competitionGrowthTrackerHelper');
-global.cTSnapshotHelper = require('./app/lib/middlewares/helpers/competitionTransactionsSnapshotHelper');
-global.competitionHelper = require('./app/lib/middlewares/helpers/competitionHelper');
-global.stripeConnect = require('./config/stripe.json');
-global.asyncMiddleware = asyncMiddleware
-global.commonFunctions = require('./app/lib/middlewares/common');
-global.timeoutCallBack = require('./app/lib/middlewares/helpers/timeoutCallBack');
-global.helper = require('./app/lib/middlewares/helpers/dateHelper')
-global.stringHelper = require('./app/lib/middlewares/helpers/stringHelper');
-global.timeoutHelper = require('./app/lib/middlewares/helpers/timeoutHelper');
-global.logsHelper = require('./app/lib/middlewares/helpers/logsHelper');
-global.usersHelper = require('./app/lib/middlewares/helpers/usersHelper');
-global.addressesHelper = require('./app/lib/middlewares/helpers/addressesHelper');
-global.profileMiddleware = require('./app/lib/middlewares/profileMiddleware');
-global.awsHelper = require('./app/lib/middlewares/helpers/awsHelper');
-global.fetchCompetitionBlocksJob = require('./app/lib/crons/fetchCompetitionBlocksJob');
-global.fetchCompetitionTransactionsJob = require('./app/lib/crons/fetchCompetitionTransactionsJob');
-global.fetchTokenHoldersJob = require('./app/lib/crons/fetchTokenHoldersJob');
-global.fetchTokenHolderBalanceSnapshotEventsJob = require('./app/lib/crons/fetchTokenHolderBalanceSnapshotEventsJob');
-global.raisePoolsHelper = require('./app/lib/middlewares/helpers/raisePoolsHelper');
-global.organizationHelper = require('./app/lib/middlewares/helpers/organizationHelper');
-global.leaderboardHelper = require('./app/lib/middlewares/helpers/leaderboardHelper');
-global.tokenHolderBalanceSnapshotEventHelper = require('./app/lib/middlewares/helpers/tokenHolderBalanceSnapshotEventHelper');
-global.currencyHelper = require('./app/lib/middlewares/helpers/currencyHelper');
+global.sendGrid = require("./app/lib/httpCalls/sendGridEmail");
+global.covalenthqBlock = require("./app/lib/httpCalls/findCovalenthqBlock");
+global.bscScanTokenHolders = require("./app/lib/httpCalls/findTokenHolders");
+global.mailer = require("./app/lib/mailer")();
+global.log = require("./app/lib/logger");
+global.appRoot = path.resolve(__dirname);
+global._ = require("lodash");
+global.moment = require("moment");
+global.calcaluteGrowthVolume = require("./app/lib/middlewares/helpers/cronsHelpers/competitionGrowthCalculater");
+global.bscScanHelper = require("./app/lib/httpCalls/bscScanHelper");
+global.CGTrackerHelper = require("./app/lib/middlewares/helpers/competitionGrowthTrackerHelper");
+global.cTSnapshotHelper = require("./app/lib/middlewares/helpers/competitionTransactionsSnapshotHelper");
+global.competitionHelper = require("./app/lib/middlewares/helpers/competitionHelper");
+global.stripeConnect = require("./config/stripe.json");
+global.asyncMiddleware = asyncMiddleware;
+global.commonFunctions = require("./app/lib/middlewares/common");
+global.timeoutCallBack = require("./app/lib/middlewares/helpers/timeoutCallBack");
+global.helper = require("./app/lib/middlewares/helpers/dateHelper");
+global.stringHelper = require("./app/lib/middlewares/helpers/stringHelper");
+global.timeoutHelper = require("./app/lib/middlewares/helpers/timeoutHelper");
+global.logsHelper = require("./app/lib/middlewares/helpers/logsHelper");
+global.usersHelper = require("./app/lib/middlewares/helpers/usersHelper");
+global.stakingHelper = require("./app/lib/middlewares/helpers/stakingHelper");
+global.addressesHelper = require("./app/lib/middlewares/helpers/addressesHelper");
+global.profileMiddleware = require("./app/lib/middlewares/profileMiddleware");
+global.awsHelper = require("./app/lib/middlewares/helpers/awsHelper");
+global.fetchCompetitionBlocksJob = require("./app/lib/crons/fetchCompetitionBlocksJob");
+global.fetchCompetitionTransactionsJob = require("./app/lib/crons/fetchCompetitionTransactionsJob");
+global.fetchTokenHoldersJob = require("./app/lib/crons/fetchTokenHoldersJob");
+global.fetchTokenHolderBalanceSnapshotEventsJob = require("./app/lib/crons/fetchTokenHolderBalanceSnapshotEventsJob");
+global.raisePoolsHelper = require("./app/lib/middlewares/helpers/raisePoolsHelper");
+global.organizationHelper = require("./app/lib/middlewares/helpers/organizationHelper");
+global.leaderboardHelper = require("./app/lib/middlewares/helpers/leaderboardHelper");
+global.tokenHolderBalanceSnapshotEventHelper = require("./app/lib/middlewares/helpers/tokenHolderBalanceSnapshotEventHelper");
+global.currencyHelper = require("./app/lib/middlewares/helpers/currencyHelper");
 
-global.kraken = app.kraken
+global.kraken = app.kraken;
 // const whitelist = global.environment.whitelist;
 // const corsOptions = {
 //   origin: function (origin, callback) {
