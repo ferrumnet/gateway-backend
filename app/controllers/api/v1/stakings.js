@@ -43,6 +43,7 @@ module.exports = function (router) {
       Object.assign(staking, {
         ...staking,
         ...result,
+        status: "DEPLOY",
       });
       await staking.save();
     } catch (e) {
