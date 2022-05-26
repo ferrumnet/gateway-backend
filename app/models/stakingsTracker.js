@@ -9,8 +9,11 @@ var StakingTrackerModel = function () {
       stakingContractAddress: { type: String },
       tokenContractAddress: { type: String},
       stakeHolderWalletAddress: { type: String },
+      intialBalance:{type: String},
       stakedAmount: { type:String },
       rewardAmount: { type:String },
+      rank: { type: Number },
+      levelUpAmount: { type: String },
     },
     {
       timestamps: true,

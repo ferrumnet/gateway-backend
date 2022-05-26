@@ -64,6 +64,7 @@ global.moment = require("moment");
 global.calcaluteGrowthVolume = require("./app/lib/middlewares/helpers/cronsHelpers/competitionGrowthCalculater");
 global.bscScanHelper = require("./app/lib/httpCalls/bscScanHelper");
 global.CGTrackerHelper = require("./app/lib/middlewares/helpers/competitionGrowthTrackerHelper");
+global.stakingTrackerHelper = require("./app/lib/middlewares/helpers/stakingTrackerHelper");
 global.cTSnapshotHelper = require("./app/lib/middlewares/helpers/competitionTransactionsSnapshotHelper");
 global.competitionHelper = require("./app/lib/middlewares/helpers/competitionHelper");
 global.stripeConnect = require("./config/stripe.json");
