@@ -55,8 +55,8 @@ module.exports = function (router) {
         const currentDayblockBlockNumber = await bscScanHelper.queryBlockNumber(currentDayTimeStamp)
     
         const previousDayBlockNumber = await bscScanHelper.queryBlockNumber(last24HoursTimeStamp)
-    
-        const transactions = await bscScanHelper.queryByCABNAndToken(tokenContract,skakingContract,currentDayblockBlockNumber,previousDayBlockNumber)
+      
+        const transactions = await bscScanHelper.queryByCABNAndToken(tokenContract,skakingContract,previousDayBlockNumber,currentDayblockBlockNumber)
 
         const stakedAmountValue = await bscScanHelper.queryStakingContract(skakingContract,tokenContract)
         
@@ -82,7 +82,7 @@ module.exports = function (router) {
     
         const stakedAmountUsdValue = UnitPrice * stakedAmountValue
     
-        const APR = (dailyRewardAverageUsdValue * ( aprCycle / rewardCycle ) ) / stakedAmountUsdValue
+        const APR = ((dailyRewardAverageUsdValue * ( aprCycle / rewardCycle ) ) / stakedAmountUsdValue) * 100
 
         return {
             APR,
