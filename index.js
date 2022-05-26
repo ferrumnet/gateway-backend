@@ -89,6 +89,7 @@ global.leaderboardHelper = require("./app/lib/middlewares/helpers/leaderboardHel
 global.tokenHolderBalanceSnapshotEventHelper = require("./app/lib/middlewares/helpers/tokenHolderBalanceSnapshotEventHelper");
 global.currencyHelper = require("./app/lib/middlewares/helpers/currencyHelper");
 global.crucibleAprsHelper = require("./app/lib/middlewares/helpers/crucibleAprsHelper");
+global.fetchCrucibleApr = require("./app/lib/crons/fetchCrucibleApr");
 
 global.kraken = app.kraken;
 // const whitelist = global.environment.whitelist;

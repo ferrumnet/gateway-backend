@@ -1,10 +1,10 @@
 const { db, asyncMiddleware, commonFunctions, stringHelper, bscScanHelper } = global
 var mongoose, { isValidObjectId } = require('mongoose');
-const Web3= require("web3")
+const Web3 = require("web3")
 
 module.exports = {
 
-  async crucibleAutoCalculateApr(req, res) {
+  async crucibleAutoCalculateApr(req, res, isFromApi = true) {
     const rs = []
 
     const tokens = [
@@ -98,15 +98,45 @@ module.exports = {
       rs.push(response)
     }
 
-    // "contract": tokenContract,
-    // "price": UnitPrice,
-    // "volumeOfRewardsDistributedInThePast24Hours": dailyRewardAverageValue,
-    // "totalStake": stakedAmountValue,
-    // "APR": APR,
-    // "tokenSymbol": tokenSymbol
+    await this.saveIntoCurcibleAprsDB(rs)
 
-    return res.http200({
-      priceDetails: rs
-    });
+    if (isFromApi) {
+      return res.http200({
+        priceDetails: rs
+      });
+    }
+  },
+
+  async saveIntoCurcibleAprsDB(data) {
+    let dataToSave = [];
+
+    if (data && data.length > 0) {
+
+      data.forEach(item => {
+        if (item) {
+          dataToSave.push({
+            updateOne: {
+              filter: { tokenSymbol: item.tokenSymbol },
+              update: {
+                "$set": {
+                  APR: item.APR,
+                  timeReference: item.timeReference,
+                  totalStake: item.totalStake,
+                  price: item.price,
+                  volumeOfRewardsDistributedInThePast24Hours: item.volumeOfRewardsDistributedInThePast24Hours,
+                  updatedAt: new Date()
+
+                },
+              },
+              upsert: true
+            },
+          });
+        }
+      });
+
+      await db.CrucibleAprs.collection.bulkWrite(dataToSave)
+
+    }
+
   },
 }
