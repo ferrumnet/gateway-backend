@@ -11,11 +11,11 @@ module.exports = function (router) {
 
     const tokens = [
         {
-            "tokenContract":"0x5732a2a84ec469fc95ac32e12515fd337e143eed",
+            "tokenContract":"0xaf329a957653675613D0D98f49fc93326AeB36Fc",
             "tokenSymbol": "cFRM"
         },
         {
-            "tokenContract":"0x422a9c44e52a2ea96422f0caf4a00e30b3e26a0d",
+            "tokenContract":"0x1fC45F358D5292bEE1e055BA7CebE4d4100972AE",
             "tokenSymbol": "cFRMx"
         }
         // ,
@@ -31,11 +31,11 @@ module.exports = function (router) {
 
     const calculateApr = async (tokenContract,symbol) => {
 
-        const skakingContract = "0xd87f304ca205fb104dc014696227742d20c8f10a"
+        const skakingContract = "0x35E15ff9eBB37D8C7A413fD85BaD515396DC8008"
 
         const ApeRouter = "0xcF0feBd3f17CEf5b47b0cD257aCf6025c5BFf3b7"
     
-        const taxDistributor = '0x7364b844f3b6a70a82e2516a380cbff7409bdf65'
+        const taxDistributor = '0x1e01bA3C2a882601c685F0542E897ED278B6cffB'
     
     
         let aprCycle = 365
@@ -57,16 +57,16 @@ module.exports = function (router) {
         const previousDayBlockNumber = await bscScanHelper.queryBlockNumber(last24HoursTimeStamp)
     
         const transactions = await bscScanHelper.queryByCABNAndToken(tokenContract,skakingContract,currentDayblockBlockNumber,previousDayBlockNumber)
-        
+
         const stakedAmountValue = await bscScanHelper.queryStakingContract(skakingContract,tokenContract)
         
         const distributorTransactions = []
     
         let dailyRewardAverageValue = 0
-    
+
         for(let item of transactions||[]){
-    
-            if(item.from  === taxDistributor){
+
+            if(item.from.toLowerCase()  === taxDistributor.toLowerCase()){
     
                 distributorTransactions.push(item)
     
