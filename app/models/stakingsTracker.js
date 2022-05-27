@@ -12,6 +12,7 @@ var StakingTrackerModel = function () {
       intialBalance:{type: String},
       stakedAmount: { type:String },
       rewardAmount: { type:String },
+      totalStakedAmount: { type:String },
       rank: { type: Number },
       levelUpAmount: { type: String },
     },
