@@ -87,6 +87,5 @@ async intiatParticipentsData(tokenContractAddress, stakingContractAddress){
   
         }
         return participants
-
 }
 }

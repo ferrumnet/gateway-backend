@@ -5,7 +5,8 @@ var mongoose = require("mongoose");
 var StakingTrackerModel = function () {
   var stakingTrackerSchema = mongoose.Schema(
     {
-      user: { type: mongoose.Schema.Types.ObjectId},
+      leaderboard: { type: mongoose.Schema.Types.ObjectId, ref: 'leaderboards'},
+      user: { type: mongoose.Schema.Types.ObjectId, ref: "users"},
       stakingContractAddress: { type: String },
       tokenContractAddress: { type: String},
       stakeHolderWalletAddress: { type: String },
