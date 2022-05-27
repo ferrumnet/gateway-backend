@@ -14,8 +14,8 @@ require("dotenv").config();
 
 const algodToken =
   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-const algodServer = "https://api-algorand.dev.ferrumnetwork.io";
-const algodPort = 4001;
+const algodServer = "https://api-algorand.dev.svcs.ferrumnetwork.io";
+const algodPort = 443;
 const creatorMnemonic =
   "flight permit skill quick enforce strong hobby cloud letter foot can fee affair buddy exact link glare amused drama rain airport casual shoe abstract puppy";
 
