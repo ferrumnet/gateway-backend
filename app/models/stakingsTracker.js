@@ -19,7 +19,7 @@ var StakingTrackerModel = function () {
     },
     {
       timestamps: true,
-      collection: "StakingsTracker"
+      collection: "stakingsTracker"
      }
   );
 
