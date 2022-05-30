@@ -85,7 +85,7 @@ module.exports = {
   async queryByCABNAndToken(tokenContractAddress,cabn, startBlock, endBlock){
     try {
       
-      const res = await axios.get(`https://api.bscscan.com/api?module=account&action=tokentx&contractaddress=${tokenContractAddress}&address=${cabn}&startblock=${startBlock}k&endblock=${endBlock}&sort=asc&apikey=${global.environment.bscscanApikeyForCompetition}`)
+      const res = await axios.get(`https://api.bscscan.com/api?module=account&action=tokentx&contractaddress=${tokenContractAddress}&address=${cabn}&startblock=${startBlock}&endblock=${endBlock}&sort=asc&apikey=${global.environment.bscscanApikeyForCompetition}`)
       return res.data.result ? res.data.result : [];
     
     } catch (error) {
