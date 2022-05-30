@@ -18,6 +18,18 @@ module.exports = function (router) {
 
   });
 
+  router.get('/list', async (req, res) => {
+    let filter = {}
+
+    let crucibleAprs = await db.CrucibleAprs.find(filter)
+      .sort({ createdAt: -1 })
+
+
+    return res.http200({
+      crucibleAprs: crucibleAprs
+    });
+  });
+
   router.get('/:id', async (req, res) => {
     let filter = {}
     filter = { _id: req.params.id }
