@@ -6,10 +6,12 @@ var CrucibleAprsModel = function () {
   var crucibleAprsSchema = mongoose.Schema({
     createdByUser: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
     updatedByUser: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
-    cfrm: { type: String, default: "" },
-    cfrmLp: { type: String, default: "" },
-    cfrmX: { type: String, default: "" },
-    cfrmXLp: { type: String, default: "" },
+    tokenSymbol: { type: String, default: "" },
+    timeReference: { type: String, default: "" },
+    totalStake: { type: String, default: "" },
+    price: { type: String, default: "" },
+    APR: { type: Number, default: null },
+    volumeOfRewardsDistributedInThePast24Hours: { type: Number, default: null },
     isActive: { type: Boolean, default: true },
 
     createdAt: { type: Date, default: new Date() },
