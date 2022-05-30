@@ -5,7 +5,7 @@ var mongoose = require("mongoose");
 var StakingTrackerModel = function () {
   var stakingTrackerSchema = mongoose.Schema(
     {
-      leaderboard: { type: mongoose.Schema.Types.ObjectId, ref: 'leaderboards'},
+      currencyAddressesByNetwork: { type: mongoose.Schema.Types.ObjectId, ref: 'currencyAddressesByNetwork' },
       user: { type: mongoose.Schema.Types.ObjectId, ref: "users"},
       stakingContractAddress: { type: String },
       tokenContractAddress: { type: String},
@@ -13,7 +13,7 @@ var StakingTrackerModel = function () {
       intialBalance:{type: String},
       stakedAmount: { type:String },
       rewardAmount: { type:String },
-      totalStakedAmount: { type:String },
+      totalStakedAmount: { type:String }, 
       rank: { type: Number },
       levelUpAmount: { type: String },
     },
