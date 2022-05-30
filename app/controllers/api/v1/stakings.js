@@ -41,9 +41,10 @@ module.exports = function (router) {
         storageAppId
       );
       Object.assign(staking, {
-        ...staking,
+        ...staking.toObject(),
         ...result,
         status: "DEPLOY",
+        storageAppId,
       });
       await staking.save();
     } catch (e) {

@@ -71,21 +71,23 @@ async function deployContract(
   console.log(withdrawEnds);
   let staking_starts = Math.floor(
     new Date(
-      moment(stakingStarts).format("yyyy-MM-DD HH:mm:ss.SSS")
+      moment.utc(stakingStarts).format("YYYY-MM-DD HH:mm:ss Z")
     ).getTime() / 1000
   );
   let staking_ends = Math.floor(
-    new Date(moment(stakingEnds).format("yyyy-MM-DD HH:mm:ss.SSS")).getTime() /
-      1000
+    new Date(
+      moment.utc(stakingEnds).format("YYYY-MM-DD HH:mm:ss Z")
+    ).getTime() / 1000
   );
   let withdraw_starts = Math.floor(
     new Date(
-      moment(withdrawStarts).format("yyyy-MM-DD HH:mm:ss.SSS")
+      moment.utc(withdrawStarts).format("YYYY-MM-DD HH:mm:ss Z")
     ).getTime() / 1000
   );
   let withdraw_ends = Math.floor(
-    new Date(moment(withdrawEnds).format("yyyy-MM-DD HH:mm:ss.SSS")).getTime() /
-      1000
+    new Date(
+      moment.utc(withdrawEnds).format("YYYY-MM-DD HH:mm:ss Z")
+    ).getTime() / 1000
   );
 
   let appArgs = [];
