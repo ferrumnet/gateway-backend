@@ -8,7 +8,8 @@ module.exports = {
       environmentTag : 'dev',
       isCronEnvironmentSupportedForFindTokenHolders: 'no',
       isCronIntance: 'no',
-      isCronEnvironmentSupportedForCompetitionTransactionsSnapshot : 'no'
+      isCronEnvironmentSupportedForCompetitionTransactionsSnapshot : 'no',
+      isCronEnvironmentSupportedForCrucibleApr: 'no',
     }
     if(process && process.argv && process.argv.length > 0){
       console.log(process.argv);
@@ -22,7 +23,8 @@ module.exports = {
         if(environmentType == 'cron'){
           starterObject.isCronEnvironmentSupportedForFindTokenHolders = 'yes'
           starterObject.isCronIntance = 'yes'
-          starterObject.isCronEnvironmentSupportedForCompetitionTransactionsSnapshot = 'yes'
+          starterObject.isCronEnvironmentSupportedForCompetitionTransactionsSnapshot = 'yes',
+          starterObject.isCronEnvironmentSupportedForCrucibleApr = 'yes'
         }
       }
 
