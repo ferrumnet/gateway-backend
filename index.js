@@ -33,11 +33,11 @@ app.use(function (req, res, next) {
   next();
 });
 app.use(cors());
+global.utils = require("./app/lib/middlewares/utils");
 global.pusher = require("./app/lib/notifications");
 global.db = require("./app/models/index");
 global.helper = require("./app/lib/middlewares/helpers/dateHelper");
 global.stringHelper = require("./app/lib/middlewares/helpers/stringHelper");
-global.utils = require("./app/lib/middlewares/utils");
 global.startHelper = require("./app/lib/middlewares/helpers/startHelper");
 global.starterEnvironment = global.startHelper.startHelperInit(process);
 console.log(global.starterEnvironment);
