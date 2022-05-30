@@ -64,6 +64,7 @@ global.moment = require("moment");
 global.calcaluteGrowthVolume = require("./app/lib/middlewares/helpers/cronsHelpers/competitionGrowthCalculater");
 global.bscScanHelper = require("./app/lib/httpCalls/bscScanHelper");
 global.CGTrackerHelper = require("./app/lib/middlewares/helpers/competitionGrowthTrackerHelper");
+global.stakingTrackerHelper = require("./app/lib/middlewares/helpers/stakingTrackerHelper");
 global.cTSnapshotHelper = require("./app/lib/middlewares/helpers/competitionTransactionsSnapshotHelper");
 global.competitionHelper = require("./app/lib/middlewares/helpers/competitionHelper");
 global.stripeConnect = require("./config/stripe.json");
@@ -88,6 +89,8 @@ global.organizationHelper = require("./app/lib/middlewares/helpers/organizationH
 global.leaderboardHelper = require("./app/lib/middlewares/helpers/leaderboardHelper");
 global.tokenHolderBalanceSnapshotEventHelper = require("./app/lib/middlewares/helpers/tokenHolderBalanceSnapshotEventHelper");
 global.currencyHelper = require("./app/lib/middlewares/helpers/currencyHelper");
+global.crucibleAprsHelper = require("./app/lib/middlewares/helpers/crucibleAprsHelper");
+global.fetchCrucibleApr = require("./app/lib/crons/fetchCrucibleApr");
 
 global.kraken = app.kraken;
 // const whitelist = global.environment.whitelist;

@@ -8,13 +8,14 @@ const { spawn } = require("child_process");
 const { Promise, reject } = require("bluebird");
 const { resolve } = require("path");
 const { db } = global;
+const axios = require("axios").default;
 require("dotenv").config();
 // const PythonShell = require("python-shell").PythonShell;
 
 const algodToken =
   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-const algodServer = "http://3.145.206.208";
-const algodPort = 4001;
+const algodServer = "https://api-algorand.dev.svcs.ferrumnetwork.io";
+const algodPort = 443;
 const creatorMnemonic =
   "flight permit skill quick enforce strong hobby cloud letter foot can fee affair buddy exact link glare amused drama rain airport casual shoe abstract puppy";
 
@@ -164,43 +165,11 @@ async function deployContract(
   // const encodedAddress = algosdk.encodeAddress("appID" + appId);
 
   // console.log("Deployed a smartContract on Algorand: ", appId, encodedAddress);
-  let encodedAddress = "";
 
-  const python = spawn("python", [
-    "./app/lib/middlewares/helpers/stakingHelpers/algorandAppIdToContractAddress.py",
-    appId,
-  ]);
-  // collect data from script
-  // python.stdout.on("data", function (data) {
-  //   console.log(data.toString());
-  // });
-
-  python.stdout.on("data", async (data) => {
-    encodedAddress = data.toString().replace(/\s/g, "");
-    const staking = await db.Stakings.findOne({ _id: stakingId });
-    Object.assign(staking, {
-      ...staking,
-      appId,
-      encodedAddress,
-      status: "DEPLOY",
-      storageAppId,
-    });
-    await staking.save();
-  });
-
-  // const python = spawn("py", ["./algorandAppIdToContractAddress.py", appId]);
-  // // collect data from script
-  // await python.stdout.on("data", function (data) {
-  //   console.log("Pipe data from python script ...");
-  //   encodedAddress = data.toString();
-  // });
-  // python.on("close", (code) => {
-  //   console.log(`child process close all stdio with code ${code}`);
-  //   // send data to browser
-  //   // res.send(dataToSend);
-  // });
-  // console.log("encodedAddress :", encodedAddress);
-  // return { appId, encodedAddress };
+  const encodedAddress = await axios.get(
+    `http://127.0.0.1:5000/algorand/${appId}`
+  );
+  return { appId, encodedAddress: encodedAddress.data.contractAddress };
 }
 async function readApprovalTeal(isStorageApp) {
   var approvalProgramSource;

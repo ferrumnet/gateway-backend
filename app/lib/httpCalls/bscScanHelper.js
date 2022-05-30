@@ -32,7 +32,7 @@ module.exports = {
   async queryContract(address,currency){
 
     const data = await axios.get(`https://api.bscscan.com/api?module=contract&action=getabi&address=${address}&apikey=${global.environment.bscscanApikeyForCompetition}`);
-    
+
     var contractABI = "";
 
     contractABI = JSON.parse(data.data.result);
@@ -41,7 +41,7 @@ module.exports = {
       
       var web3 = new Web3(new Web3.providers.HttpProvider('https://bsc-dataseed1.binance.org:443'));
 
-      var ApeContract = new web3.eth.Contract(contractABI,"0xcF0feBd3f17CEf5b47b0cD257aCf6025c5BFf3b7");
+      var ApeContract = new web3.eth.Contract(contractABI,"0x10ED43C718714eb63d5aA57B78B54704E256024E");
 
       const response = await ApeContract.methods.getAmountsOut("1000000000000000000", [currency, "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c", "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56", "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d"]).call() 
 
@@ -68,7 +68,7 @@ module.exports = {
       
       var web3 = new Web3(new Web3.providers.HttpProvider('https://bsc-dataseed1.binance.org:443'));
 
-      var ApeContract = new web3.eth.Contract(contractABI,"0xD87F304CA205Fb104dc014696227742d20C8F10a");
+      var ApeContract = new web3.eth.Contract(contractABI,"0x35E15ff9eBB37D8C7A413fD85BaD515396DC8008");
 
       const response = await ApeContract.methods.stakedBalance(currency).call() 
 
