@@ -2,8 +2,23 @@
 declare const db: any,
 asyncMiddleware: any,
 commonFunctions: any,
-stringHelper: any
-// timeoutHelper any
+stringHelper: any,
+leaderboardHelper: any,
+organizationHelper: any,
+timeoutHelper: any,
+tokenHolderBalanceSnapshotEventHelper: any,
+CGTrackerHelper: any,
+competitionHelper: any,
+calcaluteGrowthVolume: any,
+bscScanHelper: any,
+cTSnapshotHelper: any,
+currencyHelper: any,
+bscScanTokenHolders: any,
+addressesHelper: any,
+raisePoolsHelper: any,
+usersHelper: any,
+profileMiddleware: any
+
 
 const utils = {
 

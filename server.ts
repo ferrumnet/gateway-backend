@@ -2,7 +2,7 @@
 
 var app = require('./index');
 var http = require('http');
-var webSockets = require('./app/lib/webSockets');
+var webSockets = require('./app/lib/webSockets')();
 
 var mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
@@ -35,7 +35,8 @@ mongoose.Promise = require('bluebird');
     (global as any).log.info('Server listening on http://localhost:%d', server.address().port);
   });
   (global as any).io = require('socket.io').listen(server);
-  (global as any).io.on('connection', webSockets.newConnection);
+  (global as any).io.on('connection', webSockets.newConnection);    
+
 })().catch(e => {
   console.log(e)
 });
