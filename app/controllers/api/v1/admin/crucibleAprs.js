@@ -7,8 +7,8 @@ module.exports = function (router) {
 
   router.post('/create', async (req, res) => {
 
-    if (!req.body.cfrm || !req.body.cfrmLp || !req.body.cfrmX || !req.body.cfrmXLp) {
-      return res.http400('cfrm & cfrmLp & cfrmX & cfrmXLp are required.');
+    if (!req.body.tokenSymbol || !req.body.APR) {
+      return res.http400('tokenSymbol & APR are required.');
     }
 
     req.body.createdByUser = req.user._id
@@ -29,8 +29,8 @@ module.exports = function (router) {
     let filter = {}
     filter = { _id: req.params.id }
 
-    if (!req.body.cfrm || !req.body.cfrmLp || !req.body.cfrmX || !req.body.cfrmXLp) {
-      return res.http400('cfrm & cfrmLp & cfrmX & cfrmXLp are required.');
+    if (!req.body.tokenSymbol || !req.body.APR) {
+      return res.http400('tokenSymbol & APR are required.');
     }
 
     req.body.updatedByUser = req.user._id
