@@ -25,6 +25,7 @@ const schema = mongoose.Schema(
     confirmations: { type: String}, 
     isError: { type: String },
     errCode: { type: String}, 
+    verifiedBlockNumber: { type: Boolean, default: false}, 
   },
   { 
     collection: 'competitionTransactionsSnapshots',

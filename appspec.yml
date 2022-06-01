@@ -1,0 +1,10 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /root
+hooks:
+  AfterInstall:
+    - location: deploy/scripts/code_deploy.sh
+      timeout: 60
+      runas: root

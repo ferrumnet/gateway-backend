@@ -2,8 +2,10 @@
 const { db, asyncMiddleware, commonFunctions, stringHelper, timeoutHelper } = global
 const axios = require('axios').default;
 const https = require('https');
+var totalThreshold = 0
 
 const findTokenHolders = async (model, isFromSnapshotEvent = false) => {
+  totalThreshold = 2
   sendCallForBlockNo(model, isFromSnapshotEvent)
 }
 
@@ -90,13 +92,19 @@ const sendCallForTokenHolders = async (model, isFromSnapshotEvent) => {
     if (res.statusCode === 202 || res.statusCode === 201 || res.statusCode === 200) {
       res.on('end', () => {
         var res = JSON.parse(data);
-        // console.log(res)
         if (res && res.result && typeof res.result != 'string' && res.result.length > 0) {
           updateTokenHolders(model, res.result, isFromSnapshotEvent)
         }else {
-          if(res.message){
-            let update = {status: 'failed', errorMessage: res.message}
-            updateTokenHolderBalanceSnapshotEvent(model, update)
+          if (isFromSnapshotEvent) {
+            if(totalThreshold > 0){
+              totalThreshold = totalThreshold -1
+              sendCallForTokenHolders(model, isFromSnapshotEvent)
+            }else {
+              if(res.message){
+                let update = {status: 'failed', errorMessage: res.message}
+                updateTokenHolderBalanceSnapshotEvent(model, update)
+              }
+            }
           }
         }
       });

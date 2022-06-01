@@ -5,6 +5,16 @@ Parameters:
     Type: String
     Default: ""
 
+  SubnetA:
+    Type: String
+    Default: ""
+  SubnetB:
+    Type: String
+    Default: ""
+  SubnetC:
+    Type: String
+    Default: ""
+
   AppName:
     Type: String
     AllowedPattern: "[A-Za-z0-9-]+"
@@ -29,7 +39,21 @@ Parameters:
   GitHubBranch:
     Type: String
     Default: master
-    AllowedPattern: "[A-Za-z0-9-]+"
+    AllowedPattern: "[A-Za-z0-9-_-]+"
+
+  HostedZoneId:
+    Type: String
+    Default: "Z023933617DZKHOV0K81T"
+    # AllowedPattern: "[A-Za-z0-9-]+"
+
+  HostedZone:
+    Type: String
+    Default: "dev.svcs.ferrumnetwork.io"
+
+  VPC:
+    Type: String
+    Default: "VPC"
+    # AllowedPattern: "[A-Za-z0-9-]+"
 
   PipelineArtifactsBucket:
     Type: String
@@ -94,75 +118,95 @@ Resources:
           RunOrder: '2'
       - Name: Release
         Actions:
-          - Name: PackageReleaseChangeset
-            InputArtifacts:
-                - Name: BuildArtifacts
-            OutputArtifacts: []
-            ActionTypeId:
-              Category: Deploy
-              Owner: AWS
-              Version: "1"
-              Provider: CloudFormation
-            Configuration:
-              StackName: !Sub "${DevPrefix}${AppName}-${Environment}"
-              TemplateConfiguration: BuildArtifacts::app-deploy.json
-              TemplatePath: !Sub "BuildArtifacts::deploy/cloudformation/application.yaml"
-              ActionMode: CHANGE_SET_REPLACE
-              ChangeSetName: !Sub ${DevPrefix}${AppName}-${Environment}-changeset
-              RoleArn: !GetAtt CloudformationRole.Arn
-              Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
-            RunOrder: 3
-          - Name: ExecuteReleaseChangeset
-            InputArtifacts: []
-            OutputArtifacts: []
-            ActionTypeId:
-              Category: Deploy
-              Owner: AWS
-              Provider: CloudFormation
-              Version: "1"
-            Configuration:
-              StackName: !Sub "${DevPrefix}${AppName}-${Environment}"
-              ActionMode: CHANGE_SET_EXECUTE
-              ChangeSetName: !Sub ${DevPrefix}${AppName}-${Environment}-changeset
-              Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
-            RunOrder: 4
-          - Name: ElasticBeanstalkDeploy
+          # - Name: PackageReleaseChangeset
+          #   InputArtifacts:
+          #       - Name: BuildArtifacts
+          #   OutputArtifacts: []
+          #   ActionTypeId:
+          #     Category: Deploy
+          #     Owner: AWS
+          #     Version: "1"
+          #     Provider: CloudFormation
+          #   Configuration:
+          #     StackName: !Sub "${DevPrefix}${AppName}-${Environment}"
+          #     TemplateConfiguration: BuildArtifacts::app-deploy.json
+          #     TemplatePath: !Sub "BuildArtifacts::deploy/cloudformation/application.yaml"
+          #     ActionMode: CHANGE_SET_REPLACE
+          #     ChangeSetName: !Sub ${DevPrefix}${AppName}-${Environment}-changeset
+          #     RoleArn: !GetAtt CloudformationRole.Arn
+          #     Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+          #   RunOrder: 3
+          # - Name: ExecuteReleaseChangeset
+          #   InputArtifacts: []
+          #   OutputArtifacts: []
+          #   ActionTypeId:
+          #     Category: Deploy
+          #     Owner: AWS
+          #     Provider: CloudFormation
+          #     Version: "1"
+          #   Configuration:
+          #     StackName: !Sub "${DevPrefix}${AppName}-${Environment}"
+          #     ActionMode: CHANGE_SET_EXECUTE
+          #     ChangeSetName: !Sub ${DevPrefix}${AppName}-${Environment}-changeset
+          #     Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+          #   RunOrder: 4
+          - Name: CodeDeploy
             InputArtifacts:
               - Name: BuildArtifacts
-            Name: EBApp
+            Name: Ec2-Deploy
             ActionTypeId:
               Category: Deploy
               Owner: AWS
               Version: '1'
-              Provider: ElasticBeanstalk
+              Provider: CodeDeploy
             OutputArtifacts: []
             Configuration:
-              ApplicationName: !Sub "${DevPrefix}${AppName}-${Environment}"
-              EnvironmentName: !Sub "${DevPrefix}${AppName}-${Environment}"
+              ApplicationName: !Ref WebappApplication
+              DeploymentGroupName: !Ref WebappDeploymentGroup
             RunOrder: 5
 
-      #
-      #
-      #
-      # - Name: Deploy
-      #   Actions:
-      #   - Name: CloudFormationDeploy
-      #     ActionTypeId:
-      #       Category: Deploy
-      #       Owner: AWS
-      #       Provider: CloudFormation
-      #       Version: '1'
-      #     InputArtifacts:
-      #       - Name: BuildArtifacts
-      #     Configuration:
-      #       ActionMode: CREATE_UPDATE
-      #       Capabilities: CAPABILITY_IAM,CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
-      #       RoleArn: !GetAtt CloudformationRole.Arn
-      #       StackName: !Sub "${DevPrefix}${AppName}-${Environment}"
-      #       #ParameterOverrides: !Sub '{"DevPrefix": "${DevPrefix}", "AppName": "${AppName}", "Environment": "${Environment}", "PipelineArtifactsBucket": "${PipelineArtifactsBucket}"}'
-      #       TemplatePath: !Sub "BuildArtifacts::deploy/cloudformation/application.yaml"
-      #       TemplateConfiguration: BuildArtifacts::app-deploy.json
-      #     RunOrder: 3
+  WebappApplication: 
+    Type: AWS::CodeDeploy::Application 
+    Properties:
+      ComputePlatform: Server
+  WebappDeploymentGroup:
+    Type: "AWS::CodeDeploy::DeploymentGroup"
+    Properties:
+      ApplicationName: !Ref WebappApplication
+      ServiceRoleArn: !GetAtt CodeDeployRole.Arn
+      DeploymentConfigName: CodeDeployDefault.AllAtOnce
+      Ec2TagFilters:
+        - Key: "Name"
+          Value: !Sub "${DevPrefix}${AppName}-${Environment}"
+          Type: KEY_AND_VALUE
+
+  CodeDeployRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "codedeploy.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        -
+          PolicyName: allow-autoscaling
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: Allow
+                Action:
+                  - ec2:*
+                  - autoscaling:*
+                  - s3:*
+                Resource: "*"
+
 
   CodeBuildProject:
     Type: AWS::CodeBuild::Project
@@ -175,9 +219,10 @@ Resources:
         Type: CODEPIPELINE
         BuildSpec: deploy/codebuild/pre-deploy-buildspec.yaml
       Environment:
-        ComputeType: BUILD_GENERAL1_SMALL
+        ComputeType: BUILD_GENERAL1_MEDIUM
         Image: !Ref CodebuildImage
         Type: LINUX_CONTAINER
+        PrivilegedMode: true
         EnvironmentVariables:
         - Name: DevPrefix
           Value: !Ref DevPrefix
@@ -187,6 +232,13 @@ Resources:
           Value: !Ref Environment
         - Name: PipelineArtifactsBucket
           Value: !Ref PipelineArtifactsBucket
+        - Name: Region
+          Value: !Ref AWS::Region
+        - Name: AccountId
+          Value: !Ref AWS::AccountId
+        - Name: Branch
+          Value: !Ref GitHubBranch
+
       TimeoutInMinutes: 10
 
   CodeBuildRole:
@@ -231,6 +283,7 @@ Resources:
           Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess #TODO: Reduce permissions
+    DependsOn: Ec2Instance
 
   CloudformationRole:
     Type: AWS::IAM::Role
@@ -244,3 +297,219 @@ Resources:
           Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess #TODO: Reduce permissions
+
+  Ec2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0fb653ca2d3203ac1 # ImageID valid only in us-east-1 region
+      UserData:
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash
+            sudo apt update
+            sudo apt install docker.io ruby-full wget awscli -y
+            wget https://aws-codedeploy-us-east-2.s3.us-east-2.amazonaws.com/latest/install
+            chmod +x ./install
+            sudo ./install auto > /tmp/logfile
+            sudo service codedeploy-agent start
+      InstanceType: t2.small
+      IamInstanceProfile: !Ref Ec2InstanceProfile
+        # KeyName: jenna # <-- Change to use your key-pair name
+      SecurityGroupIds:
+        - !Ref Ec2SecurityGroup
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${DevPrefix}${AppName}-${Environment}"
+
+
+
+  
+  Ec2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Join ["-", [webapp-security-group, dev]]
+      GroupDescription: "Allow HTTP/HTTPS and SSH inbound and outbound traffic"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0 
+
+  ELBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Join ["-", [alb-security-group, dev]]
+      GroupDescription: "Allow HTTP/HTTPS and SSH inbound and outbound traffic"
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: "-1"
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+
+  IamRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Sub "${DevPrefix}-${AppName}-${Environment}-${GitHubBranch}"
+      Description: "EC2 IAM role for SSM access"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "ec2.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+        - "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+        - "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"
+        - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+      Policies: []
+  Ec2InstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      InstanceProfileName: "Ec2RoleForSSM"
+      Roles:
+        - Ref: "IamRole"
+
+# Load balancer
+
+
+  # MyCertificate: 
+  #   Type: "AWS::CertificateManager::Certificate"
+  #   Properties: 
+  #     DomainName: sheraz.dev.svcs.ferrumnetwork.io
+  #     ValidationMethod: DNS
+
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties: 
+      Name:  !Sub "${DevPrefix}${AppName}-${Environment}-alb"
+      Scheme: "internet-facing"
+      SecurityGroups: 
+      - !Ref ELBSecurityGroup
+      Type: "application"
+      IpAddressType: "ipv4"
+      Subnets:
+      - !Ref SubnetA
+      - !Ref SubnetB
+      - !Ref SubnetC
+
+
+  HTTPListener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+        LoadBalancerArn: !Ref ApplicationLoadBalancer
+        Port: 80
+        Protocol: "HTTP"
+        DefaultActions:
+          -
+            Order: 1
+            RedirectConfig: 
+                Protocol: "HTTPS"
+                Port: "443"
+                Host: "#{host}"
+                Path: "/#{path}"
+                Query: "#{query}"
+                StatusCode: "HTTP_301"
+            Type: "redirect"
+
+  HTTPSListener:
+      Type: "AWS::ElasticLoadBalancingV2::Listener"
+      Properties:
+          LoadBalancerArn: !Ref ApplicationLoadBalancer
+          Port: 443
+          Protocol: "HTTPS"
+          SslPolicy: "ELBSecurityPolicy-2016-08"
+          Certificates: 
+            - 
+              CertificateArn: arn:aws:acm:us-east-2:806611346442:certificate/2792c302-054b-4165-970f-265dbdce6871
+              
+          DefaultActions: 
+            - 
+              Order: 1
+              TargetGroupArn: !Ref Test1TargetGroup
+              Type: "forward"
+      # DependsOn: MyCertificate
+
+  Test1TargetGroup:
+      Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+      DependsOn: Ec2Instance
+      Properties:
+          HealthCheckIntervalSeconds: 30
+          HealthCheckPath: "/"
+          Port: 80
+          Protocol: "HTTP"
+          HealthCheckPort: "traffic-port"
+          HealthCheckProtocol: "HTTP"
+          HealthCheckTimeoutSeconds: 5
+          UnhealthyThresholdCount: 2
+          TargetType: "instance"
+          Targets: 
+          -
+            # AvailabilityZone: !GetAtt Ec2Instance.AvailabilityZone
+            Id: !Ref Ec2Instance
+            Port: 80
+          Matcher: 
+              HttpCode: "200-499"
+          HealthyThresholdCount: 5
+          VpcId: !Ref VPC
+          Name: "target-group-1"
+          HealthCheckEnabled: true
+          TargetGroupAttributes: 
+            - 
+              Key: "stickiness.enabled"
+              Value: "false"
+            - 
+              Key: "deregistration_delay.timeout_seconds"
+              Value: "300"
+            - 
+              Key: "stickiness.type"
+              Value: "lb_cookie"
+            - 
+              Key: "stickiness.lb_cookie.duration_seconds"
+              Value: "86400"
+            - 
+              Key: "slow_start.duration_seconds"
+              Value: "0"
+            - 
+              Key: "load_balancing.algorithm.type"
+              Value: "round_robin"
+     
+
+  ALBDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      # HostedZoneName: !Ref 'HostedZoneName'
+      Comment: DNS name for my instance.
+      Name: !Sub ${ DevPrefix}-${AppName}.${HostedZone}
+      AliasTarget:
+        DNSName: !GetAtt ApplicationLoadBalancer.DNSName
+        HostedZoneId: !GetAtt ApplicationLoadBalancer.CanonicalHostedZoneID
+      Type: A
+
+# ECR
+
+  ECR:
+    Type: AWS::ECR::Repository
+    Properties: 
+      ImageTagMutability: MUTABLE
+      RepositoryName: !Sub "${DevPrefix}-${AppName}-${Environment}-${GitHubBranch}"

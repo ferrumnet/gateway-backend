@@ -2,28 +2,30 @@ version: 0.2
 environment_variables:
   plaintext:
     ARTIFACT_FILE_NAME: ""
+    ECR_URL: ""
 phases:
-  install:
-    runtime-versions:
-      python: 3.8
-      nodejs: 14
   pre_build:
     commands:
-      - AppVersion='SNAPSHOT'
-      - envsubst '$DevPrefix $AppName $AppVersion  $Environment $PipelineArtifactsBucket' <deploy/cloudformation/parameters/app-deploy.json >app-deploy.json
-      - cat app-deploy.json
-      - echo "Zip up artifacts ${AppName}.zip"
-      - ARTIFACT_FILE_NAME="${DevPrefix}${AppName}-${AppVersion}.zip"
-      - node --version
-      - npm -v
+      - ECR_URL="${AccountId}.dkr.ecr.${Region}.amazonaws.com/${DevPrefix}-${AppName}-${Environment}-${Branch}"
+      - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin "${ECR_URL}"
   build:
     commands:
-      - npm install
-      - zip -r "${ARTIFACT_FILE_NAME}" *
-      - aws s3 cp ${ARTIFACT_FILE_NAME} s3://${PipelineArtifactsBucket}/${DevPrefix}${AppName}/artifacts/
+      - echo "export Region=${Region}"  >> set_env.sh
+      - echo "export Environment=${Environment}"  >> set_env.sh
+      - echo "export Branch=${Branch}" >> set_env.sh
+      - echo "export AppName=${AppName}" >> set_env.sh
+      - echo "export DevPrefix=${DevPrefix}"  >> set_env.sh
+      - echo "export AccountId=${AccountId}"  >> set_env.sh
+      - docker build -t  ${ECR_URL}:latest  .
   post_build:
     commands:
-      - rm -f "${ARTIFACT_FILE_NAME}"
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - echo "${ECR_URL}"
+      - docker push  "${ECR_URL}":latest  
+
 artifacts:
   files:
-    - '**/*'
+    - appspec.yml
+    - set_env.sh
+    - deploy/scripts/code_deploy.sh

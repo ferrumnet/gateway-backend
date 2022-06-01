@@ -12,7 +12,7 @@ module.exports = function (router) {
         req.body.createdByUser = req.user._id
 
         req.body.nameInLower = (req.body.name).toLowerCase()
-        req.body.createdAt = new Date()
+        req.body.createdAt,req.body.updatedAt = new Date()
 
         const step = await db.Steps.create(req.body)
            
