@@ -10,39 +10,12 @@ module.exports = {
 
   async crucibleAutoCalculateApr(req, res, isFromApi = true) {
 
-    var currentTime = new Date();
-    var lastDay = new Date();
-    var lastWeek = new Date();
-    var lastMonth = new Date();
-
-    lastDay.setHours(lastDay.getHours() - 24);
-    lastWeek.setHours(lastWeek.getHours() - 168);
-    lastMonth.setMonth(lastMonth.getMonth() - 3);
-
-    console.log(currentTime)
-    console.log(lastDay)
-    console.log(lastWeek)
-    console.log(lastMonth)
-
-    var toTime = Math.round(new Date().getTime() / 1000);
-    var fromTime = toTime - (24 * 3600);
-
-    console.log("====old====")
-    console.log(toTime)
-    console.log(fromTime)
-    console.log("====New====")
-    console.log(Math.round(currentTime.getTime() / 1000))
-    console.log(Math.round(lastDay.getTime() / 1000))
-    console.log(Math.round(lastWeek.getTime() / 1000))
-    console.log(Math.round(lastMonth.getTime() / 1000))
-
     this.calculateDaily(req, res, isFromApi)
     this.calculateWeekly(req, res, isFromApi)
     this.calculateMontly(req, res, isFromApi)
     this.calculateLideTime(req, res, isFromApi)
 
     if (isFromApi) {
-      console.log("completed")
     }
   },
   async calculateDaily(req, res, isFromApi) {
@@ -51,10 +24,6 @@ module.exports = {
     var lastDay = new Date();
     lastDay.setHours(lastDay.getHours() - 24);
     var fromTime = Math.round(lastDay.getTime() / 1000);
-
-    console.log("Daily")
-    console.log("toTime: ", toTime)
-    console.log("fromTime: ", fromTime)
     this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagDaily)
 
   },
@@ -64,10 +33,6 @@ module.exports = {
     var lastWeek = new Date();
     lastWeek.setHours(lastWeek.getHours() - 168);
     var fromTime = Math.round(lastWeek.getTime() / 1000);
-
-    console.log("Weekly")
-    console.log("toTime: ", toTime)
-    console.log("fromTime: ", fromTime)
     this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagWeekly)
 
   },
@@ -77,10 +42,6 @@ module.exports = {
     var lastMonth = new Date();
     lastMonth.setMonth(lastMonth.getMonth() - 1);
     var fromTime = Math.round(lastMonth.getTime() / 1000);
-
-    console.log("Montly")
-    console.log("toTime: ", toTime)
-    console.log("fromTime: ", fromTime)
     this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagMontly)
 
   },
@@ -128,7 +89,6 @@ module.exports = {
         let fromBlockNumber = "";
 
         if(type != tagLifeTime){
-          console.log(type, "hitting")
           toBlockNumber = await bscScanHelper.queryBlockNumber(toTimeStamp)
 
           fromBlockNumber = await bscScanHelper.queryBlockNumber(fromTimeStamp)
@@ -190,8 +150,6 @@ module.exports = {
       data.forEach(item => {
 
         if (item) {
-          console.log(type)
-          console.log(item)
 
           let setData = { tokenSymbol: item.tokenSymbol }
 
