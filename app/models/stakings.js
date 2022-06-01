@@ -13,14 +13,12 @@ var StakingModel = function () {
       withdrawEnds: { type: String },
       appId: { type: String },
       encodedAddress: { type: String },
-      createdAt: { type: Date, default: new Date() },
-      updatedAt: { type: Date, default: new Date() },
       status: { type: String, default: "CREATED" },
       storageAppId: { type: String },
       rewardAmount: { type: Number },
       withdrawableAmount: { type: Number },
     },
-    { collection: "stakings" }
+    { collection: "stakings", timestamps: true }
   );
 
   return mongoose.model("Stakings", stakingSchema);

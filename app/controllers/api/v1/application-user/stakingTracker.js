@@ -52,14 +52,17 @@ module.exports = function (router) {
         req.body.rewardAmount =
           Number(req.body.rewardAmount) - Number(req.body.amount);
       }
-      const totalStakedAmount = stake
-        ? Number(stake.totalStakedAmount) + Number(stake.stakedAmount)
+
+      const stakingLeaderboardBalance = stake
+        ? Number(stake.walletBalance ? stake.walletBalance : 0) +
+          Number(req.body.stakedAmount)
         : Number(req.body.stakedAmount);
+
       const update = {
         $set: {
           stakedAmount: req.body.stakedAmount,
           rewardAmount: req.body.rewardAmount,
-          totalStakedAmount,
+          stakingLeaderboardBalance,
           user: req.user._id,
         },
       };
