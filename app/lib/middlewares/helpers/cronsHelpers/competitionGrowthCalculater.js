@@ -104,7 +104,7 @@ const calcalutePurchaseVolume = (transactions, participants, dexLiquidityPoolCur
            participants.push(newparticipant)
          }else{
            // Old participant sell (- growth)
-           participants[fromIndex].growth  = subGrowth(participants[fromIndex].growth, '-'+transaction.value)
+           participants[fromIndex].growth  = subGrowth(participants[fromIndex].growth, transaction.value)
          }
 
          if(toIndex == -1 ){
