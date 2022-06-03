@@ -57,6 +57,7 @@ async getActiveCompetitionForGrowth(tokenContractAddress, applyFilter=true) {
           "leaderboard._id": 1,
           "leaderboard.exclusionWalletAddressList": 1,
           "leaderboard.isActive": 1,
+          "leaderboard.stakingContractAddresses":1,
           "LCABN._id": 1,
           "LCABN.isActive": 1,
           "CABN._id": 1,
