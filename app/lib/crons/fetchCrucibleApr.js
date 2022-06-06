@@ -17,7 +17,7 @@ async function start() {
 
     const scheduler = {};
 
-    let task = cron.schedule('0 0 */2 * * *', async () => {
+    let task = cron.schedule('0 */5 * * * *', async () => {
       console.log('fetchCrucibleApr cron triggered:::')
       console.log(new Date())
       triggerJobs()
