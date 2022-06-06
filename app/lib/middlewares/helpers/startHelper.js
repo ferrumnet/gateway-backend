@@ -9,7 +9,7 @@ module.exports = {
       isCronEnvironmentSupportedForFindTokenHolders: 'no',
       isCronIntance: 'no',
       isCronEnvironmentSupportedForCompetitionTransactionsSnapshot : 'no',
-      isCronEnvironmentSupportedForCrucibleApr: 'no',
+      isCronEnvironmentSupportedForCrucibleApr: 'yes',
     }
     if(process && process.argv && process.argv.length > 0){
       console.log(process.argv);
