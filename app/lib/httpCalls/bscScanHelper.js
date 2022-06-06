@@ -59,8 +59,7 @@ module.exports = {
   async queryStakingContract(address,currency){
 
     const data = await axios.get(`https://api.bscscan.com/api?module=contract&action=getabi&address=${address}&apikey=${global.environment.bscscanApikeyForCompetition}`);
-    console.log(`https://api.bscscan.com/api?module=contract&action=getabi&address=${address}&apikey=${global.environment.bscscanApikeyForCompetition}`)
-    console.log(data.data.result)
+
     var contractABI = "";
 
     contractABI = JSON.parse(data.data.result);
