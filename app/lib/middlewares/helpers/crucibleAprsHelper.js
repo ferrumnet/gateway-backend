@@ -17,6 +17,7 @@ module.exports = {
 
     if (isFromApi) {
     }
+    console.log('fetchCrucibleApr cron completed')
   },
   async calculateDaily(req, res, isFromApi) {
 
@@ -193,7 +194,7 @@ module.exports = {
       });
 
       await db.CrucibleAprs.collection.bulkWrite(dataToSave)
-
+      console.log('====================='+type)
     }
 
   },
