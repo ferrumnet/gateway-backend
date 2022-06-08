@@ -11,9 +11,9 @@ module.exports = {
   async crucibleAutoCalculateApr(req, res, isFromApi = true) {
 
     this.calculateDaily(req, res, isFromApi)
-    this.calculateWeekly(req, res, isFromApi)
-    this.calculateMontly(req, res, isFromApi)
-    this.calculateLideTime(req, res, isFromApi)
+    // this.calculateWeekly(req, res, isFromApi)
+    // this.calculateMontly(req, res, isFromApi)
+    // this.calculateLideTime(req, res, isFromApi)
 
     if (isFromApi) {
     }
