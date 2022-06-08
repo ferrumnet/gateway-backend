@@ -10,10 +10,10 @@ module.exports = {
 
   async crucibleAutoCalculateApr(req, res, isFromApi = true) {
 
-    this.calculateDaily(req, res, isFromApi)
-    this.calculateWeekly(req, res, isFromApi)
-    this.calculateMontly(req, res, isFromApi)
-    this.calculateLideTime(req, res, isFromApi)
+    await this.calculateDaily(req, res, isFromApi)
+    await this.calculateWeekly(req, res, isFromApi)
+    await this.calculateMontly(req, res, isFromApi)
+    await this.calculateLideTime(req, res, isFromApi)
 
     if (isFromApi) {
     }
@@ -24,7 +24,7 @@ module.exports = {
     var lastDay = new Date();
     lastDay.setHours(lastDay.getHours() - 24);
     var fromTime = Math.round(lastDay.getTime() / 1000);
-    this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagDaily)
+    await this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagDaily)
 
   },
   async calculateWeekly(req, res, isFromApi) {
@@ -33,7 +33,7 @@ module.exports = {
     var lastWeek = new Date();
     lastWeek.setHours(lastWeek.getHours() - 168);
     var fromTime = Math.round(lastWeek.getTime() / 1000);
-    this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagWeekly)
+    await this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagWeekly)
 
   },
   async calculateMontly(req, res, isFromApi) {
@@ -42,12 +42,12 @@ module.exports = {
     var lastMonth = new Date();
     lastMonth.setMonth(lastMonth.getMonth() - 1);
     var fromTime = Math.round(lastMonth.getTime() / 1000);
-    this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagMontly)
+    await this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagMontly)
 
   },
   async calculateLideTime(req, res, isFromApi) {
 
-    this.autoCalculateApr(req, res, isFromApi, "", "", tagLifeTime)
+    await this.autoCalculateApr(req, res, isFromApi, "", "", tagLifeTime)
 
   },
   async autoCalculateApr(req, res, isFromApi, toTime, fromTime, type) {
