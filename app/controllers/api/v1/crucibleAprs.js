@@ -1,7 +1,7 @@
 
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global
+const { db, asyncMiddleware, commonFunctions, stringHelper, crucibleAprsHelper } = global
 const mailer = global.mailer;
-var mongoose , {isValidObjectId} = require('mongoose');
+var mongoose, { isValidObjectId } = require('mongoose');
 
 module.exports = function (router) {
 
@@ -21,6 +21,10 @@ module.exports = function (router) {
   router.get('/list', async (req, res) => {
     let filter = {}
 
+    if (req.query.isFreshData && req.query.isFreshData == 'true') {
+      crucibleAprsHelper.crucibleAutoCalculateApr(req, res, true)
+    }
+
     let crucibleAprs = await db.CrucibleAprs.find(filter)
       .sort({ createdAt: -1 })
 
@@ -28,6 +32,7 @@ module.exports = function (router) {
     return res.http200({
       crucibleAprs: crucibleAprs
     });
+
   });
 
   router.get('/:id', async (req, res) => {
