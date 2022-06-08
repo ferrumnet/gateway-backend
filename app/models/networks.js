@@ -20,6 +20,7 @@ var NetworksModel = function () {
     parentId: { type: mongoose.Schema.Types.ObjectId, ref: 'networks' },
     isActive: { type: Boolean, default: true },
     isAllowedOnGateway: { type: Boolean, default: false },
+    logo: { type: String, default: "" },
 
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
