@@ -58,16 +58,6 @@ module.exports = {
     if (crucibleAprsTokensData && crucibleAprsTokensData.tokens
       && crucibleAprsTokensData.tokens.length > 0) {
       const tokens = crucibleAprsTokensData.tokens
-      // const tokens = [
-      //   {
-      //     "tokenContract": "0xaf329a957653675613D0D98f49fc93326AeB36Fc",
-      //     "tokenSymbol": "cFRM"
-      //   },
-      //   {
-      //     "tokenContract": "0x1fC45F358D5292bEE1e055BA7CebE4d4100972AE",
-      //     "tokenSymbol": "cFRMx"
-      //   }
-      // ]
 
       const calculateApr = async (tokenContract, symbol) => {
 
