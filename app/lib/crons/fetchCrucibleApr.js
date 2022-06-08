@@ -17,7 +17,7 @@ async function start() {
 
     const scheduler = {};
 
-    let task = cron.schedule('0 0 */1 * * *', async () => {
+    let task = cron.schedule('30 */30 * * * *', async () => {
       console.log('fetchCrucibleApr cron triggered:::')
       console.log(new Date())
       triggerJobs()
@@ -33,5 +33,5 @@ async function start() {
 }
 
 async function triggerJobs() {
-  crucibleAprsHelper.crucibleAutoCalculateApr(null, null, false)
+  await crucibleAprsHelper.crucibleAutoCalculateApr(null, null, false)
 }
