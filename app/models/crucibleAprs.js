@@ -6,10 +6,38 @@ var CrucibleAprsModel = function () {
   var crucibleAprsSchema = mongoose.Schema({
     createdByUser: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
     updatedByUser: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
-    cfrm: { type: String, default: "" },
-    cfrmLp: { type: String, default: "" },
-    cfrmX: { type: String, default: "" },
-    cfrmXLp: { type: String, default: "" },
+    tokenSymbol: { type: String, default: "" },
+    lifeTimeAPR:{
+      APR: { type: Number, default: null },
+      timeReference: { type: String, default: "" },
+      totalStake: { type: String, default: "" },
+      price: { type: String, default: "" },
+      volumeOfRewardsDistributed: { type: Number, default: null }
+    },
+    dailyAPR:{
+      APR: { type: Number, default: null },
+      timeReference: { type: String, default: "" },
+      totalStake: { type: String, default: "" },
+      price: { type: String, default: "" },
+      volumeOfRewardsDistributed: { type: Number, default: null },
+      updatedAt: { type: Date, default: new Date() }
+    },
+    weeklyAPR:{
+      APR: { type: Number, default: null },
+      timeReference: { type: String, default: "" },
+      totalStake: { type: String, default: "" },
+      price: { type: String, default: "" },
+      volumeOfRewardsDistributed: { type: Number, default: null },
+      updatedAt: { type: Date, default: new Date() }
+    },
+    monthlyAPR:{
+      APR: { type: Number, default: null },
+      timeReference: { type: String, default: "" },
+      totalStake: { type: String, default: "" },
+      price: { type: String, default: "" },
+      volumeOfRewardsDistributed: { type: Number, default: null },
+      updatedAt: { type: Date, default: new Date() }
+    },
     isActive: { type: Boolean, default: true },
 
     createdAt: { type: Date, default: new Date() },
