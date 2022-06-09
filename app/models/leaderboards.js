@@ -17,6 +17,7 @@ var LeaderboardsModel = function () {
     organization: { type: mongoose.Schema.Types.ObjectId, ref: 'organizations', required: true  },
     isVisibleForPublicMenuItem: { type: Boolean, default: true },
     stakingContractAddresses: [],
+    type: { type: String, default: "other" },
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
   },{ collection: 'leaderboards' });
