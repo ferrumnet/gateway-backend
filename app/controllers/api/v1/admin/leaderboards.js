@@ -23,7 +23,7 @@ module.exports = function (router) {
 
     let leaderboardsCount = await db.Leaderboards.count({ user: req.user._id });
 
-    if (leaderboardsCount > 0) {
+    if (leaderboardsCount > 20) {
       return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorLeaderboardCreateLimit),stringHelper.strErrorLeaderboardCreateLimit,);
     }
 
