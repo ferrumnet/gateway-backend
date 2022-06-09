@@ -112,7 +112,13 @@ module.exports = function (router) {
         }else {
           path = getItemFromMetaData(product, 'internalPubDynamicPathForSingle').value
         }
-        if (item.leaderboardCurrencyAddressesByNetwork.length > 1) {
+        if(item.type && item.type == 'stake'){
+          if(req.user && req.user.role && req.user.role == 'organizationAdmin'){
+            path = getItemFromMetaData(product, 'internalDynamicPathForStake').value
+          }else {
+            path = getItemFromMetaData(product, 'internalPubDynamicPathForStake').value
+          }
+        }else if (item.leaderboardCurrencyAddressesByNetwork.length > 1) {
           if(req.user && req.user.role && req.user.role == 'organizationAdmin'){
             path = getItemFromMetaData(product, 'internalDynamicPathForMulti').value
           }else {
