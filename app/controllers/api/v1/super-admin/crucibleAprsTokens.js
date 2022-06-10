@@ -7,8 +7,8 @@ module.exports = function (router) {
 
   router.post('/create', async (req, res) => {
 
-    if (!req.body.tokenSymbol || !req.body.APR) {
-      return res.http400('tokenSymbol & APR are required.');
+    if (!req.body.tokens || !req.body.skakingContract || !req.body.apeRouter || !req.body.taxDistributor) {
+      return res.http400('tokens & skakingContract & apeRouter & taxDistributor are required.');
     }
 
     req.body.createdByUser = req.user._id
@@ -16,10 +16,10 @@ module.exports = function (router) {
     req.body.createdAt = new Date()
     req.body.updatedAt = new Date()
 
-    let crucibleApr = await db.CrucibleAprs.create(req.body)
+    let crucibleAprsToken = await db.CrucibleAprsTokens.create(req.body)
 
     return res.http200({
-      crucibleApr: crucibleApr
+      crucibleAprsToken: crucibleAprsToken
     });
 
   });
@@ -29,17 +29,17 @@ module.exports = function (router) {
     let filter = {}
     filter = { _id: req.params.id }
 
-    if (!req.body.tokenSymbol || !req.body.APR) {
-      return res.http400('tokenSymbol & APR are required.');
+    if (!req.body.tokens || !req.body.skakingContract || !req.body.apeRouter || !req.body.taxDistributor) {
+      return res.http400('tokens & skakingContract & apeRouter & taxDistributor are required.');
     }
 
     req.body.updatedByUser = req.user._id
     req.body.updatedAt = new Date()
 
-    let crucibleApr = await db.CrucibleAprs.findOneAndUpdate(filter, req.body, { new: true })
+    let crucibleAprsToken = await db.CrucibleAprsTokens.findOneAndUpdate(filter, req.body, { new: true })
 
     return res.http200({
-      crucibleApr: crucibleApr
+      crucibleAprsToken: crucibleAprsToken
     });
 
   });
@@ -48,13 +48,13 @@ module.exports = function (router) {
 
     var filter = {}
 
-    let crucibleAprs = await db.CrucibleAprs.find(filter)
+    let crucibleAprsTokens = await db.CrucibleAprsTokens.find(filter)
       .sort({ createdAt: -1 })
       .skip(req.query.offset ? parseInt(req.query.offset) : 0)
       .limit(req.query.limit ? parseInt(req.query.limit) : 10)
 
     return res.http200({
-      crucibleAprs: crucibleAprs
+      crucibleAprsTokens: crucibleAprsTokens
     });
 
   });
@@ -63,10 +63,10 @@ module.exports = function (router) {
     let filter = {}
     filter = { _id: req.params.id }
 
-    let crucibleApr = await db.CrucibleAprs.findOne(filter)
+    let crucibleAprsToken = await db.CrucibleAprsTokens.findOne(filter)
 
     return res.http200({
-      crucibleApr: crucibleApr
+      crucibleAprsToken: crucibleAprsToken
     });
 
   });
@@ -74,7 +74,7 @@ module.exports = function (router) {
   router.delete('/:id', async (req, res) => {
     let filter = {}
 
-    await db.CrucibleAprs.remove({ _id: req.params.id })
+    await db.CrucibleAprsTokens.remove({ _id: req.params.id })
 
     return res.http200({
       message: stringHelper.strSuccess

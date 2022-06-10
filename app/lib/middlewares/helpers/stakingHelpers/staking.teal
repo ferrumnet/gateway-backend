@@ -1,0 +1,699 @@
+#pragma version 5
+txn ApplicationID
+int 0
+==
+bnz main_l20
+txn OnCompletion
+int NoOp
+==
+bnz main_l9
+txn OnCompletion
+int DeleteApplication
+==
+bnz main_l8
+txn OnCompletion
+int UpdateApplication
+==
+bnz main_l7
+txn OnCompletion
+int CloseOut
+==
+txn OnCompletion
+int OptIn
+==
+||
+bnz main_l6
+err
+main_l6:
+int 1
+return
+main_l7:
+txn Sender
+byte "application_admin"
+app_global_get
+==
+assert
+int 1
+return
+main_l8:
+txn Sender
+byte "application_admin"
+app_global_get
+==
+assert
+int 1
+return
+main_l9:
+txna ApplicationArgs 0
+byte "setup"
+==
+bnz main_l19
+txna ApplicationArgs 0
+byte "stake"
+==
+bnz main_l18
+txna ApplicationArgs 0
+byte "withdraw"
+==
+bnz main_l17
+txna ApplicationArgs 0
+byte "add_reward"
+==
+bnz main_l16
+txna ApplicationArgs 0
+byte "change_admin"
+==
+bnz main_l15
+err
+main_l15:
+txn Sender
+byte "application_admin"
+app_global_get
+==
+assert
+txna ApplicationArgs 1
+callsub sub7
+byte "application_admin"
+txna ApplicationArgs 1
+app_global_put
+int 1
+return
+main_l16:
+txn Sender
+byte "application_admin"
+app_global_get
+==
+assert
+txna ApplicationArgs 1
+btoi
+txna ApplicationArgs 2
+btoi
+callsub sub14
+int 1
+return
+main_l17:
+txn Sender
+txna ApplicationArgs 1
+btoi
+callsub sub13
+int 1
+return
+main_l18:
+txna ApplicationArgs 1
+btoi
+callsub sub10
+int 1
+return
+main_l19:
+txn Sender
+byte "application_admin"
+app_global_get
+==
+assert
+byte "staking_token"
+app_global_get
+int 0
+global CurrentApplicationAddress
+callsub sub8
+byte "reward_token"
+app_global_get
+int 0
+global CurrentApplicationAddress
+callsub sub8
+int 1
+return
+main_l20:
+global GroupSize
+int 1
+==
+assert
+byte "staking_token"
+txna ApplicationArgs 0
+btoi
+app_global_put
+byte "reward_token"
+txna ApplicationArgs 1
+btoi
+app_global_put
+byte "application_admin"
+txn Sender
+app_global_put
+txna ApplicationArgs 2
+btoi
+int 0
+>
+assert
+txna ApplicationArgs 2
+btoi
+global LatestTimestamp
+<
+bnz main_l23
+byte "staking_starts"
+txna ApplicationArgs 2
+btoi
+app_global_put
+main_l22:
+txna ApplicationArgs 3
+btoi
+txna ApplicationArgs 2
+btoi
+>
+assert
+byte "staking_ends"
+txna ApplicationArgs 3
+btoi
+app_global_put
+txna ApplicationArgs 4
+btoi
+txna ApplicationArgs 3
+btoi
+>=
+assert
+byte "withdraw_starts"
+txna ApplicationArgs 4
+btoi
+app_global_put
+txna ApplicationArgs 5
+btoi
+txna ApplicationArgs 4
+btoi
+>=
+assert
+byte "withdraw_ends"
+txna ApplicationArgs 5
+btoi
+app_global_put
+txna ApplicationArgs 6
+btoi
+int 0
+>
+assert
+byte "staking_total"
+txna ApplicationArgs 6
+btoi
+app_global_put
+byte "total_supply"
+txna ApplicationArgs 7
+btoi
+app_global_put
+int 1
+return
+main_l23:
+byte "staking_starts"
+global LatestTimestamp
+app_global_put
+b main_l22
+sub0: // convert_uint_to_bytes
+store 9
+load 9
+int 0
+==
+bnz sub0_l5
+byte ""
+store 10
+load 9
+store 11
+sub0_l2:
+load 11
+int 0
+>
+bnz sub0_l4
+load 10
+b sub0_l6
+sub0_l4:
+load 11
+int 10
+%
+store 12
+byte "0123456789"
+load 12
+load 12
+int 1
++
+substring3
+load 10
+concat
+store 10
+load 11
+int 10
+/
+store 11
+b sub0_l2
+sub0_l5:
+byte "0"
+sub0_l6:
+retsub
+sub1: // staked
+store 8
+store 7
+store 6
+byte "staked { token: "
+load 6
+callsub sub0
+concat
+byte ", requested_amount: "
+concat
+load 7
+callsub sub0
+concat
+byte ", staked_amount: "
+concat
+load 8
+callsub sub0
+concat
+byte "}"
+concat
+log
+retsub
+sub2: // paid_out
+store 30
+store 29
+store 28
+store 27
+byte "paid_out { token: "
+load 27
+callsub sub0
+concat
+load 28
+callsub sub0
+concat
+byte ", amount: "
+concat
+load 29
+callsub sub0
+concat
+byte ", reward: "
+concat
+load 30
+callsub sub0
+concat
+byte "}"
+concat
+log
+retsub
+sub3: // refunded
+store 14
+store 13
+byte "refunded { token: "
+load 13
+callsub sub0
+concat
+byte ", amount: "
+concat
+load 14
+callsub sub0
+concat
+byte "}"
+concat
+log
+retsub
+sub4: // positive
+store 15
+load 15
+int 0
+>
+assert
+retsub
+sub5: // after
+store 16
+global LatestTimestamp
+load 16
+>=
+assert
+retsub
+sub6: // before
+store 17
+global LatestTimestamp
+load 17
+<
+assert
+retsub
+sub7: // real_address
+store 0
+load 0
+global ZeroAddress
+!=
+assert
+retsub
+sub8: // execute_asset_transfer
+store 3
+store 2
+store 1
+itxn_begin
+int axfer
+itxn_field TypeEnum
+load 1
+itxn_field XferAsset
+load 2
+itxn_field AssetAmount
+load 3
+itxn_field AssetReceiver
+int 0
+itxn_field Fee
+itxn_submit
+retsub
+sub9: // is_asset_transfered
+store 19
+store 18
+global GroupSize
+int 2
+==
+gtxn 0 TypeEnum
+int axfer
+==
+&&
+gtxn 0 XferAsset
+load 18
+==
+&&
+gtxn 0 Sender
+txn Sender
+==
+&&
+gtxn 0 AssetReceiver
+global CurrentApplicationAddress
+==
+&&
+gtxn 0 AssetAmount
+load 19
+==
+&&
+assert
+retsub
+sub10: // stake_token
+store 4
+byte "staking_starts"
+app_global_get
+callsub sub5
+byte "staking_ends"
+app_global_get
+callsub sub6
+load 4
+callsub sub4
+byte "staking_token"
+app_global_get
+load 4
+callsub sub9
+load 4
+byte "staking_total"
+app_global_get
+byte "staked_balance"
+app_global_get
+-
+>
+bnz sub10_l4
+load 4
+store 5
+sub10_l2:
+load 5
+int 0
+>
+assert
+load 5
+byte "staked_total"
+app_global_get
++
+byte "staking_total"
+app_global_get
+<=
+assert
+load 5
+load 4
+<
+bz sub10_l5
+byte "staking_token"
+app_global_get
+load 4
+load 5
+-
+txn Sender
+callsub sub8
+byte "staking_token"
+app_global_get
+load 4
+load 5
+-
+callsub sub3
+b sub10_l5
+sub10_l4:
+byte "staking_total"
+app_global_get
+byte "staked_balance"
+app_global_get
+-
+store 5
+b sub10_l2
+sub10_l5:
+byte "staked_total"
+byte "staked_total"
+app_global_get
+load 5
++
+app_global_put
+byte "staked_balance"
+byte "staked_balance"
+app_global_get
+load 5
++
+app_global_put
+txn Sender
+byte "stakes"
+txn Sender
+byte "stakes"
+app_local_get
+load 5
++
+app_local_put
+byte "staking_token"
+app_global_get
+load 4
+load 5
+callsub sub1
+retsub
+sub11: // withdraw_early
+store 23
+store 22
+byte "withdraw_ends"
+app_global_get
+byte "staking_ends"
+app_global_get
+-
+byte "staked_total"
+app_global_get
+*
+store 24
+global LatestTimestamp
+byte "staking_ends"
+app_global_get
+-
+byte "early_withdraw_rewards"
+app_global_get
+*
+load 23
+*
+load 24
+/
+store 25
+byte "staking_token"
+app_global_get
+byte "reward_token"
+app_global_get
+==
+bnz sub11_l2
+byte "staking_token"
+app_global_get
+load 23
+load 22
+callsub sub8
+byte "reward_token"
+app_global_get
+load 25
+load 22
+callsub sub8
+byte "staking_token"
+app_global_get
+byte "reward_token"
+app_global_get
+load 23
+load 25
+callsub sub2
+b sub11_l3
+sub11_l2:
+load 23
+load 25
++
+store 26
+byte "staking_token"
+app_global_get
+load 26
+load 22
+callsub sub8
+byte "staking_token"
+app_global_get
+byte "reward_token"
+app_global_get
+load 23
+load 25
+callsub sub2
+sub11_l3:
+byte "reward_balance"
+byte "reward_balance"
+app_global_get
+load 25
+-
+app_global_put
+byte "staked_balance"
+byte "staked_balance"
+app_global_get
+load 23
+-
+app_global_put
+load 22
+byte "stakes"
+load 22
+byte "stakes"
+app_local_get
+load 23
+-
+app_local_put
+retsub
+sub12: // withdraw_after_close
+store 32
+store 31
+byte "reward_balance"
+app_global_get
+load 32
+*
+byte "staked_balance"
+app_global_get
+/
+store 33
+byte "staking_token"
+app_global_get
+byte "reward_token"
+app_global_get
+==
+bnz sub12_l2
+byte "staking_token"
+app_global_get
+load 32
+load 31
+callsub sub8
+byte "reward_token"
+app_global_get
+load 33
+load 31
+callsub sub8
+byte "staking_token"
+app_global_get
+byte "reward_token"
+app_global_get
+load 32
+load 33
+callsub sub2
+b sub12_l3
+sub12_l2:
+load 32
+load 33
++
+store 34
+byte "staking_token"
+app_global_get
+load 34
+load 31
+callsub sub8
+byte "staking_token"
+app_global_get
+byte "reward_token"
+app_global_get
+load 32
+load 33
+callsub sub2
+sub12_l3:
+byte "reward_balance"
+byte "reward_balance"
+app_global_get
+load 33
+-
+app_global_put
+byte "staked_balance"
+byte "staked_balance"
+app_global_get
+load 32
+-
+app_global_put
+load 31
+byte "stakes"
+load 31
+byte "stakes"
+app_local_get
+load 32
+-
+app_local_put
+retsub
+sub13: // withdraw
+store 21
+store 20
+byte "withdraw_starts"
+app_global_get
+callsub sub5
+load 21
+load 20
+byte "stakes"
+app_local_get
+<=
+assert
+global LatestTimestamp
+byte "withdraw_ends"
+app_global_get
+<
+bnz sub13_l2
+load 20
+load 21
+callsub sub12
+b sub13_l3
+sub13_l2:
+load 20
+load 21
+callsub sub11
+sub13_l3:
+retsub
+sub14: // add_reward
+store 36
+store 35
+byte "withdraw_starts"
+app_global_get
+callsub sub6
+load 35
+int 0
+>
+assert
+load 36
+int 0
+>=
+assert
+load 36
+load 35
+<=
+assert
+byte "reward_token"
+app_global_get
+load 35
+callsub sub9
+byte "total_rewards"
+byte "total_rewards"
+app_global_get
+load 35
++
+app_global_put
+byte "reward_balance"
+byte "total_rewards"
+app_global_get
+app_global_put
+byte "early_withdraw_rewards"
+byte "early_withdraw_rewards"
+app_global_get
+load 36
++
+app_global_put
+retsub

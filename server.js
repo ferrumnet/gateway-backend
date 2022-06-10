@@ -23,6 +23,7 @@ mongoose.Promise = require('bluebird');
       global.fetchCompetitionTransactionsJob()
       global.fetchTokenHoldersJob()
       global.fetchTokenHolderBalanceSnapshotEventsJob()
+      global.fetchCrucibleApr()
       global.log.info('Connected to MongoDB');
     }
   });
@@ -35,6 +36,7 @@ mongoose.Promise = require('bluebird');
   });
   global.io = require('socket.io').listen(server);
   global.io.on('connection', webSockets.newConnection);
+
 })().catch(e => {
   console.log(e)
 });
