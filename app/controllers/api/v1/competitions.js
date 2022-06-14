@@ -55,6 +55,16 @@ module.exports = function (router) {
           }
         }
       })
+      .populate({
+        path: 'leaderboardCurrencyAddressesByNetwork',
+        populate: {
+          path: 'currencyAddressesByNetwork',
+          populate: {
+            path: 'currency',
+            model: 'currencies'
+          }
+        }
+      })
 
       if (leaderboard && user) {
 
@@ -133,7 +143,7 @@ module.exports = function (router) {
   });
 
   router.get("/participants/growth/:competition",asyncMiddleware(async (req, res) => {
-    let excludedWalletAddress = req.query.withExcludedWalletAddress == "true" ? true : false 
+    let excludedWalletAddress = req.query.withExcludedWalletAddress == "true" ? true : false
     let filter = {competition: req.params.competition}
     let participants = []
     let sort = { rank: 1 }
@@ -155,7 +165,7 @@ module.exports = function (router) {
     let filter = {contractAddress:req.params.contractAddress}
     let transactions = []
     let sort = { rank: 1 }
-    
+
     if(req.query.fromBlock || req.query.toBlock){
       filter.blockNumber = {}
       if(req.query.fromBlock){
@@ -165,7 +175,7 @@ module.exports = function (router) {
         filter.blockNumber.$lt = req.query.toBlock
       }
     }
-   
+
     if (req.query.isPagination != null && req.query.isPagination == 'false') {
       transactions = await db.CompetitionTransactionsSnapshots.find(filter).sort(sort)
     } else {
