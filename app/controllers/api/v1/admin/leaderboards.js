@@ -36,6 +36,10 @@ module.exports = function (router) {
     req.body.createdAt = new Date()
     req.body.updatedAt = new Date()
 
+    if(!req.body.type){
+      req.body.type = 'other'
+    }
+
     let leaderboard = await db.Leaderboards.create(req.body)
     leaderboard.leaderboardCurrencyAddressesByNetwork = await createLeaderboardCurrencyAddressesByNetwork(req.body, leaderboard)
     leaderboard = await db.Leaderboards.findOneAndUpdate({ _id: leaderboard }, leaderboard, { new: true }).populate({
