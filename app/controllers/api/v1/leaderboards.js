@@ -46,6 +46,16 @@ module.exports = function (router) {
         }
       }
     })
+    .populate({
+      path: 'leaderboardCurrencyAddressesByNetwork',
+      populate: {
+        path: 'currencyAddressesByNetwork',
+        populate: {
+          path: 'currency',
+          model: 'currencies'
+        }
+      }
+    })
 
     if(leaderboard && leaderboard.user){
       let user = await db.Users.findOne({_id: leaderboard.user, isActive: true})
