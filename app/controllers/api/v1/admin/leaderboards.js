@@ -170,6 +170,16 @@ module.exports = function (router) {
           }
         }
       })
+      .populate({
+        path: 'leaderboardCurrencyAddressesByNetwork',
+        populate: {
+          path: 'currencyAddressesByNetwork',
+          populate: {
+            path: 'currency',
+            model: 'currencies'
+          }
+        }
+      })
 
     return res.http200({
       leaderboard: leaderboard,
