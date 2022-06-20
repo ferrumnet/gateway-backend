@@ -105,6 +105,26 @@ module.exports = function (router) {
           }
         }
       })
+      .populate({
+        path: 'customCurrencyAddressesByNetwork',
+        populate: {
+          path: 'to.currencyAddressesByNetwork',
+          populate: {
+            path: 'currency',
+            model: 'currencies'
+          }
+        }
+      })
+      .populate({
+        path: 'customCurrencyAddressesByNetwork',
+        populate: {
+          path: 'from.currencyAddressesByNetwork',
+          populate: {
+            path: 'currency',
+            model: 'currencies'
+          }
+        }
+      })
 
     return res.http200({
       leaderboard: leaderboard,
