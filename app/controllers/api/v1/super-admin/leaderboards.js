@@ -1,7 +1,74 @@
 
-const { db, asyncMiddleware, commonFunctions, stringHelper, bscScanTokenHolders } = global
+const { db, asyncMiddleware, commonFunctions, stringHelper, bscScanTokenHolders, leaderboardHelper } = global
 
 module.exports = function (router) {
+
+  router.post('/create', async (req, res) => {
+
+    if (!req.body.name || !req.body.currencyAddressesByNetwork || !req.body.organization) {
+      return res.http400('name & currencyAddressesByNetwork & organization are required.');
+    }
+
+    if (req.body.currencyAddressesByNetwork && req.body.currencyAddressesByNetwork.length == 0) {
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorCurrencyAddressesByNetworkMustContainValue),stringHelper.strErrorCurrencyAddressesByNetworkMustContainValue,);
+    }
+
+    req.body.exclusionWalletAddressList = leaderboardHelper.convertListIntoLowercase(req.body.exclusionWalletAddressList)
+    req.body.user = req.user._id
+    req.body.createdByUser = req.user._id
+    req.body.updatedByUser = req.user._id
+    req.body.organization = req.body.organization
+    req.body.nameInLower = (req.body.name).toLowerCase()
+    req.body.createdAt = new Date()
+    req.body.updatedAt = new Date()
+
+    if(!req.body.type){
+      req.body.type = 'other'
+    }
+
+    let leaderboard = await db.Leaderboards.create(req.body)
+    leaderboard.leaderboardCurrencyAddressesByNetwork = await leaderboardHelper.createLeaderboardCurrencyAddressesByNetwork(req.body, leaderboard)
+    leaderboard = await db.Leaderboards.findOneAndUpdate({ _id: leaderboard }, leaderboard, { new: true }).populate({
+      path: 'leaderboardCurrencyAddressesByNetwork',
+      populate: {
+        path: 'currencyAddressesByNetwork',
+        model: 'currencyAddressesByNetwork'
+      }
+    })
+
+    leaderboardHelper.fetchTokenHolders(leaderboard.leaderboardCurrencyAddressesByNetwork)
+
+    res.http200({
+      leaderboard: leaderboard
+    });
+
+  });
+
+  router.put('/update/:id', async (req, res) => {
+
+    let filter = {}
+    filter = { _id: req.params.id }
+
+    if (!req.body.name || !req.body.currencyAddressesByNetwork || !req.body.organization) {
+      return res.http400('name & currencyAddressesByNetwork & organization are required.');
+    }
+
+    if (req.body.currencyAddressesByNetwork && req.body.currencyAddressesByNetwork.length == 0) {
+      delete req.body.currencyAddressesByNetwork
+    }
+
+    req.body.exclusionWalletAddressList = leaderboardHelper.convertListIntoLowercase(req.body.exclusionWalletAddressList)
+    req.body.nameInLower = (req.body.name).toLowerCase()
+    req.body.updatedByUser = req.user._id
+    req.body.updatedAt = new Date()
+
+    let leaderboard = await db.Leaderboards.findOneAndUpdate(filter, req.body, { new: true });
+
+    res.http200({
+      leaderboard: leaderboard
+    });
+
+  });
 
   router.get('/list', async (req, res) => {
 

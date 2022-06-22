@@ -36,5 +36,6 @@
   "Backend_Success_Reset_Password_Link": "Link is sent to your verified email",
   "Backend_No_StepFlow_History_Available": "User as no history for the specified stepflow.",
   "Backend_Error_Previous_Sequence_Not_Completed": "Cannot restart workflow,  Previous sequence for stepFlow not completed.",
-  "Backend_Error_Cron_Not_Found": "Cron not found."
+  "Backend_Error_Cron_Not_Found": "Cron not found.",
+  "Backend_Error_Currency_AddressesByNetwork_Must_Contain_Values":"currencyAddressesByNetwork should not be empty"
 }
