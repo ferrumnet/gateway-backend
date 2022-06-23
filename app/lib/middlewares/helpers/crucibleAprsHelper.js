@@ -13,7 +13,7 @@ module.exports = {
     await this.calculateDaily(req, res, isFromApi)
     await this.calculateWeekly(req, res, isFromApi)
     await this.calculateMontly(req, res, isFromApi)
-    await this.calculateLideTime(req, res, isFromApi)
+    await this.calculateLifeTime(req, res, isFromApi)
 
     if (isFromApi) {
     }
@@ -25,7 +25,7 @@ module.exports = {
     var lastDay = new Date();
     lastDay.setHours(lastDay.getHours() - 24);
     var fromTime = Math.round(lastDay.getTime() / 1000);
-    await this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagDaily)
+    await this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagDaily, 365)
 
   },
   async calculateWeekly(req, res, isFromApi) {
@@ -34,7 +34,7 @@ module.exports = {
     var lastWeek = new Date();
     lastWeek.setHours(lastWeek.getHours() - 168);
     var fromTime = Math.round(lastWeek.getTime() / 1000);
-    await this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagWeekly)
+    await this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagWeekly, 52)
 
   },
   async calculateMontly(req, res, isFromApi) {
@@ -43,15 +43,15 @@ module.exports = {
     var lastMonth = new Date();
     lastMonth.setMonth(lastMonth.getMonth() - 1);
     var fromTime = Math.round(lastMonth.getTime() / 1000);
-    await this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagMontly)
+    await this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagMontly, 12)
 
   },
-  async calculateLideTime(req, res, isFromApi) {
+  async calculateLifeTime(req, res, isFromApi) {
 
-    await this.autoCalculateApr(req, res, isFromApi, "", "", tagLifeTime)
+    await this.autoCalculateApr(req, res, isFromApi, "", "", tagLifeTime, 365)
 
   },
-  async autoCalculateApr(req, res, isFromApi, toTime, fromTime, type) {
+  async autoCalculateApr(req, res, isFromApi, toTime, fromTime, type, aprCycleInDays) {
     const rs = []
     let crucibleAprsTokensData = await this.getLastCrucibleAprsToken();
 
@@ -65,7 +65,7 @@ module.exports = {
         const ApeRouter = crucibleAprsTokensData.apeRouter
         const taxDistributor = crucibleAprsTokensData.taxDistributor
 
-        let aprCycle = 365
+        let aprCycle = aprCycleInDays
 
         let rewardCycle = 1
 

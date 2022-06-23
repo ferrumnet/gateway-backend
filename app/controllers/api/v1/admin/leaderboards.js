@@ -36,6 +36,10 @@ module.exports = function (router) {
     req.body.createdAt = new Date()
     req.body.updatedAt = new Date()
 
+    if(!req.body.type){
+      req.body.type = 'other'
+    }
+
     let leaderboard = await db.Leaderboards.create(req.body)
     leaderboard.leaderboardCurrencyAddressesByNetwork = await createLeaderboardCurrencyAddressesByNetwork(req.body, leaderboard)
     leaderboard.leaderboardStakingContractAddresses = await createLeaderboardStakingContractAddresses(req.body, leaderboard)
@@ -165,6 +169,36 @@ module.exports = function (router) {
               path: 'dex',
               model: 'decentralizedExchanges'
             }
+          }
+        }
+      })
+      .populate({
+        path: 'leaderboardCurrencyAddressesByNetwork',
+        populate: {
+          path: 'currencyAddressesByNetwork',
+          populate: {
+            path: 'currency',
+            model: 'currencies'
+          }
+        }
+      })
+      .populate({
+        path: 'customCurrencyAddressesByNetwork',
+        populate: {
+          path: 'to.currencyAddressesByNetwork',
+          populate: {
+            path: 'currency',
+            model: 'currencies'
+          }
+        }
+      })
+      .populate({
+        path: 'customCurrencyAddressesByNetwork',
+        populate: {
+          path: 'from.currencyAddressesByNetwork',
+          populate: {
+            path: 'currency',
+            model: 'currencies'
           }
         }
       })
