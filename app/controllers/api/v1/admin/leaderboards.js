@@ -42,6 +42,8 @@ module.exports = function (router) {
 
     let leaderboard = await db.Leaderboards.create(req.body)
     leaderboard.leaderboardCurrencyAddressesByNetwork = await createLeaderboardCurrencyAddressesByNetwork(req.body, leaderboard)
+    leaderboard.leaderboardStakingContractAddresses = await createLeaderboardStakingContractAddresses(req.body, leaderboard)
+    
     leaderboard = await db.Leaderboards.findOneAndUpdate({ _id: leaderboard }, leaderboard, { new: true }).populate({
       path: 'leaderboardCurrencyAddressesByNetwork',
       populate: {
@@ -49,9 +51,9 @@ module.exports = function (router) {
         model: 'currencyAddressesByNetwork'
       }
     })
-
     fetchTokenHolders(leaderboard.leaderboardCurrencyAddressesByNetwork)
 
+  
     res.http200({
       leaderboard: leaderboard
     });
@@ -234,6 +236,29 @@ module.exports = function (router) {
           }
 
           let result = await db.LeaderboardCurrencyAddressesByNetwork.create(innerBody)
+          results.push(result._id)
+        }
+      }
+    }
+
+    return results
+  }
+  
+  async function createLeaderboardStakingContractAddresses(body, model) {
+
+    let results = []
+    if (model && body.leaderboardStakingContractAddresses && body.leaderboardStakingContractAddresses.length > 0) {
+      for (let i = 0; i < body.leaderboardStakingContractAddresses.length; i++) {
+        let count = await db.LeaderboardStakingContractAddresses.count({ stakingContractAddress: body.leaderboardStakingContractAddresses[i], leaderboard: model._id })
+        if (count == 0) {
+
+          let innerBody = {
+            stakingContractAddress: body.leaderboardStakingContractAddresses[i],
+            leaderboard: model._id,
+            isActive: true
+          }
+
+          let result = await db.LeaderboardStakingContractAddresses.create(innerBody)
           results.push(result._id)
         }
       }

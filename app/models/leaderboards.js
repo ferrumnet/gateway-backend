@@ -16,6 +16,7 @@ var LeaderboardsModel = function () {
     updatedByUser: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
     organization: { type: mongoose.Schema.Types.ObjectId, ref: 'organizations', required: true },
     isVisibleForPublicMenuItem: { type: Boolean, default: true },
+    leaderboardStakingContractAddresses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'leaderboardStakingContractAddresses'}],
     stakingContractAddresses: [],
     type: { type: String, enum: { values: ['stake', 'other'], message: 'Invalid type' }, default: 'other' },
     customCurrencyAddressesByNetwork: [
