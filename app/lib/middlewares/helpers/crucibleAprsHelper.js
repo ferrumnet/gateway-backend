@@ -93,11 +93,26 @@ module.exports = {
         const distributorTransactions = []
 
         let dailyRewardAverageValue = 0
+        let count = 0
+        let totalCount = 0
+        let zeroIndexDate;
+        let lastIndexDate;
+
+        if(type == tagLifeTime){
+          totalCount = this.getFilteredTransactionLength(transactions, taxDistributor)
+        }
 
         for (let item of transactions || []) {
-
           if (item.from.toLowerCase() === taxDistributor.toLowerCase()) {
+            if(type == tagLifeTime){
+              count+=1
 
+              if(count == 1){
+                zeroIndexDate = moment(item.timeStamp * 1000)
+              }else if(count == totalCount){
+                lastIndexDate = moment(item.timeStamp * 1000)
+              }
+            }
             distributorTransactions.push(item)
 
             const etherValue = Web3.utils.fromWei(item.value || 0, 'ether')
@@ -112,7 +127,16 @@ module.exports = {
 
         const stakedAmountUsdValue = UnitPrice * stakedAmountValue
 
-        const APR = ((dailyRewardAverageUsdValue * (aprCycle / rewardCycle)) / stakedAmountUsdValue) * 100
+        let APR = ((dailyRewardAverageUsdValue * (aprCycle / rewardCycle)) / stakedAmountUsdValue) * 100
+
+        if(type == tagLifeTime){
+          let lifetimeNumberOfDays = 0
+          if(zeroIndexDate && lastIndexDate){
+            lifetimeNumberOfDays = lastIndexDate.diff(zeroIndexDate, 'days')
+          }
+
+          APR = (((dailyRewardAverageUsdValue/lifetimeNumberOfDays)*aprCycle)/stakedAmountUsdValue)*100
+        }
 
         return {
           APR,
@@ -193,5 +217,18 @@ module.exports = {
     return await db.CrucibleAprsTokens.findOne()
       .sort({ createdAt: -1 })
 
+  },
+  getFilteredTransactionLength(transactions, taxDistributor) {
+    let count = 0
+
+    if(transactions && transactions.length > 0){
+      for (let item of transactions || []) {
+        if (item.from.toLowerCase() === taxDistributor.toLowerCase()) {
+          count+=1
+        }
+      }
+    }
+
+    return count
   },
 }
