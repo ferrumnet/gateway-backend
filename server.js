@@ -21,6 +21,8 @@ mongoose.Promise = require('bluebird');
     } else {
       // global.fetchCompetitionBlocksJob()
       global.fetchCompetitionTransactionsJob()
+      global.multiTokenStakingLeaderboardJob()
+      global.stakingLeaderboardCurrenciesUSDValueJob()
       global.fetchTokenHoldersJob()
       global.fetchTokenHolderBalanceSnapshotEventsJob()
       global.fetchCrucibleApr()
