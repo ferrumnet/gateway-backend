@@ -47,6 +47,28 @@ module.exports = {
         bscScanTokenHolders.findTokenHolders(list[i].currencyAddressesByNetwork)
       }
     }
+  },
+  async createLeaderboardStakingContractAddresses(body, model) {
+
+    let results = []
+    if (model && body.leaderboardStakingContractAddresses && body.leaderboardStakingContractAddresses.length > 0) {
+      for (let i = 0; i < body.leaderboardStakingContractAddresses.length; i++) {
+        let count = await db.LeaderboardStakingContractAddresses.count({ stakingContractAddress: body.leaderboardStakingContractAddresses[i], leaderboard: model._id })
+        if (count == 0) {
+
+          let innerBody = {
+            stakingContractAddress: body.leaderboardStakingContractAddresses[i],
+            leaderboard: model._id,
+            isActive: true
+          }
+
+          let result = await db.LeaderboardStakingContractAddresses.create(innerBody)
+          results.push(result._id)
+        }
+      }
+    }
+
+    return results
   }
 
 }
