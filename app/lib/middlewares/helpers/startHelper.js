@@ -27,8 +27,8 @@ module.exports = {
           starterObject.isCronIntance = 'yes'
           starterObject.isCronEnvironmentSupportedForCompetitionTransactionsSnapshot = 'yes',
           starterObject.isCronEnvironmentSupportedForCrucibleApr = 'yes',
-          isCronEnvironmentSupportedForMultiTokenStakingLeaderboardJob = 'yes',
-          isCronEnvironmentSupportedForStakingLeaderboardCurreniesUSDJob = 'yes'
+          starterObject.isCronEnvironmentSupportedForMultiTokenStakingLeaderboardJob = 'yes',
+          starterObject.isCronEnvironmentSupportedForStakingLeaderboardCurreniesUSDJob = 'yes'
         }
       }
 
