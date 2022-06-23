@@ -28,6 +28,8 @@ module.exports = function (router) {
 
     let leaderboard = await db.Leaderboards.create(req.body)
     leaderboard.leaderboardCurrencyAddressesByNetwork = await leaderboardHelper.createLeaderboardCurrencyAddressesByNetwork(req.body, leaderboard)
+    leaderboard.leaderboardStakingContractAddresses = await leaderboardHelper.createLeaderboardStakingContractAddresses(req.body, leaderboard)
+
     leaderboard = await db.Leaderboards.findOneAndUpdate({ _id: leaderboard }, leaderboard, { new: true }).populate({
       path: 'leaderboardCurrencyAddressesByNetwork',
       populate: {
