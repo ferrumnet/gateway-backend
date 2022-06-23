@@ -9,6 +9,7 @@ const schema = mongoose.Schema(
     totalHoldingUSDValue: { type: Number, default: 0 },
     walletCurrentBalance: { type: String, default: "0" },
     stakedAmount: { type: Number, default: 0},
+    rewardAmount: { type:Number, default: 0},
   },
   {timestamps: true, collection: "stakingLeaderboardHoldingsTracker" }
 );
