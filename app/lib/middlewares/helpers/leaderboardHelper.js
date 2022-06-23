@@ -1,4 +1,4 @@
-const { db, asyncMiddleware, commonFunctions, stringHelper, timeoutHelper, timeoutCallBack, utils } = global
+const { db, asyncMiddleware, commonFunctions, stringHelper, timeoutHelper, timeoutCallBack, utils, bscScanTokenHolders } = global
 var mongoose = require('mongoose');
 
 module.exports = {
