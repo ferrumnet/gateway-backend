@@ -4,10 +4,11 @@ var mongoose = require("mongoose");
 
 const schema = mongoose.Schema(
   {
-    tokenContractAddress: { type: String },
-    TokenUSDValue: { type: String, default: "0" },
+    stakingLeaderboardGrowthTracker:{ type: mongoose.Schema.Types.ObjectId, ref: "stakingLeaderboardGrowthTracker", required: true,},
+    tokenContractAddress: { type: String, required: true},
+    totalHoldingUSDValue: { type: Number, default: 0 },
     walletCurrentBalance: { type: String, default: "0" },
-    stakedAmount: { type: Number, default: "0" },
+    stakedAmount: { type: Number, default: 0},
   },
   {timestamps: true, collection: "stakingLeaderboardHoldingsTracker" }
 );
