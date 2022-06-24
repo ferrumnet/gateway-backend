@@ -21,6 +21,8 @@ mongoose.Promise = require('bluebird');
     } else {
       // global.fetchCompetitionBlocksJob()
       (global as any).fetchCompetitionTransactionsJob();
+      (global as any).multiTokenStakingLeaderboardJob();
+      (global as any).stakingLeaderboardCurrenciesUSDValueJob();
       (global as any).fetchTokenHoldersJob();
       (global as any).fetchTokenHolderBalanceSnapshotEventsJob();
       (global as any).fetchCrucibleApr();
@@ -35,7 +37,7 @@ mongoose.Promise = require('bluebird');
     (global as any).log.info('Server listening on http://localhost:%d', server.address().port);
   });
   (global as any).io = require('socket.io').listen(server);
-  (global as any).io.on('connection', webSockets.newConnection);    
+  (global as any).io.on('connection', webSockets.newConnection);
 
 })().catch(e => {
   console.log(e)

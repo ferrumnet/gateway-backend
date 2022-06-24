@@ -1,5 +1,5 @@
 
-const { db, asyncMiddleware, commonFunctions, stringHelper, bscScanTokenHolders } = global
+const { db, asyncMiddleware, commonFunctions, stringHelper, bscScanTokenHolders, leaderboardHelper } = global
 const mailer = global.mailer;
 var jwt = require('jsonwebtoken');
 var mongoose = require('mongoose');
@@ -23,11 +23,11 @@ module.exports = function (router) {
 
     let leaderboardsCount = await db.Leaderboards.count({ user: req.user._id });
 
-    if (leaderboardsCount > 0) {
+    if (leaderboardsCount > 20) {
       return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorLeaderboardCreateLimit),stringHelper.strErrorLeaderboardCreateLimit,);
     }
 
-    req.body.exclusionWalletAddressList = convertListIntoLowercase(req.body.exclusionWalletAddressList)
+    req.body.exclusionWalletAddressList = leaderboardHelper.convertListIntoLowercase(req.body.exclusionWalletAddressList)
     req.body.user = req.user._id
     req.body.createdByUser = req.user._id
     req.body.updatedByUser = req.user._id
@@ -36,8 +36,14 @@ module.exports = function (router) {
     req.body.createdAt = new Date()
     req.body.updatedAt = new Date()
 
+    if(!req.body.type){
+      req.body.type = 'other'
+    }
+
     let leaderboard = await db.Leaderboards.create(req.body)
-    leaderboard.leaderboardCurrencyAddressesByNetwork = await createLeaderboardCurrencyAddressesByNetwork(req.body, leaderboard)
+    leaderboard.leaderboardCurrencyAddressesByNetwork = await leaderboardHelper.createLeaderboardCurrencyAddressesByNetwork(req.body, leaderboard)
+    leaderboard.leaderboardStakingContractAddresses = await leaderboardHelper.createLeaderboardStakingContractAddresses(req.body, leaderboard)
+
     leaderboard = await db.Leaderboards.findOneAndUpdate({ _id: leaderboard }, leaderboard, { new: true }).populate({
       path: 'leaderboardCurrencyAddressesByNetwork',
       populate: {
@@ -45,8 +51,8 @@ module.exports = function (router) {
         model: 'currencyAddressesByNetwork'
       }
     })
+    leaderboardHelper.fetchTokenHolders(leaderboard.leaderboardCurrencyAddressesByNetwork)
 
-    fetchTokenHolders(leaderboard.leaderboardCurrencyAddressesByNetwork)
 
     res.http200({
       leaderboard: leaderboard
@@ -67,7 +73,7 @@ module.exports = function (router) {
       delete req.body.currencyAddressesByNetwork
     }
 
-    req.body.exclusionWalletAddressList = convertListIntoLowercase(req.body.exclusionWalletAddressList)
+    req.body.exclusionWalletAddressList = leaderboardHelper.convertListIntoLowercase(req.body.exclusionWalletAddressList)
     req.body.nameInLower = (req.body.name).toLowerCase()
     req.body.updatedByUser = req.user._id
     req.body.updatedAt = new Date()
@@ -166,55 +172,41 @@ module.exports = function (router) {
           }
         }
       })
+      .populate({
+        path: 'leaderboardCurrencyAddressesByNetwork',
+        populate: {
+          path: 'currencyAddressesByNetwork',
+          populate: {
+            path: 'currency',
+            model: 'currencies'
+          }
+        }
+      })
+      .populate({
+        path: 'customCurrencyAddressesByNetwork',
+        populate: {
+          path: 'to.currencyAddressesByNetwork',
+          populate: {
+            path: 'currency',
+            model: 'currencies'
+          }
+        }
+      })
+      .populate({
+        path: 'customCurrencyAddressesByNetwork',
+        populate: {
+          path: 'from.currencyAddressesByNetwork',
+          populate: {
+            path: 'currency',
+            model: 'currencies'
+          }
+        }
+      })
 
     return res.http200({
       leaderboard: leaderboard,
     });
 
   });
-
-  function convertListIntoLowercase(list) {
-
-    if (list && list.length > 0) {
-      for (let i = 0; i < list.length; i++) {
-        if (list[i]) {
-          list[i] = list[i].toLowerCase()
-        }
-      }
-    }
-
-    return list
-  }
-
-  async function createLeaderboardCurrencyAddressesByNetwork(body, model) {
-
-    let results = []
-    if (model && body.currencyAddressesByNetwork && body.currencyAddressesByNetwork.length > 0) {
-      for (let i = 0; i < body.currencyAddressesByNetwork.length; i++) {
-        let count = await db.LeaderboardCurrencyAddressesByNetwork.count({ network: body.currencyAddressesByNetwork[i], leaderboard: model._id })
-        if (count == 0) {
-
-          let innerBody = {
-            currencyAddressesByNetwork: body.currencyAddressesByNetwork[i],
-            leaderboard: model._id
-          }
-
-          let result = await db.LeaderboardCurrencyAddressesByNetwork.create(innerBody)
-          results.push(result._id)
-        }
-      }
-    }
-
-    return results
-  }
-
-  function fetchTokenHolders(list) {
-
-    if (list && list.length > 0) {
-      for (let i = 0; i < list.length; i++) {
-        bscScanTokenHolders.findTokenHolders(list[i].currencyAddressesByNetwork)
-      }
-    }
-  }
 
 };

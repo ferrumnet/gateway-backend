@@ -84,50 +84,59 @@ const calcalutePurchaseVolume = (transactions, participants, dexLiquidityPoolCur
    const dex = dexLiquidityPoolCurrencyAddressByNetwork;
    let toIndex = -1;
    let fromIndex = -1;
+   let toStakingContractAddressesIndex = -1;
+   let fromStakingContractAddressesIndex = -1;
    competitionStartBlock = parseInt( competitionStartBlock)
    transactions.forEach((transaction) => {
     if(isNaN(competitionStartBlock) || competitionStartBlock <= parseInt(transaction.blockNumber)){
        toIndex = -1;
        fromIndex = -1;
+       if(leaderboard.stakingContractAddresses && leaderboard.stakingContractAddresses.length > 0){
+        toStakingContractAddressesIndex = leaderboard.stakingContractAddresses.findIndex(stakingContract =>  stakingContract == transaction.to)
+        fromStakingContractAddressesIndex = leaderboard.stakingContractAddresses.findIndex(stakingContract => stakingContract == transaction.from)
+      }
+       
+       if(toStakingContractAddressesIndex == -1 && fromStakingContractAddressesIndex == -1){
+        
+        toIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.to);
+        if(dex != transaction.from){
+          fromIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.from);
+        }
 
-       toIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.to);
-       if(dex != transaction.from){
-        fromIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.from);
-       }
+        let newparticipant = null
+        if(dex != transaction.from ){
+           // -ve growth
+          if(fromIndex == -1){
+             // New participant sell (- growth)
+            newparticipant = getNewParticipantObject(competionId, transaction, transaction.from, '-'+transaction.value)
+            participants.push(newparticipant)
+          }else{
+            // Old participant sell (- growth)
+             participants[fromIndex].growth = subGrowth(participants[fromIndex].growth, transaction.value)
+          }
 
-       let newparticipant = null
-       if(dex != transaction.from){
-          // -ve growth
-         if(fromIndex == -1){
-           // New participant sell (- growth)
-           newparticipant =  getNewParticipantObject(competionId, transaction, transaction.from, '-'+transaction.value)
-           participants.push(newparticipant)
-         }else{
-           // Old participant sell (- growth)
-           participants[fromIndex].growth  = subGrowth(participants[fromIndex].growth, '-'+transaction.value)
-         }
+          if(toIndex == -1 ){
+            // new participant purchases from other then dex (0 growth)
+             let newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, "0")
+             participants.push(newparticipant)
+           }
 
-         if(toIndex == -1 ){
-           // new participant purchases from other then dex (0 growth)
-           let newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, "0")
-           participants.push(newparticipant)
-         }
+          //else{ no need to check old participant purchases from other then dex (0 growth)}
 
-         //else{ no need to check old participant purchases from other then dex (0 growth)}
-
-       }else{
-         //some transaction have multiple records becase some token send transfer fee a saperate records
-         //in case of transfer in,  purchase value = fee + actual amount
-         let transactionValue = calcalutePurchaseAmount(transaction, transactions)
-         if(toIndex == -1){
-           // New participant purchases from dex (growth = transaction.value)
-           newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, transactionValue)
-           participants.push(newparticipant)
-         }else{
-           // // old participant purchases from dex (+ growth)
-           participants[toIndex].growth  =  addGrowth(participants[toIndex].growth, transactionValue)
-         }
-       }
+        }else{
+          //some transaction have multiple records becase some token send transfer fee a saperate records
+          //in case of transfer in,  purchase value = fee + actual amount
+           let transactionValue = calcalutePurchaseAmount(transaction, transactions)
+          if(toIndex == -1){
+             // New participant purchases from dex (growth = transaction.value)
+            newparticipant =  getNewParticipantObject(competionId, transaction, transaction.to, transactionValue)
+            participants.push(newparticipant)
+          }else{
+             // // old participant purchases from dex (+ growth)
+             participants[toIndex].growth  =  addGrowth(participants[toIndex].growth, transactionValue)
+          }
+        }//else
+      }
      }
    });
 
