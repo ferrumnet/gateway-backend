@@ -2,7 +2,7 @@
 
 var mongoose = require("mongoose");
 
-const schema = mongoose.Schema(
+var schema = mongoose.Schema(
   {
     blockNumberRange: [{ type: String }],
     currentBlockNumber: {type:String, default:"0"},
@@ -15,5 +15,5 @@ const schema = mongoose.Schema(
    },
 );
 
-const CompetitionTransactionsSnapshotsMeta = mongoose.model("CompetitionTransactionsSnapshotsMeta", schema);
-module.exports = CompetitionTransactionsSnapshotsMeta;
+var competitionTransactionsSnapshotsMeta = mongoose.model("CompetitionTransactionsSnapshotsMeta", schema);
+module.exports = competitionTransactionsSnapshotsMeta;

@@ -24,16 +24,16 @@ var productSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-productSchema.pre("save", async function (next) {
-  this.nameInLower = this.name;
+productSchema.pre("save", async function (next: any) {
+  productSchema.nameInLower = productSchema.name;
   next();
 });
 
-productSchema.pre("findOneAndUpdate", async function (next) {
-  if(this._update.name)
-  this._update.nameInLower = this._update.name;
+productSchema.pre("findOneAndUpdate", async function (next: any) {
+  if(productSchema._update.name)
+  productSchema._update.nameInLower = productSchema._update.name;
   next();
 });
 
-const Product = mongoose.model("Product", productSchema);
+var Product = mongoose.model("Product", productSchema);
 module.exports = Product;

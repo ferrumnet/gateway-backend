@@ -2,7 +2,7 @@
 
 var mongoose = require("mongoose");
 
-const schema = mongoose.Schema(
+var schema = mongoose.Schema(
   {
     blockNumber: { type: String  },
     timeStamp: { type: String },
@@ -32,5 +32,5 @@ const schema = mongoose.Schema(
    },
 );
 
-const CompetitionTransactionsSnapshots = mongoose.model("CompetitionTransactionsSnapshots", schema);
-module.exports = CompetitionTransactionsSnapshots;
+var competitionTransactionsSnapshots = mongoose.model("CompetitionTransactionsSnapshots", schema);
+module.exports = competitionTransactionsSnapshots;

@@ -7,7 +7,7 @@ var gmailConfig = require('../../config/config.json').gmail;
 gmailConfig.auth.user = (global as any).environment.SMTPUser
 gmailConfig.auth.pass = (global as any).environment.SMTPPass
 var nodemailer = nodemailer.createTransport(smtpTransport(gmailConfig));
-const fs = require('fs')
+var fs = require('fs')
 
 module.exports = function () {
   const mailer: any = {};

@@ -2,7 +2,7 @@
 
 var mongoose = require("mongoose");
 
-const schema = mongoose.Schema(
+var schema = mongoose.Schema(
   {
     stakingContract: {
       type: mongoose.Schema.Types.ObjectId,
@@ -19,7 +19,7 @@ const schema = mongoose.Schema(
   { collection: "stakingLeaderboardGrowthTracker" }
 );
 
-const StakingLeaderboardGrowthTracker = mongoose.model(
+var StakingLeaderboardGrowthTracker = mongoose.model(
   "stakingLeaderboardGrowthTracker",
   schema
 );

@@ -2,7 +2,7 @@
 
 var mongoose = require("mongoose");
 
-const schema = mongoose.Schema(
+var schema = mongoose.Schema(
   {
        competition: { type: mongoose.Schema.Types.ObjectId, ref: 'Competitions', required: true },
        tokenContractAddress:{ type: String },
@@ -16,5 +16,5 @@ const schema = mongoose.Schema(
     }, { collection: 'competitionGrowthTracker'}
 );
 
-const CompetitionGrowthTracker = mongoose.model("CompetitionGrowthTracker", schema);
-module.exports = CompetitionGrowthTracker;
+var competitionGrowthTracker = mongoose.model("CompetitionGrowthTracker", schema);
+module.exports = competitionGrowthTracker;

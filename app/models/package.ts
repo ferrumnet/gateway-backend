@@ -1,8 +1,7 @@
 "use strict";
-
 var mongoose = require("mongoose");
 
-const packageSchema = mongoose.Schema(
+var packageSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
     nameInLower: { type: String, lowercase: true },
@@ -13,8 +12,8 @@ const packageSchema = mongoose.Schema(
     createdByUser: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     price: {  
       type: Number,
-      get: v => (v/100).toFixed(2),
-      set: v => v*100
+      get: (v: any) => (v/100).toFixed(2),
+      set: (v: any) => v*100
   },
   },
   {
@@ -24,16 +23,16 @@ const packageSchema = mongoose.Schema(
 
 );
 
-packageSchema.pre("save", async function (next) {
-  this.nameInLower = this.name;
+packageSchema.pre("save", async function (next: any) {
+  packageSchema.nameInLower = packageSchema.name;
   next();
 });
 
-packageSchema.pre("findOneAndUpdate", async function (next) {
-  if(this._update.name)
-  this._update.nameInLower = this._update.name;
+packageSchema.pre("findOneAndUpdate", async function (next: any) {
+  if(packageSchema._update.name)
+  packageSchema._update.nameInLower = packageSchema._update.name;
   next();
 });
 
-const Package = mongoose.model("Package", packageSchema);
+var Package = mongoose.model("Package", packageSchema);
 module.exports = Package;
