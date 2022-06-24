@@ -2,34 +2,34 @@ mSLGTrackerHelper = global.mSLGTrackerHelper;
 const Web3= require("web3")
 
 module.exports = {
-  async updateParticipantsStakingHoldings(wallestBalances, participantsHoldings, stakingContractId ,cabsValueInUsd) {
+  async updateParticipantsStakingHoldings(wallestBalances, participantsHoldings, stakingContractId ,cabsValueInUsd, leaderboardId) {
     let holdingsData = this.prepareHoldingsData(wallestBalances, participantsHoldings, cabsValueInUsd);
     //store updated holdings
     if (holdingsData.holdings.length > 0) await mSLGTrackerHelper.updateStakesHolderHoldings(holdingsData.holdings);
     
     // store new holdings 
     if (holdingsData.notFoundHoldings.length > 0) {
-      let newParticipants = await this.storeNewParticipants(holdingsData.notFoundHoldings, stakingContractId);
+      let newParticipants = await this.storeNewParticipants(holdingsData.notFoundHoldings, stakingContractId, leaderboardId);
       holdingsData = this.prepareHoldingsData(holdingsData.notFoundHoldings, newParticipants, cabsValueInUsd);
       await mSLGTrackerHelper.updateStakesHolderHoldings(holdingsData.holdings);
     }
   },
   
-  async updateParticipantsStakingGrowth(stakingContractId){
-    let growths = await mSLGTrackerHelper.getParticipantsHoldingsGrowthInUsd(stakingContractId);
+  async updateParticipantsStakingGrowth(leaderboardId){
+    let growths = await mSLGTrackerHelper.getParticipantsHoldingsGrowthInUsd(leaderboardId);
     growths = growths.sort((participant1, participant2) => participant1.totalGrowthInUsd > participant2.totalGrowthInUsd ? -1 : 1 );
     growths = this.calculateRankAndLevelUpAmount(growths);
     await mSLGTrackerHelper.updateStakesHolderGrowth(growths);
   },
 
-  async storeNewParticipants(newHoldings, stakingContract) {
+  async storeNewParticipants(newHoldings, stakingContract, leaderboardId) {
     let uniqueWalletAddresses =new Set();
      newHoldings.forEach((holding) => {
       uniqueWalletAddresses.add( holding.tokenHolderAddress);
     });
     uniqueWalletAddresses = [...uniqueWalletAddresses]
     console.log(uniqueWalletAddresses.length,'uniqueWalletAddresses');
-    let stakingGrowth = uniqueWalletAddresses.map(address => {return {stakeHolderWalletAddress:address, stakingContract}})
+    let stakingGrowth = uniqueWalletAddresses.map(address => {return {stakeHolderWalletAddress:address, stakingContract, leaderboard:leaderboardId}})
     console.log(stakingGrowth.length,'stakingGrowth');
     return await mSLGTrackerHelper.storeStakholdersGrowths(stakingGrowth);
   },

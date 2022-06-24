@@ -40,14 +40,14 @@ module.exports = {
     return await db.StakingLeaderboardGrowthTracker.find({ _id: { $in: ids } });
   },
 
-  async getParticipantsHoldingsGrowthInUsd(stakingContract) {
-    let _ids = await db.StakingLeaderboardGrowthTracker.find({stakingContract}).select("_id");
+  async getParticipantsHoldingsGrowthInUsd(leaderboard) {
+    let _ids = await db.StakingLeaderboardGrowthTracker.find({leaderboard}).select("_id");
     _ids = _ids.map(id => id._id)
     return await db.StakingLeaderboardHoldingsTracker.aggregate([
-    { $match: { stakingLeaderboardGrowthTracker: { $in: _ids } } },
+    { $match: { leaderboard: { $in: _ids } } },
       {
         $group: {
-          _id: "$stakingLeaderboardGrowthTracker",
+          _id: "$leaderboard",
           totalGrowthInUsd: { $sum: "$totalHoldingUSDValue" },
         },
       },
@@ -78,12 +78,12 @@ module.exports = {
   },
 
 
-  async getStakesHolderGrowthWithHoldings(stakingContractsId){
+  async getStakesHolderGrowthWithHoldings(stakingContractsId ){
     let participantsHoldings = await db.StakingLeaderboardGrowthTracker.aggregate([
       {
           '$match': {
               'stakingContract': stakingContractsId
-          },
+          },  
       },
       {
           '$lookup': {
