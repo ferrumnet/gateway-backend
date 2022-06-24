@@ -9,6 +9,7 @@ const schema = mongoose.Schema(
       ref: "stakingContracts",
       required: true,
     },
+    leaderboard: { type: mongoose.Schema.Types.ObjectId, ref: 'leaderboards'},
     stakeHolderWalletAddress: { type: String, required: true},
     growthInUsd: { type: Number, default: "0" },
     levelUpAmountInUsd: { type: Number, default: "0" },

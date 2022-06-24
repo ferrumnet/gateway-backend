@@ -21,24 +21,34 @@ module.exports =  async function () {
 };
 
 async function startJob(){
+  return 0
   console.log("multi token staking leaderboard cron")
   let stakingContracts = await db.StakingsContractsAddresses.find({ isActive: true });
+  console.log(stakingContracts)
   let cabns = getStakingsCabns(stakingContracts)
   let cabsValueInUsd = await getCurrencyAddressesByNetworkUsd(cabns)
   
-  for(let i = 0; i < stakingContracts.length; i++) {
+  
+ 
+  for(let i = 0; i < stakingContracts.length; i++) { 
 
-    let walletsBalancesOfStakeContract = []
-    for(let j = 0; j < stakingContracts[i].currencyAddressesByNetwork.length; j++) {        
-      var walletsBalancesOfCABN = await mSLGTrackerHelper.getWalletsBalancesByCABN(stakingContracts[i].currencyAddressesByNetwork[j])
-      walletsBalancesOfStakeContract = walletsBalancesOfStakeContract.concat(walletsBalancesOfCABN)
-    } 
+   // let walletsBalancesOfStakeContract = []
+   // for(let j = 0; j < stakingContracts[i].currencyAddressesByNetwork.length; j++) {        
+      var walletsBalancesOfStakeContract = await mSLGTrackerHelper.getWalletsBalancesByCABN(stakingContracts[i].currencyAddressesByNetwork)
+      //walletsBalancesOfStakeContract = walletsBalancesOfStakeContract.concat(walletsBalancesOfCABN)
+   // } 
    
-    let participantsHoldings = await mSLGTrackerHelper.getStakesHolderGrowthWithHoldings(stakingContracts[i]._id)                            
-    await mSLGCalculations.updateParticipantsStakingHoldings(walletsBalancesOfStakeContract, participantsHoldings, stakingContracts[i]._id, cabsValueInUsd)
-    await mSLGCalculations.updateParticipantsStakingGrowth(stakingContracts[i]._id)
-    console.log(`${stakingContracts[i]._id} contract calcuation completed`)                                           
-    }  
+    let participantsHoldings = await mSLGTrackerHelper.getStakesHolderGrowthWithHoldings(stakingContracts[i]._id)  // get holdings with leaderboard                          
+    await mSLGCalculations.updateParticipantsStakingHoldings(walletsBalancesOfStakeContract, participantsHoldings, stakingContracts[i]._id, cabsValueInUsd, stakingContracts[i].leaderboard)
+                                             
+    }
+
+
+    for(let i = 0; i < stakingContracts.length; i++) { 
+    await mSLGCalculations.updateParticipantsStakingGrowth(stakingContracts[i].leaderboard) // move in other loop
+    }
+
+    console.log(`${stakingContracts[i]._id} contract calcuation completed`)   
 }
 
 function getStakingsCabns(stakingContracts){
