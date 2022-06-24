@@ -2,7 +2,7 @@
 
 var mongoose = require("mongoose");
 
-const schema = mongoose.Schema(
+var schema = mongoose.Schema(
   {
     organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organizations', required: true  },
     package: { type: mongoose.Schema.Types.ObjectId, ref: 'Package', required: true  },
@@ -14,5 +14,5 @@ const schema = mongoose.Schema(
   { timestamps: true },
 );
 
-const Subscription = mongoose.model("Subscription", schema);
+var Subscription = mongoose.model("Subscription", schema);
 module.exports = Subscription;

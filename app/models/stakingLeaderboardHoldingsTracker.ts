@@ -1,8 +1,7 @@
 "use strict";
-
 var mongoose = require("mongoose");
 
-const schema = mongoose.Schema(
+var schema = mongoose.Schema(
   {
     stakingLeaderboardGrowthTracker:{ type: mongoose.Schema.Types.ObjectId, ref: "stakingLeaderboardGrowthTracker", required: true,},
     tokenContractAddress: { type: String, required: true},
@@ -14,7 +13,7 @@ const schema = mongoose.Schema(
   {timestamps: true, collection: "stakingLeaderboardHoldingsTracker" }
 );
 
-const StakingLeaderboardHoldingsTracker = mongoose.model(
+var StakingLeaderboardHoldingsTracker = mongoose.model(
   "stakingLeaderboardHoldingsTracker",
   schema
 );

@@ -2,7 +2,7 @@
 
 var mongoose = require("mongoose");
 
-const schema = mongoose.Schema(
+var schema = mongoose.Schema(
   {
     type: { type: String, enum : {values: ['manual','schedule'], message: 'Invalid type'}, default: 'manual'},
     triggeredSnapshotDateTime: { type: Date, required: true, default: new Date() },
@@ -26,5 +26,5 @@ const schema = mongoose.Schema(
 
 );
 
-const TokenHolderBalanceSnapshotEvents = mongoose.model("TokenHolderBalanceSnapshotEvents", schema);
+var TokenHolderBalanceSnapshotEvents = mongoose.model("TokenHolderBalanceSnapshotEvents", schema);
 module.exports = TokenHolderBalanceSnapshotEvents;

@@ -1,8 +1,7 @@
 "use strict";
-
 var mongoose = require("mongoose");
 
-const schema = mongoose.Schema(
+var schema = mongoose.Schema(
   {
        cronName:{ type: String, required:true, unique: true },
        isActive:{type:Boolean, default: true},
@@ -14,5 +13,5 @@ const schema = mongoose.Schema(
   }
 );
 
-const TemporaryPauseCrons = mongoose.model("TemporaryPauseCrons", schema);
+var TemporaryPauseCrons = mongoose.model("TemporaryPauseCrons", schema);
 module.exports = TemporaryPauseCrons;
