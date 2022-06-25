@@ -1,0 +1,164 @@
+import { reject } from "bluebird";
+
+var https = require('https');
+var totalThreshold = 0
+
+const findTokenHolders = async (model: any, isFromSnapshotEvent = false) => {
+  totalThreshold = 2
+  sendCallForBlockNo(model, isFromSnapshotEvent)
+}
+
+const sendCallForBlockNo = async (model: any, isFromSnapshotEvent: any) => {
+  let timestamp = Math.round(new Date().getTime() / 1000).toString();
+  console.log(timestamp);
+
+  let config = {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+
+  let path = `/api?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=${(global as any).environment.bscscanApiKey}`
+  console.log(path)
+  var options = {
+    hostname: (global as any).environment.bscscanHostName,
+    path: path,
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+
+  const request = https.request(options, (res: any) => {
+    let data = '';
+    console.log(`statusCode: ${res.statusCode}`)
+    res.on('data', (chunk: any) => {
+      data += chunk;
+    })
+    if (res.statusCode === 202 || res.statusCode === 201 || res.statusCode === 200) {
+      res.on('end', () => {
+        var res = JSON.parse(data);
+        if (res && res.result) {
+          model.currentBlock = res.result
+          sendCallForTokenHolders(model, isFromSnapshotEvent)
+        }
+      });
+    } else {
+      res.on('end', () => {
+        var obj = JSON.parse(data);
+        console.log(obj)
+      });
+    }
+  })
+
+  request.on('error', (error: any) => {
+    reject(error)
+  })
+  request.end()
+
+}
+
+const sendCallForTokenHolders = async (model: any, isFromSnapshotEvent: any) => {
+  let tokenContractAddress = ''
+
+  if (model.tokenContractAddress) {
+    tokenContractAddress = model.tokenContractAddress
+  }
+
+  let config = {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+
+  let path = `/api?module=token&action=tokenholderlist&contractaddress=${tokenContractAddress}&apikey=${(global as any).environment.bscscanApiKey}`
+  console.log(path)
+  var options = {
+    hostname: (global as any).environment.bscscanHostName,
+    path: path,
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+
+  const request = https.request(options, (res: any) => {
+    let data = '';
+    console.log(`statusCode: ${res.statusCode}`)
+    res.on('data', (chunk: any) => {
+      data += chunk;
+    })
+    if (res.statusCode === 202 || res.statusCode === 201 || res.statusCode === 200) {
+      res.on('end', () => {
+        var res = JSON.parse(data);
+        if (res && res.result && typeof res.result != 'string' && res.result.length > 0) {
+          updateTokenHolders(model, res.result, isFromSnapshotEvent)
+        }else {
+          if (isFromSnapshotEvent) {
+            if(totalThreshold > 0){
+              totalThreshold = totalThreshold -1
+              sendCallForTokenHolders(model, isFromSnapshotEvent)
+            }else {
+              if(res.message){
+                let update = {status: 'failed', errorMessage: res.message}
+                updateTokenHolderBalanceSnapshotEvent(model, update)
+              }
+            }
+          }
+        }
+      });
+    } else {
+      res.on('end', () => {
+        var obj = JSON.parse(data);
+        console.log(obj)
+      });
+    }
+  })
+
+  request.on('error', (error: any) => {
+    reject(error)
+  })
+  request.end()
+
+}
+
+const updateTokenHolders = async (model: any, result: any, isFromSnapshotEvent: any) => {
+  console.log('============result============')
+  console.log(result.length)
+  console.log(model)
+
+  if (result && result.length > 0) {
+    for (let i = 0; i < result.length; i++) {
+      if (isFromSnapshotEvent) {
+        result[i].tokenHolderBalanceSnapshotEvent = model.tokenHolderBalanceSnapshotEvent
+      }
+      result[i].currencyAddressesByNetwork = model._id
+      result[i].tokenContractAddress = model.tokenContractAddress
+      result[i].currentBlock = model.currentBlock
+      result[i].tokenHolderAddress = result[i].TokenHolderAddress
+      result[i].tokenHolderQuantity = result[i].TokenHolderQuantity
+      result[i].createdAt = new Date()
+      result[i].updatedAt = new Date()
+    }
+
+    if (isFromSnapshotEvent) {
+      await db.TokenHoldersBalanceSnapshots.insertMany(result)
+      let update = {status: 'completed', errorMessage: 'success'}
+      updateTokenHolderBalanceSnapshotEvent(model, update)
+    } else {
+      await db.TokenHoldersCurrencyAddressesByNetwork.deleteMany({ currencyAddressesByNetwork: model._id })
+      await db.TokenHoldersCurrencyAddressesByNetwork.insertMany(result)
+
+      await db.TokenHoldersCurrencyAddressesByNetworkSnapShot.deleteMany({ currencyAddressesByNetwork: model._id })
+      await db.TokenHoldersCurrencyAddressesByNetworkSnapShot.insertMany(result)
+    }
+  }
+
+}
+
+const updateTokenHolderBalanceSnapshotEvent = async (model: any, update: any) => {
+  await db.TokenHolderBalanceSnapshotEvents.findOneAndUpdate({ _id: model.tokenHolderBalanceSnapshotEvent }, update, { new: true })
+}
+
+
+module.exports.findTokenHolders = findTokenHolders;
