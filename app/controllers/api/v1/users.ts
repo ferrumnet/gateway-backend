@@ -1,9 +1,7 @@
 
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global
+module.exports = function (router: any) {
 
-module.exports = function (router) {
-
-  router.post('/forgot-password', async (req, res) => {
+  router.post('/forgot-password', async (req: any, res: any) => {
 
     if (!req.body.email || !req.body.url || !req.body.role) {
       return res.http400('email & url & role are required.');
@@ -17,10 +15,10 @@ module.exports = function (router) {
         '_id': user._id
       }
 
-      var token = global.commonFunctions.createToken(planObject, '600s')
+      var token = (global as any).commonFunctions.createToken(planObject, '600s')
       user = await db.Users.findOneAndUpdate({ _id: user._id }, { forgotPasswordAuthenticationToken: token }, { new: true })
       user.link = req.body.url + token
-      global.sendGrid.sendGridEmail(user, 'link')
+      (global as any).sendGrid.sendGridEmail(user, 'link')
 
     }
 
@@ -32,14 +30,14 @@ module.exports = function (router) {
 
   });
 
-  router.post('/forgot-password/authenticate/link', async (req, res) => {
+  router.post('/forgot-password/authenticate/link', async (req: any, res: any) => {
 
     if (!req.body.token) {
       return res.http400('token is required');
     }
 
     try {
-      let decoded = await global.commonFunctions.decodeAPiToken(req.body.token)
+      let decoded = await (global as any).commonFunctions.decodeAPiToken(req.body.token)
 
       if (!decoded) {
         return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorLinkMessage),stringHelper.strErrorLinkMessage,);
@@ -63,7 +61,7 @@ module.exports = function (router) {
     }
   });
 
-  router.put('/reset-password', async (req, res) => {
+  router.put('/reset-password', async (req: any, res: any) => {
 
     try {
 
@@ -91,19 +89,19 @@ module.exports = function (router) {
 
   });
 
-  router.post('/re-send/email/otp', async (req, res) => {
+  router.post('/re-send/email/otp', async (req: any, res: any) => {
 
     if (!req.body.email) {
       return res.http400('email is required.');
     }
 
     let where = { email: req.body.email }
-    let update = { emailVerificationCode: global.helper.getOtp(), emailVerificationCodeGenratedAt: new Date() };
+    let update = { emailVerificationCode: (global as any).helper.getOtp(), emailVerificationCodeGenratedAt: new Date() };
 
     let user = await db.Users.findOneAndUpdate(where, update, { new: true })
 
     if (user) {
-      global.sendGrid.sendGridEmail(user)
+      (global as any).sendGrid.sendGridEmail(user)
       return res.http200({
         message: await commonFunctions.getValueFromStringsPhrase(stringHelper.strSuccessOtp),
         phraseKey: stringHelper.strSuccessOtp,
@@ -114,7 +112,7 @@ module.exports = function (router) {
 
   });
 
-  router.post('/authenticate/email/otp', async (req, res) => {
+  router.post('/authenticate/email/otp', async (req: any, res: any) => {
 
     if (!req.body.email) {
       return res.http400('email is required.');
@@ -124,7 +122,7 @@ module.exports = function (router) {
       return res.http400('One Time Password (OTP) is required.');
     }
 
-    let query = {};
+    let query: any = {};
     query.email = req.body.email;
     query.emailVerificationCode = req.body.emailVerificationCode;
 
@@ -132,13 +130,13 @@ module.exports = function (router) {
 
     if (user) {
 
-      if(global.helper.diffInMinuts(new Date(), user.emailVerificationCodeGenratedAt) > 10){
+      if((global as any).helper.diffInMinuts(new Date(), user.emailVerificationCodeGenratedAt) > 10){
         return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorInvalidOtp),stringHelper.strErrorInvalidOtp,);
       }
 
       let update = { isEmailAuthenticated: true };
       db.Users.findOneAndUpdate({ _id: user._id }, update, { new: true })
-        .then((user) => {
+        .then((user: any) => {
           return res.http200({
             user: user.toClientObject(),
             token: user.createAPIToken(user)

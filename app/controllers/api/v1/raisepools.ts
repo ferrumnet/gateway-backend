@@ -1,14 +1,9 @@
+module.exports = function (router: any) {
 
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global
-const mailer = global.mailer;
-var mongoose = require('mongoose');
+  router.get('/list', async (req: any, res: any) => {
 
-module.exports = function (router) {
-
-  router.get('/list', async (req, res) => {
-
-    var filter = {}
-    var sort = { startDateTime: 1 }
+    var filter: any = {}
+    var sort: any = { startDateTime: 1 }
 
     if(req.query.search){
       let reg = new RegExp(unescape(req.query.search), 'i');
@@ -41,7 +36,7 @@ module.exports = function (router) {
 
   });
 
-  router.get('/:id', async (req, res) => {
+  router.get('/:id', async (req: any, res: any) => {
     let filter = {}
     filter = { _id: req.params.id }
 

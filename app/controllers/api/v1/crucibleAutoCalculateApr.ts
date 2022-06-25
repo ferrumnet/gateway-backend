@@ -1,11 +1,8 @@
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global
-var mongoose , {isValidObjectId} = require('mongoose');
-var bscScanHelper = global.bscScanHelper;
-const Web3= require("web3")
+var Web3= require("web3")
 
-module.exports = function (router) {
+module.exports = function (router: any) {
 
-  router.get('/calculate', async (req, res) => {
+  router.get('/calculate', async (req: any, res: any) => {
 
     const rs  = []
 
@@ -29,7 +26,7 @@ module.exports = function (router) {
         // }
     ]
 
-    const calculateApr = async (tokenContract,symbol) => {
+    const calculateApr = async (tokenContract: any,symbol: any) => {
 
         const skakingContract = "0x35E15ff9eBB37D8C7A413fD85BaD515396DC8008"
 
@@ -85,7 +82,6 @@ module.exports = function (router) {
         const APR = ((dailyRewardAverageUsdValue * ( aprCycle / rewardCycle ) ) / stakedAmountUsdValue) * 100
 
         return {
-            APR,
             "price": UnitPrice,
             "volumeOfRewardsDistributedInThePast24Hours": dailyRewardAverageValue,
             "totalStake": stakedAmountValue,

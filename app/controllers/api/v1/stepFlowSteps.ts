@@ -1,15 +1,14 @@
-const { db, } = global
 var mongoose = require('mongoose');
 
-module.exports = function (router) {
+module.exports = function (router: any) {
 
-    router.get('/:id', async (req, res) => {
+    router.get('/:id', async (req: any, res: any) => {
      
         if(!mongoose.Types.ObjectId.isValid(req.params.id)){
             return res.http400('Invalid id provided');
         }
 
-        filter = { stepsFlow: req.params.id }
+        let filter = { stepsFlow: req.params.id }
 
         const stepFlow = await db.StepFlowSteps.find(filter)
         .populate('step','name')

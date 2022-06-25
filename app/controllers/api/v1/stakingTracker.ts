@@ -1,9 +1,8 @@
-const { db, asyncMiddleware, stakingTrackerHelper } = global;
+module.exports = function (router: any) {
 
-module.exports = function (router) {
   router.get(
     "/list/stakingContractAddress/:stakingContractAddress/currencyAddressesByNetwork/:currencyAddressesByNetwork",
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async (req: any, res: any) => {
       const cabn = await db.CurrencyAddressesByNetwork.findOne({
         _id: req.params.currencyAddressesByNetwork,
       });
@@ -17,4 +16,5 @@ module.exports = function (router) {
       return res.http404("CABN not found");
     })
   );
+
 };

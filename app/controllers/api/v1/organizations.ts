@@ -1,18 +1,8 @@
+module.exports = function (router: any) {
 
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global
-const mailer = global.mailer;
-var jwt = require('jsonwebtoken');
-var mongoose = require('mongoose');
-var fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
-var path = require('path');
-var ejs = require("ejs");
+  router.get('/', async (req: any, res: any) => {
 
-module.exports = function (router) {
-
-  router.get('/', async (req, res) => {
-
-    var filter = {}
+    var filter: any = {}
     let count = 0
 
     if(req.query.search){
@@ -26,9 +16,9 @@ module.exports = function (router) {
 
   });
 
-  router.get('/:id', async (req, res) => {
+  router.get('/:id', async (req: any, res: any) => {
 
-    let filter = {}
+    let filter: any = {}
     filter._id = req.params.id
     filter.isActive = true
 
@@ -42,10 +32,10 @@ module.exports = function (router) {
     return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorNotFoundOrganization),stringHelper.strErrorNotFoundOrganization,);
   });
 
-  router.get('/:id/leaderboards', async (req, res) => {
+  router.get('/:id/leaderboards', async (req: any, res: any) => {
 
-    let userFilter = {}
-    let leaderboardFilter = {isPublished: true, status: 'approved'}
+    let userFilter: any = {}
+    let leaderboardFilter: any = {isPublished: true, status: 'approved'}
     let leaderboards = []
     let sort = { createdAt: -1 }
 
@@ -78,10 +68,10 @@ module.exports = function (router) {
 
   });
 
-  router.get('/:id/competitions', async (req, res) => {
+  router.get('/:id/competitions', async (req: any, res: any) => {
 
-    let userFilter = {}
-    let competitionFilter = {}
+    let userFilter: any = {}
+    let competitionFilter: any = {}
     let competitions = []
     let sort = { createdAt: -1 }
 
@@ -119,7 +109,7 @@ module.exports = function (router) {
 
   });
 
-  async function getUserIds(userFilter){
+  async function getUserIds(userFilter: any){
     return await db.Users.find(userFilter).distinct('_id')
   }
 

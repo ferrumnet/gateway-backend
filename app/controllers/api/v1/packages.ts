@@ -1,10 +1,7 @@
-const { asyncMiddleware, commonFunctions, utils } = global;
+module.exports = function (router: any) {
 
-
-module.exports = function (router) {
-
-    router.get("/list", asyncMiddleware(async (req, res) => {
-      var filter = {isActive:true}
+    router.get("/list", asyncMiddleware(async (req: any, res: any) => {
+      var filter: any = {isActive:true}
       let packages = []
   
       if (req.query.search) {

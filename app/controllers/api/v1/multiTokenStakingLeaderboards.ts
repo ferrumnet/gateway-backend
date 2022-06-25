@@ -1,17 +1,13 @@
-var mongoose = require('mongoose');
-const { db, asyncMiddleware } = global
-const Web3= require("web3")
-const ApeRouterJson = require("../../../../config/apeRouterAbi.json")
+var Web3= require("web3")
 
-module.exports = function (router) {
- 
-
-  router.get('/:id/growth', asyncMiddleware(async (req, res) => {
+module.exports = function (router: any) {
+  
+  router.get('/:id/growth', asyncMiddleware(async (req: any, res: any) => {
     let filter = {}
     filter = { _id: req.params.id, isPublished: true, status: 'approved' }
     let leaderboard = await db.Leaderboards.findOne(filter).populate('leaderboardStakingContractAddresses')
     if(leaderboard &&  leaderboard.leaderboardStakingContractAddresses.length > 0){     
-      let stakingIds = leaderboard.leaderboardStakingContractAddresses.map(item => item.stakingContractAddress) 
+      let stakingIds = leaderboard.leaderboardStakingContractAddresses.map((item: any) => item.stakingContractAddress) 
       let participants = await db.StakingLeaderboardGrowthTracker.aggregate([
         {
           '$match': {

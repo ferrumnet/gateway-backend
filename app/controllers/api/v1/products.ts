@@ -1,18 +1,15 @@
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global
-var jwt = require('jsonwebtoken');
+module.exports = function (router: any) {
 
-module.exports = function (router) {
-
-  router.get('/menu', async (req, res) => {
+  router.get('/menu', async (req: any, res: any) => {
 
     var matchMetatDataFilter = {}
     let metaDataAndFilter = []
-    let sort = { 'menuPosition.communityMemberPosition': 1 }
-    let filter = {}
+    let sort: any = { 'menuPosition.communityMemberPosition': 1 }
+    let filter: any = {}
     let organization = ''
 
     if (req.headers.authorization) {
-      const decoded = jwt.verify(req.headers.authorization.split(' ')[1], global.environment.jwtSecret)
+      const decoded = jwt.verify(req.headers.authorization.split(' ')[1], (global as any).environment.jwtSecret)
       req.user = await db.Users.findOne({ _id: decoded._id });
     }
 
@@ -59,7 +56,7 @@ module.exports = function (router) {
 
   });
 
-  async function adjustMenuItems(products, req, organization) {
+  async function adjustMenuItems(products: any, req: any, organization: any) {
     if (products && products.length > 0) {
       for (let i = 0; i < products.length; i++) {
         let product = products[i]
@@ -89,10 +86,10 @@ module.exports = function (router) {
     }
   }
 
-  async function findLeaderboardsForMenu(product, organization, req) {
+  async function findLeaderboardsForMenu(product: any, organization: any, req: any) {
 
     var items = []
-    var filter = {}
+    var filter: any = {}
     filter.organization = organization._id
     if (req.user && req.user.role != null && req.user.role == 'organizationAdmin') {
     }else {
@@ -132,10 +129,10 @@ module.exports = function (router) {
     return items
   }
 
-  async function findCompetitionsForMenu(product, organization, req) {
+  async function findCompetitionsForMenu(product: any, organization: any, req: any) {
 
     var items = []
-    var filter = {}
+    var filter: any = {}
     filter.organization = organization._id
     if (req.user && req.user.role && req.user.role == 'organizationAdmin') {
     }else {
@@ -183,10 +180,10 @@ module.exports = function (router) {
     return items
   }
 
-  async function findCurrenciesForMenu(product, organization, req) {
+  async function findCurrenciesForMenu(product: any, organization: any, req: any) {
 
     var items = []
-    var filter = {}
+    var filter: any = {}
     filter.createdByOrganization = organization._id
     if (req.user && req.user.role && req.user.role == 'organizationAdmin') {
     }else {
@@ -218,7 +215,7 @@ module.exports = function (router) {
     return items
   }
 
-  function getItemFromMetaData(product, key) {
+  function getItemFromMetaData(product: any, key: any) {
 
     let data = product.metaData
     if (data && data.length > 0) {

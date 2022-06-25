@@ -1,24 +1,15 @@
+module.exports = function (router: any) {
 
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global
-const mailer = global.mailer;
-var jwt = require('jsonwebtoken');
-var mongoose = require('mongoose');
-var fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
-var path = require('path');
-var ejs = require("ejs");
-
-module.exports = function (router) {
-
-  router.get('/:id', async (req, res) => {
+  router.get('/:id', async (req: any, res: any) => {
 
     let daysLeftToStart = 0
     let daysLeftToEnd = 0
     let minutesLeftToStart = 0
     let minutesLeftToEnd = 0
     let isStartToday = false
+    let isEndToday = false
 
-    let filter = {}
+    let filter: any = {}
     filter._id = req.params.id
     filter.$or = [
       { status: { $eq: 'published' } },
@@ -68,14 +59,14 @@ module.exports = function (router) {
 
       if (leaderboard && user) {
 
-        daysLeftToStart = global.helper.diffInDays(competition.startDate, new Date())
-        daysLeftToEnd = global.helper.diffInDays(competition.endDate, new Date())
+        daysLeftToStart = (global as any).helper.diffInDays(competition.startDate, new Date())
+        daysLeftToEnd = (global as any).helper.diffInDays(competition.endDate, new Date())
 
-        minutesLeftToStart = global.helper.diffInMinuts(competition.startDate, new Date())
-        minutesLeftToEnd = global.helper.diffInMinuts(competition.endDate, new Date())
+        minutesLeftToStart = (global as any).helper.diffInMinuts(competition.startDate, new Date())
+        minutesLeftToEnd = (global as any).helper.diffInMinuts(competition.endDate, new Date())
 
-        isStartToday = global.helper.isToday(competition.startDate)
-        isEndToday = global.helper.isToday(competition.endDate)
+        isStartToday = (global as any).helper.isToday(competition.startDate)
+        isEndToday = (global as any).helper.isToday(competition.endDate)
 
         // if(competition.status == 'started' && !competition.startBlock){
         //   let jobId = await db.Jobs.findOne({competition: competition._id}).distinct('_id')
@@ -103,9 +94,9 @@ module.exports = function (router) {
     return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorTheCompetitionIDIsIncorrectOrNotAvailable),stringHelper.strErrorTheCompetitionIDIsIncorrectOrNotAvailable);
   });
 
-  router.get('/by/leaderboard/:id', async (req, res) => {
+  router.get('/by/leaderboard/:id', async (req: any, res: any) => {
 
-    let competitionFilter = {}
+    let competitionFilter: any = {}
     let competitions = []
     let sort = { createdAt: -1 }
 
@@ -142,9 +133,9 @@ module.exports = function (router) {
 
   });
 
-  router.get("/participants/growth/:competition",asyncMiddleware(async (req, res) => {
+  router.get("/participants/growth/:competition",asyncMiddleware(async (req: any, res: any) => {
     let excludedWalletAddress = req.query.withExcludedWalletAddress == "true" ? true : false
-    let filter = {competition: req.params.competition}
+    let filter: any = {competition: req.params.competition}
     let participants = []
     let sort = { rank: 1 }
     if(!excludedWalletAddress){
@@ -161,8 +152,8 @@ module.exports = function (router) {
     })
   )
 
-  router.get('/transactions/by/contractAddress/:contractAddress', asyncMiddleware(async (req, res) => {
-    let filter = {contractAddress:req.params.contractAddress}
+  router.get('/transactions/by/contractAddress/:contractAddress', asyncMiddleware(async (req: any, res: any) => {
+    let filter: any = {contractAddress:req.params.contractAddress}
     let transactions = []
     let sort = { rank: 1 }
 

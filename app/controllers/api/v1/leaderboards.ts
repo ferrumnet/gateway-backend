@@ -1,16 +1,6 @@
+module.exports = function (router: any) {
 
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global
-const mailer = global.mailer;
-var jwt = require('jsonwebtoken');
-var mongoose = require('mongoose');
-var fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
-var path = require('path');
-var ejs = require("ejs");
-
-module.exports = function (router) {
-
-  router.get('/', async (req, res) => {
+  router.get('/', async (req: any, res: any) => {
 
     return res.http200({
       message: 'success'
@@ -18,7 +8,7 @@ module.exports = function (router) {
 
   });
 
-  router.get('/:id', async (req, res) => {
+  router.get('/:id', async (req: any, res: any) => {
 
     let filter = {}
     filter = { _id: req.params.id, isPublished: true, status: 'approved' }

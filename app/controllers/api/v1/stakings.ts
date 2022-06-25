@@ -1,7 +1,6 @@
-const { db, stakingHelper } = global;
+module.exports = function (router: any) {
 
-module.exports = function (router) {
-  router.post("/create", async (req, res) => {
+  router.post("/create", async (req: any, res: any) => {
     if (
       !req.body.tokenAddress ||
       !req.body.stakingCapital ||
@@ -22,7 +21,7 @@ module.exports = function (router) {
     });
   });
 
-  router.patch("/:id/deploy", async (req, res) => {
+  router.patch("/:id/deploy", async (req: any, res: any) => {
     // console.log("params", req.params.id);
     // if (!req.params.id) {
     //   return res.http400("Staking id is required.");
@@ -65,7 +64,7 @@ module.exports = function (router) {
     return res.http200({});
   });
 
-  router.patch("/:id/setup", async (req, res) => {
+  router.patch("/:id/setup", async (req: any, res: any) => {
     // console.log("params", req.params.id);
     try {
       if (!req.params.id) {
@@ -97,7 +96,7 @@ module.exports = function (router) {
     return res.http200({});
   });
 
-  router.patch("/:id/add-reward", async (req, res) => {
+  router.patch("/:id/add-reward", async (req: any, res: any) => {
     // console.log("params", req.params.id);
     try {
       if (!req.params.id) {
@@ -131,7 +130,7 @@ module.exports = function (router) {
     return res.http200({});
   });
 
-  router.get("/list", async (req, res) => {
+  router.get("/list", async (req: any, res: any) => {
     const stakings = await db.Stakings.find().sort({ createdAt: -1 });
 
     return res.http200({
@@ -139,7 +138,7 @@ module.exports = function (router) {
     });
   });
 
-  router.get("/:id", async (req, res) => {
+  router.get("/:id", async (req: any, res: any) => {
     const staking = await db.Stakings.findOne({ _id: req.params.id });
     return res.http200({
       ...staking,

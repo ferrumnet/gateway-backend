@@ -1,9 +1,8 @@
-const { asyncMiddleware } = global;
 const subscriptionHelper = require("../../../lib/middlewares/helpers/subscriptionHelper");
 
-module.exports = function (router) {
-  router.get("/details/of/organization/by/sitename/:name",asyncMiddleware(async (req, res) => {
-      let filter = { siteName: req.params.name, isActive: true };
+module.exports = function (router: any) {
+  router.get("/details/of/organization/by/sitename/:name",asyncMiddleware(async (req: any, res: any) => {
+      let filter: any = { siteName: req.params.name, isActive: true };
       let organization = null,
         subscriptions = [],
         currencies = []
@@ -16,7 +15,7 @@ module.exports = function (router) {
           if (user) {
             currencies = await subscriptionHelper.activeCurrenciesDetailsByOrg(organization._id)
             subscriptions = await subscriptionHelper.subscriptionWithProduct(organization._id);       
-            const subscribedProducts = subscriptions.map((subscription) => subscription.product.nameInLower)            
+            const subscribedProducts = subscriptions.map((subscription: any) => subscription.product.nameInLower)            
            
             const LBSIndex =   subscribedProducts.indexOf("leaderboard")  
             if (LBSIndex > -1) {              

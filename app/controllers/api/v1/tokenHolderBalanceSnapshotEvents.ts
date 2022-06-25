@@ -1,9 +1,8 @@
-const { asyncMiddleware, commonFunctions, utils, db, leaderboardHelper, organizationHelper, timeoutHelper, tokenHolderBalanceSnapshotEventHelper } = global;
-let snapshotskeys = ['_id', 'tokenHolderAddress', 'tokenHolderQuantity', 'currentBlock', 'currencyAddressesByNetwork']
+var snapshotskeys = ['_id', 'tokenHolderAddress', 'tokenHolderQuantity', 'currentBlock', 'currencyAddressesByNetwork']
 
-module.exports = function (router) {
+module.exports = function (router: any) {
 
-  router.get("/list/:siteName", asyncMiddleware(async (req, res) => {
+  router.get("/list/:siteName", asyncMiddleware(async (req: any, res: any) => {
 
     let tokenHolderBalanceSnapshotEvents = [];
     let sort = { createdAt: -1 }
@@ -25,7 +24,7 @@ module.exports = function (router) {
     })
   }));
 
-  router.get('/:siteName/:id', asyncMiddleware(async (req, res) => {
+  router.get('/:siteName/:id', asyncMiddleware(async (req: any, res: any) => {
     let filter = {}
     let organizationId = await db.Organizations.findOne({siteName: req.params.siteName}).distinct('_id')
     filter = { _id: req.params.id,organization: organizationId  }
@@ -68,11 +67,11 @@ module.exports = function (router) {
 
   }));
 
-  router.get("/snapshot/list/:tokenHolderEventId", asyncMiddleware(async (req, res) => {
+  router.get("/snapshot/list/:tokenHolderEventId", asyncMiddleware(async (req: any, res: any) => {
 
     let tokenHoldersBalanceSnapshots = [];
     let sort = { createdAt: 1 }
-    let filter = {}
+    let filter: any = {}
 
     filter.tokenHolderBalanceSnapshotEvent = req.params.tokenHolderEventId
     if (req.query.cabnId) {

@@ -1,14 +1,9 @@
+module.exports = function (router: any) {
 
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global
-const mailer = global.mailer;
-var mongoose = require('mongoose');
-
-module.exports = function (router) {
-
-  router.get('/cabn/list', async (req, res) => {
-    var matchFilter = {}
+  router.get('/cabn/list', async (req: any, res: any) => {
+    var matchFilter: any = {}
     var filterOrList= []
-    var filterAndList= []
+    var filterAndList: any= []
     var filter = []
     let cabns = []
     var sort = { "createdAt": -1 }

@@ -1,13 +1,7 @@
+module.exports = function (router: any) {
 
-const { db, asyncMiddleware, commonFunctions } = global
-const mailer = global.mailer;
-const { result } = require('lodash');
-var mongoose = require('mongoose');
-
-module.exports = function (router) {
-
-  router.get('/token-holders/list', async (req, res) => {
-    var filter = {}
+  router.get('/token-holders/list', async (req: any, res: any) => {
+    var filter: any = {}
 
     if (req.query.cabnId) {
       filter.currencyAddressesByNetwork = req.query.cabnId
@@ -24,7 +18,7 @@ module.exports = function (router) {
 
   });
 
-  async function getCabnTokenHolders(req, res, filter) {
+  async function getCabnTokenHolders(req: any, res: any, filter: any) {
     let result = []
     let keys = ['_id', 'tokenHolderAddress', 'tokenHolderQuantity', 'currentBlock']
 

@@ -1,11 +1,6 @@
+module.exports = function (router: any) {
 
-const { db, asyncMiddleware, commonFunctions, stringHelper, crucibleAprsHelper } = global
-const mailer = global.mailer;
-var mongoose, { isValidObjectId } = require('mongoose');
-
-module.exports = function (router) {
-
-  router.get('/last', async (req, res) => {
+  router.get('/last', async (req: any, res: any) => {
     let filter = {}
     filter = { _id: req.params.id }
 
@@ -18,7 +13,7 @@ module.exports = function (router) {
 
   });
 
-  router.get('/list', async (req, res) => {
+  router.get('/list', async (req: any, res: any) => {
     let filter = {}
 
     if (req.query.isFreshData && req.query.isFreshData == 'true') {
@@ -35,7 +30,7 @@ module.exports = function (router) {
 
   });
 
-  router.get('/:id', async (req, res) => {
+  router.get('/:id', async (req: any, res: any) => {
     let filter = {}
     filter = { _id: req.params.id }
 

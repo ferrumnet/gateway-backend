@@ -1,11 +1,7 @@
 
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global
-const mailer = global.mailer;
-var mongoose , {isValidObjectId} = require('mongoose');
+module.exports = function (router: any) {
 
-module.exports = function (router) {
-
-  // router.get('/leaderboard/1', async (req, res) => {
+  // router.get('/leaderboard/1', async (req: any, res: any) => {
   //   let filter = {}
   //   filter = {}
 
@@ -30,7 +26,7 @@ module.exports = function (router) {
 
   // });
 
-  // router.get('/competition/2', async (req, res) => {
+  // router.get('/competition/2', async (req: any, res: any) => {
   //   let filter = {}
   //   filter = {}
 

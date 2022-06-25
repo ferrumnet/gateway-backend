@@ -18,7 +18,10 @@ addressesHelper: any,
 raisePoolsHelper: any,
 usersHelper: any,
 profileMiddleware: any,
-stakingTrackerHelper: any
+stakingTrackerHelper: any,
+crucibleAprsHelper: any,
+logsHelper: any,
+stakingHelper: any
 
 
 const utils = {
