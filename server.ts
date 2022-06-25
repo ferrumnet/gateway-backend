@@ -1,0 +1,44 @@
+'use strict';
+
+var app = require('./index');
+var http = require('http');
+var webSockets = require('./app/lib/webSockets')();
+
+var mongoose = require('mongoose');
+mongoose.Promise = require('bluebird');
+(async () => {
+  await (global as any).awsHelper.awsSecretsManagerInit()
+  var mongoString = (global as any).environment.mongoConnectionUrl;
+  var mongoLogger = function(coll: any, method: any, query: any, doc: any) {
+    (global as any).log.debug(coll + '.' + method + '( ' + JSON.stringify(query) +  ', ' + JSON.stringify(doc) + ' )');
+  };
+
+  //mongoose.set('debug', true); // mongoose.set('debug', mongoLogger)
+
+  mongoose.connect(mongoString, function(error: any, db: any) {
+    if (error) {
+      (global as any).log.error(error);
+    } else {
+      // global.fetchCompetitionBlocksJob()
+      (global as any).fetchCompetitionTransactionsJob();
+      (global as any).multiTokenStakingLeaderboardJob();
+      (global as any).stakingLeaderboardCurrenciesUSDValueJob();
+      (global as any).fetchTokenHoldersJob();
+      (global as any).fetchTokenHolderBalanceSnapshotEventsJob();
+      (global as any).fetchCrucibleApr();
+      (global as any).log.info('Connected to MongoDB');
+    }
+  });
+
+  var server = http.Server(app);
+  server.listen(process.env.PORT || 8080);
+
+  server.on('listening', function () {
+    (global as any).log.info('Server listening on http://localhost:%d', server.address().port);
+  });
+  (global as any).io = require('socket.io').listen(server);
+  (global as any).io.on('connection', webSockets.newConnection);
+
+})().catch(e => {
+  console.log(e)
+});

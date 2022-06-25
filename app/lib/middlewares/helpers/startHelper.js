@@ -10,6 +10,8 @@ module.exports = {
       isCronIntance: 'no',
       isCronEnvironmentSupportedForCompetitionTransactionsSnapshot : 'no',
       isCronEnvironmentSupportedForCrucibleApr: 'no',
+      isCronEnvironmentSupportedForMultiTokenStakingLeaderboardJob: 'no',
+      isCronEnvironmentSupportedForStakingLeaderboardCurreniesUSDJob: 'no'
     }
     if(process && process.argv && process.argv.length > 0){
       console.log(process.argv);
@@ -24,7 +26,9 @@ module.exports = {
           starterObject.isCronEnvironmentSupportedForFindTokenHolders = 'yes'
           starterObject.isCronIntance = 'yes'
           starterObject.isCronEnvironmentSupportedForCompetitionTransactionsSnapshot = 'yes',
-          starterObject.isCronEnvironmentSupportedForCrucibleApr = 'yes'
+          starterObject.isCronEnvironmentSupportedForCrucibleApr = 'yes',
+          starterObject.isCronEnvironmentSupportedForMultiTokenStakingLeaderboardJob = 'yes',
+          starterObject.isCronEnvironmentSupportedForStakingLeaderboardCurreniesUSDJob = 'yes'
         }
       }
 

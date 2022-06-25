@@ -14,8 +14,8 @@ module.exports = {
 
   sortParticipants(participants) {
     let sortedParticipants = participants.sort((participant1, participant2) => {
-      let participant1Growth = Number(participant1.totalStakedAmount);
-      let participant2Growth = Number(participant2.totalStakedAmount);
+      let participant1Growth = Number(participant1.stakingLeaderboardBalance);
+      let participant2Growth = Number(participant2.stakingLeaderboardBalance);
       return participant1Growth < participant2Growth ? 1 : -1;
     });
     return sortedParticipants;
@@ -26,10 +26,12 @@ module.exports = {
       sortedParticipants[i].rank = i + 1;
       if (i > 0) {
         sortedParticipants[i].levelUpAmount = this.calculateLevelUpAmount(
-          sortedParticipants[i - 1].totalStakedAmount,
-          sortedParticipants[i].totalStakedAmount,
+          sortedParticipants[i - 1].stakingLeaderboardBalance,
+          sortedParticipants[i].stakingLeaderboardBalance,
           i
         );
+      } else {
+        sortedParticipants[i].levelUpAmount = "0";
       }
     }
     return sortedParticipants;
@@ -124,12 +126,14 @@ module.exports = {
       if (index === -1) {
         participants.push(balance);
       } else {
-        participants[index].intialBalance = balance.intialBalance;
+        participants[index].walletBalance = balance.walletBalance;
         let stakedAmount = participants[index].stakedAmount
           ? Number(participants[index].stakedAmount)
           : 0;
-        let totalStakedAmount = stakedAmount + Number(balance.intialBalance);
-        participants[index].totalStakedAmount = totalStakedAmount.toString();
+        let stakingLeaderboardBalance =
+          stakedAmount + Number(balance.walletBalance);
+        participants[index].stakingLeaderboardBalance =
+          stakingLeaderboardBalance.toString();
       }
     });
     return participants;
@@ -154,8 +158,8 @@ module.exports = {
           stakingContractAddress,
           tokenContractAddress: item.tokenContractAddress,
           stakeHolderWalletAddress: item.tokenHolderAddress,
-          intialBalance: stakedAmount,
-          totalStakedAmount: stakedAmount,
+          walletBalance: stakedAmount,
+          stakingLeaderboardBalance: stakedAmount,
         };
       });
     }
