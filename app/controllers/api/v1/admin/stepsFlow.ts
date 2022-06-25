@@ -1,9 +1,8 @@
-const { db, } = global
 var mongoose = require('mongoose');
 
-module.exports = function (router) {
+module.exports = function (router: any) {
 
-    router.post('/create', async (req, res) => {
+    router.post('/create', async (req: any, res: any) => {
 
         if (!req.body.name || !req.body.productId) {
 
@@ -31,7 +30,7 @@ module.exports = function (router) {
 
         if(req.body.stepFlowSteps){
 
-            for (stepFlowStepId of req.body.stepFlowSteps){
+            for (let stepFlowStepId of req.body.stepFlowSteps){
 
                 if(!mongoose.Types.ObjectId.isValid(stepFlowStepId)){
                     return res.http400('Invalid stepflowstep id provided');
@@ -56,13 +55,13 @@ module.exports = function (router) {
     })
 
  
-    router.get('/list', async (req, res) => {
+    router.get('/list', async (req: any, res: any) => {
 
         req.body.organization = req.user.organization
 
         let stepFlows = []
         
-        filter = {organization : req.user.organization }
+        let filter: any = {organization : req.user.organization }
 
         if (req.query.name) {
 
@@ -94,7 +93,7 @@ module.exports = function (router) {
 
     })
 
-    router.put('/update/:id', async (req, res) => {
+    router.put('/update/:id', async (req: any, res: any) => {
 
         let filter = {}
 
@@ -129,7 +128,7 @@ module.exports = function (router) {
 
             if(req.body.stepFlowSteps){
 
-                for (stepFlowStepId of req.body.stepFlowSteps){
+                for (let stepFlowStepId of req.body.stepFlowSteps){
 
                     if(!mongoose.Types.ObjectId.isValid(stepFlowStepId)){
                         return res.http400('Invalid stepflowstep id provided');
@@ -160,11 +159,11 @@ module.exports = function (router) {
     })
 
 
-    router.get('/:id', async (req, res) => {
+    router.get('/:id', async (req: any, res: any) => {
                
         req.body.organization = req.user.organization
 
-        filter = { _id: req.params.id, organization: req.user.organization }
+        let filter = { _id: req.params.id, organization: req.user.organization }
 
         if(!mongoose.Types.ObjectId.isValid(req.params.id)){
             return res.http400('Invalid id provided');

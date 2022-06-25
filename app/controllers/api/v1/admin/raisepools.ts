@@ -1,11 +1,6 @@
+module.exports = function (router: any) {
 
-const { db, asyncMiddleware, commonFunctions, stringHelper, organizationHelper } = global
-const mailer = global.mailer;
-var mongoose = require('mongoose');
-
-module.exports = function (router) {
-
-  router.post('/create', async (req, res) => {
+  router.post('/create', async (req: any, res: any) => {
 
     if (!req.body.name || !req.body.startDateTime || !req.body.endDateTime) {
       return res.http400('name & startDateTime & endDateTime are required.');
@@ -24,7 +19,7 @@ module.exports = function (router) {
 
   });
 
-  router.put('/update/:id', async (req, res) => {
+  router.put('/update/:id', async (req: any, res: any) => {
 
     let filter = {}
     filter = { _id: req.params.id }
@@ -50,7 +45,7 @@ module.exports = function (router) {
 
   });
 
-  router.put('/update/status/:id', async (req, res) => {
+  router.put('/update/status/:id', async (req: any, res: any) => {
 
     let filter = {}
     filter = { _id: req.params.id }
@@ -74,9 +69,9 @@ module.exports = function (router) {
     return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorTheRaisePoolIDIsIncorrectOrNotAvailable),stringHelper.strErrorTheRaisePoolIDIsIncorrectOrNotAvailable);
   });
 
-  router.get('/list', async (req, res) => {
+  router.get('/list', async (req: any, res: any) => {
 
-    var filter = {}
+    var filter: any = {}
     var sort = { startDateTime: 1 }
     filter.createdByUser = req.user._id
 
@@ -91,7 +86,7 @@ module.exports = function (router) {
 
   });
 
-  router.get('/:id', async (req, res) => {
+  router.get('/:id', async (req: any, res: any) => {
     let filter = {}
     filter = { _id: req.params.id }
 
@@ -103,9 +98,9 @@ module.exports = function (router) {
 
   });
 
-  router.get('/all/pledged/users/:id', asyncMiddleware(async (req, res) => {
+  router.get('/all/pledged/users/:id', asyncMiddleware(async (req: any, res: any) => {
     let sort = {createdAt: -1}
-    let filter = {}
+    let filter: any = {}
     filter.raisePoolId = req.params.id
     let pledgeRaisePools = []
 

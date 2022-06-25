@@ -1,9 +1,8 @@
-const { db, } = global
 var mongoose = require('mongoose');
 
-module.exports = function (router) {
+module.exports = function (router: any) {
 
-    router.post('/create', async (req, res) => {
+    router.post('/create', async (req: any, res: any) => {
 
         if (!req.body.name || !req.body.step || !req.body.stepsFlow || !req.body.stepsRenderingJson || !req.body.orderIndex.toString()) {
             
@@ -53,7 +52,7 @@ module.exports = function (router) {
         });
     })
 
-    router.put('/update/status/:id', async (req, res) => {
+    router.put('/update/status/:id', async (req: any, res: any) => {
 
         let filter = {}
 
@@ -89,12 +88,11 @@ module.exports = function (router) {
 
     })
 
+    router.get('/list', async (req: any, res: any) => {
 
-    router.get('/list', async (req, res) => {
+        let stepFlowSteps=[]
 
-        stepFlowSteps=[]
-
-        filter  = {}
+        let filter: any  = {}
 
         if (req.query.name) {
 
@@ -128,8 +126,7 @@ module.exports = function (router) {
         
     })
 
-
-    router.get('/:id', async (req, res) => {
+    router.get('/:id', async (req: any, res: any) => {
                
         req.body.createdByUser = req.user._id
 
@@ -139,7 +136,7 @@ module.exports = function (router) {
             return res.http400('Invalid id provided');
         }
 
-        filter = { _id: req.params.id,organization: req.user.organization }
+        let filter = { _id: req.params.id,organization: req.user.organization }
 
         const stepFlowStep = await db.StepFlowSteps.findOne(filter)
 

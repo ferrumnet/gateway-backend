@@ -17,7 +17,8 @@ bscScanTokenHolders: any,
 addressesHelper: any,
 raisePoolsHelper: any,
 usersHelper: any,
-profileMiddleware: any
+profileMiddleware: any,
+stakingTrackerHelper: any
 
 
 const utils = {

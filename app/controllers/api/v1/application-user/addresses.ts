@@ -1,13 +1,12 @@
 
-const { db, asyncMiddleware, commonFunctions, stringHelper, addressesHelper } = global
 var mongoose = require('mongoose');
-const {
+var {
   recoverPersonalSignature
 } = require('eth-sig-util');
 
-module.exports = function (router) {
+module.exports = function (router: any) {
 
-  router.get('/is/unique', async (req, res) => {
+  router.get('/is/unique', async (req: any, res: any) => {
 
     let isUnique = true
     if (!req.query.address || !req.query.ferrumNetworkIdentifier) {
@@ -31,7 +30,7 @@ module.exports = function (router) {
 
   });
 
-  router.get('/is/unique/and/authenticated', async (req, res) => {
+  router.get('/is/unique/and/authenticated', async (req: any, res: any) => {
 
     let isUnique = true
     if (!req.query.address || !req.query.ferrumNetworkIdentifier) {
@@ -55,7 +54,7 @@ module.exports = function (router) {
 
   });
 
-  router.get('/is/authenticated', async (req, res) => {
+  router.get('/is/authenticated', async (req: any, res: any) => {
 
     let isAuthenticated = false
     if (!req.query.address || !req.query.ferrumNetworkIdentifier || !req.query.userId) {
@@ -79,7 +78,7 @@ module.exports = function (router) {
 
   });
 
-  router.post('/generate/nonce', async (req, res) => {
+  router.post('/generate/nonce', async (req: any, res: any) => {
 
     let address = {}
 
@@ -107,7 +106,7 @@ module.exports = function (router) {
 
   });
 
-  router.post('/verify-signature', async (req, res) => {
+  router.post('/verify-signature', async (req: any, res: any) => {
 
     let addressObject = null
 
@@ -121,7 +120,7 @@ module.exports = function (router) {
     }
 
     if(addressObject && addressObject.network){
-      const bufferText = Buffer.from(`${global.environment.verifySignaturePrefixBufferText}${addressObject.nonce}. id: ${addressObject.network.ferrumNetworkIdentifier}`, 'utf8');
+      const bufferText = Buffer.from(`${(global as any).environment.verifySignaturePrefixBufferText}${addressObject.nonce}. id: ${addressObject.network.ferrumNetworkIdentifier}`, 'utf8');
       const data = `0x${bufferText.toString('hex')}`;
       try{
         const decryptedAddress = await recoverPersonalSignature({
@@ -132,7 +131,7 @@ module.exports = function (router) {
         if(decryptedAddress && decryptedAddress.toLowerCase() == addressObject.address){
           return res.http200(await addressesHelper.createUserByABN(req, res, addressObject));
         }
-      }catch(err){
+      }catch(err: any){
         return res.http400(err.message);
       }
     }

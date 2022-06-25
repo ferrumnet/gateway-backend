@@ -17,7 +17,7 @@ module.exports = function (router: any) {
   });
 
   // update status
-  router.patch("/update/:id", async (req, res) => {
+  router.patch("/update/:id", async (req: any, res: any) => {
     const filter = { _id: req.params.id };
     const payload = { isActive: req.body.isActive };
 

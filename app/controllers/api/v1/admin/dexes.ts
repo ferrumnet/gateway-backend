@@ -1,13 +1,11 @@
 
-const { db, asyncMiddleware, commonFunctions } = global
-const mailer = global.mailer;
 var mongoose = require('mongoose');
 
-module.exports = function (router) {
+module.exports = function (router: any) {
 
-  router.get('/list', async (req, res) => {
-    var matchFilter = {}
-    var matchInnerFilter = {}
+  router.get('/list', async (req: any, res: any) => {
+    var matchFilter: any = {}
+    var matchInnerFilter: any = {}
     var filterList= []
     var filterInnerList= []
     var filter = []

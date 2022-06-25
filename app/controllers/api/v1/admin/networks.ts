@@ -1,13 +1,8 @@
+module.exports = function (router: any) {
 
-const { db, asyncMiddleware, commonFunctions } = global
-const mailer = global.mailer;
-var mongoose = require('mongoose');
+  router.get('/list', async (req: any, res: any) => {
 
-module.exports = function (router) {
-
-  router.get('/list', async (req, res) => {
-
-    var filter = {}
+    var filter: any = {}
     let netwroks = []
 
     if (req.query.search) {
@@ -41,7 +36,7 @@ module.exports = function (router) {
 
   });
 
-  router.get('/:id', async (req, res) => {
+  router.get('/:id', async (req: any, res: any) => {
 
     let filter = {}
     filter = { _id: req.params.id }

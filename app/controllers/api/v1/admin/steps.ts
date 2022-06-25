@@ -1,9 +1,8 @@
-const { db, } = global
 var mongoose = require('mongoose');
 
-module.exports = function (router) {
+module.exports = function (router: any) {
 
-    router.post('/create', async (req, res) => {
+    router.post('/create', async (req: any, res: any) => {
 
         if (!req.body.name) {
             return res.http400('name is required in request.');
@@ -21,9 +20,9 @@ module.exports = function (router) {
         });
     })
 
-    router.get('/list', async (req, res) => {
+    router.get('/list', async (req: any, res: any) => {
 
-        filter = {}
+        let filter: any = {}
 
         if (req.query.name) {
 
@@ -56,9 +55,9 @@ module.exports = function (router) {
         });
     })
 
-    router.get('/:id', async (req, res) => {
+    router.get('/:id', async (req: any, res: any) => {
 
-        user = await db.Users.find({_id: req.user._id})
+        let user = await db.Users.find({_id: req.user._id})
 
         var filter = { _id: req.params.id }
 
@@ -66,7 +65,7 @@ module.exports = function (router) {
             return res.http400('Invalid id provided');
         }
 
-        step = await db.Steps.findOne(filter)
+        let step = await db.Steps.findOne(filter)
 
         if(step){
 

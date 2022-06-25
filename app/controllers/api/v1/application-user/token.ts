@@ -1,9 +1,6 @@
+module.exports = function (router: any) {
 
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global
-
-module.exports = function (router) {
-
-  router.get('/', async (req, res) => {
+  router.get('/', async (req: any, res: any) => {
 
     if (!req.headers.apikey) {
       return res.http400('apiKey in headers is required.');
@@ -21,7 +18,7 @@ module.exports = function (router) {
       }else {
         return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorApiKeyIsInvalid),stringHelper.strErrorApiKeyIsInvalid,);
       }
-    } catch (err) {
+    } catch (err: any) {
       return res.http400(err.message);
     }
 

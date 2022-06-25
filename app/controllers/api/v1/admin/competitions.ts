@@ -1,16 +1,8 @@
+var moment = require("moment");
 
-const { db, asyncMiddleware, commonFunctions, stringHelper, timeoutHelper} = global
-const mailer = global.mailer;
-var jwt = require('jsonwebtoken');
-var mongoose = require('mongoose');
-var fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
-var path = require('path');
-var ejs = require("ejs");
+module.exports = function (router: any) {
 
-module.exports = function (router) {
-
-  router.post('/create', asyncMiddleware(async (req, res) => {
+  router.post('/create', asyncMiddleware(async (req: any, res: any) => {
 
     if (!req.body.name || !req.body.leaderboard || !req.body.startDate || !req.body.endDate) {
       return res.http400('name & leaderboard & startDate & endDate are required.');
@@ -42,7 +34,7 @@ module.exports = function (router) {
 
   }));
 
-  router.put('/update/:id', asyncMiddleware(async (req, res) => {
+  router.put('/update/:id', asyncMiddleware(async (req: any, res: any) => {
     let isDateChanged = false
     let filter = {}
     filter = { _id: req.params.id }
@@ -80,7 +72,7 @@ module.exports = function (router) {
 
   }));
 
-  router.put('/update/status/:id', async (req, res) => {
+  router.put('/update/status/:id', async (req: any, res: any) => {
 
     let filter = {}
     filter = { _id: req.params.id }
@@ -97,16 +89,16 @@ module.exports = function (router) {
 
   });
 
-  router.get('/list', async (req, res) => {
+  router.get('/list', async (req: any, res: any) => {
 
-    var filter = {}
+    var filter: any = {}
     filter.organization = req.user.organization
 
     db.Competitions.find(filter)
       .sort({ createdAt: -1 })
       .skip(req.query.offset ? parseInt(req.query.offset) : 0)
       .limit(req.query.limit ? parseInt(req.query.limit) : 10)
-      .then((competitions) => {
+      .then((competitions: any) => {
         res.http200({
           competitions: competitions
         });
@@ -114,8 +106,8 @@ module.exports = function (router) {
 
   });
 
-  router.get("/participants/growth/:competition",asyncMiddleware(async (req, res) => {
-    let filter = {competition: req.params.competition}
+  router.get("/participants/growth/:competition",asyncMiddleware(async (req: any, res: any) => {
+    let filter: any = {competition: req.params.competition}
     let participants = []
     let sort = { rank: 1 }
     if(req.query.excludedWalletAddress){
@@ -132,7 +124,7 @@ module.exports = function (router) {
     })
   )
 
-  router.get('/:id', async (req, res) => {
+  router.get('/:id', async (req: any, res: any) => {
 
     let filter = {}
     filter = { _id: req.params.id }

@@ -1,9 +1,7 @@
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global
+module.exports = function (router: any) {
 
-module.exports = function (router) {
-
-  router.get('/allow/on/gateway', async (req, res) => {
-    let filter = { $or: [] }
+  router.get('/allow/on/gateway', async (req: any, res: any) => {
+    let filter: any = { $or: [] }
     let status = false
 
     if(!req.query.ferrumNetworkIdentifier){
@@ -14,7 +12,7 @@ module.exports = function (router) {
     filter.$or.push({ isAllowedOnGateway: true })
 
     let networks = await db.Networks.find(filter)
-    const index = networks.findIndex(network => network.ferrumNetworkIdentifier == req.query.ferrumNetworkIdentifier)
+    const index = networks.findIndex((network: any) => network.ferrumNetworkIdentifier == req.query.ferrumNetworkIdentifier)
     if (index > -1) {
       status = networks[index].isAllowedOnGateway
       if (!status) networks.splice(index, 1)

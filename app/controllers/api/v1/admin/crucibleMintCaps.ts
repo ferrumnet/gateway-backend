@@ -1,11 +1,6 @@
+module.exports = function (router: any) {
 
-const { db, asyncMiddleware, commonFunctions, stringHelper } = global
-const mailer = global.mailer;
-var mongoose , {isValidObjectId} = require('mongoose');
-
-module.exports = function (router) {
-
-  router.post('/create', async (req, res) => {
+  router.post('/create', async (req: any, res: any) => {
 
     if (!req.body.cFRMMaxCap || !req.body.cFRMxMaxCap) {
       return res.http400('cFRMMaxCap & cFRMxMaxCap are required.');
@@ -24,7 +19,7 @@ module.exports = function (router) {
 
   });
 
-  router.put('/update/:id', async (req, res) => {
+  router.put('/update/:id', async (req: any, res: any) => {
 
     let filter = {}
     filter = { _id: req.params.id }
@@ -44,7 +39,7 @@ module.exports = function (router) {
 
   });
 
-  router.get('/list', async (req, res) => {
+  router.get('/list', async (req: any, res: any) => {
 
     var filter = {}
 
@@ -59,7 +54,7 @@ module.exports = function (router) {
 
   });
 
-  router.get('/:id', async (req, res) => {
+  router.get('/:id', async (req: any, res: any) => {
     let filter = {}
     filter = { _id: req.params.id }
 
@@ -71,7 +66,7 @@ module.exports = function (router) {
 
   });
 
-  router.delete('/:id', async (req, res) => {
+  router.delete('/:id', async (req: any, res: any) => {
     let filter = {}
 
     await db.CrucibleMintCaps.remove({ _id: req.params.id })

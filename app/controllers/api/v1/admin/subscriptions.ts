@@ -1,11 +1,9 @@
-const { asyncMiddleware, commonFunctions, utils, db } = global;
-
-module.exports = function (router) {
-  router.post("/create", asyncMiddleware(async (req, res) => {
+module.exports = function (router: any) {
+  router.post("/create", asyncMiddleware(async (req: any, res: any) => {
       const orgFilter = { user: req.user.id, _id: req.body.organization };
       const packFilter = { _id: req.body.package, isActive: true };
       const subFilter = {package: req.body.package, organization: req.body.organization };
-      const payload = {
+      let payload: any = {
         organization: req.body.organization,
         package: req.body.package,
         usedLimit: 0,
@@ -13,11 +11,11 @@ module.exports = function (router) {
       };
       const org = await db.Organizations.countDocuments(orgFilter);
       if (org > 0) {
-        const package = await db.Package.findOne(packFilter);
-        if (package) {
+        let packageRes = await db.Package.findOne(packFilter);
+        if (packageRes) {
           let subscription = await db.Subscription.countDocuments(subFilter);
           if (subscription < 1) {
-            payload.actualLimit = package.limitation;
+            payload.actualLimit = packageRes.limitation;
             subscription = await db.Subscription.create(payload);
             return res.http200({subscription});
           }          
@@ -38,8 +36,8 @@ module.exports = function (router) {
     })
   );
 
-  router.get("/of/associated/organization", asyncMiddleware(async (req, res) => {    
-    let filter = { organization: req.user.organization };
+  router.get("/of/associated/organization", asyncMiddleware(async (req: any, res: any) => {    
+    let filter: any = { organization: req.user.organization };
     if(req.query.isActive){
       filter.isActive = req.query.isActive
     }      

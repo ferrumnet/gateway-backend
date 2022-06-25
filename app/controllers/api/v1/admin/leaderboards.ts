@@ -1,17 +1,6 @@
+module.exports = function (router: any) {
 
-const { db, asyncMiddleware, commonFunctions, stringHelper, bscScanTokenHolders, leaderboardHelper } = global
-const mailer = global.mailer;
-var jwt = require('jsonwebtoken');
-var mongoose = require('mongoose');
-var fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
-var path = require('path');
-var ejs = require("ejs");
-const { findTokenHolders } = require('../../../../lib/httpCalls/findTokenHolders');
-
-module.exports = function (router) {
-
-  router.post('/create', async (req, res) => {
+  router.post('/create', async (req: any, res: any) => {
 
     if (!req.body.name || !req.body.currencyAddressesByNetwork) {
       return res.http400('name & currencyAddressesByNetwork are required.');
@@ -60,7 +49,7 @@ module.exports = function (router) {
 
   });
 
-  router.put('/update/:id', async (req, res) => {
+  router.put('/update/:id', async (req: any, res: any) => {
 
     let filter = {}
     filter = { _id: req.params.id }
@@ -86,7 +75,7 @@ module.exports = function (router) {
 
   });
 
-  router.put('/update/status/:id', async (req, res) => {
+  router.put('/update/status/:id', async (req: any, res: any) => {
 
     let filter = {}
     filter = { _id: req.params.id }
@@ -103,9 +92,9 @@ module.exports = function (router) {
 
   });
 
-  router.get('/list', async (req, res) => {
+  router.get('/list', async (req: any, res: any) => {
 
-    var filter = {}
+    var filter: any = {}
     filter.organization = req.user.organization
 
     db.Leaderboards.find(filter)
@@ -135,7 +124,7 @@ module.exports = function (router) {
       .sort({ createdAt: -1 })
       .skip(req.query.offset ? parseInt(req.query.offset) : 0)
       .limit(req.query.limit ? parseInt(req.query.limit) : 10)
-      .then((leaderboards) => {
+      .then((leaderboards: any) => {
         res.http200({
           leaderboards: leaderboards
         });
@@ -143,7 +132,7 @@ module.exports = function (router) {
 
   });
 
-  router.get('/:id', async (req, res) => {
+  router.get('/:id', async (req: any, res: any) => {
 
     let filter = {}
     filter = { _id: req.params.id }

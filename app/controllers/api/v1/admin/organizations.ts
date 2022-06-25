@@ -1,16 +1,6 @@
+module.exports = function (router: any) {
 
-const { db, asyncMiddleware, commonFunctions } = global
-const mailer = global.mailer;
-var jwt = require('jsonwebtoken');
-var mongoose = require('mongoose');
-var fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
-var path = require('path');
-var ejs = require("ejs");
-
-module.exports = function (router) {
-
-  router.get('/:id', async (req, res) => {
+  router.get('/:id', async (req: any, res: any) => {
 
     let filter = {}
     filter = { _id: req.params.id }
@@ -23,10 +13,10 @@ module.exports = function (router) {
 
   });
 
-  router.get('/currencyAddressbyNetwork/list', async (req, res) => {
+  router.get('/currencyAddressbyNetwork/list', async (req: any, res: any) => {
 
     var currencyAddressesByNetwork = []
-    var filter = {}
+    var filter: any = {}
     filter.organization = req.user.organization
 
     if (req.query.isPagination != null && req.query.isPagination == 'false') {

@@ -1,4 +1,4 @@
-let snapshotskeys = ['_id', 'tokenHolderAddress', 'tokenHolderQuantity', 'currentBlock', 'currencyAddressesByNetwork']
+var snapshotskeys = ['_id', 'tokenHolderAddress', 'tokenHolderQuantity', 'currentBlock', 'currencyAddressesByNetwork']
 
 module.exports = function (router: any) {
 

@@ -1,7 +1,5 @@
-const { db, asyncMiddleware, stakingTrackerHelper } = global;
-
-module.exports = function (router) {
-  router.post("/update/myStake", async (req, res) => {
+module.exports = function (router: any) {
+  router.post("/update/myStake", async (req: any, res: any) => {
     if (
       !req.body.stakingContractAddress ||
       !req.body.tokenContractAddress ||

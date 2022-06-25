@@ -1,5 +1,5 @@
 
-const {
+var {
   recoverPersonalSignature
 } = require('eth-sig-util');
 

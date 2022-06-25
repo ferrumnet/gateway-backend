@@ -1,16 +1,7 @@
 
-const { db, asyncMiddleware, commonFunctions, stringHelper, usersHelper } = global
-const mailer = global.mailer;
-var jwt = require('jsonwebtoken');
-var mongoose = require('mongoose');
-var fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
-var path = require('path');
-var ejs = require("ejs");
+module.exports = function (router: any) {
 
-module.exports = function (router) {
-
-  router.post('/sign-up', async (req, res) => {
+  router.post('/sign-up', async (req: any, res: any) => {
 
     if (!req.body.firstName || !req.body.lastName || !req.body.email || !req.body.password
       || !req.body.organizationName || !req.body.organizationWebsiteUrl
@@ -43,20 +34,20 @@ module.exports = function (router) {
     req.body.role = 'organizationAdmin'
     req.body.createdAt = new Date()
     req.body.emailVerificationCodeGenratedAt = new Date()
-    req.body.emailVerificationCode = global.helper.getOtp()
+    req.body.emailVerificationCode = (global as any).helper.getOtp()
 
     if (req.body.password) {
       req.body.password = db.Users.getHashedPassword(req.body.password);
     }
 
     let user;
-    let organization;
+    let organization: any;
     try {
       user = await db.Users.create(req.body)
       organization = await createOrganization(req,user)
       user.organization = organization
-      global.sendGrid.sendGridEmail(user)
-    } catch(err) {
+      (global as any).sendGrid.sendGridEmail(user)
+    } catch(err: any) {
       return res.http400(err.message);
     }
 
@@ -67,8 +58,8 @@ module.exports = function (router) {
 
   });
 
-  router.post('/sign-in', async (req, res) => {
-    var filter = {}
+  router.post('/sign-in', async (req: any, res: any) => {
+    var filter: any = {}
     if (!req.body.email || !req.body.password) {
       return res.http400('email & password is required.');
     }
@@ -92,7 +83,7 @@ module.exports = function (router) {
     }
   });
 
-  router.get('/profile/me', async (req, res) => {
+  router.get('/profile/me', async (req: any, res: any) => {
 
     let filter = {}
     filter = { _id: req.user._id }
@@ -104,7 +95,7 @@ module.exports = function (router) {
 
   });
 
-  router.put('/update/me', async (req, res) => {
+  router.put('/update/me', async (req: any, res: any) => {
 
     if (!req.body.firstName || !req.body.lastName || !req.body.email) {
       return res.http400('firstName & lastName & email are required.');
@@ -128,15 +119,15 @@ module.exports = function (router) {
 
     } else {
 
-      return res.http400(global.stringHelper.strErrorUserNotFound);
+      return res.http400((global as any).stringHelper.strErrorUserNotFound);
 
     }
 
   });
 
-  router.get('/list', async (req, res) => {
+  router.get('/list', async (req: any, res: any) => {
 
-    var filter = {}
+    var filter: any = {}
     let sort = { createdAt: -1 }
     let userKeys= ['_id' ,'email']
     let users = []
@@ -172,11 +163,11 @@ module.exports = function (router) {
 
   });
 
-  router.put('/sign-out', async (req, res) => {
+  router.put('/sign-out', async (req: any, res: any) => {
     usersHelper.signOut(req, res)
   });
 
-  async function createOrganization(req,user){
+  async function createOrganization(req: any,user: any){
     let body = req.body
     body.name = body.organizationName
     if(body.name){
@@ -196,7 +187,7 @@ module.exports = function (router) {
           await db.Users.findOneAndUpdate({_id: user._id}, {organization: organization._id}, { new: true });
         }
         resolve(organization)
-      } catch(err) {
+      } catch(err: any) {
         reject(err.message)
       }
 

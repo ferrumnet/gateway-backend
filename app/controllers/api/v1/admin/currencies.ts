@@ -1,16 +1,8 @@
-
-const { db, asyncMiddleware, commonFunctions, stringHelper, currencyHelper } = global
-const mailer = global.mailer;
-var jwt = require('jsonwebtoken');
 var mongoose = require('mongoose');
-var fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
-var path = require('path');
-var ejs = require("ejs");
 
-module.exports = function (router) {
+module.exports = function (router: any) {
 
-  router.post('/create', async (req, res) => {
+  router.post('/create', async (req: any, res: any) => {
 
     if (!req.body.name || !req.body.symbol || !req.body.networks) {
       return res.http400('name & symbol & networks are required.');
@@ -42,8 +34,8 @@ module.exports = function (router) {
 
   });
 
-  router.get('/list', async (req, res) => {
-    var matchFilter = {}
+  router.get('/list', async (req: any, res: any) => {
+    var matchFilter: any = {}
     var filterOrList= []
     var filterAndList= []
     var filter = []
@@ -96,7 +88,7 @@ module.exports = function (router) {
     });
   });
 
-  router.get('/:id', async (req, res) => {
+  router.get('/:id', async (req: any, res: any) => {
 
     let filter = {}
     filter = { _id: req.params.id }
@@ -127,9 +119,9 @@ module.exports = function (router) {
 
   });
 
-  router.get('/check/tokenContractAddress/is/unique', async (req, res) => {
+  router.get('/check/tokenContractAddress/is/unique', async (req: any, res: any) => {
 
-    var filter = {}
+    var filter: any = {}
     let count = 0
 
     if (!req.query.tokenContractAddress) {

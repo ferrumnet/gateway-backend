@@ -1,9 +1,8 @@
-const { asyncMiddleware, commonFunctions, utils, db, leaderboardHelper, organizationHelper, timeoutHelper, tokenHolderBalanceSnapshotEventHelper, stringHelper } = global;
-let snapshotskeys = ['_id', 'tokenHolderAddress', 'tokenHolderQuantity', 'currentBlock', 'currencyAddressesByNetwork']
+var snapshotskeys = ['_id', 'tokenHolderAddress', 'tokenHolderQuantity', 'currentBlock', 'currencyAddressesByNetwork']
 
-module.exports = function (router) {
+module.exports = function (router: any) {
 
-  router.post("/create", asyncMiddleware(async (req, res) => {
+  router.post("/create", asyncMiddleware(async (req: any, res: any) => {
 
     if (!req.body.type || !req.body.triggeredSnapshotDateTime || !req.body.leaderboard) {
       return res.http400('type, triggeredSnapshotDateTime and leaderboard are required');
@@ -32,11 +31,11 @@ module.exports = function (router) {
 
   }));
 
-  router.get("/list", asyncMiddleware(async (req, res) => {
+  router.get("/list", asyncMiddleware(async (req: any, res: any) => {
 
     let tokenHolderBalanceSnapshotEvents = [];
     let sort = { createdAt: -1 }
-    let filter = { organization: req.user.organization }
+    let filter: any = { organization: req.user.organization }
 
     if (req.query.isActive) {
       filter.isActive = req.query.isActive
@@ -69,7 +68,7 @@ module.exports = function (router) {
     })
   }));
 
-  router.get('/:id', asyncMiddleware(async (req, res) => {
+  router.get('/:id', asyncMiddleware(async (req: any, res: any) => {
     let filter = {}
     filter = { _id: req.params.id }
 
@@ -111,11 +110,11 @@ module.exports = function (router) {
 
   }));
 
-  router.get("/snapshot/associated/organization/list/:tokenHolderEventId", asyncMiddleware(async (req, res) => {
+  router.get("/snapshot/associated/organization/list/:tokenHolderEventId", asyncMiddleware(async (req: any, res: any) => {
 
-    let tokenHoldersBalanceSnapshots = [];
+    let tokenHoldersBalanceSnapshots: any = [];
     let sort = { createdAt: 1 }
-    let filter = {}
+    let filter: any = {}
 
     if (await tokenHolderBalanceSnapshotEventHelper.isEventAssociatedWithUser(req.user.organization, req.params.tokenHolderEventId) == 0) {
       return res.http200({
@@ -141,11 +140,11 @@ module.exports = function (router) {
     })
   }));
 
-  router.get("/snapshot/list/:tokenHolderEventId", asyncMiddleware(async (req, res) => {
+  router.get("/snapshot/list/:tokenHolderEventId", asyncMiddleware(async (req: any, res: any) => {
 
     let tokenHoldersBalanceSnapshots = [];
     let sort = { createdAt: 1 }
-    let filter = {}
+    let filter: any = {}
 
     filter.tokenHolderBalanceSnapshotEvent = req.params.tokenHolderEventId
     if (req.query.cabnId) {
@@ -165,7 +164,7 @@ module.exports = function (router) {
     })
   }));
 
-  router.delete('/:id', asyncMiddleware(async (req, res) => {
+  router.delete('/:id', asyncMiddleware(async (req: any, res: any) => {
     let filter = {}
 
     await db.TokenHoldersBalanceSnapshots.remove({ tokenHolderBalanceSnapshotEvent: req.params.id })
