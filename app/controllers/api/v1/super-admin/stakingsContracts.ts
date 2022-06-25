@@ -1,8 +1,7 @@
-const { db } = global;
-const { isValidObjectId } = require("mongoose");
+import { isValidObjectId } from "mongoose";
 
-module.exports = function (router) {
-  router.post("/create", async (req, res) => {
+module.exports = function (router: any) {
+  router.post("/create", async (req: any, res: any) => {
     if (
       (!req.body.stakingContractAddresses && !req.body.stakingContractAddresses.length) ||
       !req.body.currencyAddressByNetwork
@@ -33,7 +32,7 @@ module.exports = function (router) {
   });
 
   // list
-  router.get("/list", async (req, res) => {
+  router.get("/list", async (req: any, res: any) => {
     let stakingContractAddresses;
     if (req.query.isPagination != null && req.query.isPagination == "false") {
       stakingContractAddresses = await db.StakingsContractsAddresses.find();
