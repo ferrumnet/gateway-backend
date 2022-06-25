@@ -1,12 +1,12 @@
-const { db, asyncMiddleware, commonFunctions } = global
 var cron = require('node-cron');
-const axios = require('axios').default;
-let filter = {}
-let limit = 20
+var axios = require('axios').default;
+var moment = require("moment");
+var filter = {}
+var limit = 20
 
 module.exports = function () {
   triggerJobsIfNeededOnRestartServer()
-  if (global.environment.isCronEnvironmentSupportedForFindBlockNo === 'yes') {
+  if ((global as any).environment.isCronEnvironmentSupportedForFindBlockNo === 'yes') {
     start();
   }
 }
@@ -35,13 +35,13 @@ async function triggerJobsIfNeededOnRestartServer() {
   let jobIds = await db.Jobs.find().distinct('_id')
   if (jobIds && jobIds.length > 0) {
     for (let i = 0; i < jobIds.length; i++) {
-      global.commonFunctions.triggerAndSetTimeout(jobIds[i])
+      (global as any).commonFunctions.triggerAndSetTimeout(jobIds[i])
     }
   }
 }
 
 async function triggerMissedJobs() {
-  var matchFilter = {}
+  var matchFilter: any = {}
   var filterOrList= []
   var filterAndList= []
   var filter = []
@@ -65,7 +65,7 @@ async function triggerMissedJobs() {
   let jobs = await db.Jobs.aggregate(filter);
   if (jobs && jobs.length > 0) {
     for (let i = 0; i < jobs.length; i++) {
-      global.commonFunctions.triggerAndSetTimeout(jobs[i]._id)
+      (global as any).commonFunctions.triggerAndSetTimeout(jobs[i]._id)
     }
   }
 }

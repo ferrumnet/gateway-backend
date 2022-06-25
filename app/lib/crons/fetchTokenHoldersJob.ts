@@ -1,12 +1,11 @@
-const { db, asyncMiddleware, commonFunctions } = global
 var cron = require('node-cron');
 var uab = require('unique-array-objects');
-const axios = require('axios').default;
-let filter = {}
-let limit = 20
+var axios = require('axios').default;
+var filter = {}
+var limit = 20
 
 module.exports = function () {
-  if (global.starterEnvironment.isCronEnvironmentSupportedForFindTokenHolders === 'yes') {
+  if ((global as any).starterEnvironment.isCronEnvironmentSupportedForFindTokenHolders === 'yes') {
     start();
   }
 }
@@ -34,8 +33,8 @@ async function start() {
 async function triggerJobs() {
   // let leaderboardFilter = {isPublished: true, status: 'approved'}
   let leaderboardFilter = {isPublished: true}
-  let leaderboardCabnFilter = {}
-  let cabnFilter = {}
+  let leaderboardCabnFilter: any = {}
+  let cabnFilter: any = {}
   let leaderboardIds = await db.Leaderboards.find(leaderboardFilter).distinct('_id')
 
   if (leaderboardIds && leaderboardIds.length > 0) {
@@ -54,11 +53,11 @@ async function triggerJobs() {
   }
 }
 
-function fetchTokenHolders(list) {
+function fetchTokenHolders(list: any) {
 
   if (list && list.length > 0) {
     for (let i = 0; i < list.length; i++) {
-      global.bscScanTokenHolders.findTokenHolders(list[i])
+      (global as any).bscScanTokenHolders.findTokenHolders(list[i])
     }
   }
 }

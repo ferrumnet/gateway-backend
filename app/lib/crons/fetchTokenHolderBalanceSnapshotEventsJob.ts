@@ -1,12 +1,11 @@
-const { db, asyncMiddleware, commonFunctions } = global
 var cron = require('node-cron');
 var uab = require('unique-array-objects');
-const axios = require('axios').default;
-let filter = {}
-let limit = 20
+var axios = require('axios').default;
+var filter = {}
+var limit = 20
 
 module.exports = function () {
-  if (global.starterEnvironment.isCronIntance == 'no') {
+  if ((global as any).starterEnvironment.isCronIntance == 'no') {
     start();
   }
 }
@@ -27,12 +26,12 @@ async function triggerJobs() {
   fetchTokenHolders(tokenHolderBalanceSnapshotEvents)
 }
 
-function fetchTokenHolders(list) {
+function fetchTokenHolders(list: any) {
   console.log(list.length)
   if (list && list.length > 0) {
     for (let i = 0; i < list.length; i++) {
-      let item = list[i]
-      global.timeoutHelper.setSnapshotEventsTimeout(item)
+      var item: any = list[i]
+      (global as any).timeoutHelper.setSnapshotEventsTimeout(item)
     }
   }
 }
