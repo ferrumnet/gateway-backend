@@ -1,17 +1,16 @@
-const { db, asyncMiddleware, commonFunctions } = global;
-const axios = require("axios").default;
+var axios = require("axios").default;
 
-function sendGridEmail(user, isFor = "otp", to = null) {
-  var postData;
+function sendGridEmail(user: any, isFor = "otp", to = null) {
+  var postData: any;
 
   let config = {
     headers: {
       "Content-Type": "application/json",
-      Authorization: "Bearer " + global.environment.sendGridApiKey,
+      Authorization: "Bearer " + (global as any).environment.sendGridApiKey,
     },
   };
 
-  let url = global.environment.sendGridBaseUrl + "/v3/mail/send";
+  let url = (global as any).environment.sendGridBaseUrl + "/v3/mail/send";
 
   var detail = "";
   if (isFor == "link") {
@@ -36,30 +35,30 @@ function sendGridEmail(user, isFor = "otp", to = null) {
   return new Promise((resolve, reject) => {
     axios
       .post(url, postData, config)
-      .then((response) => {
+      .then((response: any) => {
         resolve("");
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.log(error);
         reject(error);
       });
   });
 }
 
-function makeObjectBodyForOtp(user, sendTo) {
-  var body = {};
-  var from = {};
+function makeObjectBodyForOtp(user: any, sendTo: any) {
+  var body: any = {};
+  var from: any = {};
   var personalizations = [];
   var to = [];
-  var dynamic_template_data = {};
+  var dynamic_template_data: any = {};
 
-  from.email = global.environment.sendGridTransactionalFromEmailAddress;
-  from.name = global.environment.sendGridTransactionalFromName;
+  from.email = (global as any).environment.sendGridTransactionalFromEmailAddress;
+  from.name = (global as any).environment.sendGridTransactionalFromName;
 
-  emailTo = sendTo ? sendTo : user.email;
+  let emailTo = sendTo ? sendTo : user.email;
   to.push({ email: emailTo });
   dynamic_template_data.otp = user.emailVerificationCode;
-  dynamic_template_data.subject = global.environment.sendGridSubjectOtp;
+  dynamic_template_data.subject = (global as any).environment.sendGridSubjectOtp;
 
   personalizations.push({
     to: to,
@@ -68,23 +67,23 @@ function makeObjectBodyForOtp(user, sendTo) {
 
   body.from = from;
   body.personalizations = personalizations;
-  body.template_id = global.environment.sendGridTemplateIdForOtp;
+  body.template_id = (global as any).environment.sendGridTemplateIdForOtp;
   return body;
 }
 
-function makeObjectBodyForLink(user) {
-  var body = {};
-  var from = {};
+function makeObjectBodyForLink(user: any) {
+  var body: any = {};
+  var from: any = {};
   var personalizations = [];
   var to = [];
-  var dynamic_template_data = {};
+  var dynamic_template_data: any = {};
 
-  from.email = global.environment.sendGridTransactionalFromEmailAddress;
-  from.name = global.environment.sendGridTransactionalFromName;
+  from.email = (global as any).environment.sendGridTransactionalFromEmailAddress;
+  from.name = (global as any).environment.sendGridTransactionalFromName;
 
   to.push({ email: user.email });
   dynamic_template_data.resetPasswordLink = user.link;
-  dynamic_template_data.subject = global.environment.sendGridSubjectLink;
+  dynamic_template_data.subject = (global as any).environment.sendGridSubjectLink;
 
   personalizations.push({
     to: to,
@@ -93,12 +92,12 @@ function makeObjectBodyForLink(user) {
 
   body.from = from;
   body.personalizations = personalizations;
-  body.template_id = global.environment.sendGridTemplateIdForLink;
+  body.template_id = (global as any).environment.sendGridTemplateIdForLink;
 
   return body;
 }
 
-function makeOtpDetailForSMTP(user) {
+function makeOtpDetailForSMTP(user: any) {
   let detail = `To verify your email address, please use the following One Time Password (OTP):<br/><br/>
 
   ${user.emailVerificationCode}
@@ -110,7 +109,7 @@ function makeOtpDetailForSMTP(user) {
   return detail;
 }
 
-function makeLinkDetailForSMTP(user) {
+function makeLinkDetailForSMTP(user: any) {
   let detail = `To verify your email address, please use the following One Time Password (OTP):<br/><br/>
 
   ${user.link}

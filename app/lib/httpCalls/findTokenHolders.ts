@@ -1,15 +1,14 @@
+import { reject } from "bluebird";
 
-const { db, asyncMiddleware, commonFunctions, stringHelper, timeoutHelper } = global
-const axios = require('axios').default;
-const https = require('https');
+var https = require('https');
 var totalThreshold = 0
 
-const findTokenHolders = async (model, isFromSnapshotEvent = false) => {
+const findTokenHolders = async (model: any, isFromSnapshotEvent = false) => {
   totalThreshold = 2
   sendCallForBlockNo(model, isFromSnapshotEvent)
 }
 
-const sendCallForBlockNo = async (model, isFromSnapshotEvent) => {
+const sendCallForBlockNo = async (model: any, isFromSnapshotEvent: any) => {
   let timestamp = Math.round(new Date().getTime() / 1000).toString();
   console.log(timestamp);
 
@@ -19,10 +18,10 @@ const sendCallForBlockNo = async (model, isFromSnapshotEvent) => {
     }
   }
 
-  let path = `/api?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=${global.environment.bscscanApiKey}`
+  let path = `/api?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=${(global as any).environment.bscscanApiKey}`
   console.log(path)
   var options = {
-    hostname: global.environment.bscscanHostName,
+    hostname: (global as any).environment.bscscanHostName,
     path: path,
     method: 'GET',
     headers: {
@@ -30,10 +29,10 @@ const sendCallForBlockNo = async (model, isFromSnapshotEvent) => {
     }
   }
 
-  const request = https.request(options, res => {
+  const request = https.request(options, (res: any) => {
     let data = '';
     console.log(`statusCode: ${res.statusCode}`)
-    res.on('data', chunk => {
+    res.on('data', (chunk: any) => {
       data += chunk;
     })
     if (res.statusCode === 202 || res.statusCode === 201 || res.statusCode === 200) {
@@ -52,14 +51,14 @@ const sendCallForBlockNo = async (model, isFromSnapshotEvent) => {
     }
   })
 
-  request.on('error', error => {
+  request.on('error', (error: any) => {
     reject(error)
   })
   request.end()
 
 }
 
-const sendCallForTokenHolders = async (model, isFromSnapshotEvent) => {
+const sendCallForTokenHolders = async (model: any, isFromSnapshotEvent: any) => {
   let tokenContractAddress = ''
 
   if (model.tokenContractAddress) {
@@ -72,10 +71,10 @@ const sendCallForTokenHolders = async (model, isFromSnapshotEvent) => {
     }
   }
 
-  let path = `/api?module=token&action=tokenholderlist&contractaddress=${tokenContractAddress}&apikey=${global.environment.bscscanApiKey}`
+  let path = `/api?module=token&action=tokenholderlist&contractaddress=${tokenContractAddress}&apikey=${(global as any).environment.bscscanApiKey}`
   console.log(path)
   var options = {
-    hostname: global.environment.bscscanHostName,
+    hostname: (global as any).environment.bscscanHostName,
     path: path,
     method: 'GET',
     headers: {
@@ -83,10 +82,10 @@ const sendCallForTokenHolders = async (model, isFromSnapshotEvent) => {
     }
   }
 
-  const request = https.request(options, res => {
+  const request = https.request(options, (res: any) => {
     let data = '';
     console.log(`statusCode: ${res.statusCode}`)
-    res.on('data', chunk => {
+    res.on('data', (chunk: any) => {
       data += chunk;
     })
     if (res.statusCode === 202 || res.statusCode === 201 || res.statusCode === 200) {
@@ -116,14 +115,14 @@ const sendCallForTokenHolders = async (model, isFromSnapshotEvent) => {
     }
   })
 
-  request.on('error', error => {
+  request.on('error', (error: any) => {
     reject(error)
   })
   request.end()
 
 }
 
-const updateTokenHolders = async (model, result, isFromSnapshotEvent) => {
+const updateTokenHolders = async (model: any, result: any, isFromSnapshotEvent: any) => {
   console.log('============result============')
   console.log(result.length)
   console.log(model)
@@ -157,7 +156,7 @@ const updateTokenHolders = async (model, result, isFromSnapshotEvent) => {
 
 }
 
-const updateTokenHolderBalanceSnapshotEvent = async (model, update) => {
+const updateTokenHolderBalanceSnapshotEvent = async (model: any, update: any) => {
   await db.TokenHolderBalanceSnapshotEvents.findOneAndUpdate({ _id: model.tokenHolderBalanceSnapshotEvent }, update, { new: true })
 }
 

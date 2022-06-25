@@ -1,9 +1,8 @@
+import { reject } from "bluebird";
+var https = require('https');
+var moment = require("moment");
 
-const { db, asyncMiddleware, commonFunctions, stringHelper, timeoutHelper } = global
-const axios = require('axios').default;
-const https = require('https');
-
-const findCovalenthqBlock = async (job) => {
+const findCovalenthqBlock = async (job: any) => {
 
   let chainId = ''
   let start = ''
@@ -60,21 +59,21 @@ const findCovalenthqBlock = async (job) => {
   }
   console.log(start)
   console.log(end)
-  let url = `${global.environment.covalenthqBaseUrl}${chainId}/block_v2/${start}/${end}/?quote-currency=USD&format=JSON&key=${global.environment.covalenthqApiKey}`
+  let url = `${(global as any).environment.covalenthqBaseUrl}${chainId}/block_v2/${start}/${end}/?quote-currency=USD&format=JSON&key=${(global as any).environment.covalenthqApiKey}`
   console.log(url)
   var options = {
     hostname: 'api.covalenthq.com',
-    path: '/v1/' + `${chainId}/block_v2/${start}/${end}/?quote-currency=USD&format=JSON&key=${global.environment.covalenthqApiKey}`,
+    path: '/v1/' + `${chainId}/block_v2/${start}/${end}/?quote-currency=USD&format=JSON&key=${(global as any).environment.covalenthqApiKey}`,
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
     }
   }
 
-  const request = https.request(options, res => {
+  const request = https.request(options, (res: any) => {
     let data = '';
     console.log(`statusCode: ${res.statusCode}`)
-    res.on('data', chunk => {
+    res.on('data', (chunk: any) => {
       data += chunk;
     })
     if (res.statusCode === 202 || res.statusCode === 201 || res.statusCode === 200) {
@@ -96,7 +95,7 @@ const findCovalenthqBlock = async (job) => {
     }
   })
 
-  request.on('error', error => {
+  request.on('error', (error: any) => {
     reject(error)
   })
   request.end()
@@ -108,14 +107,14 @@ const someFunction = () => {
   })
 }
 
-const updateCompetition = async (job, height) => {
+const updateCompetition = async (job: any, height: any) => {
   console.log('============height============')
   console.log(height)
   if (job.status && job.status == stringHelper.tagStartBlock) {
     await db.Competitions.findOneAndUpdate({ _id: job.competition._id }, { startBlock: height }, { new: true })
     let updatedJob = await db.Jobs.findOneAndUpdate({ _id: job._id }, { status: stringHelper.tagEndBlock, startBlock: height }, { new: true })
     updatedJob.competition = job.competition
-    global.timeoutHelper.setCompetitionTimeout(updatedJob)
+    (global as any).timeoutHelper.setCompetitionTimeout(updatedJob)
   } else {
     await db.Competitions.findOneAndUpdate({ _id: job.competition._id }, { endBlock: height }, { new: true })
     await db.Jobs.findOneAndUpdate({ _id: job._id }, { endBlock: height }, { new: true })

@@ -1,10 +1,8 @@
-const axios = require("axios").default;
-var Web3 = require('web3');
-const { Big } =  require("big.js");
+var axios = require("axios").default;
 
 module.exports = {
  // 
-  async getTokensUSDValues(coingeckoTokenIds) {
+  async getTokensUSDValues(coingeckoTokenIds: any) {
     //coingeckoTokenIds = ferrum-network,frmx-token
     try {
       const res = await axios.get(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coingeckoTokenIds.toString()}`);

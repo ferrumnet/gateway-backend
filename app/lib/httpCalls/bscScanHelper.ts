@@ -1,18 +1,18 @@
-const axios = require("axios").default;
+var axios = require("axios").default;
 var Web3 = require('web3');
-const { Big } =  require("big.js");
+var { Big } =  require("big.js");
 
 module.exports = {
-  async queryByCABN(cabn, startBlock, endBlock) {
+  async queryByCABN(cabn: any, startBlock: any, endBlock: any) {
     try {
-      const res = await axios.get(`https://api.bscscan.com/api?module=account&action=tokentx&contractaddress=${cabn}&page=1&offset=10000&startblock=${startBlock}&endblock=${endBlock}&sort=asc&apikey=${global.environment.bscscanApikeyForCompetition}`);
+      const res = await axios.get(`https://api.bscscan.com/api?module=account&action=tokentx&contractaddress=${cabn}&page=1&offset=10000&startblock=${startBlock}&endblock=${endBlock}&sort=asc&apikey=${(global as any).environment.bscscanApikeyForCompetition}`);
       return res.data.result ? res.data.result : [];
     } catch (error) {
       console.log(error);
     }
   },
 
-  async queryStakingInfo(address,token){
+  async queryStakingInfo(address: any,token: any){
     const res = await axios.post(`https://imqx88xczt.us-east-2.awsapprunner.com/`, {
       command: 'stakeInfo',
       data: {
@@ -29,9 +29,9 @@ module.exports = {
     return 0
   },
 
-  async queryContract(address,currency){
+  async queryContract(address: any,currency: any){
 
-    const data = await axios.get(`https://api.bscscan.com/api?module=contract&action=getabi&address=${address}&apikey=${global.environment.bscscanApikeyForCompetition}`);
+    const data = await axios.get(`https://api.bscscan.com/api?module=contract&action=getabi&address=${address}&apikey=${(global as any).environment.bscscanApikeyForCompetition}`);
 
     var contractABI = "";
 
@@ -56,9 +56,9 @@ module.exports = {
     }
   },
 
-  async queryStakingContract(address,currency){
+  async queryStakingContract(address: any,currency: any){
 
-    const data = await axios.get(`https://api.bscscan.com/api?module=contract&action=getabi&address=${address}&apikey=${global.environment.bscscanApikeyForCompetition}`);
+    const data = await axios.get(`https://api.bscscan.com/api?module=contract&action=getabi&address=${address}&apikey=${(global as any).environment.bscscanApikeyForCompetition}`);
 
     var contractABI = "";
 
@@ -82,10 +82,10 @@ module.exports = {
   },
 
 
-  async queryByCABNAndToken(tokenContractAddress,cabn, startBlock, endBlock){
+  async queryByCABNAndToken(tokenContractAddress: any,cabn: any, startBlock: any, endBlock: any){
     try {
 
-      const res = await axios.get(`https://api.bscscan.com/api?module=account&action=tokentx&contractaddress=${tokenContractAddress}&address=${cabn}&startblock=${startBlock}&endblock=${endBlock}&sort=asc&apikey=${global.environment.bscscanApikeyForCompetition}`)
+      const res = await axios.get(`https://api.bscscan.com/api?module=account&action=tokentx&contractaddress=${tokenContractAddress}&address=${cabn}&startblock=${startBlock}&endblock=${endBlock}&sort=asc&apikey=${(global as any).environment.bscscanApikeyForCompetition}`)
       return res.data.result ? res.data.result : [];
 
     } catch (error) {
@@ -95,9 +95,9 @@ module.exports = {
     }
   },
 
-  async queryBlockNumber(timestamp) {
+  async queryBlockNumber(timestamp: any) {
     try {
-      const res = await axios.get(`https://api.bscscan.com/api?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=${global.environment.bscscanApikeyForCompetition}`);
+      const res = await axios.get(`https://api.bscscan.com/api?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=${(global as any).environment.bscscanApikeyForCompetition}`);
       return res.data.result ? res.data.result : [];
     } catch (err) {
       console.error(err);
