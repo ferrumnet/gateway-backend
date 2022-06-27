@@ -1,6 +1,3 @@
-
-var moment = require('moment');
-
 // error messages
 let strErrorInvalidCredentials = 'Backend_Error_Invalid_Credentials'
 var strErrorSiteNameAlreadyExists = "Backend_Error_SiteName_Already_Exists"
@@ -31,9 +28,9 @@ var strErrorProductNotFound = "Backend_Error_Product_Not_Found"
 let strErrorUniqueEmailRequired = 'Backend_Error_Unique_Email_Required'
 var strErrorActiveProductRequired = "Backend_Error_Active_Product_Required"
 var strErrorAlreadyPledged = "Backend_Error_Already_Pledged"
-var strErrorPackageNotFound = "Backend_Error_Package_Not_Found" 
-var strErrorSubscriptionNotFound = "Backend_Error_Not_Found_Subscription" 
-var strErrorSubscriptionAlreadyExists = "Backend_Error_Subscription_Already_Exists" 
+var strErrorPackageNotFound = "Backend_Error_Package_Not_Found"
+var strErrorSubscriptionNotFound = "Backend_Error_Not_Found_Subscription"
+var strErrorSubscriptionAlreadyExists = "Backend_Error_Subscription_Already_Exists"
 let strErrorPreviousSequenceNotCompleted='Backend_Error_Previous_Sequence_Not_Completed'
 let strNoUserStepFlowHistoryAvailable='Backend_No_StepFlow_History_Available'
 let strErrorCronNotFound='Backend_Error_Cron_Not_Found'
