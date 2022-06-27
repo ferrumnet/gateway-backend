@@ -1,4 +1,5 @@
-const { db, moment } = global;
+const { db } = global;
+var moment = require('moment');
 const Web3 = require("web3");
 
 module.exports = {
