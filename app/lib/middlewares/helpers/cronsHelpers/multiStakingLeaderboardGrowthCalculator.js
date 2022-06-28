@@ -14,11 +14,29 @@ module.exports = {
       await mSLGTrackerHelper.updateStakesHolderHoldings(holdingsData.holdings);
     }
   },
+
+  calculateLevelUpTokens(growths, leaderboardCabns, cabnsValueInUsd) {
+    for (var i = 0; i < growths.length; i++) {
+     let levelUpTokens = []
+      for(var j = 0; j < leaderboardCabns.length; j++) {
+       let cabnUSD = cabnsValueInUsd[leaderboardCabns[j]]
+       if(cabnUSD){
+        let buyTOlevelUp = growths[i].levelUpAmount/cabnUSD.USD
+       levelUpTokens.push({cabn:leaderboardCabns[j], tokenName:cabnUSD.name, buyTOlevelUp})
+       }
+     }
+     growths[i].levelUpTokensWithWalletBalance = levelUpTokens
+    }
+    return growths 
+  },
   
-  async updateParticipantsStakingGrowth(leaderboardId){
-    let growths = await mSLGTrackerHelper.getParticipantsHoldingsGrowthInUsd(leaderboardId);
+  
+  async updateParticipantsStakingGrowth(leaderboardId, leaderboardCabns, cabnsValueInUsd){
+    let growths = await mSLGTrackerHelper.getParticipantsHoldingsGrowthInUsd(leaderboardId);   
+    
     growths = growths.sort((participant1, participant2) => participant1.totalGrowthInUsd > participant2.totalGrowthInUsd ? -1 : 1 );
     growths = this.calculateRankAndLevelUpAmount(growths);
+   growths = this.calculateLevelUpTokens(growths, leaderboardCabns, cabnsValueInUsd)
     await mSLGTrackerHelper.updateStakesHolderGrowth(growths);
   },
 
@@ -47,7 +65,7 @@ module.exports = {
     let notFoundHoldings = [];
     wallestBalances.forEach((wallestBalance) => {
       let index = participantsGrowths.findIndex((participant) => participant.stakeHolderWalletAddress === wallestBalance.tokenHolderAddress);
-      let usdValue = cabnsValueInUsd[wallestBalance.currencyAddressesByNetwork ]
+      let cabnUsdValue = cabnsValueInUsd[wallestBalance.currencyAddressesByNetwork ]
       if (index > -1) {
         let holding = undefined
         if(participantsGrowths[index].holdings){
@@ -57,7 +75,7 @@ module.exports = {
         let stakedAmount = holding ? holding.stakedAmount: '0'
         holdings.push({
           tokenContractAddress: wallestBalance.tokenContractAddress,
-          totalHoldingUSDValue: this.calculateTotalHoldingUSDValue(stakedAmount, wallestBalance.tokenHolderQuantity, usdValue),
+          totalHoldingUSDValue: this.calculateTotalHoldingUSDValue(stakedAmount, wallestBalance.tokenHolderQuantity, cabnUsdValue.USD),
           walletCurrentBalance: wallestBalance.tokenHolderQuantity,
           stakedAmount: stakedAmount,
           stakingLeaderboardGrowthTracker:participantsGrowths[index]._id,
@@ -78,7 +96,9 @@ module.exports = {
   },
 
   calculateLevelUpAmount(previousParticipantGrowth, currentParticipantGrowth) {
-    let levelUpAmountDefaultFactor = 1;
-    return (previousParticipantGrowth.totalGrowthInUsd - currentParticipantGrowth.totalGrowthInUsd + levelUpAmountDefaultFactor);
+    let levelUpAmount = 1;
+    levelUpAmount += previousParticipantGrowth.totalGrowthInUsd
+    levelUpAmount -= currentParticipantGrowth.totalGrowthInUsd
+    return levelUpAmount
   },
 };
