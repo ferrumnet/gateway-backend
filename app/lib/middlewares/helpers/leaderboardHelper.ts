@@ -1,13 +1,12 @@
-const { db, asyncMiddleware, commonFunctions, stringHelper, timeoutHelper, timeoutCallBack, utils, bscScanTokenHolders } = global
 var mongoose = require('mongoose');
 
 module.exports = {
 
-  async getLeaderboardsCountById(req){
+  async getLeaderboardsCountById(req: any){
     const filter = { _id: req.body.leaderboard, isActive: true }
     return await db.Leaderboards.countDocuments(filter)
   },
-  convertListIntoLowercase(list) {
+  convertListIntoLowercase(list: any) {
 
     if (list && list.length > 0) {
       for (let i = 0; i < list.length; i++) {
@@ -19,7 +18,7 @@ module.exports = {
 
     return list
   },
-  async createLeaderboardCurrencyAddressesByNetwork(body, model) {
+  async createLeaderboardCurrencyAddressesByNetwork(body: any, model: any) {
 
     let results = []
     if (model && body.currencyAddressesByNetwork && body.currencyAddressesByNetwork.length > 0) {
@@ -40,7 +39,7 @@ module.exports = {
 
     return results
   },
-  fetchTokenHolders(list) {
+  fetchTokenHolders(list: any) {
 
     if (list && list.length > 0) {
       for (let i = 0; i < list.length; i++) {
@@ -48,7 +47,7 @@ module.exports = {
       }
     }
   },
-  async createLeaderboardStakingContractAddresses(body, model) {
+  async createLeaderboardStakingContractAddresses(body: any, model: any) {
 
     let results = []
     if (model && body.leaderboardStakingContractAddresses && body.leaderboardStakingContractAddresses.length > 0) {

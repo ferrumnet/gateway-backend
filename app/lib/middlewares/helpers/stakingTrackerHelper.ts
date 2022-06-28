@@ -1,9 +1,8 @@
-const { db } = global;
-var moment = require('moment');
-const Web3 = require("web3");
+import moment from 'moment';
+var Web3 = require("web3");
 
 module.exports = {
-  async calculate(currencyAddressesByNetwork, stakingContractAddress) {
+  async calculate(currencyAddressesByNetwork: any, stakingContractAddress: any) {
     let participants = await db.StakingsTracker.find({
       stakingContractAddress,
       currencyAddressesByNetwork,
@@ -13,8 +12,8 @@ module.exports = {
     this.storeUpdatedGrowth(participants, currencyAddressesByNetwork);
   },
 
-  sortParticipants(participants) {
-    let sortedParticipants = participants.sort((participant1, participant2) => {
+  sortParticipants(participants: any) {
+    let sortedParticipants = participants.sort((participant1: any, participant2: any) => {
       let participant1Growth = Number(participant1.stakingLeaderboardBalance);
       let participant2Growth = Number(participant2.stakingLeaderboardBalance);
       return participant1Growth < participant2Growth ? 1 : -1;
@@ -22,7 +21,7 @@ module.exports = {
     return sortedParticipants;
   },
 
-  participantsDataCalculation(sortedParticipants) {
+  participantsDataCalculation(sortedParticipants: any) {
     for (let i = 0; i < sortedParticipants.length; i++) {
       sortedParticipants[i].rank = i + 1;
       if (i > 0) {
@@ -39,11 +38,11 @@ module.exports = {
   },
 
   calculateLevelUpAmount(
-    previousParticipantGrowth,
-    currentParticipantGrowth,
-    index
+    previousParticipantGrowth: any,
+    currentParticipantGrowth: any,
+    index: any
   ) {
-    let levelUpAmount = "";
+    let levelUpAmount: any = "";
     let growthFactor = 1;
     if (index > 0) {
       let previousParticipantGrowthBN = Number(previousParticipantGrowth);
@@ -54,10 +53,10 @@ module.exports = {
     return levelUpAmount.toString();
   },
 
-  async storeUpdatedGrowth(participants, currencyAddressesByNetwork) {
-    let data = [];
+  async storeUpdatedGrowth(participants: any, currencyAddressesByNetwork: any) {
+    let data: any = [];
     const updatedAt = new Date();
-    participants.forEach((participant) => {
+    participants.forEach((participant: any) => {
       if (participant) {
         data.push({
           updateOne: {
@@ -83,7 +82,7 @@ module.exports = {
     await db.StakingsTracker.collection.bulkWrite(data);
   },
 
-  async intiatParticipentsData(cabn, stakingContractAddress) {
+  async intiatParticipentsData(cabn: any, stakingContractAddress: any) {
     let filter = { currencyAddressesByNetwork: cabn, stakingContractAddress };
     let participants = await db.StakingsTracker.find(filter);
     if (participants.length == 0) {
@@ -99,7 +98,7 @@ module.exports = {
     return await db.StakingsTracker.find(filter);
   },
 
-  async reSyncBlances(participants, cabn, stakingContractAddress) {
+  async reSyncBlances(participants: any, cabn: any, stakingContractAddress: any) {
     if (participants.length > 0) {
       let updatedAt = moment(participants[0].updatedAt);
       let currentTime = moment();
@@ -109,7 +108,7 @@ module.exports = {
           cabn,
           stakingContractAddress
         );
-        result = this.RecalculateGrowth(participants, participantsBalances);
+        var result = this.RecalculateGrowth(participants, participantsBalances);
         result = this.sortParticipants(result);
         result = this.participantsDataCalculation(result);
         await this.storeUpdatedGrowth(result, cabn);
@@ -117,10 +116,10 @@ module.exports = {
     }
   },
 
-  RecalculateGrowth(participants, participantsBalances) {
-    participantsBalances.forEach((balance) => {
+  RecalculateGrowth(participants: any, participantsBalances: any) {
+    participantsBalances.forEach((balance: any) => {
       let index = participants.findIndex(
-        (participant) =>
+        (participant: any) =>
           participant.stakeHolderWalletAddress ==
           balance.stakeHolderWalletAddress
       );
@@ -140,16 +139,16 @@ module.exports = {
     return participants;
   },
 
-  async getIntialBalance(currencyAddressesByNetwork, stakingContractAddress) {
+  async getIntialBalance(currencyAddressesByNetwork: any, stakingContractAddress: any) {
     let filter = { currencyAddressesByNetwork };
-    result = await db.TokenHoldersCurrencyAddressesByNetwork.find(filter);
+    var result = await db.TokenHoldersCurrencyAddressesByNetwork.find(filter);
     if (result.length == 0) {
       result = await db.TokenHoldersCurrencyAddressesByNetworkSnapShot.find(
         filter
       );
     }
     if (result.length > 0) {
-      result = result.map((item) => {
+      result = result.map((item: any) => {
         let stakedAmount = Web3.utils.fromWei(
           item.tokenHolderQuantity,
           "ether"

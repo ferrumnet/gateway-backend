@@ -1,30 +1,28 @@
 
-const { db } = global;
-
 module.exports = {
-    async getCompetitionParticipants(tokenContractAddress, competitionId, competion){
+    async getCompetitionParticipants(tokenContractAddress: any, competitionId: any, competion: any){
         let filter = {tokenContractAddress:tokenContractAddress, competition:competitionId}
         let participants = await db.CompetitionGrowthTracker.find(filter)
 
         if(participants.length == 0 ){
             let tokenHoldersCurrencyAddressesByNetworkFilter = {currencyAddressesByNetwork: competion.CABN._id}
             console.log(tokenHoldersCurrencyAddressesByNetworkFilter)
-            result = await db.TokenHoldersCurrencyAddressesByNetwork.find(tokenHoldersCurrencyAddressesByNetworkFilter)
+            var result = await db.TokenHoldersCurrencyAddressesByNetwork.find(tokenHoldersCurrencyAddressesByNetworkFilter)
             if (result.length == 0) {
               result = await db.TokenHoldersCurrencyAddressesByNetworkSnapShot.find(tokenHoldersCurrencyAddressesByNetworkFilter)
             }
             //initialize tracker start balances
             if(result.length > 0){
-                result = result.map((item) => ({competition:competitionId, tokenContractAddress: item.tokenContractAddress, tokenHolderAddress: item.tokenHolderAddress, tokenHolderQuantity:item.tokenHolderQuantity }));
+                result = result.map((item: any) => ({competition:competitionId, tokenContractAddress: item.tokenContractAddress, tokenHolderAddress: item.tokenHolderAddress, tokenHolderQuantity:item.tokenHolderQuantity }));
                 participants = await db.CompetitionGrowthTracker.insertMany(result)
               }
         }
         return participants
     },
 
-    async storeCompetitionGrowth(tokenContractAddress, competitionId, participants){
-        let data = [];
-        participants.forEach(participant => {
+    async storeCompetitionGrowth(tokenContractAddress: any, competitionId: any, participants: any){
+        let data: any = [];
+        participants.forEach((participant: any) => {
             if(participant){
                 data.push({
                     updateOne: {

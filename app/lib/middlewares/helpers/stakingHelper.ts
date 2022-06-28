@@ -1,14 +1,12 @@
+import moment from 'moment';
 const {
   waitForConfirmation,
   default: algosdk,
   ALGORAND_MIN_TX_FEE,
 } = require("algosdk");
-const fs = require("fs");
+var fs = require("fs");
 const { spawn } = require("child_process");
-const { Promise, reject } = require("bluebird");
-const { resolve } = require("path");
-const { db } = global;
-const axios = require("axios").default;
+var axios = require("axios").default;
 require("dotenv").config();
 // const PythonShell = require("python-shell").PythonShell;
 
@@ -20,14 +18,14 @@ const creatorMnemonic =
   "flight permit skill quick enforce strong hobby cloud letter foot can fee affair buddy exact link glare amused drama rain airport casual shoe abstract puppy";
 
 async function deployContract(
-  tokenAddress,
-  stakingCapital,
-  stakingStarts,
-  stakingEnds,
-  withdrawStarts,
-  withdrawEnds,
-  stakingId,
-  storageAppId
+  tokenAddress: any,
+  stakingCapital: any,
+  stakingStarts: any,
+  stakingEnds: any,
+  withdrawStarts: any,
+  withdrawEnds: any,
+  stakingId: any,
+  storageAppId: any
 ) {
   // ADMIN
   // creatorMnemonic =
@@ -100,17 +98,17 @@ async function deployContract(
   appArgs.push(algosdk.encodeUint64(withdraw_ends));
   appArgs.push(algosdk.encodeUint64(staking_total));
   appArgs.push(algosdk.encodeUint64(total_supply));
-  accounts = [];
-  foreignApps = [];
-  foreignAssets = [];
+  var accounts: any = [];
+  var foreignApps: any = [];
+  var foreignAssets: any = [];
   foreignAssets.push(token_address);
   foreignAssets.push(reward_address);
 
   // declare application state storage (immutable)
-  localInts = 4;
-  localBytes = 4;
-  globalInts = 20;
-  globalBytes = 5;
+  var localInts = 4;
+  var localBytes = 4;
+  var globalInts = 20;
+  var globalBytes = 5;
 
   // Get ByteCode of Approval Program
   let approvalProgram = await readApprovalTeal(false);
@@ -121,7 +119,7 @@ async function deployContract(
   // console.log("Clear Program ByteCode: ",clearProgram);
 
   // declare onComplete as NoOp to execute the SmartContract
-  onComplete = algosdk.OnApplicationComplete.NoOpOC;
+  var onComplete = algosdk.OnApplicationComplete.NoOpOC;
 
   // create unsigned transaction
   let txn = algosdk.makeApplicationCreateTxn(
@@ -173,7 +171,7 @@ async function deployContract(
   );
   return { appId, encodedAddress: encodedAddress.data.contractAddress };
 }
-async function readApprovalTeal(isStorageApp) {
+async function readApprovalTeal(isStorageApp: any) {
   var approvalProgramSource;
   var content;
   if (!isStorageApp) {
@@ -192,19 +190,19 @@ async function readApprovalTeal(isStorageApp) {
 }
 
 async function readClearTeal() {
-  clearProgramSource = `#pragma version 4
+  var clearProgramSource = `#pragma version 4
     int 1
     `;
   var content = await getCompiledResult(clearProgramSource);
   return content;
 }
 
-async function getCompiledResult(data) {
+async function getCompiledResult(data: any) {
   let compiledSource = await compileTEAL(data);
   return compiledSource;
 }
 
-async function compileTEAL(content) {
+async function compileTEAL(content: any) {
   // Setup AlgodClient Connection
   // const algodToken =
   //   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
@@ -221,7 +219,7 @@ async function compileTEAL(content) {
   return compiledSource;
 }
 // to compile program source (TEAL) to Bytecode
-async function compileProgram(algodClient, programSource) {
+async function compileProgram(algodClient: any, programSource: any) {
   let encoder = new TextEncoder();
   let programBytes = encoder.encode(programSource);
   let compileResponse = await algodClient.compile(programBytes).do();
@@ -230,7 +228,7 @@ async function compileProgram(algodClient, programSource) {
   );
   return compileBytes;
 }
-async function setup(tokenAddress, stakingCapital, appId) {
+async function setup(tokenAddress: any, stakingCapital: any, appId: any) {
   // Setup AlgodClient Connection
   // const algodToken =
   //   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
@@ -254,9 +252,9 @@ async function setup(tokenAddress, stakingCapital, appId) {
   let token_address = Number(tokenAddress);
   let reward_address = Number(tokenAddress);
   // let reward_address = Number(stakingCapital);
-  account = [];
-  foreignApp = [];
-  foreignAssets = [];
+  var account: any = [];
+  var foreignApp: any = [];
+  var foreignAssets: any = [];
   foreignAssets.push(token_address);
   foreignAssets.push(reward_address);
 
@@ -297,11 +295,11 @@ async function setup(tokenAddress, stakingCapital, appId) {
   return txResponse;
 }
 async function addReward(
-  tokenAddress,
-  encodedAddress,
-  rewardAmount,
-  withdrawableAmount,
-  appId
+  tokenAddress: any,
+  encodedAddress: any,
+  rewardAmount: any,
+  withdrawableAmount: any,
+  appId: any
 ) {
   console.log("---" + encodedAddress.replace(/\s/g, "") + "---");
   // Setup AlgodClient Connection
@@ -333,9 +331,9 @@ async function addReward(
   let reward_address = Number(tokenAddress);
   // let reward_address = 66863719;
   // let reward_address = 77861997;
-  account = [];
-  foreignApp = [];
-  foreignAssets = [];
+  var account: any = [];
+  var foreignApp = [];
+  var foreignAssets = [];
   foreignAssets.push(reward_address);
   let revocationTarget = undefined;
   let closeRemainderTo = undefined;
@@ -379,8 +377,8 @@ async function addReward(
   console.log(txGroup);
   // Sign each transaction
   // Sign each transaction in the group
-  signedTx1 = txnReward.signTxn(creatorAccount.sk);
-  signedTx2 = txnCall.signTxn(creatorAccount.sk);
+  var signedTx1 = txnReward.signTxn(creatorAccount.sk);
+  var signedTx2 = txnCall.signTxn(creatorAccount.sk);
 
   // Assemble transaction group
 
@@ -456,16 +454,16 @@ async function deployStorageApp() {
   suggestedParams.fee = 5000;
   suggestedParams.flatFee = true;
 
-  let appArgs = [];
-  accounts = [];
-  foreignApps = [];
-  foreignAssets = [];
+  let appArgs: any = [];
+  var accounts: any = [];
+  var foreignApps: any = [];
+  var foreignAssets: any = [];
 
   // declare application state storage (immutable)
-  localInts = 1;
-  localBytes = 1;
-  globalInts = 1;
-  globalBytes = 1;
+  var localInts = 1;
+  var localBytes = 1;
+  var globalInts = 1;
+  var globalBytes = 1;
 
   // Get ByteCode of Approval Program
   let approvalProgram = await readApprovalTeal(true);
@@ -477,7 +475,7 @@ async function deployStorageApp() {
   // console.log("Clear Program ByteCode: ",clearProgram);
 
   // declare onComplete as NoOp to execute the SmartContract
-  onComplete = algosdk.OnApplicationComplete.NoOpOC;
+  var onComplete = algosdk.OnApplicationComplete.NoOpOC;
 
   // create unsigned transaction
   let txn = algosdk.makeApplicationCreateTxn(

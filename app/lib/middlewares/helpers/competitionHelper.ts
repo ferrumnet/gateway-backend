@@ -1,15 +1,13 @@
-const { db } = global;
-
 module.exports = {
-  async updateCompetitionCurrentBlock(competitionId, currentBlock) {
+  async updateCompetitionCurrentBlock(competitionId: any, currentBlock: any) {
     const filter = {_id: competitionId}
     const payload = {currentBlock}
     const competition = await db.Competitions.updateOne(filter,payload);
     return competition
    },
 
-async getActiveCompetitionForGrowth(tokenContractAddress, applyFilter=true) {
-    let result =[];
+async getActiveCompetitionForGrowth(tokenContractAddress: any, applyFilter=true) {
+    let result: any =[];
     let filter = applyFilter ? { isActive: true, status:"published", startDate: {$lte:  new Date()}, endDate: { $gte: new Date()} }:{}
     let query = [
       { $match: filter},
@@ -68,7 +66,7 @@ async getActiveCompetitionForGrowth(tokenContractAddress, applyFilter=true) {
     ];
     const competitions = await db.Competitions.aggregate(query);
 
-    competitions.forEach((competition) => {
+    competitions.forEach((competition: any) => {
         if(competition.isActive ){ // can add for publish
         if(competition.leaderboard && competition.LCABN && competition.CABN){
             if(competition.leaderboard.isActive && competition.LCABN.isActive && competition.CABN.isActive){
