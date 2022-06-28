@@ -2,10 +2,9 @@ const { db } = global;
 
 module.exports = {
   async getWalletsBalancesByCABN(currencyAddressesByNetwork) {
-    result = await db.TokenHoldersCurrencyAddressesByNetwork.find({currencyAddressesByNetwork});
+    let result = await db.TokenHoldersCurrencyAddressesByNetwork.find({currencyAddressesByNetwork});
     if (result.length == 0) {
-      result = await db.TokenHoldersCurrencyAddressesByNetworkSnapShot.find({currencyAddressesByNetwork}
-      );
+      result = await db.TokenHoldersCurrencyAddressesByNetworkSnapShot.find({currencyAddressesByNetwork});
     }
     return result;
   },
@@ -40,14 +39,14 @@ module.exports = {
     return await db.StakingLeaderboardGrowthTracker.find({ _id: { $in: ids } });
   },
 
-  async getParticipantsHoldingsGrowthInUsd(leaderboard) {
-    let _ids = await db.StakingLeaderboardGrowthTracker.find({leaderboard}).select("_id");
+  async getParticipantsHoldingsGrowthInUsd(leaderboardId) {
+   let _ids = await db.StakingLeaderboardGrowthTracker.find({leaderboard:leaderboardId}).select("_id");
     _ids = _ids.map(id => id._id)
     return await db.StakingLeaderboardHoldingsTracker.aggregate([
-    { $match: { leaderboard: { $in: _ids } } },
+      { $match: { stakingLeaderboardGrowthTracker: { $in: _ids } } },
       {
         $group: {
-          _id: "$leaderboard",
+          _id: "$stakingLeaderboardGrowthTracker",
           totalGrowthInUsd: { $sum: "$totalHoldingUSDValue" },
         },
       },
@@ -65,15 +64,18 @@ module.exports = {
             update: {
               $set: {
                 growthInUsd: holding.totalGrowthInUsd,
-                levelUpAmount: holding.levelUpAmount,
+                usdLevelUpAmountWithWalletBalance: holding.levelUpAmount,
                 rank: holding.rank,
+                levelUpTokensWithWalletBalance: holding.levelUpTokensWithWalletBalance
               },
             },
           },
         });
       }
     });
-    await db.StakingLeaderboardGrowthTracker.collection.bulkWrite(data);
+    if(data.length > 0){
+      await db.StakingLeaderboardGrowthTracker.collection.bulkWrite(data);
+    }
     return true;
   },
 
