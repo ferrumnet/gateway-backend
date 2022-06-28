@@ -1,13 +1,7 @@
 var cron = require("node-cron");
-var calcaluteGrowthVolume = global.calcaluteGrowthVolume;
-var bscScanHelper = global.bscScanHelper;
-var CGTrackerHelper = global.CGTrackerHelper;
-var cTSnapshotHelper = global.cTSnapshotHelper;
-var competitionHelper = global.competitionHelper;
-var db = global.db;
 
 module.exports =  async function () {
- if(global.starterEnvironment.isCronEnvironmentSupportedForCompetitionTransactionsSnapshot === "yes"){
+ if((global as any).starterEnvironment.isCronEnvironmentSupportedForCompetitionTransactionsSnapshot === "yes"){
   try{
     //temporary conditions
     //let startBlock = await bscScanHelper.queryBlockNumber(getTimeStamp());
@@ -17,16 +11,16 @@ module.exports =  async function () {
 
      let isLock = false
      cron.schedule("*/2 * * * *", async () => {
-    
+
      if(!isLock){
          let pauseCron = await db.TemporaryPauseCrons.findOne({cronName:'competitiontransactionssnapshotjob'})
-         let cronIsActive = pauseCron._id ? pauseCron.isActive : true 
+         let cronIsActive = pauseCron._id ? pauseCron.isActive : true
          isLock = true;
          if(cronIsActive){
            await transactionSnapshotJob();
          }
          await updateTemporaryPauseCron(pauseCron)
-         isLock = false   
+         isLock = false
        }
      });
 
@@ -45,7 +39,7 @@ const transactionSnapshotJob = async () => {
       // alternative
       //1: on time of activate competition register with cTSnapshotHelper.createSnapshotMeta
       console.log('cron')
-      snapshotMetas = await cTSnapshotHelper.getActiveSnapshotMetas();
+      var snapshotMetas = await cTSnapshotHelper.getActiveSnapshotMetas();
       console.log('snapshotMetas.lenth' , snapshotMetas.length)
 
       if(snapshotMetas.length > 0){
@@ -72,7 +66,7 @@ const transactionSnapshotJob = async () => {
 };
 
 
-const competitionGrowthTrackerJob = async(tokenContractAddress, transactions, endBlock)=>{
+const competitionGrowthTrackerJob = async(tokenContractAddress: any, transactions: any, endBlock: any)=>{
   if(transactions.length > 0){
    let competitions = await competitionHelper.getActiveCompetitionForGrowth(tokenContractAddress);
    console.log('competitions.lenght=> ',competitions.length)
@@ -100,12 +94,12 @@ const calculateEndBlockNumber = async()=>{
   return endBlock
 }
 
-const updateTemporaryPauseCron = async(cron) =>{
+const updateTemporaryPauseCron = async(cron: any) =>{
   if(cron._id){
-    if(cron.paused == cron.isActive){        
-      const filter = { _id: cron._id};      
-      const payload = { paused: !cron.paused };     
-      console.log(`updating paused status of cron to ${payload.paused}`)     
+    if(cron.paused == cron.isActive){
+      const filter = { _id: cron._id};
+      const payload = { paused: !cron.paused };
+      console.log(`updating paused status of cron to ${payload.paused}`)
       await db.TemporaryPauseCrons.findOneAndUpdate(filter, payload, {useFindAndModify: false})
    }
   }

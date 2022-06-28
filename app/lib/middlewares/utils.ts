@@ -21,7 +21,8 @@ profileMiddleware: any,
 stakingTrackerHelper: any,
 crucibleAprsHelper: any,
 logsHelper: any,
-stakingHelper: any
+stakingHelper: any,
+mSLGTrackerHelper: any
 
 
 const utils = {
