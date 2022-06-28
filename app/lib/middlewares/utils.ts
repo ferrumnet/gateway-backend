@@ -22,7 +22,8 @@ stakingTrackerHelper: any,
 crucibleAprsHelper: any,
 logsHelper: any,
 stakingHelper: any,
-mSLGTrackerHelper: any
+mSLGTrackerHelper: any,
+mSLGCalculations: any
 
 
 const utils = {

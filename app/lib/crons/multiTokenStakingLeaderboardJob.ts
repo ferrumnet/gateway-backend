@@ -1,5 +1,4 @@
 var cron = require("node-cron");
-var mSLGCalculations = (global as any).mSLGCalculations;
 
 module.exports =  async function ():Promise<void> {
   if ((global as any).starterEnvironment.isCronEnvironmentSupportedForMultiTokenStakingLeaderboardJob === "yes") {
