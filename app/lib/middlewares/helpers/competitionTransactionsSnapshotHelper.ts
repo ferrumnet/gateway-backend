@@ -1,7 +1,5 @@
-const { db } = global;
-
 module.exports = {
-    async createSnapshotMeta(contractAddress, blockNumber = "0") {
+    async createSnapshotMeta(contractAddress: any, blockNumber = "0") {
         const filter = {tokenContractAddress : contractAddress, isActive :true}
         const payload = {tokenContractAddress : contractAddress, isActive :true, currentBlockNumber:blockNumber}
         let meta = await db.CompetitionTransactionsSnapshotMeta.findOne(filter)
@@ -16,9 +14,9 @@ module.exports = {
         return await db.CompetitionTransactionsSnapshotMeta.find(filter)
     },
 
-    async updateMetaByContractAddress(tokenContractAddress, startBlockNumber, endBlockNumber){
-        const filter = {tokenContractAddress, isActive:true};  
-        let meta = await db.CompetitionTransactionsSnapshotMeta.findOne(filter);     
+    async updateMetaByContractAddress(tokenContractAddress: any, startBlockNumber: any, endBlockNumber: any){
+        const filter = {tokenContractAddress, isActive:true};
+        let meta = await db.CompetitionTransactionsSnapshotMeta.findOne(filter);
         if(meta){
             meta.blockNumberRange.push(`${startBlockNumber} - ${endBlockNumber}`);
             meta.currentBlockNumber = ++endBlockNumber;
@@ -26,9 +24,9 @@ module.exports = {
         }
     },
 
-    async insertTransactionsSnapshot(transactions){
+    async insertTransactionsSnapshot(transactions: any){
        const snapShot = await db.CompetitionTransactionsSnapshots.insertMany(transactions)
-       return snapShot 
+       return snapShot
     }
 
 

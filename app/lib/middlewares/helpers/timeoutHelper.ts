@@ -1,8 +1,8 @@
-const { db, asyncMiddleware, commonFunctions, stringHelper, timeoutHelper, timeoutCallBack, utils } = global
+import moment from 'moment';
 
 module.exports = {
 
-  async setCompetitionTimeout(model) {
+  async setCompetitionTimeout(model: any) {
     var now = moment().utc()
     if(model && model.type && model.type == 'competition' && model.competition
     && model.competition.startDateAfterDelay && model.competition.endDateAfterDelay ){
@@ -21,12 +21,12 @@ module.exports = {
       utils.increaseTimeOutCount()
       let timeout = setTimeout(function(){timeoutCallBack.findCompetitionBlocks(model._id)}, milliseconds);
       }else {
-        global.covalenthqBlock.findCovalenthqBlock(model)
+        (global as any).covalenthqBlock.findCovalenthqBlock(model)
       }
     }
   },
 
-  async setSnapshotEventsTimeout(model) {
+  async setSnapshotEventsTimeout(model: any) {
 
     model = await db.TokenHolderBalanceSnapshotEvents.findOne({_id: model._id}).populate({
       path: 'leaderboard',
@@ -47,10 +47,10 @@ module.exports = {
       if(milliseconds > 0){
       let timeout = setTimeout(function(){timeoutCallBack.triggerTokenHolderBalanceSnapshotEvent(model)}, milliseconds);
       }else {
-        global.commonFunctions.fetchTokenHolderBalanceSnapshotAgainstCABNs(model)
+        (global as any).commonFunctions.fetchTokenHolderBalanceSnapshotAgainstCABNs(model)
       }
     }else if(model && model.type && model.type == 'manual'){
-      global.commonFunctions.fetchTokenHolderBalanceSnapshotAgainstCABNs(model)
+      (global as any).commonFunctions.fetchTokenHolderBalanceSnapshotAgainstCABNs(model)
     }
   }
 }

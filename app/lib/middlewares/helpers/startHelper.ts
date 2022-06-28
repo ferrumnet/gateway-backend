@@ -1,7 +1,7 @@
 
 module.exports = {
 
-  startHelperInit(process) {
+  startHelperInit(process: any) {
 
     // deafult environmentTag: dev and environmentType: api
     let starterObject = {

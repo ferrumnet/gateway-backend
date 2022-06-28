@@ -1,9 +1,8 @@
-const { db, asyncMiddleware, commonFunctions, stringHelper, timeoutHelper, timeoutCallBack, utils } = global
 var mongoose = require('mongoose');
 
 module.exports = {
 
-  async genrateNonceByABN(req, res, address, network) {
+  async genrateNonceByABN(req: any, res: any, address: any, network: any) {
     let resAddress = {}
     req.body.createdAt = new Date()
     req.body.address = (req.body.address).toLowerCase()
@@ -11,7 +10,7 @@ module.exports = {
     req.body.nonce = nonce
 
     if(address._id){
-      let updateBody = {nonce: req.body.nonce}
+      let updateBody: any = {nonce: req.body.nonce}
       updateBody.updatedAt = new Date()
       updateBody.nonce = req.body.nonce
       resAddress = await db.Addresses.findOneAndUpdate({ _id: address._id }, updateBody, { new: true })
@@ -23,11 +22,11 @@ module.exports = {
     }
     return resAddress
   },
-  async createUserByABN(req, res, address) {
-    let response = {}
-    let userbody = {}
-    let updateAddressBody = {}
-    let user = {}
+  async createUserByABN(req: any, res: any, address: any) {
+    let response: any = {}
+    let userbody: any = {}
+    let updateAddressBody: any = {}
+    let user: any = {}
 
     if(!address.user){
       userbody.createdAt = new Date()
@@ -60,9 +59,9 @@ module.exports = {
     response.token = user.createAPIToken(user)
     return response
   },
-  async getAddress(req, res, isFromUniqueAndAuthenticated = false){
+  async getAddress(req: any, res: any, isFromUniqueAndAuthenticated = false){
     let sort = { createdAt: -1 }
-    var matchFilter = {}
+    var matchFilter: any = {}
     var filterAndList= []
     var filter = []
     let ferrumNetworkIdentifier = ''

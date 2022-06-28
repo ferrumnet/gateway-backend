@@ -1,16 +1,14 @@
-const { db } = global;
-
 module.exports = {
-  async getWalletsBalancesByCABN(currencyAddressesByNetwork) {
+  async getWalletsBalancesByCABN(currencyAddressesByNetwork: any) {
     let result = await db.TokenHoldersCurrencyAddressesByNetwork.find({currencyAddressesByNetwork});
     if (result.length == 0) {
       result = await db.TokenHoldersCurrencyAddressesByNetworkSnapShot.find({currencyAddressesByNetwork});
     }
     return result;
   },
-  async updateStakesHolderHoldings(holdings) {
-    let data = [];
-    holdings.forEach((holding) => {
+  async updateStakesHolderHoldings(holdings: any) {
+    let data: any = [];
+    holdings.forEach((holding: any) => {
       if (holding) {
         data.push({
           updateOne: {
@@ -34,14 +32,14 @@ module.exports = {
     await db.StakingLeaderboardHoldingsTracker.collection.bulkWrite(data);
     return true;
   },
-  async storeStakholdersGrowths(growths) {
+  async storeStakholdersGrowths(growths: any) {
     let ids = await db.StakingLeaderboardGrowthTracker.insertMany(growths);
     return await db.StakingLeaderboardGrowthTracker.find({ _id: { $in: ids } });
   },
 
-  async getParticipantsHoldingsGrowthInUsd(leaderboardId) {
+  async getParticipantsHoldingsGrowthInUsd(leaderboardId: any) {
    let _ids = await db.StakingLeaderboardGrowthTracker.find({leaderboard:leaderboardId}).select("_id");
-    _ids = _ids.map(id => id._id)
+    _ids = _ids.map((id: any) => id._id)
     return await db.StakingLeaderboardHoldingsTracker.aggregate([
       { $match: { stakingLeaderboardGrowthTracker: { $in: _ids } } },
       {
@@ -52,9 +50,9 @@ module.exports = {
       },
     ]);
   },
-  async updateStakesHolderGrowth(holdings) {
-    let data = [];
-    holdings.forEach((holding) => {
+  async updateStakesHolderGrowth(holdings: any) {
+    let data: any = [];
+    holdings.forEach((holding: any) => {
       if (holding) {
         data.push({
           updateOne: {
@@ -80,12 +78,12 @@ module.exports = {
   },
 
 
-  async getStakesHolderGrowthWithHoldings(stakingContractsId ){
+  async getStakesHolderGrowthWithHoldings(stakingContractsId: any ){
     let participantsHoldings = await db.StakingLeaderboardGrowthTracker.aggregate([
       {
           '$match': {
               'stakingContract': stakingContractsId
-          },  
+          },
       },
       {
           '$lookup': {

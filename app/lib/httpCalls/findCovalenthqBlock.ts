@@ -1,6 +1,6 @@
 import { reject } from "bluebird";
 var https = require('https');
-var moment = require('moment');
+import moment from 'moment';
 
 const findCovalenthqBlock = async (job: any) => {
 
