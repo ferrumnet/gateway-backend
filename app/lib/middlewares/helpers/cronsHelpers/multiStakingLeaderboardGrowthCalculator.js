@@ -1,13 +1,13 @@
-mSLGTrackerHelper = global.mSLGTrackerHelper;
-const Web3= require("web3")
+var mSLGTrackerHelper = global.mSLGTrackerHelper;
+var Web3= require("web3")
 
 module.exports = {
   async updateParticipantsStakingHoldings(wallestBalances, participantsHoldings, stakingContractId ,cabsValueInUsd, leaderboardId) {
     let holdingsData = this.prepareHoldingsData(wallestBalances, participantsHoldings, cabsValueInUsd);
     //store updated holdings
     if (holdingsData.holdings.length > 0) await mSLGTrackerHelper.updateStakesHolderHoldings(holdingsData.holdings);
-    
-    // store new holdings 
+
+    // store new holdings
     if (holdingsData.notFoundHoldings.length > 0) {
       let newParticipants = await this.storeNewParticipants(holdingsData.notFoundHoldings, stakingContractId, leaderboardId);
       holdingsData = this.prepareHoldingsData(holdingsData.notFoundHoldings, newParticipants, cabsValueInUsd);
@@ -55,7 +55,7 @@ module.exports = {
   calculateTotalHoldingUSDValue(stakedAmount, walletCurrentBalance, usdValue){
     let value = 0
     if(usdValue){
-       value =  (parseInt(stakedAmount) + Web3.utils.fromWei(walletCurrentBalance,'ether')) * usdValue 
+       value =  (parseInt(stakedAmount) + Web3.utils.fromWei(walletCurrentBalance,'ether')) * usdValue
     }
     return value
   },
@@ -71,7 +71,7 @@ module.exports = {
         if(participantsGrowths[index].holdings){
           holding = participantsGrowths[index].holdings.find(holding=> holding.tokenContractAddress == wallestBalance.tokenContractAddress)
         }
-        
+
         let stakedAmount = holding ? holding.stakedAmount: '0'
         holdings.push({
           tokenContractAddress: wallestBalance.tokenContractAddress,
@@ -92,7 +92,7 @@ module.exports = {
       holdings[i].rank = i + 1;
       holdings[i].levelUpAmount = i > 0 ? this.calculateLevelUpAmount(holdings[i - 1], holdings[i]) : 0;
     }
-    return holdings 
+    return holdings
   },
 
   calculateLevelUpAmount(previousParticipantGrowth, currentParticipantGrowth) {
