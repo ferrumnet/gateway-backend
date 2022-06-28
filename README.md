@@ -9,6 +9,11 @@ sudo npm i
 npm run nodemon-dev-api
 npm run nodemon-dev-cron
 ```
+
+## Create build:
+```bash
+npm run build
+```
 ## Dev:
 ```bash
 npm run pm2-dev-api
@@ -27,4 +32,4 @@ npm run pm2-prod-api
 npm run pm2-staging-cron
 ```
 
-App will run on 8080 port, you can update in server.js
+App will run on 8080 port, you can update in server.ts
