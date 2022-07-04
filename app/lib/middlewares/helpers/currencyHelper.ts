@@ -1,7 +1,5 @@
-const { db, asyncMiddleware, commonFunctions, stringHelper} = global
-
 module.exports = {
-  async createCurrencyAddresses(req, model, body) {
+  async createCurrencyAddresses(req: any, model: any, body: any) {
 
     let results = []
     if (model && body.networks && body.networks.length > 0) {

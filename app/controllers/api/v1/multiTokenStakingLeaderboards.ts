@@ -1,5 +1,4 @@
 var Web3= require("web3")
-
 module.exports = function (router: any) {
   
   router.get('/:id/growth', asyncMiddleware(async (req: any, res: any) => {
@@ -28,8 +27,5 @@ module.exports = function (router: any) {
     return res.http200({ participants });
    }
     return res.http404('Mutli token staking leaderboard not found')
-  }));
-
-
-
-};
+  }))
+}

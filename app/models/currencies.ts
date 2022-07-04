@@ -16,6 +16,7 @@ var schema = mongoose.Schema({
   valueInUsd: {type: Number, default: 0},
   valueInUsdUpdatedAt: { type: Date },
   coinGeckoId: {type: String},
+  usdValueConversionPath: [{type: String}],
   createdAt: { type: Date, default: new Date() },
   updatedAt: { type: Date, default: new Date() },
 },{ collection: 'currencies' });

@@ -1,3 +1,4 @@
+
 var Web3= require("web3")
 
 module.exports = {
@@ -9,6 +10,7 @@ module.exports = {
     // store new holdings
     if (holdingsData.notFoundHoldings.length > 0) {
       let newParticipants = await this.storeNewParticipants(holdingsData.notFoundHoldings, stakingContractId, leaderboardId);
+      
       holdingsData = this.prepareHoldingsData(holdingsData.notFoundHoldings, newParticipants, cabsValueInUsd);
       await mSLGTrackerHelper.updateStakesHolderHoldings(holdingsData.holdings);
     }
@@ -16,7 +18,7 @@ module.exports = {
 
   calculateLevelUpTokens(growths: any, leaderboardCabns: any, cabnsValueInUsd: any) {
     for (var i = 0; i < growths.length; i++) {
-     let levelUpTokens = []
+     let levelUpTokens:any[] = []
       for(var j = 0; j < leaderboardCabns.length; j++) {
        let cabnUSD = cabnsValueInUsd[leaderboardCabns[j]]
        if(cabnUSD){
@@ -66,7 +68,7 @@ module.exports = {
       let index = participantsGrowths.findIndex((participant: any) => participant.stakeHolderWalletAddress === wallestBalance.tokenHolderAddress);
       let cabnUsdValue = cabnsValueInUsd[wallestBalance.currencyAddressesByNetwork ]
       if (index > -1) {
-        let holding = undefined
+        let holding:any|undefined = undefined
         if(participantsGrowths[index].holdings){
           holding = participantsGrowths[index].holdings.find((holding: any)=> holding.tokenContractAddress == wallestBalance.tokenContractAddress)
         }

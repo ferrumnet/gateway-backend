@@ -1,6 +1,6 @@
-const Web3= require("web3")
+var Web3= require("web3")
 
-module.exports = async (CompetitionType, transations, participants, dex, competionId, competitionStartBlock, leaderboard) => {
+module.exports = async (CompetitionType: any, transations: any, participants: any, dex: any, competionId: any, competitionStartBlock: any, leaderboard: any) => {
   let result = [];
   switch (CompetitionType) {
     case "tradingVolumeFlow":
@@ -22,19 +22,19 @@ module.exports = async (CompetitionType, transations, participants, dex, competi
 };
 
 
-const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurrencyAddressByNetwork, competionId, competitionStartBlock, leaderboard) => {
+const calcaluteTradingVolume = (transactions: any, participants: any, dexLiquidityPoolCurrencyAddressByNetwork: any, competionId: any, competitionStartBlock: any, leaderboard: any) => {
   const dex = dexLiquidityPoolCurrencyAddressByNetwork;
   let toIndex = -1;
   let fromIndex = -1;
   competitionStartBlock = parseInt( competitionStartBlock)
-  transactions.forEach((transaction) => {
+  transactions.forEach((transaction: any) => {
    if(isNaN(competitionStartBlock) || competitionStartBlock <= parseInt(transaction.blockNumber)){
       toIndex = -1;
       fromIndex = -1;
 
-      toIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.to);
+      toIndex = participants.findIndex((participant: any) => participant.tokenHolderAddress === transaction.to);
       if(dex != transaction.from){
-        fromIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.from);
+        fromIndex = participants.findIndex((participant: any) => participant.tokenHolderAddress === transaction.from);
       }
 
       let newparticipant = null
@@ -80,27 +80,27 @@ const calcaluteTradingVolume = (transactions, participants, dexLiquidityPoolCurr
   return growths.concat(excludedAddresses)
 }
 
-const calcalutePurchaseVolume = (transactions, participants, dexLiquidityPoolCurrencyAddressByNetwork, competionId, competitionStartBlock, leaderboard) => {
+const calcalutePurchaseVolume = (transactions: any, participants: any, dexLiquidityPoolCurrencyAddressByNetwork: any, competionId: any, competitionStartBlock: any, leaderboard: any) => {
    const dex = dexLiquidityPoolCurrencyAddressByNetwork;
    let toIndex = -1;
    let fromIndex = -1;
    let toStakingContractAddressesIndex = -1;
    let fromStakingContractAddressesIndex = -1;
    competitionStartBlock = parseInt( competitionStartBlock)
-   transactions.forEach((transaction) => {
+   transactions.forEach((transaction: any) => {
     if(isNaN(competitionStartBlock) || competitionStartBlock <= parseInt(transaction.blockNumber)){
        toIndex = -1;
        fromIndex = -1;
        if(leaderboard.stakingContractAddresses && leaderboard.stakingContractAddresses.length > 0){
-        toStakingContractAddressesIndex = leaderboard.stakingContractAddresses.findIndex(stakingContract =>  stakingContract == transaction.to)
-        fromStakingContractAddressesIndex = leaderboard.stakingContractAddresses.findIndex(stakingContract => stakingContract == transaction.from)
+        toStakingContractAddressesIndex = leaderboard.stakingContractAddresses.findIndex((stakingContract: any) =>  stakingContract == transaction.to)
+        fromStakingContractAddressesIndex = leaderboard.stakingContractAddresses.findIndex((stakingContract: any) => stakingContract == transaction.from)
       }
-       
+
        if(toStakingContractAddressesIndex == -1 && fromStakingContractAddressesIndex == -1){
-        
-        toIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.to);
+
+        toIndex = participants.findIndex((participant: any) => participant.tokenHolderAddress === transaction.to);
         if(dex != transaction.from){
-          fromIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.from);
+          fromIndex = participants.findIndex((participant: any) => participant.tokenHolderAddress === transaction.from);
         }
 
         let newparticipant = null
@@ -148,19 +148,19 @@ const calcalutePurchaseVolume = (transactions, participants, dexLiquidityPoolCur
  }
 
 
-const calcalutePurchaseAndSellVolume = (transactions, participants, dexLiquidityPoolCurrencyAddressByNetwork, competionId, competitionStartBlock, leaderboard) => {
+const calcalutePurchaseAndSellVolume = (transactions: any, participants: any, dexLiquidityPoolCurrencyAddressByNetwork: any, competionId: any, competitionStartBlock: any, leaderboard: any) => {
   const dex = dexLiquidityPoolCurrencyAddressByNetwork;
   let toIndex = -1;
   let fromIndex = -1;
   competitionStartBlock = parseInt( competitionStartBlock)
-  transactions.forEach((transaction) => {
+  transactions.forEach((transaction: any) => {
    if(isNaN(competitionStartBlock) || competitionStartBlock <= parseInt(transaction.blockNumber)){
       toIndex = -1;
       fromIndex = -1;
 
-      toIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.to);
+      toIndex = participants.findIndex((participant: any) => participant.tokenHolderAddress === transaction.to);
       if(dex != transaction.from){
-       fromIndex = participants.findIndex(participant => participant.tokenHolderAddress === transaction.from);
+       fromIndex = participants.findIndex((participant: any) => participant.tokenHolderAddress === transaction.from);
       }
 
       let newparticipant = null
@@ -217,12 +217,12 @@ const calcalutePurchaseAndSellVolume = (transactions, participants, dexLiquidity
   return growths.concat(excludedAddresses)
 }
 
-const getNewParticipantObject=(competionId, transaction, tokenHolderAddress, growth )=>{
+const getNewParticipantObject=(competionId: any, transaction: any, tokenHolderAddress: any, growth: any )=>{
  return{competion:competionId, tokenContractAddress:transaction.contractAddress ,tokenHolderAddress, growth}
 }
 
 
-const addGrowth = (current, toAdd )=>{
+const addGrowth = (current: any, toAdd: any )=>{
   if(current === '0' || current === undefined){
     return toAdd
   }
@@ -235,7 +235,7 @@ const addGrowth = (current, toAdd )=>{
    return result.toString()
 }
 
-const subGrowth = (current, toSub )=>{
+const subGrowth = (current: any, toSub: any )=>{
   if(current === '0' || current === undefined){
     return toSub
   }
@@ -248,15 +248,15 @@ const subGrowth = (current, toSub )=>{
    return result.toString()
 }
 
-const sortParticipants = (participants) =>{
-  let sortedParticipants = participants.sort((participant1, participant2) => {
+const sortParticipants = (participants: any) =>{
+  let sortedParticipants = participants.sort((participant1: any, participant2: any) => {
     let participant1Growth = Web3.utils.toBN(participant1.growth)
     let participant2Growth = Web3.utils.toBN(participant2.growth)
     return participant1Growth.lt(participant2Growth) ? 1 : -1
    });
    return sortedParticipants
 }
-const participantsDataCalculation = (sortedParticipants)=>{
+const participantsDataCalculation = (sortedParticipants: any)=>{
   for(let i=0; i< sortedParticipants.length; i++){
     sortedParticipants[i].rank = i+1
     sortedParticipants[i].humanReadableGrowth = Web3.utils.fromWei(sortedParticipants[i].growth,'ether')
@@ -267,10 +267,10 @@ const participantsDataCalculation = (sortedParticipants)=>{
   return sortedParticipants
 }
 
-const separateExcludedAddresses = (participants, leaderboard) =>{
+const separateExcludedAddresses = (participants: any, leaderboard: any) =>{
   let excludedAddress = []
   for(let i=0; i<= leaderboard.exclusionWalletAddressList.length; i++){
-   let index = participants.findIndex((participant)=> leaderboard.exclusionWalletAddressList[i] === participant.tokenHolderAddress)
+   let index = participants.findIndex((participant: any)=> leaderboard.exclusionWalletAddressList[i] === participant.tokenHolderAddress)
    if(index != -1){
     excludedAddress.push(participants[index])
     participants.splice(index,1)
@@ -279,7 +279,7 @@ const separateExcludedAddresses = (participants, leaderboard) =>{
   return excludedAddress
 }
 
-const excludedAddressDataCalculation = (excludedParticipants) => {
+const excludedAddressDataCalculation = (excludedParticipants: any) => {
   for(let i=0; i< excludedParticipants.length; i++){
     excludedParticipants[i].rank = null
     excludedParticipants[i].humanReadableGrowth = Web3.utils.fromWei(excludedParticipants[i].growth,'ether')
@@ -289,8 +289,8 @@ const excludedAddressDataCalculation = (excludedParticipants) => {
   return excludedParticipants
 }
 
-const calculateLevelUpAmount = (previousParticipantGrowth, currentParticipantGrowth, index)=>{
-  let levelUpAmount = ""
+const calculateLevelUpAmount = (previousParticipantGrowth: any, currentParticipantGrowth: any, index: any)=>{
+  let levelUpAmount: any = ""
   let growthFactor = Web3.utils.toBN(Web3.utils.toWei('1', 'ether'))
   if(index > 0){
     let previousParticipantGrowthBN = Web3.utils.toBN(previousParticipantGrowth)
@@ -303,11 +303,11 @@ const calculateLevelUpAmount = (previousParticipantGrowth, currentParticipantGro
 }
 
 
-const calcalutePurchaseAmount = (transaction, transactions) => {
+const calcalutePurchaseAmount = (transaction: any, transactions: any) => {
   if(transaction.hash){
-    let hashGroup = transactions.filter(record => record.hash ==  transaction.hash)
+    let hashGroup = transactions.filter((record: any) => record.hash ==  transaction.hash)
     if(hashGroup.length > 1){
-      let sortedHashGroup = hashGroup.sort((transaction1, transaction2) => {
+      let sortedHashGroup = hashGroup.sort((transaction1: any, transaction2: any) => {
         let transaction1Value = Web3.utils.toBN(transaction1.value)
         let transaction2Value = Web3.utils.toBN(transaction2.value)
         return transaction1Value.lt(transaction2Value) ? 1 : -1

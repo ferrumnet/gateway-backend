@@ -1,6 +1,5 @@
-const { db, asyncMiddleware, commonFunctions, stringHelper, bscScanHelper } = global
-var mongoose, { isValidObjectId } = require('mongoose');
-const Web3 = require("web3")
+import moment from 'moment';
+var Web3 = require("web3")
 const tagDaily = 'daily'
 const tagWeekly = 'weekly'
 const tagMontly = 'montly'
@@ -8,7 +7,7 @@ const tagLifeTime = 'lifeTime'
 
 module.exports = {
 
-  async crucibleAutoCalculateApr(req, res, isFromApi = true) {
+  async crucibleAutoCalculateApr(req: any, res: any, isFromApi = true) {
 
     await this.calculateDaily(req, res, isFromApi)
     await this.calculateWeekly(req, res, isFromApi)
@@ -19,7 +18,7 @@ module.exports = {
     }
     console.log('fetchCrucibleApr cron completed')
   },
-  async calculateDaily(req, res, isFromApi) {
+  async calculateDaily(req: any, res: any, isFromApi: any) {
 
     var toTime = Math.round(new Date().getTime() / 1000);
     var lastDay = new Date();
@@ -28,7 +27,7 @@ module.exports = {
     await this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagDaily, 365)
 
   },
-  async calculateWeekly(req, res, isFromApi) {
+  async calculateWeekly(req: any, res: any, isFromApi: any) {
 
     var toTime = Math.round(new Date().getTime() / 1000);
     var lastWeek = new Date();
@@ -37,7 +36,7 @@ module.exports = {
     await this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagWeekly, 52)
 
   },
-  async calculateMontly(req, res, isFromApi) {
+  async calculateMontly(req: any, res: any, isFromApi: any) {
 
     var toTime = Math.round(new Date().getTime() / 1000);
     var lastMonth = new Date();
@@ -46,12 +45,12 @@ module.exports = {
     await this.autoCalculateApr(req, res, isFromApi, toTime, fromTime, tagMontly, 12)
 
   },
-  async calculateLifeTime(req, res, isFromApi) {
+  async calculateLifeTime(req: any, res: any, isFromApi: any) {
 
     await this.autoCalculateApr(req, res, isFromApi, "", "", tagLifeTime, 365)
 
   },
-  async autoCalculateApr(req, res, isFromApi, toTime, fromTime, type, aprCycleInDays) {
+  async autoCalculateApr(req: any, res: any, isFromApi: any, toTime: any, fromTime: any, type: any, aprCycleInDays: any) {
     const rs = []
     let crucibleAprsTokensData = await this.getLastCrucibleAprsToken();
 
@@ -59,7 +58,7 @@ module.exports = {
       && crucibleAprsTokensData.tokens.length > 0) {
       const tokens = crucibleAprsTokensData.tokens
 
-      const calculateApr = async (tokenContract, symbol) => {
+      const calculateApr = async (tokenContract: any, symbol: any) => {
 
         const skakingContract = crucibleAprsTokensData.skakingContract
         const ApeRouter = crucibleAprsTokensData.apeRouter
@@ -139,7 +138,6 @@ module.exports = {
         }
 
         return {
-          APR,
           "price": UnitPrice,
           "volumeOfRewardsDistributed": dailyRewardAverageValue,
           "totalStake": stakedAmountValue,
@@ -157,18 +155,18 @@ module.exports = {
       await this.saveIntoCurcibleAprsDB(rs, type)
     }
   },
-  async saveIntoCurcibleAprsDB(data, type) {
-    let dataToSave = [];
+  async saveIntoCurcibleAprsDB(data: any, type: any) {
+    let dataToSave: any = [];
 
     if (data && data.length > 0) {
 
-      data.forEach(item => {
+      data.forEach((item: any) => {
 
         if (item) {
 
-          let setData = { tokenSymbol: item.tokenSymbol }
+          let setData: any = { tokenSymbol: item.tokenSymbol }
 
-          let data = {}
+          let data: any = {}
           data.APR = item.APR
           data.timeReference = item.timeReference
           data.totalStake = item.totalStake
@@ -218,7 +216,7 @@ module.exports = {
       .sort({ createdAt: -1 })
 
   },
-  getFilteredTransactionLength(transactions, taxDistributor) {
+  getFilteredTransactionLength(transactions: any, taxDistributor: any) {
     let count = 0
 
     if(transactions && transactions.length > 0){

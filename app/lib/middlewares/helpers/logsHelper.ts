@@ -1,11 +1,10 @@
-const { db, asyncMiddleware, commonFunctions, stringHelper, timeoutHelper, timeoutCallBack, utils } = global
-var mongoose , {isValidObjectId} = require('mongoose');
+var  {isValidObjectId} = require('mongoose');
 
 module.exports = {
 
-  async createLog(req, res, isFromSignOut = false) {
+  async createLog(req: any, res: any, isFromSignOut = false) {
 
-    let body = {}
+    let body: any = {}
     if(req.body.log){
       body = req.body.log
     }else {
