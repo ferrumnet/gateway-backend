@@ -43,10 +43,10 @@ module.exports = function (router: any) {
     let user;
     let organization: any;
     try {
-      user = await db.Users.create(req.body)
-      organization = await createOrganization(req,user)
-      user.organization = organization
-      (global as any).sendGrid.sendGridEmail(user)
+      user = await db.Users.create(req.body);
+      organization = await createOrganization(req,user);
+      user.organization = organization;
+      (global as any).sendGrid.sendGridEmail(user);
     } catch(err: any) {
       return res.http400(err.message);
     }
