@@ -1,3 +1,5 @@
+var jwt = require("jsonwebtoken");
+
 module.exports = function (router: any) {
 
   router.get('/menu', async (req: any, res: any) => {
