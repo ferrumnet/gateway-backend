@@ -49,7 +49,7 @@ module.exports = {
   },
   async createLeaderboardStakingContractAddresses(body: any, model: any) {
 
-    let results = []
+    let results:any = []
     if (model && body.leaderboardStakingContractAddresses && body.leaderboardStakingContractAddresses.length > 0) {
       for (let i = 0; i < body.leaderboardStakingContractAddresses.length; i++) {
         let count = await db.LeaderboardStakingContractAddresses.count({ stakingContractAddress: body.leaderboardStakingContractAddresses[i], leaderboard: model._id })
