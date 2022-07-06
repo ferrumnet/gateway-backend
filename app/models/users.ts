@@ -45,6 +45,7 @@ var schema = mongoose.Schema(
     },
     forgotPasswordAuthenticationToken: { type: String, default: "" },
     apiKey: { type: String, default: "" },
+    parentOrganizationAdmin: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
 
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
