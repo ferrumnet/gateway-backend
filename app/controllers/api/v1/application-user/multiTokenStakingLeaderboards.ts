@@ -29,7 +29,7 @@ module.exports = function (router: any) {
       {
         $lookup: {
           from: "currencyAddressesByNetwork",
-          localField: "currencyAddressesByNetwork",
+          localField: "currencyAddressByNetwork",
           foreignField: "_id",
           as: "currencyAddressesByNetwork",
         },

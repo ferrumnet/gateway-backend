@@ -1,6 +1,11 @@
 module.exports = function (router: any) {
 
   router.post('/create', async (req: any, res: any) => {
+    let leaderboardStakingContractAddresses:any = []
+    if(req.body.leaderboardStakingContractAddresses){
+       leaderboardStakingContractAddresses = [...req.body.leaderboardStakingContractAddresses]
+       req.body.leaderboardStakingContractAddresses = []
+    }
 
     if (!req.body.name || !req.body.currencyAddressesByNetwork) {
       return res.http400('name & currencyAddressesByNetwork are required.');
@@ -30,9 +35,10 @@ module.exports = function (router: any) {
     }
 
     let leaderboard = await db.Leaderboards.create(req.body)
+    req.body.leaderboardStakingContractAddresses = leaderboardStakingContractAddresses
     leaderboard.leaderboardCurrencyAddressesByNetwork = await leaderboardHelper.createLeaderboardCurrencyAddressesByNetwork(req.body, leaderboard)
-    leaderboard.leaderboardStakingContractAddresses = await leaderboardHelper.createLeaderboardStakingContractAddresses(req.body, leaderboard)
 
+    leaderboard.leaderboardStakingContractAddresses = await leaderboardHelper.createLeaderboardStakingContractAddresses(req.body, leaderboard)
     leaderboard = await db.Leaderboards.findOneAndUpdate({ _id: leaderboard }, leaderboard, { new: true }).populate({
       path: 'leaderboardCurrencyAddressesByNetwork',
       populate: {
