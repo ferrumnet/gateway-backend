@@ -34,6 +34,8 @@ var strErrorSubscriptionAlreadyExists = "Backend_Error_Subscription_Already_Exis
 let strErrorPreviousSequenceNotCompleted='Backend_Error_Previous_Sequence_Not_Completed'
 let strNoUserStepFlowHistoryAvailable='Backend_No_StepFlow_History_Available'
 let strErrorCronNotFound='Backend_Error_Cron_Not_Found'
+let strErrorOrganizationDelete='Backend_Error_Organization_Delete'
+let strErrorNetworkDelete='Backend_Error_Network_Delete'
 
 // success messages
 let strSuccessResetPasswordLink = 'Backend_Success_Reset_Password_Link'
@@ -87,6 +89,8 @@ module.exports = {
   strErrorSubscriptionAlreadyExists,
   strErrorPreviousSequenceNotCompleted,
   strNoUserStepFlowHistoryAvailable,
-  strErrorCronNotFound
+  strErrorCronNotFound,
+  strErrorOrganizationDelete,
+  strErrorNetworkDelete
 }
 
