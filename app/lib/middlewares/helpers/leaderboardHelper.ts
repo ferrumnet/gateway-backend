@@ -49,24 +49,30 @@ module.exports = {
   },
   async createLeaderboardStakingContractAddresses(body: any, model: any) {
 
-    let results = []
+    let results:any = []
+    let data:any =[] 
     if (model && body.leaderboardStakingContractAddresses && body.leaderboardStakingContractAddresses.length > 0) {
-      for (let i = 0; i < body.leaderboardStakingContractAddresses.length; i++) {
-        let count = await db.LeaderboardStakingContractAddresses.count({ stakingContractAddress: body.leaderboardStakingContractAddresses[i], leaderboard: model._id })
-        if (count == 0) {
-
-          let innerBody = {
-            stakingContractAddress: body.leaderboardStakingContractAddresses[i],
-            leaderboard: model._id,
-            isActive: true
-          }
-
-          let result = await db.LeaderboardStakingContractAddresses.create(innerBody)
-          results.push(result._id)
+      body.leaderboardStakingContractAddresses.forEach((leaderboardStakingContractAddress: any) => {
+        if(leaderboardStakingContractAddress){
+            data.push({
+                updateOne: {
+                    filter: { leaderboard:model._id, currencyAddressByNetwork:leaderboardStakingContractAddress.currencyAddressesByNetwork, "stakingContractAddresses":leaderboardStakingContractAddress.stakingContractAddresses },
+                     update: {
+                      "$set": {
+                        "isActive": true
+                      },
+                    },
+                    upsert: true
+                },
+            });
         }
-      }
-    }
+    });
 
+   if(data.length > 0){
+    await db.StakingsContractsAddresses.collection.bulkWrite(data)
+    results = await db.StakingsContractsAddresses.find({leaderboard: model._id}).select("_id") 
+   } 
+  }
     return results
   }
 
