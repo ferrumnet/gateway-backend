@@ -36,6 +36,7 @@ let strNoUserStepFlowHistoryAvailable='Backend_No_StepFlow_History_Available'
 let strErrorCronNotFound='Backend_Error_Cron_Not_Found'
 let strErrorOrganizationDelete='Backend_Error_Organization_Delete'
 let strErrorNetworkDelete='Backend_Error_Network_Delete'
+let strErrorDexDelete='Backend_Error_Dex_Delete'
 
 // success messages
 let strSuccessResetPasswordLink = 'Backend_Success_Reset_Password_Link'
@@ -91,6 +92,7 @@ module.exports = {
   strNoUserStepFlowHistoryAvailable,
   strErrorCronNotFound,
   strErrorOrganizationDelete,
-  strErrorNetworkDelete
+  strErrorNetworkDelete,
+  strErrorDexDelete
 }
 

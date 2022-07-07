@@ -95,6 +95,7 @@ if (
 (global as any).crucibleAprsHelper = require("./app/lib/middlewares/helpers/crucibleAprsHelper");
 (global as any).fetchCrucibleApr = require("./app/lib/crons/fetchCrucibleApr");
 (global as any).networksHelper = require("./app/lib/middlewares/helpers/networksHelper");
+(global as any).dexesHelper = require("./app/lib/middlewares/helpers/dexesHelper");
 
 (global as any).kraken = app.kraken;
 // const whitelist = (global as any).environment.whitelist;

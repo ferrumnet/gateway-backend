@@ -25,7 +25,8 @@ stakingHelper: any,
 mSLGTrackerHelper: any,
 mSLGCalculations: any,
 timeoutCallBack: any,
-networksHelper: any
+networksHelper: any,
+dexesHelper: any
 
 
 const utils = {
