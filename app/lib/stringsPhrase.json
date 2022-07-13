@@ -40,7 +40,8 @@
   "Backend_Error_Currency_AddressesByNetwork_Must_Contain_Values":"currencyAddressesByNetwork should not be empty",
   "Backend_Error_Organization_Delete":"You cann't delete this due to association with others",
   "Backend_Error_Network_Delete":"You cann't delete this due to association with others",
-  "Backend_Error_Dex_Delete":"You cann't delete this due to association with others"
+  "Backend_Error_Dex_Delete":"You cann't delete this due to association with others",
+  "Backend_Error_Delete":"You cann't delete this due to association with others"
 
 
 }

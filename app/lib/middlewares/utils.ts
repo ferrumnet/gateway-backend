@@ -26,7 +26,9 @@ mSLGTrackerHelper: any,
 mSLGCalculations: any,
 timeoutCallBack: any,
 networksHelper: any,
-dexesHelper: any
+dexesHelper: any,
+productsHelper: any,
+packagesHelper: any
 
 
 const utils = {
