@@ -75,6 +75,22 @@ module.exports = function (router: any) {
 
   }));
 
+  router.get('/:id', asyncMiddleware(async (req: any, res: any) => {
+
+    let filter = {}
+    filter = { _id: req.params.id }
+
+    let subscription = await db.Subscription.findOne(filter)
+    .populate('createdByUser')
+    .populate('package')
+    .populate('organization')
+
+    return res.http200({
+      subscription: subscription
+    });
+
+  }));
+
   router.delete('/:id', asyncMiddleware(async (req: any, res: any) => {
 
     let filter = {}
