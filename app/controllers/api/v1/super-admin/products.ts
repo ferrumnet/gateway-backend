@@ -102,4 +102,21 @@ module.exports = function (router: any) {
     return res.http400("Valid id is required.");
 
   }));
+
+  router.delete('/:id', async (req: any, res: any) => {
+
+    let filter = {}
+    filter = { _id: req.params.id }
+    console.log(await productsHelper.productAssociationWithPackages(req, res))
+    if(await productsHelper.productAssociationWithPackages(req, res) > 0){
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorDelete),stringHelper.strErrorDelete,);
+    }
+
+    let response = await db.Product.remove(filter)
+
+    return res.http200({
+      product: response
+    });
+
+  });
 };

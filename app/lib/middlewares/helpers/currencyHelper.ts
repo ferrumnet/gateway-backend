@@ -29,5 +29,23 @@ module.exports = {
     }
 
     return results
-  }
+  },
+  async currencyAssociationWithNetwork(req: any, res: any) {
+    var filter = {networkCurrencyAddressByNetwork: req.params.id}
+    return await db.Networks.countDocuments(filter);
+  },
+  async currencyAssociationWithLeaderboardssss(req: any, res: any) {
+    var filter = {networkCurrencyAddressByNetwork: req.params.id}
+    return await db.LeaderboardCurrencyAddressesByNetwork.countDocuments(filter);
+  },
+  async currencyAssociationWithLeaderboard(req: any, res: any) {
+    var filter = {currency: req.params.id}
+    var cabnIds =  await db.CurrencyAddressesByNetwork.find(filter).distinct('_id')
+    return await db.LeaderboardCurrencyAddressesByNetwork.countDocuments({currencyAddressesByNetwork: {$in: cabnIds}});
+  },
+  async currencyAssociationWithTokenHoldersBalanceSnapshots(req: any, res: any) {
+    var filter = {currency: req.params.id}
+    var cabnIds =  await db.CurrencyAddressesByNetwork.find(filter).distinct('_id')
+    return await db.TokenHoldersBalanceSnapshots.countDocuments({currencyAddressesByNetwork: {$in: cabnIds}});
+  },
 }

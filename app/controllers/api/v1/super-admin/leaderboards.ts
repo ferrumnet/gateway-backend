@@ -219,4 +219,22 @@ module.exports = function (router: any) {
 
   });
 
+  router.delete('/:id', async (req: any, res: any) => {
+
+    let filter = {}
+    filter = { _id: req.params.id }
+    console.log(await leaderboardHelper.leaderboardAssociationWithCompetition(req, res))
+    if(await leaderboardHelper.leaderboardAssociationWithCompetition(req, res) > 0){
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorDelete),stringHelper.strErrorDelete,);
+    }
+
+    await db.LeaderboardCurrencyAddressesByNetwork.remove({leaderboard: req.params.id})
+    let response = await db.Leaderboards.remove(filter)
+
+    return res.http200({
+      leaderboard: response
+    });
+
+  });
+
 };
