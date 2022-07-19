@@ -168,4 +168,22 @@ module.exports = function (router: any) {
 
   });
 
+  router.delete('/:id', async (req: any, res: any) => {
+
+    let filter = {}
+    filter = { _id: req.params.id }
+
+    if(await networksHelper.cabnAssociationWithNetwork(req, res) > 0 || await networksHelper.dexAssociationWithNetwork(req, res) > 0){
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorNetworkDelete),stringHelper.strErrorNetworkDelete,);
+    }
+
+    let response = await db.Networks.remove(filter)
+
+    return res.http200({
+      network: response
+    });
+
+  });
+
+
 };

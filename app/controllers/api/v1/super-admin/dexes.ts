@@ -96,6 +96,23 @@ module.exports = function (router: any) {
 
   });
 
+  router.delete('/:id', async (req: any, res: any) => {
+
+    let filter = {}
+    filter = { _id: req.params.id }
+
+    if(await dexesHelper.dexAssociationWithCABNs(req, res) > 0){
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorDexDelete),stringHelper.strErrorDexDelete,);
+    }
+
+    let response = await db.DecentralizedExchanges.remove(filter)
+
+    return res.http200({
+      dex: response
+    });
+
+  });
+
   async function getNetworkDexes(dex: any){
     let networkDexes = []
     if(dex){

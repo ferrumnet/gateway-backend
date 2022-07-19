@@ -103,4 +103,22 @@ module.exports = function (router: any) {
 
   });
 
+  router.delete('/:id', async (req: any, res: any) => {
+
+    let filter = {}
+    filter = { _id: req.params.id }
+
+
+    if(await usersHelper.usersAssociationWithOrganization(req, res) > 0){
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorOrganizationDelete),stringHelper.strErrorOrganizationDelete,);
+    }
+
+    let response = await db.Organizations.remove(filter)
+
+    return res.http200({
+      organization: response
+    });
+
+  });
+
 };
