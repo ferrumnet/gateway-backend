@@ -1,3 +1,5 @@
+var mongoose = require('mongoose');
+
 module.exports = function (router: any) {
 
     router.put('/update/status/:id', async (req: any, res: any) => {
@@ -339,7 +341,7 @@ module.exports = function (router: any) {
     router.get('/:id', async (req: any, res: any) => {
 
         let filter: any= {}
-        
+
         req.body.createdByUser = req.user._id
 
         req.body.organizationId = req.user.organization
