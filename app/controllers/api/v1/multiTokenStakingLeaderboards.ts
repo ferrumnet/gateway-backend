@@ -4,15 +4,12 @@ module.exports = function (router: any) {
   router.get('/:id/growth', asyncMiddleware(async (req: any, res: any) => {
     let filter = {}
     filter = { _id: req.params.id, isPublished: true, status: 'approved' }
-    let leaderboard = await db.Leaderboards.findOne(filter).populate('leaderboardStakingContractAddresses')
+    let leaderboard = await db.Leaderboards.findOne(filter)
     if(leaderboard &&  leaderboard.leaderboardStakingContractAddresses.length > 0){     
-      let stakingIds = leaderboard.leaderboardStakingContractAddresses.map((item: any) => item.stakingContractAddress) 
       let participants = await db.StakingLeaderboardGrowthTracker.aggregate([
         {
           '$match': {
-            'stakingContract': {
-              '$in': stakingIds
-            }
+            'leaderboard': leaderboard._id
           }
         },{
           '$lookup': {
