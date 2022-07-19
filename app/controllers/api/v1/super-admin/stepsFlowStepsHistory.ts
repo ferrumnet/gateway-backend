@@ -1,3 +1,5 @@
+var mongoose = require('mongoose');
+
 module.exports = function (router: any) {
 
     router.put('/update/status/:id', async (req: any, res: any) => {
@@ -19,15 +21,15 @@ module.exports = function (router: any) {
 
             req.body.updatedByUser = req.user._id
             req.body.updatedAt = new Date()
-        
+
             const stepFlowStepsHistory = await db.StepFlowStepsHistory.findOneAndUpdate(filter, req.body, { new: true });
-            
+
             return res.http200({
                 stepsHistory: stepFlowStepsHistory
             });
 
         }
-        
+
         return res.http400('user stepFlowStepsHistory not found');
 
     })
@@ -50,12 +52,12 @@ module.exports = function (router: any) {
         ]
 
         if (req.query.isPagination != null && req.query.isPagination == 'false') {
-            
+
             stepFlowStepsHistory = await db.StepsFlowStepsHistory
             .aggregate( [
                 ...filter
             ])
-            
+
         }else {
 
             stepFlowStepsHistory = await db.StepsFlowStepsHistory
@@ -64,12 +66,12 @@ module.exports = function (router: any) {
                 { $skip: req.query.offset ? parseInt(req.query.offset) : 0 },
                 { $limit: req.query.limit ? parseInt(req.query.limit) : 10 }
             ])
-        }  
+        }
 
         return res.http200({
             stepFlowStepsHistory: stepFlowStepsHistory
         });
-        
+
     })
 
     router.get('user/history/:id', async (req: any, res: any) => {
@@ -92,7 +94,7 @@ module.exports = function (router: any) {
         filter.user = req.params.id
 
         if (req.query.isPagination != null && req.query.isPagination == 'false') {
-            
+
             stepFlowStepsHistory = await db.StepFlowStepsHistory.find(filter)
             .populate('step','name').populate('stepFlow','name')
 
@@ -103,19 +105,19 @@ module.exports = function (router: any) {
             .skip(req.query.offset ? parseInt(req.query.offset) : 0)
             .limit(req.query.limit ? parseInt(req.query.limit) : 10)
 
-        }  
+        }
 
         return res.http200({
             stepFlowStepsHistory: stepFlowStepsHistory
         });
-        
+
     })
 
 
     router.get('/:id', async (req: any, res: any) => {
 
         let filter: any = {}
-               
+
         if(!mongoose.Types.ObjectId.isValid(req.params.id)){
             return res.http400('Invalid id provided');
         }
@@ -129,16 +131,16 @@ module.exports = function (router: any) {
 
             req.body.updatedByUser = req.user._id
             req.body.updatedAt = new Date()
-                    
+
             return res.http200({
                 stepFlowStepsHistory: stepFlowStepsHistory
             });
 
         }
-        
+
         return res.http400('stepFlowStepsHistory not found');
 
-        
+
     })
 
 }

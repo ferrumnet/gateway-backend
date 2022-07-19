@@ -1,3 +1,5 @@
+var mongoose = require('mongoose');
+
 module.exports = function (router: any) {
 
     router.post('/create', async (req: any, res: any) => {
@@ -12,7 +14,7 @@ module.exports = function (router: any) {
         req.body.createdAt,req.body.updatedAt = new Date()
 
         const step = await db.Steps.create(req.body)
-           
+
         return res.http200({
             step: step
         });
@@ -32,7 +34,7 @@ module.exports = function (router: any) {
         if(req.query.isActive){
 
             filter.isActive = req.query.isActive
-            
+
         }
 
         if (req.query.isPagination != null && req.query.isPagination == 'false') {
@@ -45,7 +47,7 @@ module.exports = function (router: any) {
             .skip(req.query.offset ? parseInt(req.query.offset) : 0)
             .limit(req.query.limit ? parseInt(req.query.limit) : 10)
 
-        }  
+        }
 
         return res.http200({
             steps: steps
@@ -68,9 +70,9 @@ module.exports = function (router: any) {
 
         req.body.updatedAt = new Date()
         req.body.updatedBy = req.user._id
-       
+
         const step = await db.Steps.findOneAndUpdate(filter, req.body, { new: true });
-           
+
         return res.http200({
             step: step
         });
@@ -91,14 +93,14 @@ module.exports = function (router: any) {
         req.body.updatedAt = new Date()
 
         const step = await db.Steps.findOneAndUpdate(filter, req.body, { new: true });
-           
+
         return res.http200({
             step: step
         });
     })
 
     router.get('/:id', async (req: any, res: any) => {
-               
+
         req.body.createdByUser = req.user._id
         let filter: any = {}
 
@@ -117,8 +119,8 @@ module.exports = function (router: any) {
             });
 
         }
-        
+
         return res.http400('stepFlowStep not found.');
-        
+
     })
 }

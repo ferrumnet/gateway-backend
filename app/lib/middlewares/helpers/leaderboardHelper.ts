@@ -74,6 +74,10 @@ module.exports = {
    } 
   }
     return results
-  }
+  },
+  async leaderboardAssociationWithCompetition(req: any, res: any) {
+    var filter = {leaderboard: req.params.id}
+    return await db.Competitions.countDocuments(filter);
+  },
 
 }

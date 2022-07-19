@@ -142,4 +142,23 @@ module.exports = function (router: any) {
 
   });
 
+  router.delete('/:id', async (req: any, res: any) => {
+
+    let filter = {}
+    filter = { _id: req.params.id }
+
+    if(await currencyHelper.currencyAssociationWithNetwork(req, res) > 0
+    && await currencyHelper.currencyAssociationWithLeaderboard(req, res) > 0
+    && await currencyHelper.currencyAssociationWithTokenHoldersBalanceSnapshots(req, res) > 0){
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorDelete),stringHelper.strErrorDelete,);
+    }
+
+    let response = await db.Currencies.remove(filter)
+
+    return res.http200({
+      currency: response
+    });
+
+  });
+
 };

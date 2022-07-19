@@ -73,7 +73,6 @@ module.exports = function (router: any) {
 
   }));
 
-
   router.get("/:id", asyncMiddleware(async (req: any, res: any) => {
     const filter = { _id: req.params.id }
 
@@ -117,5 +116,22 @@ module.exports = function (router: any) {
     return res.http400("Valid id and active is required.");
 
   }));
+
+  router.delete('/:id', async (req: any, res: any) => {
+
+    let filter = {}
+    filter = { _id: req.params.id }
+    console.log(await packagesHelper.packageAssociationWithSubscription(req, res))
+    if(await packagesHelper.packageAssociationWithSubscription(req, res) > 0){
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorDelete),stringHelper.strErrorDelete,);
+    }
+
+    let response = await db.Package.remove(filter)
+
+    return res.http200({
+      package: response
+    });
+
+  });
 
 };

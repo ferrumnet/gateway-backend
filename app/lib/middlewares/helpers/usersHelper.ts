@@ -8,6 +8,10 @@ module.exports = {
       message: stringHelper.strSuccess
     });
   },
+  async usersAssociationWithOrganization(req: any, res: any) {
+    var filter = {organization: req.params.id}
+    return await db.Users.countDocuments(filter);
+  },
 }
 
 

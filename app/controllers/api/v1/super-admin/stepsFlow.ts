@@ -1,3 +1,5 @@
+var mongoose = require('mongoose');
+
 module.exports = function (router: any) {
 
     router.put('/update/:id', async (req: any, res: any) => {
@@ -28,9 +30,9 @@ module.exports = function (router: any) {
 
         req.body.updatedAt = new Date()
         req.body.updatedBy = req.user._id
-       
+
         const stepFlow = await db.StepsFlow.findOneAndUpdate(filter, req.body, { new: true });
-           
+
         return res.http200({
             stepFlow: stepFlow
         });
@@ -50,9 +52,9 @@ module.exports = function (router: any) {
 
         req.body.updatedByUser = req.user._id
         req.body.updatedAt = new Date()
-       
+
         const stepFlow = await db.StepsFlow.findOneAndUpdate(filter, req.body, { new: true });
-           
+
         return res.http200({
             stepFlow: stepFlow
         });
@@ -73,11 +75,11 @@ module.exports = function (router: any) {
         if(req.query.isActive){
 
             filter.isActive = req.query.isActive
-            
+
         }
-    
+
         if (req.query.isPagination != null && req.query.isPagination == 'false') {
-            
+
             stepFlows = await db.StepsFlow.find().populate('stepFlowSteps')
 
         }else {
@@ -87,16 +89,16 @@ module.exports = function (router: any) {
             .skip(req.query.offset ? parseInt(req.query.offset) : 0)
             .limit(req.query.limit ? parseInt(req.query.limit) : 10)
 
-        }  
+        }
 
         return res.http200({
             stepFlows: stepFlows
         });
-        
+
     })
 
     router.get('/:id', async (req: any, res: any) => {
-        
+
         let filter: any = {}
 
         req.body.createdByUser = req.user._id
@@ -114,6 +116,6 @@ module.exports = function (router: any) {
         return res.http200({
             stepFlow: stepFlow
         });
-        
+
     })
 }

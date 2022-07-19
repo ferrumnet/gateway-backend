@@ -24,7 +24,11 @@ logsHelper: any,
 stakingHelper: any,
 mSLGTrackerHelper: any,
 mSLGCalculations: any,
-timeoutCallBack: any
+timeoutCallBack: any,
+networksHelper: any,
+dexesHelper: any,
+productsHelper: any,
+packagesHelper: any
 
 
 const utils = {
