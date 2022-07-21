@@ -3,7 +3,7 @@ import { isValidObjectId } from "mongoose";
 module.exports = function (router: any) {
   router.put( "/active/inactive/:id", asyncMiddleware(async (req: any, res: any) => {
       const filter = { _id: req.params.id };
-      const payload = { isActive: req.body.active };
+      const payload = { isActive: req.body.isActive };
 
       if (isValidObjectId(filter._id) && typeof payload.isActive == "boolean") {
 
@@ -16,7 +16,7 @@ module.exports = function (router: any) {
             );
 
       }
-      return res.http400("Valid id and active status is required.");
+      return res.http400("Valid id and isActive status is required.");
     })
   );
 
@@ -54,6 +54,31 @@ module.exports = function (router: any) {
 
     }
       return res.http400("Valid id is required.");
+
+  }));
+
+  router.get("/user/:userId/list", asyncMiddleware(async (req: any, res: any) => {
+    var filter: any = {}
+    let subscriptions = []
+
+    if(req.query.isActive){
+      filter.isActive = req.query.isActive
+    }
+
+    if(req.params.userId){
+      filter.createdByUser = req.params.userId
+    }
+
+    if(req.query.isPagination != null && req.query.isPagination == 'false'){
+      subscriptions = await db.Subscription.find(filter)
+      .sort({ createdAt: -1 })
+    }else {
+      subscriptions = await db.Subscription.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(req.query.offset ? parseInt(req.query.offset) : 0)
+      .limit(req.query.limit ? parseInt(req.query.limit) : 10)
+    }
+    return res.http200({subscriptions})
 
   }));
 
