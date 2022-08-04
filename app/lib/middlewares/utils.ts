@@ -28,7 +28,9 @@ timeoutCallBack: any,
 networksHelper: any,
 dexesHelper: any,
 productsHelper: any,
-packagesHelper: any
+packagesHelper: any,
+web3ConfigurationHelper: any,
+web3Helper: any
 
 
 const utils = {
