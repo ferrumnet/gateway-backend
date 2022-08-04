@@ -30,8 +30,9 @@ productSchema.pre("save", async function (next: any) {
 });
 
 productSchema.pre("findOneAndUpdate", async function (next: any) {
-  if(productSchema._update.name)
-  productSchema._update.nameInLower = productSchema._update.name;
+  if(productSchema._update && productSchema._update.name){
+    productSchema._update.nameInLower = productSchema._update.name;
+  }
   next();
 });
 

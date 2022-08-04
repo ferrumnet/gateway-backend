@@ -34,6 +34,7 @@ module.exports = function (router: any) {
 
     req.body.createdByUser = req.user._id
     req.body.updatedByUser = req.user._id
+    req.body.nameInLower = req.body.name
     req.body.createdAt = new Date()
     req.body.updatedAt = new Date()
 
@@ -67,7 +68,7 @@ module.exports = function (router: any) {
 
   router.put("/active/inactive/:id", asyncMiddleware(async (req: any, res: any) => {
     const filter = { _id: req.params.id };
-    const payload = { isActive: req.body.active };
+    const payload = { isActive: req.body.isActive };
 
     if (isValidObjectId(filter._id) && typeof payload.isActive == "boolean") {
       const productCount = await db.Product.countDocuments(filter);
@@ -82,7 +83,7 @@ module.exports = function (router: any) {
       );
 
     }
-    return res.http400("Valid id and active is required.");
+    return res.http400("Valid id and isActive is required.");
 
   }));
 

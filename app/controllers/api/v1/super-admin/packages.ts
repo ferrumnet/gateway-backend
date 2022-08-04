@@ -30,13 +30,16 @@ module.exports = function (router: any) {
 
   router.post("/create", asyncMiddleware(async (req: any, res: any) => {
     const productFilter = { _id: req.body.product, isActive: true }
-    var payload = utils.pick(req.body, ["name", "product", "price", "limitation", "isFree"]);
+    var payload: any = utils.pick(req.body, ["name", "product", "price", "limitation", "isFree"]);
     payload.createdByUser = req.user._id
 
     if (payload.name && isValidObjectId(payload.product) && payload.price && payload.limitation && typeof payload.isFree == "boolean") {
       const productCount = await db.Product.countDocuments(productFilter)
 
       if (productCount > 0) {
+        if(req.body.name){
+          payload.nameInLower = req.body.name
+        }
         const packageRes = await db.Package.create(payload);
         return res.http200({ package: packageRes });
       }
@@ -97,7 +100,7 @@ module.exports = function (router: any) {
 
   router.put("/active/inactive/:id", asyncMiddleware(async (req: any, res: any) => {
     const filter = { _id: req.params.id };
-    const payload = { isActive: req.body.active };
+    const payload = { isActive: req.body.isActive };
 
     if (isValidObjectId(filter._id) && typeof payload.isActive == "boolean") {
 
@@ -113,7 +116,7 @@ module.exports = function (router: any) {
       }
 
     }
-    return res.http400("Valid id and active is required.");
+    return res.http400("Valid id and isActive is required.");
 
   }));
 
