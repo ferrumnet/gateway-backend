@@ -161,4 +161,41 @@ module.exports = function (router: any) {
 
   });
 
+  router.post('/create/cabn', async (req: any, res: any) => {
+
+    if (!req.body.network || !req.body.currency) {
+      return res.http400('network & currency are required.');
+    }
+
+    req.body.networks = [];
+    req.body.networks.push(req.body.network)
+
+    if (req.body.networks && req.body.networks.length == 0) {
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorCurrencyShouldAssociateWithAtleastOneNetwork),stringHelper.strErrorCurrencyShouldAssociateWithAtleastOneNetwork,);
+    }
+
+    let error = await commonFunctions.validationForUniqueCBN(req, res)
+    if (error) {
+      return res.http400(error);
+    }
+
+    req.body.createdByUser = req.user._id
+    req.body.createdByOrganization = req.user.organization
+
+    req.body.createdAt = new Date()
+
+
+    let currency = await db.Currencies.findOne({_id: req.body.currency})
+    if(currency){
+      currency.currencyAddressesByNetwork.push(await currencyHelper.createCurrencyAddresses(req, currency, req.body))
+      console.log(currency)
+      currency = await db.Currencies.findOneAndUpdate({ _id: currency }, {currencyAddressesByNetwork: currency.currencyAddressesByNetwork}, { new: true });
+    }
+
+    return res.http200({
+      currency: currency
+    });
+
+  });
+
 };
