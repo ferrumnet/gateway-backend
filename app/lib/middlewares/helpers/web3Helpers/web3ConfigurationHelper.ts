@@ -1,5 +1,6 @@
 // import Web3 from 'web3';
 var Web3 = require('web3');
+import { AbiItem } from 'web3-utils';
 import erc20Abi from '../../../../../resources/IERC20.json';
 import bridgeAbi from '../../../../../resources/BridgePool.json';
 
@@ -20,7 +21,8 @@ module.exports = {
 
   bridgePool(rpcUrl: string, tokenContractAddress: string) {
     let web3 = this.web3(rpcUrl).eth;
-    return new web3.Contract(bridgeAbi as any, tokenContractAddress);
+    console.log(bridgeAbi.abi)
+    return new web3.Contract(bridgeAbi.abi as AbiItem[], tokenContractAddress);
   }
 
 }

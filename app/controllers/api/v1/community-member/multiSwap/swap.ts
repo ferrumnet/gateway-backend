@@ -16,7 +16,7 @@ module.exports = function (router: any) {
     }
 
     if (!mongoose.Types.ObjectId.isValid(req.query.fromCabnId) || !mongoose.Types.ObjectId.isValid(req.query.fromNetworkId)
-    || !mongoose.Types.ObjectId.isValid(req.query.toCabnId) || !mongoose.Types.ObjectId.isValid(req.query.toNetworkId)) {
+      || !mongoose.Types.ObjectId.isValid(req.query.toCabnId) || !mongoose.Types.ObjectId.isValid(req.query.toNetworkId)) {
       return res.http400('Invalid fromCabnId, fromNetworkId, toCabnId or toNetworkId');
     }
 
@@ -36,10 +36,10 @@ module.exports = function (router: any) {
 
       await contractHelper.doSwapAndGetTransactionPayload(address, fromNetwork, fromCabn, req.query.bridgeContractAddress, req.query.amount, toNetwork, toCabn, res);
 
+    } else {
+      // change this error message
+      return res.http400('Invalid fromCabnId, fromNetworkId, toCabnId or toNetworkId');
     }
-
-    // change this error message
-    return res.http400('Invalid fromCabnId, fromNetworkId, toCabnId or toNetworkId');
 
   }));
 

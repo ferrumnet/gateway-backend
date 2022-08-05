@@ -94,7 +94,7 @@ module.exports = {
     let balance = await web3Helper.amountToHuman_(fromNetwork, fromCabn, userBalance);
     console.log(balance)
 
-    if (new Big(balance).gte(new Big(amountValue))) {
+    if (new Big(balance).lt(new Big(amountValue))) {
       // change this error message
       return res.http400(`Not enough balance. ${amountValue} is required but there is only ${balance} available`);
     }
@@ -115,9 +115,15 @@ module.exports = {
   async swap(address: any, fromNetwork: any, fromCabn: any, contractAddress: string, amountValue: any, toNetwork: any, toCabn: any, res: any) {
 
     let amountRaw = await web3Helper.amountToMachine(fromNetwork, fromCabn, amountValue);
-    console.log(amountRaw);
-    let swapResponse = (web3ConfigurationHelper.bridgePool(fromNetwork.rpcUrl, contractAddress)).methods.swap(fromCabn.tokenContractAddress, amountRaw, toNetwork.chainId, toNetwork.networkShortName).call();
-    console.log('swapResponse' + swapResponse);
+    console.log('amountRaw',amountRaw);
+    console.log('toNetwork.chainId: ',toNetwork.chainId);
+    console.log('toCabn.tokenContractAddress: ',toCabn.tokenContractAddress);
+    console.log('contractAddress: ',contractAddress);
+    console.log('fromNetwork.rpcUrl: ',fromNetwork.rpcUrl);
+
+    let swapResponse = web3ConfigurationHelper.bridgePool(fromNetwork.rpcUrl, contractAddress).methods.swap(fromCabn.tokenContractAddress, amountRaw, 4, toCabn.tokenContractAddress);
+    let from = address.address;
+    console.log('swapResponse',swapResponse);
     let gas = await this.estimateGasOrDefault(swapResponse, address.address, null);
     console.log('gas' + gas);
     let nonce = await web3Helper.getTransactionsCount(fromNetwork, address);
@@ -133,7 +139,7 @@ module.exports = {
       data: swapResponse.encodeABI(),
       gas: { gasPrice: '0', gasLimit },
       nonce,
-      description: `Swap`,
+      description: `Swap `,
     };
 
   },
@@ -142,6 +148,7 @@ module.exports = {
     try {
       return await method.estimateGas({ from });
     } catch (e) {
+      console.log(e);
       console.info('Error estimating gas. Tx might be reverting..');
       return defaultGas;
     }
