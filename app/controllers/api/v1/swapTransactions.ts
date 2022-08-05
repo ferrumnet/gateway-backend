@@ -4,7 +4,7 @@ module.exports = function (router: any) {
 
     let network = await db.Networks.findOne({_id: req.body.network})
     return res.http200({
-      transaction: await web3Helper.getTransactionUsingWeb3(network, req.params.id)
+      transaction: await web3Helper.getTransaction(network, req.params.id)
     })
 
   });

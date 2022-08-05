@@ -30,7 +30,8 @@ dexesHelper: any,
 productsHelper: any,
 packagesHelper: any,
 web3ConfigurationHelper: any,
-web3Helper: any
+web3Helper: any,
+contractHelper: any
 
 
 const utils = {

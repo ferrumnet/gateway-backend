@@ -11,29 +11,25 @@ let cFRMxTokenContractAddress = "0x1fC45F358D5292bEE1e055BA7CebE4d4100972AE";
 let cFRMTokenContractAddress = "0xaf329a957653675613D0D98f49fc93326AeB36Fc";
 let APELPCFRMBNBTokenContractAddress = "0x9aa0AB73409311984ED84f3Edef962201Bd11712";
 let APELPCFRMxBNBTokenContractAddress = "0xb76b11410A506495418D20c58F9452c17CF285c1";
+const MAX_AMOUNT = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+const DEFAULT_APPROVE_GAS = 60000;
 
 module.exports = {
 
-  async currentAllowance(address: any, network: any, cabn: any, contractAddress: string) {
-
-    if (address.address && network.rpcUrl && cabn.tokenContractAddress && contractAddress) {
-
-      let allowance = await web3ConfigurationHelper.erc20(network.rpcUrl, cabn.tokenContractAddress).methods.allowance(address.address, contractAddress).call();
-      console.log('allowance'+allowance);
-      if (allowance) {
-        const bAllownace = new Big(allowance.toString());
-        console.log('current allowance is ', bAllownace.toString(), ' for ', contractAddress, 'from', address.address);
-        return bAllownace;
-      }
-    }
-    return null;
-  },
-
-  async getTransactionUsingWeb3(network: any, txId: any) {
+  async getTransaction(network: any, txId: any) {
     let web3 = web3ConfigurationHelper.web3(network.rpcUrl).eth;
     if (web3) {
       let transaction = await web3.getTransaction(txId)
       return transaction;
+    }
+    return null;
+  },
+
+  async getTransactionsCount(network: any, address: any) {
+    let web3 = web3ConfigurationHelper.web3(network.rpcUrl).eth;
+    if (web3) {
+      let transactionCount = await web3.getTransactionCount(address.address, 'pending')
+      return transactionCount;
     }
     return null;
   },
@@ -117,12 +113,18 @@ module.exports = {
 
   async amountToHuman_(network: any, cabn: any, amount: number) {
     let decimal = await this.decimals(network, cabn);
-    if(decimal){
+    if (decimal) {
       let decimalFactor = 10 ** decimal;
       return new Big(amount).div(decimalFactor).toFixed();
     }
 
     return null;
+  },
+
+  async amountToMachine(network: any, cabn: any, amount: number): Promise<string> {
+    let decimal = await this.decimals(network, cabn);
+    let decimalFactor = 10 ** decimal;
+    return new Big(amount).times(decimalFactor).toFixed(0);
   },
 
   async decimals(network: any, cabn: any) {
@@ -137,6 +139,40 @@ module.exports = {
     }
 
     return null;
+  },
+
+  async approveToZero(network: any, cabn: any, address: any, contractAddress: string) {
+    let m = web3ConfigurationHelper.erc20(network.rpcUrl, cabn.tokenContractAddress).methods.approve(contractAddress, '0');
+    let from = address.address
+    let gas = await m.estimateGas({ from });
+    return [m.encodeABI(), gas];
+  },
+
+  async approveMax(network: any, cabn: any, address: any, contractAddress: string, useThisGas: number) {
+    console.log('about to approve max');
+    let m = web3ConfigurationHelper.erc20(network.rpcUrl, cabn.tokenContractAddress).methods.approve(contractAddress, MAX_AMOUNT);
+    let from = address.address;
+    let gas = !!useThisGas ? Math.max(useThisGas, DEFAULT_APPROVE_GAS) : await m.estimateGas({ from });
+    return [m.encodeABI(), gas];
+  },
+
+  async approve(network: any, cabn: any, address: any, contractAddress: string, useThisGas: number, rawAmount: typeof Big) {
+    console.log('about to approve: ', { amount: rawAmount.toFixed() })
+    let m = web3ConfigurationHelper.erc20(network.rpcUrl, cabn.tokenContractAddress).methods.approve(contractAddress, rawAmount.toFixed());
+    let from = address.address;
+    const gas = !!useThisGas ? Math.max(useThisGas, DEFAULT_APPROVE_GAS) : await m.estimateGas({ from });
+    return [m.encodeABI(), gas];
+  },
+
+  async getUserBalance(network: any, cabn: any, address: any) {
+    let balance = await (web3ConfigurationHelper.erc20(network.rpcUrl, cabn.tokenContractAddress)).methods.balanceOf(address.address).call();
+    return balance;
+  },
+
+  async getAvaialableLiquidity(network: any, cabn: any, contractAddress: string){
+    let web3Balance = await (web3ConfigurationHelper.erc20(network.rpcUrl, cabn.tokenContractAddress)).methods.balanceOf(contractAddress).call();
+    let balance = await this.amountToHuman_(network, cabn, web3Balance);
+    return balance;
   }
 
 }
