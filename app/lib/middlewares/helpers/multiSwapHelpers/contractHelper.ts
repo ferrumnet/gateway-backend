@@ -8,10 +8,8 @@ module.exports = {
     if (address.address && network.rpcUrl && cabn.tokenContractAddress && contractAddress) {
 
       let allowance = await web3ConfigurationHelper.erc20(network.rpcUrl, cabn.tokenContractAddress).methods.allowance(address.address, contractAddress).call();
-      console.log('allowance' + allowance);
       if (allowance) {
         const bAllownace = new Big(allowance.toString());
-        console.log('current allowance is ', bAllownace.toString(), ' for ', contractAddress, 'from', address.address);
         return bAllownace;
       }
     }
@@ -25,9 +23,7 @@ module.exports = {
       let tokDecimalFactor = 10 ** (await web3Helper.decimals(network, cabn));
       let amount = new Big(value).times(new Big(tokDecimalFactor));
       let nonce = await web3Helper.getTransactionsCount(network, address);
-      console.log(nonce)
       const amountHuman = amount.div(tokDecimalFactor).toString();
-      console.log(amountHuman)
       let symbol = cabn.currency.symbol;
       // let tokenCon = await web3ConfigurationHelper.erc20(network.rpcUrl, cabn.tokenContractAddress)
       // console.log(await tokenCon.methods.symbol().call());
@@ -40,7 +36,6 @@ module.exports = {
         if (currentAllowance.gt(new Big(0))) {
           let [approveToZero, approveToZeroGas] = await web3Helper.approveToZero(network, cabn,
             address, contractAddress);
-          console.log(approveToZero, approveToZeroGas);
 
           result.push(this.createObjectForApproveAllocation(contractAddress, cabn, address, approveToZero,
             approveToZeroGas.toString(), nonce,
@@ -92,7 +87,6 @@ module.exports = {
 
     let userBalance = await web3Helper.getUserBalance(fromNetwork, fromCabn, address);
     let balance = await web3Helper.amountToHuman_(fromNetwork, fromCabn, userBalance);
-    console.log(balance)
 
     if (new Big(balance).lt(new Big(amountValue))) {
       // change this error message
@@ -115,19 +109,9 @@ module.exports = {
   async swap(address: any, fromNetwork: any, fromCabn: any, contractAddress: string, amountValue: any, toNetwork: any, toCabn: any, res: any) {
 
     let amountRaw = await web3Helper.amountToMachine(fromNetwork, fromCabn, amountValue);
-    console.log('amountRaw',amountRaw);
-    console.log('toNetwork.chainId: ',toNetwork.chainId);
-    console.log('toCabn.tokenContractAddress: ',toCabn.tokenContractAddress);
-    console.log('contractAddress: ',contractAddress);
-    console.log('fromNetwork.rpcUrl: ',fromNetwork.rpcUrl);
-
     let swapResponse = web3ConfigurationHelper.bridgePool(fromNetwork.rpcUrl, contractAddress).methods.swap(fromCabn.tokenContractAddress, amountRaw, 4, toCabn.tokenContractAddress);
-    let from = address.address;
-    console.log('swapResponse',swapResponse);
     let gas = await this.estimateGasOrDefault(swapResponse, address.address, null);
-    console.log('gas' + gas);
     let nonce = await web3Helper.getTransactionsCount(fromNetwork, address);
-    console.log('nonce' + nonce);
 
     let gasLimit = gas ? gas.toFixed() : undefined;
 
