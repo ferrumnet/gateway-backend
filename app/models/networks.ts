@@ -18,6 +18,7 @@ var schema = mongoose.Schema({
   parentId: { type: mongoose.Schema.Types.ObjectId, ref: 'networks' },
   isActive: { type: Boolean, default: true },
   isAllowedOnGateway: { type: Boolean, default: false },
+  isAllowedOnMultiSwap: { type: Boolean, default: false },
   logo: { type: String, default: "" },
 
   createdAt: { type: Date, default: new Date() },
