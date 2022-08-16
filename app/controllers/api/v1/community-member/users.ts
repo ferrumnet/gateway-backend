@@ -136,7 +136,7 @@ module.exports = function (router: any) {
     }
   });
 
-  router.put("/profile/re-send/email/otp", profileMiddleware(), async (req: any, res: any) => {
+  router.put("/profile/re-send/email/otp", async (req: any, res: any) => {
     const uniqueEmail = await (global as any).commonFunctions.isUniqueEmail(
       req.body.email
     );
@@ -177,7 +177,7 @@ module.exports = function (router: any) {
   }
   );
 
-  router.post("/edit/profile/update/email", profileMiddleware(), async (req: any, res: any) => {
+  router.post("/edit/profile/update/email", async (req: any, res: any) => {
       let user = req.user;
       if (
         user.emailToVerify &&

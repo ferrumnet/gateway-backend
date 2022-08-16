@@ -1,3 +1,5 @@
+import { isValidObjectId } from "mongoose";
+
 module.exports = function (router: any) {
 
   router.post('/create', async (req: any, res: any) => {
@@ -7,7 +9,7 @@ module.exports = function (router: any) {
     }
 
     if (req.body.networks && req.body.networks.length == 0) {
-      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorCurrencyShouldAssociateWithAtleastOneNetwork),stringHelper.strErrorCurrencyShouldAssociateWithAtleastOneNetwork,);
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorCurrencyShouldAssociateWithAtleastOneNetwork), stringHelper.strErrorCurrencyShouldAssociateWithAtleastOneNetwork,);
     }
 
     let error = await commonFunctions.validationForUniqueCBN(req, res)
@@ -60,28 +62,28 @@ module.exports = function (router: any) {
 
   router.get('/list', async (req: any, res: any) => {
     var matchFilter: any = {}
-    var filterOrList= []
-    var filterAndList: any= []
+    var filterOrList = []
+    var filterAndList: any = []
     var filter = []
     let currencies = []
     var sort = { "createdAt": -1 }
 
 
-    if(req.query.search){
+    if (req.query.search) {
       let reg = new RegExp(unescape(req.query.search), 'i');
-      filterOrList.push({"nameInLower": reg})
-      filterOrList.push({"symbol": reg})
-      filterOrList.push({"currencyAddressesByNetwork": {$elemMatch: {'tokenContractAddress':reg} } })
+      filterOrList.push({ "nameInLower": reg })
+      filterOrList.push({ "symbol": reg })
+      filterOrList.push({ "currencyAddressesByNetwork": { $elemMatch: { 'tokenContractAddress': reg } } })
     }
 
-    if(filterOrList && filterOrList.length > 0){
+    if (filterOrList && filterOrList.length > 0) {
       matchFilter.$or = []
-      matchFilter.$or.push({$or: filterOrList})
+      matchFilter.$or.push({ $or: filterOrList })
     }
 
-    if(filterAndList && filterAndList.length > 0){
+    if (filterAndList && filterAndList.length > 0) {
       matchFilter.$and = []
-      matchFilter.$and.push({$and: filterAndList})
+      matchFilter.$and.push({ $and: filterAndList })
     }
 
     if (req.query.isPagination != null && req.query.isPagination == 'false') {
@@ -147,10 +149,10 @@ module.exports = function (router: any) {
     let filter = {}
     filter = { _id: req.params.id }
 
-    if(await currencyHelper.currencyAssociationWithNetwork(req, res) > 0
-    && await currencyHelper.currencyAssociationWithLeaderboard(req, res) > 0
-    && await currencyHelper.currencyAssociationWithTokenHoldersBalanceSnapshots(req, res) > 0){
-      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorDelete),stringHelper.strErrorDelete,);
+    if (await currencyHelper.currencyAssociationWithNetwork(req, res) > 0
+      && await currencyHelper.currencyAssociationWithLeaderboard(req, res) > 0
+      && await currencyHelper.currencyAssociationWithTokenHoldersBalanceSnapshots(req, res) > 0) {
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorDelete), stringHelper.strErrorDelete,);
     }
 
     let response = await db.Currencies.remove(filter)
@@ -171,7 +173,7 @@ module.exports = function (router: any) {
     req.body.networks.push(req.body.network)
 
     if (req.body.networks && req.body.networks.length == 0) {
-      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorCurrencyShouldAssociateWithAtleastOneNetwork),stringHelper.strErrorCurrencyShouldAssociateWithAtleastOneNetwork,);
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorCurrencyShouldAssociateWithAtleastOneNetwork), stringHelper.strErrorCurrencyShouldAssociateWithAtleastOneNetwork,);
     }
 
     let error = await commonFunctions.validationForUniqueCBN(req, res)
@@ -185,15 +187,53 @@ module.exports = function (router: any) {
     req.body.createdAt = new Date()
 
 
-    let currency = await db.Currencies.findOne({_id: req.body.currency})
-    if(currency){
+    let currency = await db.Currencies.findOne({ _id: req.body.currency })
+    if (currency) {
       currency.currencyAddressesByNetwork.push(await currencyHelper.createCurrencyAddresses(req, currency, req.body))
       console.log(currency)
-      currency = await db.Currencies.findOneAndUpdate({ _id: currency }, {currencyAddressesByNetwork: currency.currencyAddressesByNetwork}, { new: true });
+      currency = await db.Currencies.findOneAndUpdate({ _id: currency }, { currencyAddressesByNetwork: currency.currencyAddressesByNetwork }, { new: true });
     }
 
     return res.http200({
       currency: currency
+    });
+
+  });
+
+  router.get('/cabn/:id', async (req: any, res: any) => {
+
+    let filter = {}
+    filter = { _id: req.params.id }
+
+    let cabn = await db.CurrencyAddressesByNetwork.findOne(filter)
+      .populate('network')
+      .populate('currency')
+      .populate({
+        path: 'networkDex',
+        populate: {
+          path: 'dex',
+          model: 'decentralizedExchanges'
+        }
+      })
+
+    return res.http200({
+      cabn: cabn
+    });
+
+  });
+
+  router.put('/cabn/allow/on/multi/swap/:id', async (req: any, res: any) => {
+
+    let filter = { _id: req.params.id }
+    let isAllowedOnMultiSwap = req.body.isAllowedOnMultiSwap
+
+    if (!isValidObjectId(filter._id) || typeof isAllowedOnMultiSwap != 'boolean') {
+      return res.http400('Valid cabnId & isAllowedOnMultiSwap are required.');
+    }
+    let cabn = await db.CurrencyAddressesByNetwork.findOneAndUpdate(filter, { isAllowedOnMultiSwap }, { new: true })
+
+    return res.http200({
+      cabn: cabn
     });
 
   });

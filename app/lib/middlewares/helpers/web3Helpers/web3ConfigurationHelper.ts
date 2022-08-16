@@ -21,8 +21,13 @@ module.exports = {
 
   bridgePool(rpcUrl: string, tokenContractAddress: string) {
     let web3 = this.web3(rpcUrl).eth;
-    console.log(bridgeAbi.abi)
     return new web3.Contract(bridgeAbi.abi as AbiItem[], tokenContractAddress);
+  },
+
+  getBridgeSwapInputs() {
+    let abis = bridgeAbi.abi;
+    let bridgeSwapInputs = abis.find(abi => abi.name === 'BridgeSwap' && abi.type === 'event');
+    return bridgeSwapInputs;
   }
 
 }

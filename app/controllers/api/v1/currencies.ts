@@ -15,6 +15,16 @@ module.exports = function (router: any) {
       filterOrList.push({"tokenContractAddress": reg })
     }
 
+    if (req.query.isAllowedOnMultiSwap) {
+
+      if (req.query.isAllowedOnMultiSwap == 'true') {
+        filterAndList.push({"isAllowedOnMultiSwap": true})
+      } else {
+        filterAndList.push({"isAllowedOnMultiSwap": false})
+      }
+
+    }
+
     if(filterOrList && filterOrList.length > 0){
       matchFilter.$or = []
       matchFilter.$or.push({$or: filterOrList})

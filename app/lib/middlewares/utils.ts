@@ -31,7 +31,9 @@ productsHelper: any,
 packagesHelper: any,
 web3ConfigurationHelper: any,
 web3Helper: any,
-contractHelper: any
+contractHelper: any,
+signatureHelper: any,
+swapTransactionHelper: any
 
 
 const utils = {

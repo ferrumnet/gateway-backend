@@ -7,6 +7,7 @@ var schema = mongoose.Schema({
   networkDex: { type: mongoose.Schema.Types.ObjectId, ref: 'networkDexes' },
   createdByOrganization: { type: mongoose.Schema.Types.ObjectId, ref: 'organizations' },
   tokenContractAddress: { type: String, default: "" },
+  isAllowedOnMultiSwap: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
 
   createdAt: { type: Date, default: new Date() },
