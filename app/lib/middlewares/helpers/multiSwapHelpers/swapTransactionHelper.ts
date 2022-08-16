@@ -12,7 +12,7 @@ module.exports = {
   async getTransactionReceiptByTxIdUsingWeb3(network: any, txId: any,contractAddress: any) {
     let web3 = web3ConfigurationHelper.web3(network.rpcUrl).eth;
     let receipt = await web3.getTransactionReceipt(txId);
-    let swapLog = receipt.logs.find(l => contractAddress.toLocaleLowerCase() === (l.address || '').toLocaleLowerCase()); // Index for the swap event
+    let swapLog = receipt.logs.find((l: any) => contractAddress.toLocaleLowerCase() === (l.address || '').toLocaleLowerCase()); // Index for the swap event
     let bridgeSwapInputs = web3ConfigurationHelper.getBridgeSwapInputs();
     console.log("bridgeSwapInputs", bridgeSwapInputs);
     let decoded = web3.abi.decodeLog(bridgeSwapInputs.inputs, swapLog.data, swapLog.topics.slice(1));
