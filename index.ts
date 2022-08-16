@@ -98,6 +98,11 @@ if (
 (global as any).dexesHelper = require("./app/lib/middlewares/helpers/dexesHelper");
 (global as any).productsHelper = require("./app/lib/middlewares/helpers/productsHelper");
 (global as any).packagesHelper = require("./app/lib/middlewares/helpers/packagesHelper");
+(global as any).web3ConfigurationHelper = require("./app/lib/middlewares/helpers/web3Helpers/web3ConfigurationHelper");
+(global as any).web3Helper = require("./app/lib/middlewares/helpers/web3Helpers/web3Helper");
+(global as any).contractHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/contractHelper");
+(global as any).signatureHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/signatureHelper");
+(global as any).swapTransactionHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/swapTransactionHelper");
 
 (global as any).kraken = app.kraken;
 // const whitelist = (global as any).environment.whitelist;

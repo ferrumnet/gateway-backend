@@ -138,4 +138,29 @@ module.exports = function (router: any) {
     return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorSignatureVerificationFailed),stringHelper.strErrorSignatureVerificationFailed,);
   });
 
+  router.post('/connect/to/address', async (req: any, res: any) => {
+
+    let addressObject = null
+
+    if (!req.body.address || !req.body.ferrumNetworkIdentifier || !req.body.role) {
+      return res.http400('address & ferrumNetworkIdentifier and role are required.');
+    }
+
+    let address = await addressesHelper.getAddress(req, res, false)
+    if (address && address.length> 0) {
+      addressObject = address[0]
+    }
+
+    if(addressObject && addressObject.network){
+      try{
+        return res.http200(await addressesHelper.createUserByABN(req, res, addressObject));
+      }catch(err: any){
+        return res.http400(err.message);
+      }
+    }
+    // change this error message
+    return res.http400('Address not found');
+    // return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorSignatureVerificationFailed),stringHelper.strErrorSignatureVerificationFailed,);
+  });
+
 };
