@@ -25,7 +25,7 @@ module.exports = {
     return null;
   },
 
-  toCurrency(networkShortName: string, address: string): string | undefined {
+  toCurrency(networkShortName: string, address: string) {
     if (!networkShortName || !address) return null;
     return `${networkShortName.toUpperCase()}:${address.toLowerCase()}`
   }
