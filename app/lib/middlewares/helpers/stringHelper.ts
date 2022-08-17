@@ -38,6 +38,7 @@ let strErrorOrganizationDelete='Backend_Error_Organization_Delete'
 let strErrorNetworkDelete='Backend_Error_Network_Delete'
 let strErrorDexDelete='Backend_Error_Dex_Delete'
 let strErrorDelete='Backend_Error_Delete'
+let strAddressNotFound='Backend_Address_Not_Found'
 
 // success messages
 let strSuccessResetPasswordLink = 'Backend_Success_Reset_Password_Link'
@@ -95,6 +96,7 @@ module.exports = {
   strErrorOrganizationDelete,
   strErrorNetworkDelete,
   strErrorDexDelete,
-  strErrorDelete
+  strErrorDelete,
+  strAddressNotFound
 }
 

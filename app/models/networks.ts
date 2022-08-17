@@ -20,6 +20,7 @@ var schema = mongoose.Schema({
   isAllowedOnGateway: { type: Boolean, default: false },
   isAllowedOnMultiSwap: { type: Boolean, default: false },
   logo: { type: String, default: "" },
+  contractAddress: { type: String, default: "" },
 
   createdAt: { type: Date, default: new Date() },
   updatedAt: { type: Date, default: new Date() },
