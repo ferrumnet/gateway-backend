@@ -37,7 +37,6 @@ module.exports = function (router: any) {
       await contractHelper.doSwapAndGetTransactionPayload(address, fromNetwork, fromCabn, req.query.bridgeContractAddress, req.query.amount, toNetwork, toCabn, res, true);
 
     } else {
-      // change this error message
       return res.http400('Invalid fromCabnId, fromNetworkId, toCabnId or toNetworkId');
     }
 

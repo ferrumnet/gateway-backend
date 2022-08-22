@@ -106,7 +106,7 @@ module.exports = {
     console.log('isForGasEstimation',isForGasEstimation);
     if(isForGasEstimation){
       return res.http200({
-        gas: response.gas
+        data: response.gas
       });
     }
 
