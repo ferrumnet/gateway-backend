@@ -125,8 +125,8 @@ module.exports = {
     let gasLimit = gas ? gas.toFixed() : undefined;
 
     return {
-      fromCabn,
-      address,
+      // fromCabn,
+      // address,
       amount: '0',
       contract: contractAddress,
       data: swapResponse.encodeABI(),
