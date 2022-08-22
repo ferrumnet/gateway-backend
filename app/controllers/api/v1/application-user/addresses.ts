@@ -13,15 +13,15 @@ module.exports = function (router: any) {
       return res.http400('address & ferrumNetworkIdentifier are required.');
     }
 
-    let network = await db.Networks.findOne({ferrumNetworkIdentifier: req.query.ferrumNetworkIdentifier})
+    let network = await db.Networks.findOne({ ferrumNetworkIdentifier: req.query.ferrumNetworkIdentifier })
 
-    if(!network){
-      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorChangeFerrumNetworkIdentifier),stringHelper.strErrorChangeFerrumNetworkIdentifier,);
+    if (!network) {
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorChangeFerrumNetworkIdentifier), stringHelper.strErrorChangeFerrumNetworkIdentifier,);
     }
 
     let address = await addressesHelper.getAddress(req, res, false)
 
-    if (address && address.length> 0) {
+    if (address && address.length > 0) {
       isUnique = false
     }
     return res.http200({
@@ -37,15 +37,15 @@ module.exports = function (router: any) {
       return res.http400('address & ferrumNetworkIdentifier are required.');
     }
 
-    let network = await db.Networks.findOne({ferrumNetworkIdentifier: req.query.ferrumNetworkIdentifier})
+    let network = await db.Networks.findOne({ ferrumNetworkIdentifier: req.query.ferrumNetworkIdentifier })
 
-    if(!network){
-      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorChangeFerrumNetworkIdentifier),stringHelper.strErrorChangeFerrumNetworkIdentifier,);
+    if (!network) {
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorChangeFerrumNetworkIdentifier), stringHelper.strErrorChangeFerrumNetworkIdentifier,);
     }
 
     let address = await addressesHelper.getAddress(req, res, true)
 
-    if (address && address.length> 0) {
+    if (address && address.length > 0) {
       isUnique = false
     }
     return res.http200({
@@ -61,15 +61,15 @@ module.exports = function (router: any) {
       return res.http400('address & ferrumNetworkIdentifier & userId are required.');
     }
 
-    let network = await db.Networks.findOne({ferrumNetworkIdentifier: req.query.ferrumNetworkIdentifier})
+    let network = await db.Networks.findOne({ ferrumNetworkIdentifier: req.query.ferrumNetworkIdentifier })
 
-    if(!network){
-      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorChangeFerrumNetworkIdentifier),stringHelper.strErrorChangeFerrumNetworkIdentifier,);
+    if (!network) {
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorChangeFerrumNetworkIdentifier), stringHelper.strErrorChangeFerrumNetworkIdentifier,);
     }
 
     let address = await addressesHelper.getAddress(req, res, true)
 
-    if (address && address.length> 0) {
+    if (address && address.length > 0) {
       isAuthenticated = true
     }
     return res.http200({
@@ -86,16 +86,21 @@ module.exports = function (router: any) {
       return res.http400('address & ferrumNetworkIdentifier are required.');
     }
 
-    let network = await db.Networks.findOne({ferrumNetworkIdentifier: req.body.ferrumNetworkIdentifier})
+    let network = await db.Networks.findOne({ ferrumNetworkIdentifier: req.body.ferrumNetworkIdentifier })
 
-    if(!network){
-      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorChangeFerrumNetworkIdentifier),stringHelper.strErrorChangeFerrumNetworkIdentifier,);
+    if (!network) {
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorChangeFerrumNetworkIdentifier), stringHelper.strErrorChangeFerrumNetworkIdentifier,);
     }
 
     let addresses = await addressesHelper.getAddress(req, res, false)
 
-    if (addresses && addresses.length> 0) {
+    if (addresses && addresses.length > 0) {
       address = addresses[0]
+    } else {
+      let addresses = await addressesHelper.getAddress(req, res, false, true);
+      if (addresses && addresses.length > 0) {
+        address = addresses[0];
+      }
     }
 
     let resAddress = await addressesHelper.genrateNonceByABN(req, res, address, network)
@@ -115,27 +120,27 @@ module.exports = function (router: any) {
     }
 
     let address = await addressesHelper.getAddress(req, res, false)
-    if (address && address.length> 0) {
+    if (address && address.length > 0) {
       addressObject = address[0]
     }
 
-    if(addressObject && addressObject.network){
+    if (addressObject && addressObject.network) {
       const bufferText = Buffer.from(`${(global as any).environment.verifySignaturePrefixBufferText}${addressObject.nonce}. id: ${addressObject.network.ferrumNetworkIdentifier}`, 'utf8');
       const data = `0x${bufferText.toString('hex')}`;
-      try{
+      try {
         const decryptedAddress = await recoverPersonalSignature({
           data: data,
           sig: req.body.signature
         });
         console.log(decryptedAddress)
-        if(decryptedAddress && decryptedAddress.toLowerCase() == addressObject.address){
+        if (decryptedAddress && decryptedAddress.toLowerCase() == addressObject.address) {
           return res.http200(await addressesHelper.createUserByABN(req, res, addressObject));
         }
-      }catch(err: any){
+      } catch (err: any) {
         return res.http400(err.message);
       }
     }
-    return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorSignatureVerificationFailed),stringHelper.strErrorSignatureVerificationFailed,);
+    return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorSignatureVerificationFailed), stringHelper.strErrorSignatureVerificationFailed,);
   });
 
   router.post('/connect/to/address', async (req: any, res: any) => {
@@ -146,21 +151,29 @@ module.exports = function (router: any) {
       return res.http400('address & ferrumNetworkIdentifier and role are required.');
     }
 
-    let address = await addressesHelper.getAddress(req, res, false)
-    if (address && address.length> 0) {
+    let address = await addressesHelper.getAddress(req, res, false);
+    if (address && address.length > 0) {
       addressObject = address[0]
+    } else {
+      let network = await db.Networks.findOne({ ferrumNetworkIdentifier: req.body.ferrumNetworkIdentifier });
+      if (network) {
+        let address = await addressesHelper.getAddress(req, res, false, true);
+        if (address && address.length > 0) {
+          address = address[0];
+        }
+        addressObject = await addressesHelper.genrateNonceByABN(req, res, address, network);
+        addressObject.network = network;
+      }
     }
-
-    if(addressObject && addressObject.network){
-      try{
+    if (addressObject && addressObject.network) {
+      try {
         return res.http200(await addressesHelper.createUserByABN(req, res, addressObject));
-      }catch(err: any){
+      } catch (err: any) {
         return res.http400(err.message);
       }
     }
-    // change this error message
-    return res.http400('Address not found');
-    // return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorSignatureVerificationFailed),stringHelper.strErrorSignatureVerificationFailed,);
+
+    return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strAddressNotFound), stringHelper.strAddressNotFound,);
   });
 
 };

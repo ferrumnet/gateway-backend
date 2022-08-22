@@ -75,14 +75,17 @@ module.exports = {
     };
   },
 
-  async doSwapAndGetTransactionPayload(address: any, fromNetwork: any, fromCabn: any, contractAddress: string, amountValue: any, toNetwork: any, toCabn: any, res: any) {
+  async doSwapAndGetTransactionPayload(address: any, fromNetwork: any, fromCabn: any, contractAddress: string, amountValue: any, toNetwork: any, toCabn: any, res: any, isForGasEstimation: boolean) {
     let approveeName = 'TokenBridgePool';
-    let apporveAllocationResult = await this.approveAllocation(address, fromNetwork, fromCabn, contractAddress, amountValue, approveeName);
 
-    if (apporveAllocationResult && apporveAllocationResult.length) {
-      return res.http200({
-        data: { isAlreadyApproved: false, result: apporveAllocationResult }
-      });
+    if(!isForGasEstimation){
+      let apporveAllocationResult = await this.approveAllocation(address, fromNetwork, fromCabn, contractAddress, amountValue, approveeName);
+
+      if (apporveAllocationResult && apporveAllocationResult.length) {
+        return res.http200({
+          data: { isAlreadyApproved: false, result: apporveAllocationResult }
+        });
+      }
     }
 
     let userBalance = await web3Helper.getUserBalance(fromNetwork, fromCabn, address);
@@ -100,6 +103,12 @@ module.exports = {
     // } catch (e) {
     //   console.error('Error running runLiquidityCheckScript', e as Error);
     // }
+    console.log('isForGasEstimation',isForGasEstimation);
+    if(isForGasEstimation){
+      return res.http200({
+        data: response.gas
+      });
+    }
 
     return res.http200({
       data: { isAlreadyApproved: true, result: response }
