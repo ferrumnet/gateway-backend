@@ -32,7 +32,7 @@ app.use(function (req: any, res: any, next: any) {
   next();
 });
 app.use(cors());
-(global as any).utils = require("./app/lib/middlewares/utils");
+(global as any).utils = require("./app/lib/middlewares/utils")();
 (global as any).pusher = require("./app/lib/notifications");
 (global as any).db = require("./app/models/index");
 (global as any).helper = require("./app/lib/middlewares/helpers/dateHelper");

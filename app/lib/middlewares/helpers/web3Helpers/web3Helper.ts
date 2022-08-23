@@ -121,7 +121,7 @@ module.exports = {
     return null;
   },
 
-  async amountToMachine(network: any, cabn: any, amount: number): Promise<string> {
+  async amountToMachine(network: any, cabn: any, amount: number) {
     let decimal = await this.decimals(network, cabn);
     let decimalFactor = 10 ** decimal;
     return new Big(amount).times(decimalFactor).toFixed(0);

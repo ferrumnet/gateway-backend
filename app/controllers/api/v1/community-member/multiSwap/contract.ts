@@ -23,9 +23,9 @@ module.exports = function (router: any) {
 
     fromNetwork = await db.Networks.findOne({ _id: req.query.fromNetworkId })
     fromCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.fromCabnId }).populate('currency')
-    req.query.bridgeContractAddress = fromNetwork.contractAddress;
 
     if (address && fromNetwork && fromCabn) {
+      req.query.bridgeContractAddress = fromNetwork.contractAddress;
       allocation = await contractHelper.getCurrentAllowance(address, fromNetwork, fromCabn, req.query.bridgeContractAddress)
       if (allocation) {
         allocation = await web3Helper.amountToHuman_(fromNetwork, fromCabn, allocation.toFixed());
@@ -64,10 +64,9 @@ module.exports = function (router: any) {
 
     fromNetwork = await db.Networks.findOne({ _id: req.query.fromNetworkId })
     fromCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.fromCabnId }).populate('currency')
-    req.query.bridgeContractAddress = fromNetwork.contractAddress;
     
     if (address && fromNetwork && fromCabn) {
-
+      req.query.bridgeContractAddress = fromNetwork.contractAddress;
       data = await contractHelper.approveAllocation(address, fromNetwork, fromCabn, req.query.bridgeContractAddress, req.query.amount);
       return res.http200({
         data: data
@@ -99,9 +98,9 @@ module.exports = function (router: any) {
 
     fromNetwork = await db.Networks.findOne({ _id: req.query.fromNetworkId })
     fromCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.fromCabnId }).populate('currency')
-    req.query.bridgeContractAddress = fromNetwork.contractAddress;
 
     if (address && fromNetwork && fromCabn) {
+      req.query.bridgeContractAddress = fromNetwork.contractAddress;
       liquidity = await web3Helper.getAvaialableLiquidity(fromNetwork, fromCabn, req.query.bridgeContractAddress);
       return res.http200({
         data: {liquidity: liquidity}

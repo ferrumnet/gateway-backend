@@ -30,12 +30,9 @@ module.exports = function (router: any) {
     toNetwork = await db.Networks.findOne({ _id: req.query.toNetworkId })
     toCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.toCabnId }).populate('currency')
 
-    req.query.bridgeContractAddress = fromNetwork.contractAddress;
-
     if (address && fromNetwork && fromCabn && toNetwork && toCabn) {
-
+      req.query.bridgeContractAddress = fromNetwork.contractAddress;
       await contractHelper.doSwapAndGetTransactionPayload(address, fromNetwork, fromCabn, req.query.bridgeContractAddress, req.query.amount, toNetwork, toCabn, res, true);
-
     } else {
       return res.http400('Invalid fromCabnId, fromNetworkId, toCabnId or toNetworkId');
     }
@@ -52,7 +49,7 @@ module.exports = function (router: any) {
     let data = null;
 
     if (!req.query.fromCabnId || !req.query.fromNetworkId || !req.query.amount || !req.query.toCabnId || !req.query.toNetworkId) {
-      return res.http400('bridgeContractAddress & fromCabnId & fromNetworkId & amount & toCabnId & toNetworkId  are required.');
+      return res.http400('fromCabnId & fromNetworkId & amount & toCabnId & toNetworkId  are required.');
     }
 
     if (!mongoose.Types.ObjectId.isValid(req.query.fromCabnId) || !mongoose.Types.ObjectId.isValid(req.query.fromNetworkId)
@@ -69,9 +66,9 @@ module.exports = function (router: any) {
 
     toNetwork = await db.Networks.findOne({ _id: req.query.toNetworkId })
     toCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.toCabnId }).populate('currency')
-    req.query.bridgeContractAddress = fromNetwork.contractAddress;
 
     if (address && fromNetwork && fromCabn && toNetwork && toCabn) {
+      req.query.bridgeContractAddress = fromNetwork.contractAddress;
       await contractHelper.doSwapAndGetTransactionPayload(address, fromNetwork, fromCabn, req.query.bridgeContractAddress, req.query.amount, toNetwork, toCabn, res, false);
     } else {
       return res.http400('Invalid fromCabnId, fromNetworkId, toCabnId or toNetworkId');
@@ -83,13 +80,9 @@ module.exports = function (router: any) {
 
     let address = null;
     let fromNetwork = null;
-    let fromCabn = null;
-    let toNetwork = null;
-    let toCabn = null;
-    let data = null;
 
-    if (!req.query.bridgeContractAddress && !req.params.txId && !req.query.fromNetworkId) {
-      return res.http400('bridgeContractAddress & txId & fromNetworkId are required.');
+    if (!req.params.txId && !req.query.fromNetworkId) {
+      return res.http400('txId & fromNetworkId are required.');
     }
 
     if (!mongoose.Types.ObjectId.isValid(req.query.fromNetworkId)) {
@@ -101,23 +94,25 @@ module.exports = function (router: any) {
     }
 
     fromNetwork = await db.Networks.findOne({ _id: req.query.fromNetworkId });
-    // fromCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.fromCabnId }).populate('currency')
-
-    // toNetwork = await db.Networks.findOne({ _id: req.query.toNetworkId })
-    // toCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.toCabnId }).populate('currency')
 
     if (address && fromNetwork) {
-
-      let transaction = await swapTransactionHelper.getTransactionReceiptByTxIdUsingWeb3(fromNetwork, req.params.txId,req.query.bridgeContractAddress);
-    //   ValidationUtils.isTrue(tx.status, `Transaction "${txId}" is failed`);
-		// ValidationUtils.isTrue(ChainUtils.addressesAreEqual(network as Network, address, tx.to),
-		// 	'Transaction is not against the bridge contract');
-    // ValidationUtils.isTrue(!!swapLog, 'No swap log found on tx ' + txId)
-
-      console.log(transaction)
-
+      req.query.bridgeContractAddress = fromNetwork.contractAddress;
+      let transactionResponse = await swapTransactionHelper.getTransactionReceiptByTxIdUsingWeb3(fromNetwork, req.params.txId, req.query.bridgeContractAddress);
+      if (transactionResponse && transactionResponse.code == 400) {
+        return res.http400(await commonFunctions.getValueFromStringsPhrase(transactionResponse.data), transactionResponse.data);
+      } else if (transactionResponse && transactionResponse.code == 401) {
+        return res.http400('Invalid txId or fromNetworkId');
+      }
+      let swap = transactionResponse.data;
+      console.log('swap',swap);
+      if(swap){
+        await swapTransactionHelper.swapTransactionHelper(swap, utils.expectedSchemaVersion);
+      }
+      
+      return res.http200({
+        transaction: transactionResponse
+      })
     } else {
-      // change this error message
       return res.http400('Invalid txId or fromNetworkId');
     }
 
