@@ -34,7 +34,8 @@ web3Helper: any,
 contractHelper: any,
 signatureHelper: any,
 swapTransactionHelper: any,
-utils: any
+utils: any,
+ecdsaHelper: any
 
 
 module.exports = function () {
@@ -67,7 +68,8 @@ module.exports = function () {
     V1_2: '001.200',
   },
 
-  utils.expectedSchemaVersion = '1.0'
+  utils.expectedSchemaVersionV1_0 = '1.0'
+  utils.expectedSchemaVersionV1_2 = '1.2'
 
   return utils;
 }

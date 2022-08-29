@@ -103,6 +103,7 @@ if (
 (global as any).contractHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/contractHelper");
 (global as any).signatureHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/signatureHelper");
 (global as any).swapTransactionHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/swapTransactionHelper");
+(global as any).ecdsaHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/ecdsaHelper");
 
 (global as any).kraken = app.kraken;
 // const whitelist = (global as any).environment.whitelist;

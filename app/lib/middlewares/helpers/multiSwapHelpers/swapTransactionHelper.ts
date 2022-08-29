@@ -64,7 +64,7 @@ module.exports = {
     let toCabn = { tokenContractAddress: decoded.targetToken.toLowerCase() };
     let amount = await web3Helper.amountToHuman_(fromNetwork, fromCabn, decoded.amount);
 
-
+    console.log("decoded values::::::: ",decoded)
     let returnObject = {
       fromNetwork,
       toNetwork,
@@ -88,7 +88,7 @@ module.exports = {
 
   async swapTransactionHelper(swap: any, schemaVersion: string) {
     let isV12 = false;
-    if (schemaVersion == '1.2') {
+    if (schemaVersion == utils.expectedSchemaVersionV1_2) {
       isV12 = true;
     }
     let txSummary = await this.getTransactionSummary(swap.fromNetwork, swap.transactionId);
@@ -96,28 +96,29 @@ module.exports = {
     // isV12 is pending
     let payBySig = null;
     if (isV12) {
-      payBySig = await signatureHelper.createSignedPaymentV2(swap);
+      console.log('v2222222')
+      payBySig = await signatureHelper.createSignedPaymentV1_2(swap);
     } else {
-      payBySig = await signatureHelper.createSignedPaymentV1(swap);
+      payBySig = await signatureHelper.createSignedPaymentV1_0(swap);
     }
-    console.log(payBySig);
+    console.log('payBySig::: ',payBySig);
 
-    const newItem = {
+    let newItem = {
       id: swap.transactionId,
       timestamp: new Date().valueOf(),
-      receiveNetwork: swap.network,
+      receiveNetwork: swap.fromNetwork.networkShortName,
       receiveCurrency: signatureHelper.toCurrency(swap.fromNetwork.networkShortName, swap.fromCabn.tokenContractAddress),
       receiveTransactionId: swap.transactionId,
-      receiveAddress: swap.targetAddress,
+      receiveAddress: swap.toAddress,
       receiveAmount: swap.amount,
       payBySig,
-      sendNetwork: swap.targetNetwork,
-      sendAddress: swap.targetAddress,
+      sendNetwork: swap.toNetwork.networkShortName,
+      sendAddress: swap.toAddress,
       sendTimestamp: 0,
-      sendCurrency: signatureHelper.toCurrency(swap.fromNetwork.networkShortName, swap.fromCabn.tokenContractAddress),
+      sendCurrency: signatureHelper.toCurrency(swap.toNetwork.networkShortName, swap.toCabn.tokenContractAddress),
       sendAmount: swap.amount,
-      originCurrency: signatureHelper.toCurrency(swap.fromNetwork.networkShortName, swap.fromCabn.tokenContractAddress),
-      sendToCurrency: signatureHelper.toCurrency(swap.toNetwork.networkShortName, swap.toCabn.tokenContractAddress),
+      // originCurrency: signatureHelper.toCurrency(swap.fromNetwork.networkShortName, swap.fromCabn.tokenContractAddress),
+      // sendToCurrency: signatureHelper.toCurrency(swap.toNetwork.networkShortName, swap.toCabn.tokenContractAddress),
 
       used: '',
       useTransactions: [],
@@ -129,13 +130,17 @@ module.exports = {
       signatures: 0,
     }
 
-    // Update version specific fields
     if (isV12) {
-      // newItem.payBySig.hash = NodeUtils.bridgeV12Hash(newItem);
+      newItem.payBySig.hash = signatureHelper.bridgeHashV1_2(newItem, swap);
+      console.log('hash:::v2 ', newItem.payBySig.hash);
     } else {
-      newItem.payBySig.swapTxId = signatureHelper.bridgeV1Salt(newItem);
-      newItem.payBySig.hash = signatureHelper.bridgeV1Hash(newItem);
+      newItem.payBySig.swapTxId = signatureHelper.bridgeSaltV1_0(newItem);
+      newItem.payBySig.hash = signatureHelper.bridgeHashV1_0(newItem, swap);
+      console.log('hash:::v1 ', newItem.payBySig.hash);
     }
+
+    console.log('newItem::: ', newItem);
+    return newItem;
   },
 
   async getTransactionSummary(fromNetwork: any, txId: string) {

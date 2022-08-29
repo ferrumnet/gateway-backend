@@ -104,13 +104,20 @@ module.exports = function (router: any) {
         return res.http400('Invalid txId or fromNetworkId');
       }
       let swap = transactionResponse.data;
-      console.log('swap',swap);
-      if(swap){
-        await swapTransactionHelper.swapTransactionHelper(swap, utils.expectedSchemaVersion);
+      let swapTransaction = null;
+      console.log('swap', swap);
+      if (swap) {
+        swapTransaction = await swapTransactionHelper.swapTransactionHelper(swap, utils.expectedSchemaVersionV1_0);
       }
-      
+      console.log('swapTransaction', swapTransaction);
+      let hash = signatureHelper.bridgeHashV1_0(swapTransaction, swap);
+      console.log('final hash', hash);
+      let msgHash = hash.replace('0x', '');
+      let signatureResponse = ecdsaHelper.sign('a7d08a23f69090a53a32814da1d262c8d2728d16bce420ae143978d85a06be49', msgHash);
+      console.log(signatureResponse);
       return res.http200({
-        transaction: transactionResponse
+        // transaction: transactionResponse,
+        swapTransaction: swapTransaction
       })
     } else {
       return res.http400('Invalid txId or fromNetworkId');
