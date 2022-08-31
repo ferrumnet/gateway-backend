@@ -28,6 +28,8 @@ module.exports = {
       };
     }
 
+    console.log('status::::: ',receipt.status)
+
     let swapLog = receipt.logs.find((l: any) => contractAddress.toLocaleLowerCase() === (l.address || '').toLocaleLowerCase()); // Index for the swap event
     let bridgeSwapInputs = web3ConfigurationHelper.getBridgeSwapInputs();
 
@@ -62,7 +64,7 @@ module.exports = {
 
     let fromCabn = { tokenContractAddress: decoded.token.toLowerCase() };
     let toCabn = { tokenContractAddress: decoded.targetToken.toLowerCase() };
-    let amount = await web3Helper.amountToHuman_(fromNetwork, fromCabn, decoded.amount);
+    let amount = await swapUtilsHelper.amountToHuman_(fromNetwork, fromCabn, decoded.amount);
 
     console.log("decoded values::::::: ",decoded)
     let returnObject = {
@@ -92,7 +94,7 @@ module.exports = {
       isV12 = true;
     }
     let txSummary = await this.getTransactionSummary(swap.fromNetwork, swap.transactionId);
-    console.log(txSummary);
+    console.log('txSummary',txSummary);
     // isV12 is pending
     let payBySig = null;
     if (isV12) {
@@ -101,7 +103,7 @@ module.exports = {
     } else {
       payBySig = await signatureHelper.createSignedPaymentV1_0(swap);
     }
-    console.log('payBySig::: ',payBySig);
+    // console.log('payBySig::: ',payBySig);
 
     let newItem = {
       id: swap.transactionId,
@@ -132,14 +134,14 @@ module.exports = {
 
     if (isV12) {
       newItem.payBySig.hash = signatureHelper.bridgeHashV1_2(newItem, swap);
-      console.log('hash:::v2 ', newItem.payBySig.hash);
+      // console.log('hash:::v2 ', newItem.payBySig.hash);
     } else {
       newItem.payBySig.swapTxId = signatureHelper.bridgeSaltV1_0(newItem);
       newItem.payBySig.hash = signatureHelper.bridgeHashV1_0(newItem, swap);
-      console.log('hash:::v1 ', newItem.payBySig.hash);
+      // console.log('hash:::v1 ', newItem.payBySig.hash);
     }
 
-    console.log('newItem::: ', newItem);
+    // console.log('newItem::: ', newItem);
     return newItem;
   },
 

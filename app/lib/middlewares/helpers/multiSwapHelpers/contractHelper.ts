@@ -20,7 +20,7 @@ module.exports = {
     let result = [];
     let useMax = true;
     if (address.address && network.rpcUrl && cabn.currency && cabn.currency.symbol && cabn.tokenContractAddress && contractAddress && value) {
-      let tokDecimalFactor = 10 ** (await web3Helper.decimals(network, cabn));
+      let tokDecimalFactor = 10 ** (await swapUtilsHelper.decimals(network, cabn));
       let amount = new Big(value).times(new Big(tokDecimalFactor));
       let nonce = await web3Helper.getTransactionsCount(network, address);
       const amountHuman = amount.div(tokDecimalFactor).toString();
@@ -75,51 +75,44 @@ module.exports = {
     };
   },
 
-  async doSwapAndGetTransactionPayload(address: any, fromNetwork: any, fromCabn: any, contractAddress: string, amountValue: any, toNetwork: any, toCabn: any, res: any, isForGasEstimation: boolean) {
+  async doSwapAndGetTransactionPayload(address: any, fromNetwork: any, fromCabn: any, contractAddress: string, amountValue: any, toNetwork: any, toCabn: any, isForGasEstimation: boolean) {
     let approveeName = 'TokenBridgePool';
 
-    if(!isForGasEstimation){
+    if (!isForGasEstimation) {
       let apporveAllocationResult = await this.approveAllocation(address, fromNetwork, fromCabn, contractAddress, amountValue, approveeName);
 
       if (apporveAllocationResult && apporveAllocationResult.length) {
-        return res.http200({
-          data: { isAlreadyApproved: false, result: apporveAllocationResult }
-        });
+        return standardStatuses.status200({ isAlreadyApproved: false, result: apporveAllocationResult });
       }
     }
 
     let userBalance = await web3Helper.getUserBalance(fromNetwork, fromCabn, address);
-    let balance = await web3Helper.amountToHuman_(fromNetwork, fromCabn, userBalance);
+    let balance = await swapUtilsHelper.amountToHuman_(fromNetwork, fromCabn, userBalance);
 
     if (new Big(balance).lt(new Big(amountValue))) {
-      // change this error message
-      return res.http400(`Not enough balance. ${amountValue} is required but there is only ${balance} available`);
+      return standardStatuses.status400(`Not enough balance. ${amountValue} is required but there is only ${balance} available`);
     }
 
-    let response = await this.swap(address, fromNetwork, fromCabn, contractAddress, amountValue, toNetwork, toCabn, res);
+    let response = await this.swap(address, fromNetwork, fromCabn, contractAddress, amountValue, toNetwork, toCabn);
 
     // try {
     //   await this.runLiquidityCheckScript(targetCurrency);
     // } catch (e) {
     //   console.error('Error running runLiquidityCheckScript', e as Error);
     // }
-    console.log('isForGasEstimation',isForGasEstimation);
-    if(isForGasEstimation){
-      return res.http200({
-        data: response.gas
-      });
+    console.log('isForGasEstimation', isForGasEstimation);
+    if (isForGasEstimation) {
+      return standardStatuses.status200(response.gas);
     }
 
-    return res.http200({
-      data: { isAlreadyApproved: true, result: response }
-    });
+    return standardStatuses.status200({ isAlreadyApproved: true, result: response });
   },
 
-  async swap(address: any, fromNetwork: any, fromCabn: any, contractAddress: string, amountValue: any, toNetwork: any, toCabn: any, res: any) {
+  async swap(address: any, fromNetwork: any, fromCabn: any, contractAddress: string, amountValue: any, toNetwork: any, toCabn: any) {
 
-    let amountRaw = await web3Helper.amountToMachine(fromNetwork, fromCabn, amountValue);
+    let amountRaw = await swapUtilsHelper.amountToMachine(fromNetwork, fromCabn, amountValue);
     let swapResponse = web3ConfigurationHelper.bridgePool(fromNetwork.rpcUrl, contractAddress).methods.swap(fromCabn.tokenContractAddress, amountRaw, 4, toCabn.tokenContractAddress);
-    let gas = await this.estimateGasOrDefault(swapResponse, address.address, null);
+    let gas = await swapUtilsHelper.estimateGasOrDefault(swapResponse, address.address, null);
     let nonce = await web3Helper.getTransactionsCount(fromNetwork, address);
 
     let gasLimit = gas ? gas.toFixed() : undefined;
@@ -137,14 +130,33 @@ module.exports = {
 
   },
 
-  async estimateGasOrDefault(method: any, from: string, defaultGas?: number) {
-    try {
-      return await method.estimateGas({ from });
-    } catch (e) {
-      console.log(e);
-      console.info('Error estimating gas. Tx might be reverting..');
-      return defaultGas;
-    }
+  async withdrawSigned(address: any,w: any, toNetwork: any, signature: any) {
+
+    let contractAddress = toNetwork.contractAddress;
+    console.log(contractAddress)
+    const swapResponse = web3ConfigurationHelper.bridgePool(toNetwork.rpcUrl, contractAddress).methods.withdrawSigned(w.payBySig.token, w.payBySig.payee,
+      w.payBySig.amount,
+      (w.payBySig as any).salt || w.payBySig.swapTxId, // Backward compatibility with older data
+      // swapUtilsHelper.add0x((w.payBySig as any).signature || w.payBySig.signatures[0].signature)
+      signature
+    );
+    let gas = await swapUtilsHelper.estimateGasOrDefault(swapResponse, address.address, null);
+    let nonce = await web3Helper.getTransactionsCount(toNetwork, address);
+    let gasLimit = gas ? gas.toFixed() : undefined;
+
+    console.log(swapResponse)
+    console.log(gas)
+    console.log(nonce)
+
+    return {
+      contractAddress: contractAddress,
+      currency: w.sendCurrency,
+      from: address.address,
+      data: swapResponse.encodeABI(),
+      gas: { gasPrice: '0', gasLimit },
+      nonce,
+      description: `Withdraw `,
+    };
   }
 
 }

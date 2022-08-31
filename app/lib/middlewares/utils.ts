@@ -35,7 +35,11 @@ contractHelper: any,
 signatureHelper: any,
 swapTransactionHelper: any,
 utils: any,
-ecdsaHelper: any
+ecdsaHelper: any,
+addressFromPublicKeyHelper: any,
+swapUtilsHelper: any,
+standardStatuses: any
+
 
 
 module.exports = function () {

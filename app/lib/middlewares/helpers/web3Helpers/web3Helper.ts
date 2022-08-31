@@ -53,7 +53,7 @@ module.exports = {
       ).call()
 
       if (response.length > 0) {
-        return await this.amountToHuman(response[response.length - 1], 18)
+        return await swapUtilsHelper.amountToHuman(response[response.length - 1], 18)
       }
       return 0
     } catch (e) {
@@ -106,41 +106,6 @@ module.exports = {
     return tokens;
   },
 
-  async amountToHuman(amount: string, decimal: number) {
-    const decimalFactor = 10 ** decimal;
-    return new Big(amount).div(decimalFactor).toFixed();
-  },
-
-  async amountToHuman_(network: any, cabn: any, amount: number) {
-    let decimal = await this.decimals(network, cabn);
-    if (decimal) {
-      let decimalFactor = 10 ** decimal;
-      return new Big(amount).div(decimalFactor).toFixed();
-    }
-
-    return null;
-  },
-
-  async amountToMachine(network: any, cabn: any, amount: number) {
-    let decimal = await this.decimals(network, cabn);
-    let decimalFactor = 10 ** decimal;
-    return new Big(amount).times(decimalFactor).toFixed(0);
-  },
-
-  async decimals(network: any, cabn: any) {
-
-    if (network.rpcUrl && cabn.tokenContractAddress) {
-
-      let con = web3ConfigurationHelper.erc20(network.rpcUrl, cabn.tokenContractAddress)
-      if (con) {
-        return await con.methods.decimals().call();
-      }
-
-    }
-
-    return null;
-  },
-
   async approveToZero(network: any, cabn: any, address: any, contractAddress: string) {
     let m = web3ConfigurationHelper.erc20(network.rpcUrl, cabn.tokenContractAddress).methods.approve(contractAddress, '0');
     let from = address.address
@@ -171,7 +136,7 @@ module.exports = {
 
   async getAvaialableLiquidity(network: any, cabn: any, contractAddress: string){
     let web3Balance = await (web3ConfigurationHelper.erc20(network.rpcUrl, cabn.tokenContractAddress)).methods.balanceOf(contractAddress).call();
-    let balance = await this.amountToHuman_(network, cabn, web3Balance);
+    let balance = await swapUtilsHelper.amountToHuman_(network, cabn, web3Balance);
     return balance;
   }
 

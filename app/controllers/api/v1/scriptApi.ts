@@ -50,4 +50,15 @@ module.exports = function (router: any) {
 
   // });
 
+  // router.get('/users/addresses/2', async (req: any, res: any) => {
+  //   let filter = {}
+  //   filter = {}
+
+  //   let data = await db.Addresses.find({},{ "_id": 0, "address": 1 }).populate('user', 'email')
+  //   return res.http200({
+  //     data: data
+  //   });
+
+  // });
+
 };

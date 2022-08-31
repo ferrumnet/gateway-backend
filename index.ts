@@ -104,6 +104,9 @@ if (
 (global as any).signatureHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/signatureHelper");
 (global as any).swapTransactionHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/swapTransactionHelper");
 (global as any).ecdsaHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/ecdsaHelper");
+(global as any).addressFromPublicKeyHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/addressFromPublicKeyHelper");
+(global as any).swapUtilsHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/swapUtilsHelper");
+(global as any).standardStatuses = require("./app/lib/response/standardStatuses");
 
 (global as any).kraken = app.kraken;
 // const whitelist = (global as any).environment.whitelist;
