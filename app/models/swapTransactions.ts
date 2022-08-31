@@ -45,6 +45,7 @@ var schema = mongoose.Schema({
   originCurrency: { type: String, default: "" },
   sendToCurrency: { type: String, default: "" },
   used: { type: String, default: "" }, //can be '', 'pending', 'failed', 'completed'
+  status: { type: String, default: "swapPending" },
   useTransactions: {
     id: { type: String, default: "" },
     status: { type: String, default: "" },

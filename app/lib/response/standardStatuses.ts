@@ -13,4 +13,11 @@ module.exports = {
     }
   },
 
+  status401: function (data: any) {
+    return {
+      code: 401,
+      message: data
+    }
+  },
+
 }

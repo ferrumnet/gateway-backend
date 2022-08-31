@@ -11,41 +11,23 @@ module.exports = {
   },
 
   async getTransactionReceiptByTxIdUsingWeb3(network: any, txId: any, contractAddress: any) {
+
     let web3 = web3ConfigurationHelper.web3(network.rpcUrl).eth;
-    let receipt = await web3.getTransactionReceipt(txId);
-
-    if (!receipt) {
-      return {
-        code: 401
-      };
-    }
-
-    if (!receipt.status) {
-      // need to move this error in phrase
-      return {
-        code: 400,
-        data: `Transaction "${txId}" is failed`
-      };
-    }
-
+    let receipt = await this.getTransactionReceipt(txId, web3);
     console.log('status::::: ',receipt.status)
 
     let swapLog = receipt.logs.find((l: any) => contractAddress.toLocaleLowerCase() === (l.address || '').toLocaleLowerCase()); // Index for the swap event
     let bridgeSwapInputs = web3ConfigurationHelper.getBridgeSwapInputs();
 
     if (!swapLog) {
-      return {
-        code: 400,
-        data: stringHelper.strLogsNotFound + ' ' + txId
-      };
+      return standardStatuses.status401(stringHelper.strLogsNotFound + ' ' + txId);
     }
 
     let decoded = web3.abi.decodeLog(bridgeSwapInputs.inputs, swapLog.data, swapLog.topics.slice(1));
 
     if (!decoded) {
-      return {
-        code: 401
-      };
+      // need to move this error in phrase
+      return standardStatuses.status400(`Transaction "${txId}" is invalid`);
     }
 
     return this.parseSwapEvent(network, { returnValues: decoded, transactionHash: txId }, receipt);
@@ -56,10 +38,7 @@ module.exports = {
     let toNetwork = await db.Networks.findOne({ chainId: decoded.targetNetwork });
 
     if (toNetwork.chainId == fromNetwork.chainId) {
-      return {
-        code: 400,
-        data: stringHelper.strSameNetwork
-      };
+      return standardStatuses.status401(stringHelper.strSameNetwork);
     }
 
     let fromCabn = { tokenContractAddress: decoded.token.toLowerCase() };
@@ -79,26 +58,22 @@ module.exports = {
       toNetworkShortName: toNetwork.networkShortName,
       toToken: (decoded.targetToken || '').toLowerCase(),
       token: (decoded.token || '').toLowerCase(),
-      status: !!receipt.status ? 'successful' : 'failed'
+      status: !!receipt.status ? 'swapCompleted' : 'swapFailed'
     }
+    return standardStatuses.status200(returnObject);
 
-    return {
-      code: 200,
-      data: returnObject
-    };
   },
 
-  async swapTransactionHelper(swap: any, schemaVersion: string) {
+  async swapTransactionSummary(swap: any, schemaVersion: string) {
     let isV12 = false;
     if (schemaVersion == utils.expectedSchemaVersionV1_2) {
       isV12 = true;
     }
     let txSummary = await this.getTransactionSummary(swap.fromNetwork, swap.transactionId);
     console.log('txSummary',txSummary);
-    // isV12 is pending
+    
     let payBySig = null;
     if (isV12) {
-      console.log('v2222222')
       payBySig = await signatureHelper.createSignedPaymentV1_2(swap);
     } else {
       payBySig = await signatureHelper.createSignedPaymentV1_0(swap);
@@ -119,10 +94,9 @@ module.exports = {
       sendTimestamp: 0,
       sendCurrency: signatureHelper.toCurrency(swap.toNetwork.networkShortName, swap.toCabn.tokenContractAddress),
       sendAmount: swap.amount,
-      // originCurrency: signatureHelper.toCurrency(swap.fromNetwork.networkShortName, swap.fromCabn.tokenContractAddress),
-      // sendToCurrency: signatureHelper.toCurrency(swap.toNetwork.networkShortName, swap.toCabn.tokenContractAddress),
 
       used: '',
+      status: swap.status,
       useTransactions: [],
       // creator,
       execution: { status: '', transactions: [] },
@@ -134,14 +108,11 @@ module.exports = {
 
     if (isV12) {
       newItem.payBySig.hash = signatureHelper.bridgeHashV1_2(newItem, swap);
-      // console.log('hash:::v2 ', newItem.payBySig.hash);
     } else {
       newItem.payBySig.swapTxId = signatureHelper.bridgeSaltV1_0(newItem);
       newItem.payBySig.hash = signatureHelper.bridgeHashV1_0(newItem, swap);
-      // console.log('hash:::v1 ', newItem.payBySig.hash);
     }
 
-    // console.log('newItem::: ', newItem);
     return newItem;
   },
 
@@ -153,7 +124,6 @@ module.exports = {
       return null;
     }
 
-    console.log('transaction', transaction);
     const block = await web3.getBlockNumber();
     const txBlock = await web3.getBlock(transaction.blockNumber, false);
 
@@ -162,5 +132,22 @@ module.exports = {
       confirmations: (block - txBlock.number) + 1
     }
 
+  },
+
+  async getTransactionReceipt(txId: any, web3: any) {
+
+    let receipt = await web3.getTransactionReceipt(txId);
+
+    if (!receipt) {
+      // need to move this error in phrase
+      return standardStatuses.status400(`Transaction "${txId}" is invalid`);
+    }
+
+    if (!receipt.status) {
+      // need to move this error in phrase
+      return standardStatuses.status400(`Transaction "${txId}" is failed`);
+    }
+
+    return receipt;
   },
 }
