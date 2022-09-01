@@ -7,10 +7,10 @@ var schema = mongoose.Schema({
   createdAt: { type: Date, default: new Date() },
   updatedAt: { type: Date, default: new Date() },
   isActive: { type: Boolean, default: false },
-  receiveNetworkId: { type: mongoose.Schema.Types.ObjectId, ref: 'networks' },
-  sendNetworkId: { type: mongoose.Schema.Types.ObjectId, ref: 'networks' },
-  receiveCabnId: { type: mongoose.Schema.Types.ObjectId, ref: 'currencyAddressesByNetwork' },
-  sendCabnId: { type: mongoose.Schema.Types.ObjectId, ref: 'currencyAddressesByNetwork' },
+  toNetwork: { type: mongoose.Schema.Types.ObjectId, ref: 'networks' },
+  fromNetwork: { type: mongoose.Schema.Types.ObjectId, ref: 'networks' },
+  toCabn: { type: mongoose.Schema.Types.ObjectId, ref: 'currencyAddressesByNetwork' },
+  fromCabn: { type: mongoose.Schema.Types.ObjectId, ref: 'currencyAddressesByNetwork' },
   receiveNetwork: { type: String, default: "" },
   receiveCurrency: { type: String, default: "" },
   receiveTransactionId: { type: String, default: "" },
@@ -35,11 +35,8 @@ var schema = mongoose.Schema({
     contractVersion: { type: String, default: "" },
     contractAddress: { type: String, default: "" },
     hash: { type: String, default: "" },
-    signatures: {
-      creationTime: { type: Number, default: null },
-      creator: { type: String, default: "" },
-    },
-    signature: { type: String, default: "" },
+    signatures: [
+    ],
     salt: { type: String, default: "" },
   },
   originCurrency: { type: String, default: "" },
@@ -65,7 +62,7 @@ var schema = mongoose.Schema({
   blocked: { type: Boolean, default: false },
   creator: { type: String, default: "" }
 
-},{ collection: 'swapTransactions' });
+},{ collection: 'swapAndWithdrawTransactions' });
 
-var currenciesModel = mongoose.model("swapTransactions",schema);
+var currenciesModel = mongoose.model("swapAndWithdrawTransactions",schema);
 module.exports = currenciesModel;

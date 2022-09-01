@@ -81,7 +81,6 @@ module.exports = {
     // console.log('payBySig::: ',payBySig);
 
     let newItem = {
-      id: swap.transactionId,
       timestamp: new Date().valueOf(),
       receiveNetwork: swap.fromNetwork.networkShortName,
       receiveCurrency: signatureHelper.toCurrency(swap.fromNetwork.networkShortName, swap.fromCabn.tokenContractAddress),
