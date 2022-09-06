@@ -32,7 +32,7 @@ app.use(function (req: any, res: any, next: any) {
   next();
 });
 app.use(cors());
-(global as any).utils = require("./app/lib/middlewares/utils");
+(global as any).utils = require("./app/lib/middlewares/utils")();
 (global as any).pusher = require("./app/lib/notifications");
 (global as any).db = require("./app/models/index");
 (global as any).helper = require("./app/lib/middlewares/helpers/dateHelper");
@@ -103,6 +103,10 @@ if (
 (global as any).contractHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/contractHelper");
 (global as any).signatureHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/signatureHelper");
 (global as any).swapTransactionHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/swapTransactionHelper");
+(global as any).ecdsaHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/ecdsaHelper");
+(global as any).addressFromPublicKeyHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/addressFromPublicKeyHelper");
+(global as any).swapUtilsHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/swapUtilsHelper");
+(global as any).standardStatuses = require("./app/lib/response/standardStatuses");
 
 (global as any).kraken = app.kraken;
 // const whitelist = (global as any).environment.whitelist;

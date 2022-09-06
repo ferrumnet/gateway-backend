@@ -33,12 +33,19 @@ web3ConfigurationHelper: any,
 web3Helper: any,
 contractHelper: any,
 signatureHelper: any,
-swapTransactionHelper: any
+swapTransactionHelper: any,
+utils: any,
+ecdsaHelper: any,
+addressFromPublicKeyHelper: any,
+swapUtilsHelper: any,
+standardStatuses: any
 
 
-const utils = {
 
-  increaseTimeOutCount() {
+module.exports = function () {
+  const utils: any= {};
+
+  utils.increaseTimeOutCount = function() {
     // if(!this.count){
     //   this.count = 0
     // }
@@ -46,11 +53,11 @@ const utils = {
     // console.log(this.count)
   },
 
-  getCount() {
+  utils.getCount= function() {
     // return this.count || 0;
   },
 
-  pick(object: any, keys: any){
+  utils.pick = function(object: any, keys: any){
     return keys.reduce((obj: any, key: any) => {
       if (object && Object.prototype.hasOwnProperty.call(object, key)) {
         // eslint-disable-next-line no-param-reassign
@@ -58,8 +65,15 @@ const utils = {
       }
       return obj;
     }, {});
-  }
+  },
 
-};
+  utils.bridgeContractVersions = {
+    V1_0: '000.003',
+    V1_2: '001.200',
+  },
 
-module.exports = utils;
+  utils.expectedSchemaVersionV1_0 = '1.0'
+  utils.expectedSchemaVersionV1_2 = '1.2'
+
+  return utils;
+}
