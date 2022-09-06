@@ -134,11 +134,11 @@ module.exports = {
 
     let contractAddress = toNetwork.contractAddress;
     console.log(contractAddress)
+    console.log(w.payBySig.signatures[0].signature)
     const swapResponse = web3ConfigurationHelper.bridgePool(toNetwork.rpcUrl, contractAddress).methods.withdrawSigned(w.payBySig.token, w.payBySig.payee,
       w.payBySig.amount,
       (w.payBySig as any).salt || w.payBySig.swapTxId, // Backward compatibility with older data
-      // swapUtilsHelper.add0x((w.payBySig as any).signature || w.payBySig.signatures[0].signature)
-      signature
+      swapUtilsHelper.add0x((w.payBySig.signatures[0].signature || ''))
     );
     let gas = await swapUtilsHelper.estimateGasOrDefault(swapResponse, address.address, null);
     let nonce = await web3Helper.getTransactionsCount(toNetwork, address);

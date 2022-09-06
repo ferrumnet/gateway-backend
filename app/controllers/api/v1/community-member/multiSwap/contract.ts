@@ -108,11 +108,11 @@ module.exports = function (router: any) {
     if (address && fromNetwork && fromCabn && toNetwork && toCabn) {
       req.query.bridgeContractAddress = fromNetwork.contractAddress;
       let response = await contractHelper.doSwapAndGetTransactionPayload(address, fromNetwork, fromCabn, req.query.bridgeContractAddress, req.query.amount, toNetwork, toCabn, true);
-      if(response.code == 200){
+      if (response.code == 200) {
         return res.http200({
           data: response.data
         });
-      }else {
+      } else {
         return res.http400(response.message);
       }
     }
@@ -152,16 +152,42 @@ module.exports = function (router: any) {
     if (address && fromNetwork && fromCabn && toNetwork && toCabn) {
       req.query.bridgeContractAddress = fromNetwork.contractAddress;
       let response = await contractHelper.doSwapAndGetTransactionPayload(address, fromNetwork, fromCabn, req.query.bridgeContractAddress, req.query.amount, toNetwork, toCabn, false);
-      if(response.code == 200){
+      if (response.code == 200) {
         return res.http200({
           data: response.data
         });
-      }else {
+      } else {
         return res.http400(response.message);
       }
     }
 
     return res.http400('Invalid fromCabnId, fromNetworkId, toCabnId or toNetworkId');
+
+  }));
+
+  router.get('/withdraw/signed/:txId', asyncMiddleware(async (req: any, res: any) => {
+
+    let address = null;
+
+    if (!req.params.txId) {
+      return res.http400('txId is required.');
+    }
+
+    if (req.user) {
+      address = await db.Addresses.findOne({ user: req.user._id })
+    }
+
+    let oldSwapTransaction = await db.SwapAndWithdrawTransactions.findOne({ receiveTransactionId: req.params.txId }).populate('toNetwork');
+    console.log(oldSwapTransaction);
+    if (oldSwapTransaction) {
+      let withdrawSigned = await contractHelper.withdrawSigned(address, oldSwapTransaction, oldSwapTransaction.toNetwork);
+      console.log(withdrawSigned);
+      return res.http200({
+        data: withdrawSigned
+      });
+    }
+
+    return res.http400('Invalid txId');
 
   }));
 

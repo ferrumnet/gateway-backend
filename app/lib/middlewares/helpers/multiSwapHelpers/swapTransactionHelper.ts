@@ -14,6 +14,17 @@ module.exports = {
 
     let web3 = web3ConfigurationHelper.web3(network.rpcUrl).eth;
     let receipt = await this.getTransactionReceipt(txId, web3);
+
+    if (!receipt) {
+      // need to move this error in phrase
+      return standardStatuses.status400(`Transaction "${txId}" is invalid`);
+    }
+
+    if (!receipt.status) {
+      // need to move this error in phrase
+      return standardStatuses.status400(`Transaction "${txId}" is failed`);
+    }
+    
     console.log('status::::: ',receipt.status)
 
     let swapLog = receipt.logs.find((l: any) => contractAddress.toLocaleLowerCase() === (l.address || '').toLocaleLowerCase()); // Index for the swap event
@@ -133,9 +144,10 @@ module.exports = {
 
   },
 
-  async getTransactionReceipt(txId: any, web3: any) {
+  async getTransactionReceiptStatusByTxIdUsingWeb3(network: any, txId: any, contractAddress: any) {
 
-    let receipt = await web3.getTransactionReceipt(txId);
+    let web3 = web3ConfigurationHelper.web3(network.rpcUrl).eth;
+    let receipt = await this.getTransactionReceipt(txId, web3);
 
     if (!receipt) {
       // need to move this error in phrase
@@ -146,6 +158,16 @@ module.exports = {
       // need to move this error in phrase
       return standardStatuses.status400(`Transaction "${txId}" is failed`);
     }
+    
+    console.log('status::::: ',receipt.status)
+    receipt.status = !!receipt.status ? 'swapWithdrawCompleted' : 'swapWithdrawFailed'
+
+    return standardStatuses.status200(receipt);
+  },
+
+  async getTransactionReceipt(txId: any, web3: any) {
+
+    let receipt = await web3.getTransactionReceipt(txId);
 
     return receipt;
   },

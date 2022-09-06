@@ -8,7 +8,7 @@ module.exports = function (router: any) {
     let fromNetwork = null;
     let swapTransaction = null;
 
-    if (!req.params.txId && !req.query.fromNetworkId) {
+    if (!req.params.txId || !req.query.fromNetworkId) {
       return res.http400('txId & fromNetworkId are required.');
     }
 
@@ -19,7 +19,7 @@ module.exports = function (router: any) {
     let oldSwapTransaction = await db.SwapAndWithdrawTransactions.findOne({receiveTransactionId: req.params.txId});
     if(oldSwapTransaction){
       return res.http200({
-        swapTransaction: swapTransaction
+        swapAndWithdrawTransaction: swapTransaction
       })
     }
 
@@ -173,7 +173,9 @@ module.exports = function (router: any) {
     let swapCompletedCount = 0;
     let swapFailedCount = 0;
     let swapWithdrawGeneratedCount = 0;
-    let swapWIthdrawCompletedCount = 0;
+    let swapWithdrawPendingCount = 0;
+    let swapWithdrawFailedCount = 0;
+    let swapWithdrawCompletedCount = 0;
 
     filter.createdByUser = req.user._id;
 
@@ -186,7 +188,9 @@ module.exports = function (router: any) {
     swapCompletedCount = await db.SwapAndWithdrawTransactions.countDocuments({...filter, status: 'swapCompleted'});
     swapFailedCount = await db.SwapAndWithdrawTransactions.countDocuments({...filter, status: 'swapFailed'});
     swapWithdrawGeneratedCount = await db.SwapAndWithdrawTransactions.countDocuments({...filter, status: 'swapWithdrawGenerated'});
-    swapWIthdrawCompletedCount = await db.SwapAndWithdrawTransactions.countDocuments({...filter, status: 'swapWIthdrawCompleted'});
+    swapWithdrawPendingCount = await db.SwapAndWithdrawTransactions.countDocuments({...filter, status: 'swapWithdrawPending'});
+    swapWithdrawFailedCount = await db.SwapAndWithdrawTransactions.countDocuments({...filter, status: 'swapWithdrawFailed'});
+    swapWithdrawCompletedCount = await db.SwapAndWithdrawTransactions.countDocuments({...filter, status: 'swapWithdrawCompleted'});
 
     return res.http200({
       swapPendingCount,
@@ -194,8 +198,75 @@ module.exports = function (router: any) {
       swapCompletedCount,
       swapFailedCount,
       swapWithdrawGeneratedCount,
-      swapWIthdrawCompletedCount
+      swapWithdrawPendingCount,
+      swapWithdrawFailedCount,
+      swapWithdrawCompletedCount
     });
+
+  }));
+
+  router.put('/update/status/:txId', asyncMiddleware(async (req: any, res: any) => {
+
+    let address = null;
+    let fromNetwork = null;
+    let toNetwork = null;
+
+    if (!req.params.txId || !req.body.withdrawTxId) {
+      return res.http400('txId and withdrawTxId required.');
+    }
+
+    let oldSwapTransaction = await db.SwapAndWithdrawTransactions.findOne({receiveTransactionId: req.params.txId}).populate('fromNetwork').populate('toNetwork');
+
+    if (req.user) {
+      address = await db.Addresses.findOne({ user: req.user._id });
+    }
+
+    fromNetwork = oldSwapTransaction.fromNetwork;
+    toNetwork = oldSwapTransaction.toNetwork;
+
+    if (address && fromNetwork && oldSwapTransaction) {
+      req.query.bridgeContractAddress = fromNetwork.contractAddress;
+      let receipt = await swapTransactionHelper.getTransactionReceiptStatusByTxIdUsingWeb3(toNetwork, req.body.withdrawTxId, req.query.bridgeContractAddress);
+  
+      if(receipt.code == 401){
+        return res.http400(await commonFunctions.getValueFromStringsPhrase(receipt.message), receipt.message);
+      }else if (receipt.code == 400){
+        return res.http400(receipt.message);
+      }
+      console.log(receipt);
+      receipt = receipt.data;
+
+      if(receipt.status == 'swapWithdrawFailed'){
+        oldSwapTransaction.status = 'swapWithdrawFailed'
+      }else if(receipt.status == 'swapWithdrawCompleted'){
+        oldSwapTransaction.status = 'swapWithdrawCompleted'
+      }else {
+        oldSwapTransaction.status = 'swapWithdrawPending'
+      }
+
+      let useTransaction = {
+        transactionId: req.body.withdrawTxId,
+        status: receipt.status,
+        timestamp: new Date()
+      }
+
+      if(oldSwapTransaction.useTransactions && oldSwapTransaction.useTransactions.length > 0){
+        let txItem = (oldSwapTransaction.useTransactions || []).find((t:any) => t.transactionId === req.body.withdrawTxId);
+        if(!txItem){
+          oldSwapTransaction.useTransactions.push(useTransaction);
+        }
+      }else {
+        oldSwapTransaction.useTransactions.push(useTransaction);
+      }
+
+      await db.SwapAndWithdrawTransactions.findOneAndUpdate({_id: oldSwapTransaction._id}, oldSwapTransaction);
+
+      return res.http200({
+        swapAndWithdrawTransaction: oldSwapTransaction
+      })
+    }
+
+    return res.http400('Invalid txId or withdrawTxId');
 
   }));
 

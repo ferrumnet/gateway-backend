@@ -106,12 +106,12 @@ module.exports = {
 	},
 
 	async estimateGasOrDefault(method: any, from: string, defaultGas?: number) {
-		try {
+		// try {
 		  return await method.estimateGas({ from });
-		} catch (e) {
-		  console.log(e);
-		  console.info('Error estimating gas. Tx might be reverting..');
-		  return defaultGas;
-		}
+		// } catch (e) {
+		//   console.log(e);
+		//   console.info('Error estimating gas. Tx might be reverting..');
+		//   return defaultGas;
+		// }
 	  },
 }
