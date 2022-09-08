@@ -19,7 +19,7 @@ module.exports = function (router: any) {
     let oldSwapTransaction = await db.SwapAndWithdrawTransactions.findOne({receiveTransactionId: req.params.txId});
     if(oldSwapTransaction){
       return res.http200({
-        swapAndWithdrawTransaction: swapTransaction
+        swapAndWithdrawTransaction: oldSwapTransaction
       })
     }
 
