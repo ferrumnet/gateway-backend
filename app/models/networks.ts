@@ -21,6 +21,8 @@ var schema = mongoose.Schema({
   isAllowedOnMultiSwap: { type: Boolean, default: false },
   logo: { type: String, default: "" },
   contractAddress: { type: String, default: "" },
+  publicRpcUrl: { type: String, default: "" },
+  backupRpcUrl: { type: String, default: "" },
 
   createdAt: { type: Date, default: new Date() },
   updatedAt: { type: Date, default: new Date() },
