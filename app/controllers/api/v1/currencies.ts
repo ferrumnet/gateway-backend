@@ -1,3 +1,5 @@
+var mongoose = require('mongoose');
+
 module.exports = function (router: any) {
 
   router.get('/cabn/list', async (req: any, res: any) => {
@@ -23,6 +25,10 @@ module.exports = function (router: any) {
         filterAndList.push({"isAllowedOnMultiSwap": false})
       }
 
+    }
+
+    if (req.query.network) {
+      filterAndList.push({"network._id": new mongoose.Types.ObjectId(req.query.network)})
     }
 
     if(filterOrList && filterOrList.length > 0){
