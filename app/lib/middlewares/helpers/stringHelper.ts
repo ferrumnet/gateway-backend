@@ -41,6 +41,7 @@ let strErrorDelete='Backend_Error_Delete'
 let strAddressNotFound='Backend_Address_Not_Found'
 let strSameNetwork='Backend_Same_Network'
 let strLogsNotFound='Backend_Logs_Not_Found'
+let strErrorSmartContractShouldAssociateWithAtleastOneNetwork = 'Backend_Error_Smart_contract_Should_Associate_With_Atleast_One_Network'
 
 // success messages
 let strSuccessResetPasswordLink = 'Backend_Success_Reset_Password_Link'
@@ -101,6 +102,7 @@ module.exports = {
   strErrorDelete,
   strAddressNotFound,
   strSameNetwork,
-  strLogsNotFound
+  strLogsNotFound,
+  strErrorSmartContractShouldAssociateWithAtleastOneNetwork
 }
 

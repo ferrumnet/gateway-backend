@@ -38,7 +38,8 @@ utils: any,
 ecdsaHelper: any,
 addressFromPublicKeyHelper: any,
 swapUtilsHelper: any,
-standardStatuses: any
+standardStatuses: any,
+smartContractHelper: any
 
 
 

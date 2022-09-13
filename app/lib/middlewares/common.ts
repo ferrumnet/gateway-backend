@@ -42,6 +42,19 @@ module.exports = {
     return "";
   },
 
+  async validationForSCBN(req: any, res: any) {
+    if (req.body.scabn && req.body.scabn.length > 0) {
+      for (let i = 0; i < req.body.scabn.length; i++) {
+        if (!req.body.scabn[i].network 
+          || !req.body.scabn[i].smartContractAddress) {
+          return res.http400('network & smartContractAddress are required at '+i+1);
+        }
+      }
+    }
+
+    return "";
+  },
+
   async getValueFromStringsPhrase(queryKey: any) {
     return new Promise((resolve, reject) => {
       fs.readFile("./app/lib/stringsPhrase.json", "utf8", function (err: any, data: any) {
