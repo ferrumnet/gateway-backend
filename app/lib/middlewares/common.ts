@@ -16,7 +16,7 @@ module.exports = {
   },
 
   decodeAPiToken: function (token: any) {
-    return jwt.verify(token,((global as any) as any).environment.jwtSecret);
+    return jwt.verify(token, ((global as any) as any).environment.jwtSecret);
   },
 
   async validationForUniqueCBN(req: any, res: any) {
@@ -25,6 +25,8 @@ module.exports = {
         let filter: any = {};
         filter.tokenContractAddress =
           req.body.networks[i].tokenContractAddress.toLowerCase();
+        filter.network =
+          req.body.networks[i].network;
         let count = await db.CurrencyAddressesByNetwork.count(filter);
         if (count != 0) {
           let stringMessage = await this.getValueFromStringsPhrase(
@@ -82,7 +84,7 @@ module.exports = {
           },
         },
       });
-      (global as any).timeoutHelper.setCompetitionTimeout(job);
+    (global as any).timeoutHelper.setCompetitionTimeout(job);
   },
 
   async isUniqueEmail(email: any) {
@@ -97,7 +99,7 @@ module.exports = {
       for (let i = 0; i < model.leaderboard.leaderboardCurrencyAddressesByNetwork.length; i++) {
         let item = model.leaderboard.leaderboardCurrencyAddressesByNetwork[i].currencyAddressesByNetwork
         item.tokenHolderBalanceSnapshotEvent = model._id
-        (global as any).timeoutCallBack.fetchTokenHolderBalanceSnapshotEvent(item);
+          (global as any).timeoutCallBack.fetchTokenHolderBalanceSnapshotEvent(item);
       }
     }
   },
