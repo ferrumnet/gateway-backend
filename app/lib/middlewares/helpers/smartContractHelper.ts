@@ -14,7 +14,9 @@ module.exports = {
           network: body.scabn[i].network,
           smartContract: model._id,
           smartContractAddress: body.scabn[i].smartContractAddress,
-          createdByOrganization: organization
+          createdByOrganization: organization,
+          createdAt: body.createdAt,
+          updatedAt: body.updatedAt,
         }
         console.log(innerBody);
         let result = await db.SmartCurrencyAddressesByNetwork.create(innerBody)
