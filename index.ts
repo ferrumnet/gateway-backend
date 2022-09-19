@@ -107,6 +107,7 @@ if (
 (global as any).addressFromPublicKeyHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/addressFromPublicKeyHelper");
 (global as any).swapUtilsHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/swapUtilsHelper");
 (global as any).standardStatuses = require("./app/lib/response/standardStatuses");
+(global as any).smartContractHelper = require("./app/lib/middlewares/helpers/smartContractHelper");
 
 (global as any).kraken = app.kraken;
 // const whitelist = (global as any).environment.whitelist;
