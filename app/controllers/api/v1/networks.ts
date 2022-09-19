@@ -24,29 +24,6 @@ module.exports = function (router: any) {
 
   });
 
-  router.get('/by/ferrum/network/identifier/:ferrumNetworkIdentifier', async (req: any, res: any) => {
-
-    var filter = { ferrumNetworkIdentifier: req.params.ferrumNetworkIdentifier }
-    let network = await db.Networks.findOne(filter).populate({
-      path: 'networkCurrencyAddressByNetwork',
-      populate: {
-        path: 'currency',
-        model: 'currencies'
-      }
-    }).populate({
-      path: 'networkCurrencyAddressByNetwork',
-      populate: {
-        path: 'networkDex',
-        populate: {
-          path: 'dex',
-          model: 'decentralizedExchanges'
-        }
-      }
-    })
-    return network ? res.http200({ network }) : res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorNetwrokNotFound), stringHelper.strErrorNetwrokNotFound);
-
-  });
-
   router.get('/list', async (req: any, res: any) => {
 
     var filter: any = {};
@@ -92,5 +69,65 @@ module.exports = function (router: any) {
     });
 
   });
+  
+  router.get('/:id', async (req: any, res: any) => {
+
+    var filter: any = {};
+
+    filter.$or = [
+      { ferrumNetworkIdentifier: req.params.id },
+      { chainId: req.params.id },
+      // { _id: req.params.id }
+    ]
+    let network = await db.Networks.findOne(filter).populate({
+      path: 'networkCurrencyAddressByNetwork',
+      populate: {
+        path: 'currency',
+        model: 'currencies'
+      }
+    }).populate({
+      path: 'networkCurrencyAddressByNetwork',
+      populate: {
+        path: 'networkDex',
+        populate: {
+          path: 'dex',
+          model: 'decentralizedExchanges'
+        }
+      }
+    })
+
+    if(!network){
+      network = await getNetworkByNetworkId(network, req);
+    }
+
+    return network ? res.http200({ network }) : res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorNetwrokNotFound), stringHelper.strErrorNetwrokNotFound);
+
+  });
+
+  async function getNetworkByNetworkId(network: any, req: any){
+    try{
+
+      network = await db.Networks.findOne({_id: req.params.id}).populate({
+        path: 'networkCurrencyAddressByNetwork',
+        populate: {
+          path: 'currency',
+          model: 'currencies'
+        }
+      }).populate({
+        path: 'networkCurrencyAddressByNetwork',
+        populate: {
+          path: 'networkDex',
+          populate: {
+            path: 'dex',
+            model: 'decentralizedExchanges'
+          }
+        }
+      })
+
+      return network;
+    }catch(e: any){
+      console.log(e)
+    }
+  }
 
 };

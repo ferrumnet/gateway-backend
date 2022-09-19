@@ -42,6 +42,37 @@ module.exports = {
     return "";
   },
 
+  async validationForSCBN(req: any, res: any, smartContract: any) {
+    if (req.body.scabn && req.body.scabn.length > 0) {
+      for (let i = 0; i < req.body.scabn.length; i++) {
+        if (!req.body.scabn[i].network
+          || !req.body.scabn[i].smartContractAddress) {
+          return res.http400('network & smartContractAddress are required at ' + (i + 1));
+        }
+      }
+
+      if(smartContract){
+        for (let i = 0; i < req.body.scabn.length; i++) {
+          let filter: any = {};
+          filter.smartContract = smartContract._id;
+          filter.network = req.body.scabn[i].network;
+          let count = await db.SmartCurrencyAddressesByNetwork.count(filter);
+          if (count != 0) {
+            let stringMessage = await this.getValueFromStringsPhrase(
+              stringHelper.strErrorNetworkHaveAlreadySmartContract
+            );
+            let network = await db.Networks.findOne({ _id: req.body.scabn[i].network });
+            return (
+              network.name+ " " + stringMessage
+            );
+          }
+        }
+      }
+    }
+
+    return "";
+  },
+
   async getValueFromStringsPhrase(queryKey: any) {
     return new Promise((resolve, reject) => {
       fs.readFile("./app/lib/stringsPhrase.json", "utf8", function (err: any, data: any) {
