@@ -5,109 +5,118 @@ module.exports = function (router: any) {
   router.get('/allocation', asyncMiddleware(async (req: any, res: any) => {
 
     let address = null;
-    let fromNetwork = null;
-    let fromCabn = null;
+    let sourceNetwork = null;
+    let sourceCabn = null;
     let allocation = null;
 
-    if (!req.query.fromCabnId || !req.query.fromNetworkId) {
-      return res.http400('fromCabnId & fromNetworkId are required.');
+    if (!req.query.sourceCabnId || !req.query.sourceNetworkId) {
+      return res.http400('sourceCabnId & sourceNetworkId are required.');
     }
 
-    if (!mongoose.Types.ObjectId.isValid(req.query.fromCabnId) || !mongoose.Types.ObjectId.isValid(req.query.fromNetworkId)) {
-      return res.http400('Invalid fromCabnId or fromNetworkId');
+    if (!mongoose.Types.ObjectId.isValid(req.query.sourceCabnId) || !mongoose.Types.ObjectId.isValid(req.query.sourceNetworkId)) {
+      return res.http400('Invalid sourceCabnId or sourceNetworkId');
     }
 
     if (req.user) {
       address = await db.Addresses.findOne({ user: req.user._id })
     }
 
-    fromNetwork = await db.Networks.findOne({ _id: req.query.fromNetworkId })
-    fromCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.fromCabnId }).populate('currency')
+    sourceNetwork = await db.Networks.findOne({ _id: req.query.sourceNetworkId })
+    sourceCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.sourceCabnId }).populate('currency')
 
-    if (address && fromNetwork && fromCabn) {
-      req.query.bridgeContractAddress = fromNetwork.contractAddress;
-      allocation = await contractHelper.getCurrentAllowance(address, fromNetwork, fromCabn, req.query.bridgeContractAddress)
+    if(sourceNetwork){
+      req.query.smartContractAddress = await smartContractHelper.getSmartContractAddressByNetworkIdAndTag(sourceNetwork._id);
+    }
+
+    if (address && sourceNetwork && sourceCabn &&  req.query.smartContractAddress) {
+      allocation = await contractHelper.getCurrentAllowance(address, sourceNetwork, sourceCabn, req.query.smartContractAddress)
       if (allocation) {
-        allocation = await swapUtilsHelper.amountToHuman_(fromNetwork, fromCabn, allocation.toFixed());
+        allocation = await swapUtilsHelper.amountToHuman_(sourceNetwork, sourceCabn, allocation.toFixed());
       }
       let allocationResponse: any = {}
       allocationResponse.allocation = allocation;
-      allocationResponse.contractAddress = req.query.bridgeContractAddress;
+      allocationResponse.contractAddress = req.query.smartContractAddress;
 
       return res.http200({
         data: allocationResponse
       });
     }
 
-    return res.http400('Invalid fromCabnId or fromNetworkId');
+    return res.http400('Invalid sourceCabnId, sourceNetworkId or smartContractAddress');
 
   }));
 
   router.get('/allocation/approve', asyncMiddleware(async (req: any, res: any) => {
 
     let address = null;
-    let fromNetwork = null;
-    let fromCabn = null;
+    let sourceNetwork = null;
+    let sourceCabn = null;
     let data = null;
 
-    if (!req.query.fromCabnId || !req.query.fromNetworkId || !req.query.amount) {
-      return res.http400('fromCabnId & fromNetworkId & amount are required.');
+    if (!req.query.sourceCabnId || !req.query.sourceNetworkId || !req.query.amount) {
+      return res.http400('sourceCabnId & sourceNetworkId & amount are required.');
     }
 
-    if (!mongoose.Types.ObjectId.isValid(req.query.fromCabnId) || !mongoose.Types.ObjectId.isValid(req.query.fromNetworkId)) {
-      return res.http400('Invalid fromCabnId or fromNetworkId');
+    if (!mongoose.Types.ObjectId.isValid(req.query.sourceCabnId) || !mongoose.Types.ObjectId.isValid(req.query.sourceNetworkId)) {
+      return res.http400('Invalid sourceCabnId or sourceNetworkId');
     }
 
     if (req.user) {
       address = await db.Addresses.findOne({ user: req.user._id })
     }
 
-    fromNetwork = await db.Networks.findOne({ _id: req.query.fromNetworkId })
-    fromCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.fromCabnId }).populate('currency')
+    sourceNetwork = await db.Networks.findOne({ _id: req.query.sourceNetworkId })
+    sourceCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.sourceCabnId }).populate('currency')
 
-    if (address && fromNetwork && fromCabn) {
-      req.query.bridgeContractAddress = fromNetwork.contractAddress;
-      data = await contractHelper.approveAllocation(address, fromNetwork, fromCabn, req.query.bridgeContractAddress, req.query.amount);
+    if(sourceNetwork){
+      req.query.smartContractAddress = await smartContractHelper.getSmartContractAddressByNetworkIdAndTag(sourceNetwork._id);
+    }
+
+    if (address && sourceNetwork && sourceCabn && req.query.smartContractAddress) {
+      data = await contractHelper.approveAllocation(address, sourceNetwork, sourceCabn, req.query.smartContractAddress, req.query.amount);
       return res.http200({
         data: data
       });
     }
 
-    return res.http400('Invalid fromCabnId or fromNetworkId');
+    return res.http400('Invalid sourceCabnId, sourceNetworkId or smartContractAddress');
 
   }));
 
   router.get('/gas/estimation', asyncMiddleware(async (req: any, res: any) => {
 
     let address = null;
-    let fromNetwork = null;
-    let fromCabn = null;
-    let toNetwork = null;
-    let toCabn = null;
+    let sourceNetwork = null;
+    let sourceCabn = null;
+    let destinationNetwork = null;
+    let destinationCabn = null;
     let data = null;
 
-    if (!req.query.fromCabnId || !req.query.fromNetworkId || !req.query.amount || !req.query.toCabnId || !req.query.toNetworkId) {
-      return res.http400('fromCabnId & fromNetworkId & amount & toCabnId & toNetworkId  are required.');
+    if (!req.query.sourceCabnId || !req.query.sourceNetworkId || !req.query.amount || !req.query.destinationCabnId || !req.query.destinationNetworkId) {
+      return res.http400('sourceCabnId & sourceNetworkId & amount & destinationCabnId & destinationNetworkId  are required.');
     }
 
-    if (!mongoose.Types.ObjectId.isValid(req.query.fromCabnId) || !mongoose.Types.ObjectId.isValid(req.query.fromNetworkId)
-      || !mongoose.Types.ObjectId.isValid(req.query.toCabnId) || !mongoose.Types.ObjectId.isValid(req.query.toNetworkId)) {
-      return res.http400('Invalid fromCabnId, fromNetworkId, toCabnId or toNetworkId');
+    if (!mongoose.Types.ObjectId.isValid(req.query.sourceCabnId) || !mongoose.Types.ObjectId.isValid(req.query.sourceNetworkId)
+      || !mongoose.Types.ObjectId.isValid(req.query.destinationCabnId) || !mongoose.Types.ObjectId.isValid(req.query.destinationNetworkId)) {
+      return res.http400('Invalid sourceCabnId, sourceNetworkId, destinationCabnId or destinationNetworkId');
     }
 
     if (req.user) {
       address = await db.Addresses.findOne({ user: req.user._id })
     }
 
-    fromNetwork = await db.Networks.findOne({ _id: req.query.fromNetworkId })
-    fromCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.fromCabnId }).populate('currency')
+    sourceNetwork = await db.Networks.findOne({ _id: req.query.sourceNetworkId })
+    sourceCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.sourceCabnId }).populate('currency')
 
-    toNetwork = await db.Networks.findOne({ _id: req.query.toNetworkId })
-    toCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.toCabnId }).populate('currency')
+    destinationNetwork = await db.Networks.findOne({ _id: req.query.destinationNetworkId })
+    destinationCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.destinationCabnId }).populate('currency')
 
-    if (address && fromNetwork && fromCabn && toNetwork && toCabn) {
-      req.query.bridgeContractAddress = fromNetwork.contractAddress;
-      let response = await contractHelper.doSwapAndGetTransactionPayload(address, fromNetwork, fromCabn, req.query.bridgeContractAddress, req.query.amount, toNetwork, toCabn, true);
+    if(sourceNetwork){
+      req.query.smartContractAddress = await smartContractHelper.getSmartContractAddressByNetworkIdAndTag(sourceNetwork._id);
+    }
+
+    if (address && sourceNetwork && sourceCabn && destinationNetwork && destinationCabn && req.query.smartContractAddress) {
+      let response = await contractHelper.doSwapAndGetTransactionPayload(address, sourceNetwork, sourceCabn, req.query.smartContractAddress, req.query.amount, destinationNetwork, destinationCabn, true);
       if (response.code == 200) {
         return res.http200({
           data: response.data
@@ -117,41 +126,43 @@ module.exports = function (router: any) {
       }
     }
 
-    return res.http400('Invalid fromCabnId, fromNetworkId, toCabnId or toNetworkId');
+    return res.http400('Invalid sourceCabnId, sourceNetworkId, destinationCabnId, destinationNetworkId or smartContractAddress');
 
   }));
 
   router.get('/swap', asyncMiddleware(async (req: any, res: any) => {
 
     let address = null;
-    let fromNetwork = null;
-    let fromCabn = null;
-    let toNetwork = null;
-    let toCabn = null;
-    let data = null;
+    let sourceNetwork = null;
+    let sourceCabn = null;
+    let destinationNetwork = null;
+    let destinationCabn = null;
 
-    if (!req.query.fromCabnId || !req.query.fromNetworkId || !req.query.amount || !req.query.toCabnId || !req.query.toNetworkId) {
-      return res.http400('fromCabnId & fromNetworkId & amount & toCabnId & toNetworkId  are required.');
+    if (!req.query.sourceCabnId || !req.query.sourceNetworkId || !req.query.amount || !req.query.destinationCabnId || !req.query.destinationNetworkId) {
+      return res.http400('sourceCabnId & sourceNetworkId & amount & destinationCabnId & destinationNetworkId  are required.');
     }
 
-    if (!mongoose.Types.ObjectId.isValid(req.query.fromCabnId) || !mongoose.Types.ObjectId.isValid(req.query.fromNetworkId)
-      || !mongoose.Types.ObjectId.isValid(req.query.toCabnId) || !mongoose.Types.ObjectId.isValid(req.query.toNetworkId)) {
-      return res.http400('Invalid fromCabnId, fromNetworkId, toCabnId or toNetworkId');
+    if (!mongoose.Types.ObjectId.isValid(req.query.sourceCabnId) || !mongoose.Types.ObjectId.isValid(req.query.sourceNetworkId)
+      || !mongoose.Types.ObjectId.isValid(req.query.destinationCabnId) || !mongoose.Types.ObjectId.isValid(req.query.destinationNetworkId)) {
+      return res.http400('Invalid sourceCabnId, sourceNetworkId, destinationCabnId or destinationNetworkId');
     }
 
     if (req.user) {
       address = await db.Addresses.findOne({ user: req.user._id })
     }
 
-    fromNetwork = await db.Networks.findOne({ _id: req.query.fromNetworkId })
-    fromCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.fromCabnId }).populate('currency')
+    sourceNetwork = await db.Networks.findOne({ _id: req.query.sourceNetworkId })
+    sourceCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.sourceCabnId }).populate('currency')
 
-    toNetwork = await db.Networks.findOne({ _id: req.query.toNetworkId })
-    toCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.toCabnId }).populate('currency')
+    destinationNetwork = await db.Networks.findOne({ _id: req.query.destinationNetworkId })
+    destinationCabn = await db.CurrencyAddressesByNetwork.findOne({ _id: req.query.destinationCabnId }).populate('currency')
 
-    if (address && fromNetwork && fromCabn && toNetwork && toCabn) {
-      req.query.bridgeContractAddress = fromNetwork.contractAddress;
-      let response = await contractHelper.doSwapAndGetTransactionPayload(address, fromNetwork, fromCabn, req.query.bridgeContractAddress, req.query.amount, toNetwork, toCabn, false);
+    if(sourceNetwork){
+      req.query.smartContractAddress = await smartContractHelper.getSmartContractAddressByNetworkIdAndTag(sourceNetwork._id);
+    }
+
+    if (address && sourceNetwork && sourceCabn && destinationNetwork && destinationCabn && req.query.smartContractAddress) {
+      let response = await contractHelper.doSwapAndGetTransactionPayload(address, sourceNetwork, sourceCabn, req.query.smartContractAddress, req.query.amount, destinationNetwork, destinationCabn, false);
       if (response.code == 200) {
         return res.http200({
           data: response.data
@@ -161,14 +172,14 @@ module.exports = function (router: any) {
       }
     }
 
-    return res.http400('Invalid fromCabnId, fromNetworkId, toCabnId or toNetworkId');
+    return res.http400('Invalid sourceCabnId, sourceNetworkId, destinationCabnId, destinationNetworkId or smartContractAddress');
 
   }));
 
   router.get('/withdraw/signed/:txId', asyncMiddleware(async (req: any, res: any) => {
 
     let address = null;
-
+    let smartContractAddress = null;
     if (!req.params.txId) {
       return res.http400('txId is required.');
     }
@@ -177,17 +188,22 @@ module.exports = function (router: any) {
       address = await db.Addresses.findOne({ user: req.user._id })
     }
 
-    let oldSwapTransaction = await db.SwapAndWithdrawTransactions.findOne({ receiveTransactionId: req.params.txId }).populate('toNetwork');
+    let oldSwapTransaction = await db.SwapAndWithdrawTransactions.findOne({ receiveTransactionId: req.params.txId }).populate('destinationNetwork');
     console.log(oldSwapTransaction);
-    if (oldSwapTransaction) {
-      let withdrawSigned = await contractHelper.withdrawSigned(address, oldSwapTransaction, oldSwapTransaction.toNetwork);
+
+    if(oldSwapTransaction.destinationNetwork){
+      smartContractAddress = await smartContractHelper.getSmartContractAddressByNetworkIdAndTag(oldSwapTransaction.destinationNetwork._id);
+    }
+
+    if (oldSwapTransaction && smartContractAddress) {
+      let withdrawSigned = await contractHelper.withdrawSigned(address, oldSwapTransaction, smartContractAddress);
       console.log(withdrawSigned);
       return res.http200({
         data: withdrawSigned
       });
     }
 
-    return res.http400('Invalid txId');
+    return res.http400('Invalid txId or smartContractAddress');
 
   }));
 

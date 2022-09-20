@@ -5,15 +5,15 @@ module.exports = function (router: any) {
   router.post('/create/:txId', asyncMiddleware(async (req: any, res: any) => {
 
     let address = null;
-    let fromNetwork = null;
+    let sourceNetwork = null;
     let swapTransaction = null;
 
-    if (!req.params.txId || !req.query.fromNetworkId) {
-      return res.http400('txId & fromNetworkId are required.');
+    if (!req.params.txId || !req.query.sourceNetworkId) {
+      return res.http400('txId & sourceNetworkId are required.');
     }
 
-    if (!mongoose.Types.ObjectId.isValid(req.query.fromNetworkId)) {
-      return res.http400('Invalid fromNetworkId');
+    if (!mongoose.Types.ObjectId.isValid(req.query.sourceNetworkId)) {
+      return res.http400('Invalid sourceNetworkId');
     }
 
     let oldSwapTransaction = await db.SwapAndWithdrawTransactions.findOne({receiveTransactionId: req.params.txId});
@@ -27,12 +27,15 @@ module.exports = function (router: any) {
       address = await db.Addresses.findOne({ user: req.user._id });
     }
 
-    fromNetwork = await db.Networks.findOne({ _id: req.query.fromNetworkId });
+    sourceNetwork = await db.Networks.findOne({ _id: req.query.sourceNetworkId });
 
-    if (address && fromNetwork) {
-      req.query.bridgeContractAddress = fromNetwork.contractAddress;
-      let receipt = await swapTransactionHelper.getTransactionReceiptByTxIdUsingWeb3(fromNetwork, req.params.txId, req.query.bridgeContractAddress);
-  
+    if(sourceNetwork){
+      req.query.smartContractAddress = await smartContractHelper.getSmartContractAddressByNetworkIdAndTag(sourceNetwork._id);
+    }
+
+    if (address && req.query.smartContractAddress) {
+      let receipt = await swapTransactionHelper.getTransactionReceiptByTxIdUsingWeb3(sourceNetwork, req.params.txId, req.query.smartContractAddress);
+      
       if(receipt.code == 401){
         return res.http400(await commonFunctions.getValueFromStringsPhrase(receipt.message), receipt.message);
       }else if (receipt.code == 400){
@@ -41,14 +44,15 @@ module.exports = function (router: any) {
 
       receipt = receipt.data;
       if (receipt) {
+        receipt.sourceSmartContractAddress = req.query.smartContractAddress;
         swapTransaction = await swapTransactionHelper.swapTransactionSummary(receipt, utils.expectedSchemaVersionV1_0);
       }
 
       if(swapTransaction ){
-        swapTransaction.fromNetwork = receipt.fromNetwork._id;
-        swapTransaction.toNetwork = receipt.toNetwork._id;
-        swapTransaction.toCabn = (await db.CurrencyAddressesByNetwork.findOne({tokenContractAddress: receipt.toCabn.tokenContractAddress}))._id;
-        swapTransaction.fromCabn = (await db.CurrencyAddressesByNetwork.findOne({tokenContractAddress: receipt.fromCabn.tokenContractAddress}))._id;
+        swapTransaction.sourceNetwork = receipt.fromNetwork._id;
+        swapTransaction.destinationNetwork = receipt.toNetwork._id;
+        swapTransaction.destinationCabn = (await db.CurrencyAddressesByNetwork.findOne({tokenContractAddress: receipt.toCabn.tokenContractAddress}))._id;
+        swapTransaction.sourceCabn = (await db.CurrencyAddressesByNetwork.findOne({tokenContractAddress: receipt.fromCabn.tokenContractAddress}))._id;
         swapTransaction.createdByUser = req.user._id;
         swapTransaction.createdAt = new Date();
         swapTransaction.updatedAt = new Date();
@@ -69,7 +73,7 @@ module.exports = function (router: any) {
       // console.log(withdrawSigned);
     }
 
-    return res.http400('Invalid txId or fromNetworkId');
+    return res.http400('Invalid txId, sourceNetwork or smartContractAddress');
 
   }));
 
@@ -81,14 +85,14 @@ module.exports = function (router: any) {
 
     filter.createdByUser = req.user._id;
 
-    if(req.query.fromNetwork){
-      filter.fromNetwork = req.query.fromNetwork;
+    if(req.query.sourceNetwork){
+      filter.sourceNetwork = req.query.sourceNetwork;
     }
 
     if (req.query.isPagination != null && req.query.isPagination == 'false') {
       transactions = await db.SwapAndWithdrawTransactions.find(filter)
-      .populate('toNetwork')
-      .populate('fromNetwork')
+      .populate('destinationNetwork')
+      .populate('sourceNetwork')
       .populate({
         path: 'toCabn',
         populate: {
@@ -106,17 +110,17 @@ module.exports = function (router: any) {
       .sort(sort)
     }else {
       transactions = await db.SwapAndWithdrawTransactions.find(filter).populate('networks')
-      .populate('toNetwork')
-      .populate('fromNetwork')
+      .populate('destinationNetwork')
+      .populate('sourceNetwork')
       .populate({
-        path: 'toCabn',
+        path: 'destinationCabn',
         populate: {
           path: 'currency',
           model: 'currencies'
         }
       })
       .populate({
-        path: 'fromCabn',
+        path: 'sourceCabn',
         populate: {
           path: 'currency',
           model: 'currencies'
@@ -142,17 +146,17 @@ module.exports = function (router: any) {
     filter.receiveTransactionId = req.params.txId;
 
     transactions = await db.SwapAndWithdrawTransactions.findOne(filter)
-      .populate('toNetwork')
-      .populate('fromNetwork')
+      .populate('destinationNetwork')
+      .populate('sourceNetwork')
       .populate({
-        path: 'toCabn',
+        path: 'destinationCabn',
         populate: {
           path: 'currency',
           model: 'currencies'
         }
       })
       .populate({
-        path: 'fromCabn',
+        path: 'sourceCabn',
         populate: {
           path: 'currency',
           model: 'currencies'
@@ -179,8 +183,8 @@ module.exports = function (router: any) {
 
     filter.createdByUser = req.user._id;
 
-    if(req.query.fromNetwork){
-      filter.fromNetwork = req.query.fromNetwork;
+    if(req.query.sourceNetwork){
+      filter.sourceNetwork = req.query.sourceNetwork;
     }
     
     swapPendingCount = await db.SwapAndWithdrawTransactions.countDocuments({...filter, status: 'swapPending'});
@@ -208,25 +212,28 @@ module.exports = function (router: any) {
   router.put('/update/status/:txId', asyncMiddleware(async (req: any, res: any) => {
 
     let address = null;
-    let fromNetwork = null;
-    let toNetwork = null;
+    let sourceNetwork = null;
+    let destinationNetwork = null;
 
     if (!req.params.txId || !req.body.withdrawTxId) {
       return res.http400('txId and withdrawTxId required.');
     }
 
-    let oldSwapTransaction = await db.SwapAndWithdrawTransactions.findOne({receiveTransactionId: req.params.txId}).populate('fromNetwork').populate('toNetwork');
+    let oldSwapTransaction = await db.SwapAndWithdrawTransactions.findOne({receiveTransactionId: req.params.txId}).populate('sourceNetwork').populate('destinationNetwork');
 
     if (req.user) {
       address = await db.Addresses.findOne({ user: req.user._id });
     }
 
-    fromNetwork = oldSwapTransaction.fromNetwork;
-    toNetwork = oldSwapTransaction.toNetwork;
+    sourceNetwork = oldSwapTransaction.sourceNetwork;
+    destinationNetwork = oldSwapTransaction.destinationNetwork;
 
-    if (address && fromNetwork && oldSwapTransaction) {
-      req.query.bridgeContractAddress = fromNetwork.contractAddress;
-      let receipt = await swapTransactionHelper.getTransactionReceiptStatusByTxIdUsingWeb3(toNetwork, req.body.withdrawTxId, req.query.bridgeContractAddress);
+    if(sourceNetwork){
+      req.query.smartContractAddress = await smartContractHelper.getSmartContractAddressByNetworkIdAndTag(sourceNetwork._id);
+    }
+
+    if (address && sourceNetwork && oldSwapTransaction && req.query.smartContractAddress) {
+      let receipt = await swapTransactionHelper.getTransactionReceiptStatusByTxIdUsingWeb3(destinationNetwork, req.body.withdrawTxId, req.query.smartContractAddress);
   
       if(receipt.code == 401){
         return res.http400(await commonFunctions.getValueFromStringsPhrase(receipt.message), receipt.message);
@@ -266,7 +273,7 @@ module.exports = function (router: any) {
       })
     }
 
-    return res.http400('Invalid txId or withdrawTxId');
+    return res.http400('Invalid txId, withdrawTxId or smartContractAddress');
 
   }));
 

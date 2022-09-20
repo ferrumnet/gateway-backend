@@ -8,6 +8,7 @@ var schema = mongoose.Schema({
   smartCurrencyAddressesByNetwork: [{ type: mongoose.Schema.Types.ObjectId, ref: 'smartCurrencyAddressesByNetwork'}],
   name: { type: String, default: "" },
   nameInLower: { type: String, default: ""},
+  tags: { type: String, default: "" },
   product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product'},
 
   createdAt: { type: Date, default: new Date() },

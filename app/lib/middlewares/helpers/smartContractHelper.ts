@@ -25,5 +25,22 @@ module.exports = {
     }
 
     return results
+  },
+
+  async getSmartContractAddressByNetworkIdAndTag(id: any) {
+
+    let filterSmartContract: any = {};
+    filterSmartContract.tags = '#bridge';
+    let smartContract= await db.SmartContracts.findOne(filterSmartContract)
+    if(smartContract){
+      let filterScabn: any = {};
+      filterScabn.network = id;
+      filterScabn.smartContract = smartContract._id;
+      let result = await db.SmartCurrencyAddressesByNetwork.findOne(filterScabn)
+      return result.smartContractAddress;
+    }
+
+    return null;
   }
+
 }

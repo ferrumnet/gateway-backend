@@ -20,7 +20,6 @@ var schema = mongoose.Schema({
   isAllowedOnGateway: { type: Boolean, default: false },
   isAllowedOnMultiSwap: { type: Boolean, default: false },
   logo: { type: String, default: "" },
-  contractAddress: { type: String, default: "" },
   publicRpcUrl: { type: String, default: "" },
   backupRpcUrl: { type: String, default: "" },
 
