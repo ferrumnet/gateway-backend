@@ -21,7 +21,7 @@ module.exports = {
 				{ type: 'bytes32', name: 'swapTxId', value: swap.transactionId },
 			]
 		};
-
+		
 		return {
 			token: swap.toToken,
 			payee: swap.toAddress,
@@ -31,7 +31,7 @@ module.exports = {
 			swapTxId: '',
 			contractName: params.contractName,
 			contractVersion: params.contractVersion,
-			contractAddress: swap.toNetwork.contractAddress,
+			contractAddress: swap.sourceSmartContractAddress,
 			hash: '',
 			signatures: [],
 		}
@@ -63,7 +63,7 @@ module.exports = {
 			swapTxId: swap.transactionId,
 			contractName: params.contractName,
 			contractVersion: params.contractVersion,
-			contractAddress: swap.toNetwork.contractAddress,
+			contractAddress: swap.sourceSmartContractAddress,
 			hash: '',
 			signatures: [],
 		}

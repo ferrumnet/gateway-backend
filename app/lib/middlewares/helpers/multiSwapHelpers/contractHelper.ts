@@ -130,18 +130,17 @@ module.exports = {
 
   },
 
-  async withdrawSigned(address: any,w: any, toNetwork: any, signature: any) {
-
-    let contractAddress = toNetwork.contractAddress;
-    console.log(contractAddress)
+  async withdrawSigned(address: any, w: any, smartContractAddress: any) {
+    
+    let destinationNetwork = w.destinationNetwork;
     console.log(w.payBySig.signatures[0].signature)
-    const swapResponse = web3ConfigurationHelper.bridgePool(toNetwork.rpcUrl, contractAddress).methods.withdrawSigned(w.payBySig.token, w.payBySig.payee,
+    const swapResponse = web3ConfigurationHelper.bridgePool(destinationNetwork.rpcUrl, smartContractAddress).methods.withdrawSigned(w.payBySig.token, w.payBySig.payee,
       w.payBySig.amount,
       (w.payBySig as any).salt || w.payBySig.swapTxId, // Backward compatibility with older data
       swapUtilsHelper.add0x((w.payBySig.signatures[0].signature || ''))
     );
     let gas = await swapUtilsHelper.estimateGasOrDefault(swapResponse, address.address, null);
-    let nonce = await web3Helper.getTransactionsCount(toNetwork, address);
+    let nonce = await web3Helper.getTransactionsCount(destinationNetwork, address);
     let gasLimit = gas ? gas.toFixed() : undefined;
 
     console.log(swapResponse)
@@ -149,7 +148,7 @@ module.exports = {
     console.log(nonce)
 
     return {
-      contractAddress: contractAddress,
+      contractAddress: smartContractAddress,
       currency: w.sendCurrency,
       from: address.address,
       data: swapResponse.encodeABI(),
