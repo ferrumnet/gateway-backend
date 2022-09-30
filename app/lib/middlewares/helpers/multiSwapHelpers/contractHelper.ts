@@ -16,7 +16,7 @@ module.exports = {
     return null;
   },
 
-  async approveAllocation(address: any, network: any, cabn: any, contractAddress: string, value: any, approveeName: 'the given contract') {
+  async approveAllocation(address: any, network: any, cabn: any, contractAddress: string, value: any, approveeName: String= 'the given contract') {
     let result = [];
     let useMax = true;
     if (address.address && network.rpcUrl && cabn.currency && cabn.currency.symbol && cabn.tokenContractAddress && contractAddress && value) {
@@ -38,7 +38,7 @@ module.exports = {
             address, contractAddress);
 
           result.push(this.createObjectForApproveAllocation(contractAddress, cabn, address, approveToZero,
-            approveToZeroGas.toString(), nonce,
+            approveToZeroGas.toString(), nonce,network,
             `Zero out the approval for ${symbol} by ${approveeName}`))
           nonce++;
           approveGasOverwite = approveToZeroGas;
@@ -51,7 +51,7 @@ module.exports = {
             address, contractAddress, approveGasOverwite, amount);
 
         result.push(
-          this.createObjectForApproveAllocation(contractAddress, cabn, address, approve, approveGas.toString(), nonce,
+          this.createObjectForApproveAllocation(contractAddress, cabn, address, approve, approveGas.toString(), nonce,network,
             `Approve ${useMax ? 'max' : amountHuman} ${symbol} to be spent by ${approveeName}`)
         );
         nonce++;
@@ -62,12 +62,12 @@ module.exports = {
     return result;
   },
 
-  createObjectForApproveAllocation(contractAddress: string, cabn: string, address: string, data: string, gasLimit: string, nonce: number, description: string) {
+  createObjectForApproveAllocation(contractAddress: string, cabn: any, address: any, data: string, gasLimit: string, nonce: number,network: any, description: string) {
     return {
-      cabn,
-      address,
+      currency: network.networkShortName+':'+cabn.tokenContractAddress,
+      from: address.address,
       amount: '0',
-      contractAddress,
+      contract: contractAddress,
       data,
       gas: { gasPrice: '0', gasLimit },
       nonce,
@@ -118,8 +118,8 @@ module.exports = {
     let gasLimit = gas ? gas.toFixed() : undefined;
 
     return {
-      // fromCabn,
-      // address,
+      currency: fromNetwork.networkShortName+':'+fromCabn.tokenContractAddress,
+      from: address.address,
       amount: '0',
       contract: contractAddress,
       data: swapResponse.encodeABI(),
@@ -148,9 +148,10 @@ module.exports = {
     console.log(nonce)
 
     return {
-      contractAddress: smartContractAddress,
       currency: w.sendCurrency,
+      amount: '0',
       from: address.address,
+      contract: smartContractAddress,
       data: swapResponse.encodeABI(),
       gas: { gasPrice: '0', gasLimit },
       nonce,
