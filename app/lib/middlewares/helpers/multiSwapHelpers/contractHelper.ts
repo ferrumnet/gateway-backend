@@ -67,7 +67,7 @@ module.exports = {
       currency: network.networkShortName+':'+cabn.tokenContractAddress,
       from: address.address,
       amount: '0',
-      contract: contractAddress,
+      contract: cabn.tokenContractAddress,
       data,
       gas: { gasPrice: '0', gasLimit },
       nonce,
@@ -111,7 +111,7 @@ module.exports = {
   async swap(address: any, fromNetwork: any, fromCabn: any, contractAddress: string, amountValue: any, toNetwork: any, toCabn: any) {
 
     let amountRaw = await swapUtilsHelper.amountToMachine(fromNetwork, fromCabn, amountValue);
-    let swapResponse = web3ConfigurationHelper.bridgePool(fromNetwork.rpcUrl, contractAddress).methods.swap(fromCabn.tokenContractAddress, amountRaw, 4, toCabn.tokenContractAddress);
+    let swapResponse = web3ConfigurationHelper.bridgePool(fromNetwork.rpcUrl, contractAddress).methods.swap(fromCabn.tokenContractAddress, amountRaw, toNetwork.chainId, toCabn.tokenContractAddress);
     let gas = await swapUtilsHelper.estimateGasOrDefault(swapResponse, address.address, null);
     let nonce = await web3Helper.getTransactionsCount(fromNetwork, address);
 
