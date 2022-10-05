@@ -43,11 +43,14 @@ let strSameNetwork='Backend_Same_Network'
 let strLogsNotFound='Backend_Logs_Not_Found'
 let strErrorSmartContractShouldAssociateWithAtleastOneNetwork = 'Backend_Error_Smart_contract_Should_Associate_With_Atleast_One_Network'
 var strErrorNetworkHaveAlreadySmartContract = "Backend_Error_X_Network_Have_Already_SmartContract"
+var strErrorApprovalIsOnPending = "Backend_Approval_Is_On_Pending"
+var strErrorApprovalIsOnDeclined= "Backend_Approval_Is_On_Declined"
 
 // success messages
 let strSuccessResetPasswordLink = 'Backend_Success_Reset_Password_Link'
 let strSuccessOtp = 'Backend_Success_Otp'
 let strSuccessContractTokenAddressIsunique = 'Backend_Success_ContractToken_Address_Is_Unique'
+let strSuccessOrganizationMemberSignUpCompleted = 'Backend_Organization_Member_SignUp_Completed'
 
 let strSuccess = 'Success'
 
@@ -105,6 +108,9 @@ module.exports = {
   strSameNetwork,
   strLogsNotFound,
   strErrorSmartContractShouldAssociateWithAtleastOneNetwork,
-  strErrorNetworkHaveAlreadySmartContract
+  strErrorNetworkHaveAlreadySmartContract,
+  strSuccessOrganizationMemberSignUpCompleted,
+  strErrorApprovalIsOnPending,
+  strErrorApprovalIsOnDeclined
 }
 

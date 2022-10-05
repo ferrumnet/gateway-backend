@@ -167,7 +167,16 @@ module.exports = function (router: any) {
     }
     if (addressObject && addressObject.network) {
       try {
-        return res.http200(await addressesHelper.createUserByABN(req, res, addressObject));
+        let response = await addressesHelper.createUserByABN(req, res, addressObject)
+        console.log(req.query.isFromOrganizationAdminPath)
+        if(req.query.isFromOrganizationAdminPath && req.query.isFromOrganizationAdminPath == 'true'){
+          let resObject = await addressesHelper.checkForOrganizationAdmin(response);
+          if(resObject && resObject.message){
+            return res.http400(resObject.message);
+          }
+          response = resObject;
+        }
+        return res.http200(response);
       } catch (err: any) {
         return res.http400(err.message);
       }
