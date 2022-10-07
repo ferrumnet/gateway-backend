@@ -93,7 +93,7 @@ module.exports = {
 
     let newItem = {
       timestamp: new Date().valueOf(),
-      destination: signatureHelper.toCurrency(swap.toNetwork.networkShortName, swap.toCabn.tokenContractAddress),
+      destinationCurrency: signatureHelper.toCurrency(swap.toNetwork.networkShortName, swap.toCabn.tokenContractAddress),
       receiveTransactionId: swap.transactionId,
       destinationAddress: swap.toAddress,
       destinationAmount: swap.amount,
