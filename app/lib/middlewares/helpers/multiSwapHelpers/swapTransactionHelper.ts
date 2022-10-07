@@ -89,28 +89,27 @@ module.exports = {
     } else {
       payBySig = await signatureHelper.createSignedPaymentV1_0(swap);
     }
-    // console.log('payBySig::: ',payBySig);
+    console.log('swap::: ',swap);
 
     let newItem = {
       timestamp: new Date().valueOf(),
-      receiveNetwork: swap.fromNetwork.networkShortName,
-      receiveCurrency: signatureHelper.toCurrency(swap.fromNetwork.networkShortName, swap.fromCabn.tokenContractAddress),
+      destination: signatureHelper.toCurrency(swap.toNetwork.networkShortName, swap.toCabn.tokenContractAddress),
       receiveTransactionId: swap.transactionId,
-      receiveAddress: swap.toAddress,
-      receiveAmount: swap.amount,
+      destinationAddress: swap.toAddress,
+      destinationAmount: swap.amount,
       payBySig,
-      sendNetwork: swap.toNetwork.networkShortName,
-      sendAddress: swap.toAddress,
-      sendTimestamp: 0,
-      sendCurrency: signatureHelper.toCurrency(swap.toNetwork.networkShortName, swap.toCabn.tokenContractAddress),
-      sendAmount: swap.amount,
+      sendNetwork: swap.fromNetwork.networkShortName,
+      sourceAddress: swap.fromAddress,
+      sourceTimestamp: 0,
+      sourceCurrency: signatureHelper.toCurrency(swap.fromNetwork.networkShortName, swap.fromCabn.tokenContractAddress),
+      sourceAmount: swap.amount,
 
       used: '',
       status: swap.status,
       useTransactions: [],
       // creator,
       execution: { status: '', transactions: [] },
-      receiveTransactionTimestamp: txSummary.confirmationTime,
+      destinationTransactionTimestamp: txSummary.confirmationTime,
       v: 0,
       version: schemaVersion,
       signatures: 0,
