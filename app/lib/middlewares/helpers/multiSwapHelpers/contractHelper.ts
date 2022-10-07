@@ -148,7 +148,7 @@ module.exports = {
     console.log(nonce)
 
     return {
-      currency: w.sendCurrency,
+      currency: w.sourceCurrency,
       amount: '0',
       from: address.address,
       contract: smartContractAddress,
