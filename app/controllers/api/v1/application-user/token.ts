@@ -8,6 +8,10 @@ module.exports = function (router: any) {
     
     req.headers.apikey = commonFunctions.decryptApiKey(req.headers.apikey);
 
+    if (!req.headers.apikey) {
+      return res.http400('apiKey is invalid.');
+    }
+
     let filter = {}
     filter = { apiKey: req.headers.apikey }
 
