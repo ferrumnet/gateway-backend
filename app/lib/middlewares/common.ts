@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+var CryptoJS = require("crypto-js");
 import * as jwt from 'jsonwebtoken';
 var fs = require("fs");
 
@@ -134,4 +135,25 @@ module.exports = {
       }
     }
   },
+
+  encryptApiKey: function (data: any) {
+    // try{
+      
+    // }catch(e){
+    //   return '';
+    // }
+    var ciphertext = CryptoJS.AES.encrypt(data, (global as any).environment.jwtSecret).toString();
+   return ciphertext;
+  },
+
+  decryptApiKey: function (data: any) {
+    // try{
+      
+    // }catch(e){
+    //   return '';
+    // }
+    var bytes  = CryptoJS.AES.decrypt(data, (global as any).environment.jwtSecret);
+    var originalText = bytes.toString(CryptoJS.enc.Utf8);   
+    return originalText;
+  }
 };

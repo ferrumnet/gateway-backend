@@ -9,13 +9,18 @@ module.exports = function (router: any) {
     let sort: any = { 'menuPosition.communityMemberPosition': 1 }
     let filter: any = {}
     let organization = ''
+    let isFromOrganizationAdminPath = false;
 
     if (req.headers.authorization) {
       const decoded = jwt.verify(req.headers.authorization.split(' ')[1], (global as any).environment.jwtSecret)
       req.user = await db.Users.findOne({ _id: decoded._id });
     }
 
-    if (req.user && req.user.role == 'organizationAdmin') {
+    if(req.query.isFromOrganizationAdminPath && req.query.isFromOrganizationAdminPath == 'true'){
+      isFromOrganizationAdminPath = true;
+    }
+
+    if (req.user && req.user.role == 'organizationAdmin' && isFromOrganizationAdminPath) {
       organization = await db.Organizations.findOne({ _id: req.user.organization })
     } else {
       if (req.query.siteName) {
@@ -25,7 +30,7 @@ module.exports = function (router: any) {
 
     if (req.user && req.user.role) {
 
-      if (req.user.role == 'organizationAdmin') {
+      if (req.user.role == 'organizationAdmin' && isFromOrganizationAdminPath) {
         metaDataAndFilter.push({'metaData':{'$elemMatch': { key: 'isOrganizationMemberMenuItem', value: 'true' } } })
         sort = { 'menuPosition.organizationAdminPosition': 1 }
       } else {
@@ -52,18 +57,18 @@ module.exports = function (router: any) {
     let products = await db.Product.find(filter)
       .sort(sort)
 
-    await adjustMenuItems(products, req, organization)
+    await adjustMenuItems(products, req, organization, isFromOrganizationAdminPath)
 
     return res.http200({ menu: products });
 
   });
 
-  async function adjustMenuItems(products: any, req: any, organization: any) {
+  async function adjustMenuItems(products: any, req: any, organization: any, isFromOrganizationAdminPath: boolean) {
     if (products && products.length > 0) {
       for (let i = 0; i < products.length; i++) {
         let product = products[i]
 
-        if (!req.user || req.user.role == 'communityMember') {
+        if (!req.user || req.user.role == 'communityMember' || !isFromOrganizationAdminPath) {
           if (product.menuItems && product.menuItems.length > 0) {
             let items = []
             for (let j = 0; j < product.menuItems.length; j++) {
@@ -77,48 +82,48 @@ module.exports = function (router: any) {
         }
 
         if (product.tags && product.tags.includes('#leaderboards')) {
-          product.menuItems.push(...await findLeaderboardsForMenu(product, organization, req))
+          product.menuItems.push(...await findLeaderboardsForMenu(product, organization, req, isFromOrganizationAdminPath))
         } else if (product.tags && product.tags.includes('#competitions')) {
-          product.menuItems.push(...await findCompetitionsForMenu(product, organization, req))
+          product.menuItems.push(...await findCompetitionsForMenu(product, organization, req, isFromOrganizationAdminPath))
         } if (product.tags && product.tags.includes('#currencies')) {
-          product.menuItems.push(...await findCurrenciesForMenu(product, organization, req))
+          product.menuItems.push(...await findCurrenciesForMenu(product, organization, req, isFromOrganizationAdminPath))
         }
 
       }
     }
   }
 
-  async function findLeaderboardsForMenu(product: any, organization: any, req: any) {
+  async function findLeaderboardsForMenu(product: any, organization: any, req: any, isFromOrganizationAdminPath: boolean) {
 
     var items = []
     var filter: any = {}
     filter.organization = organization._id
-    if (req.user && req.user.role != null && req.user.role == 'organizationAdmin') {
+    if (req.user && req.user.role != null && req.user.role == 'organizationAdmin' && isFromOrganizationAdminPath) {
     }else {
       filter.isVisibleForPublicMenuItem = true
     }
-
+    
     let data = await db.Leaderboards.find(filter)
       .sort({ createdAt: 1 })
-
+      
     if (data && data.length > 0) {
 
       for (let i = 0; i < data.length; i++) {
         let item = data[i]
         let path = ''
-        if(req.user && req.user.role && req.user.role == 'organizationAdmin'){
+        if(req.user && req.user.role && req.user.role == 'organizationAdmin' && isFromOrganizationAdminPath){
           path = getItemFromMetaData(product, 'internalDynamicPathForSingle').value
         }else {
           path = getItemFromMetaData(product, 'internalPubDynamicPathForSingle').value
         }
         if(item.type && item.type == 'stake'){
-          if(req.user && req.user.role && req.user.role == 'organizationAdmin'){
+          if(req.user && req.user.role && req.user.role == 'organizationAdmin' && isFromOrganizationAdminPath){
             path = getItemFromMetaData(product, 'internalDynamicPathForStake').value
           }else {
             path = getItemFromMetaData(product, 'internalPubDynamicPathForStake').value
           }
         }else if (item.leaderboardCurrencyAddressesByNetwork.length > 1) {
-          if(req.user && req.user.role && req.user.role == 'organizationAdmin'){
+          if(req.user && req.user.role && req.user.role == 'organizationAdmin' && isFromOrganizationAdminPath){
             path = getItemFromMetaData(product, 'internalDynamicPathForMulti').value
           }else {
             path = getItemFromMetaData(product, 'internalPubDynamicPathForMulti').value
@@ -131,12 +136,12 @@ module.exports = function (router: any) {
     return items
   }
 
-  async function findCompetitionsForMenu(product: any, organization: any, req: any) {
+  async function findCompetitionsForMenu(product: any, organization: any, req: any, isFromOrganizationAdminPath: boolean) {
 
     var items = []
     var filter: any = {}
     filter.organization = organization._id
-    if (req.user && req.user.role && req.user.role == 'organizationAdmin') {
+    if (req.user && req.user.role && req.user.role == 'organizationAdmin' && isFromOrganizationAdminPath) {
     }else {
       filter.isVisibleForPublicMenuItem = true
     }
@@ -162,7 +167,7 @@ module.exports = function (router: any) {
       for (let i = 0; i < data.length; i++) {
         let item = data[i]
         let path = ''
-        if(req.user && req.user.role && req.user.role == 'organizationAdmin'){
+        if(req.user && req.user.role && req.user.role == 'organizationAdmin' && isFromOrganizationAdminPath){
           path = getItemFromMetaData(product, 'internalDynamicPathForSingle').value
         }else {
           path = getItemFromMetaData(product, 'internalPubDynamicPathForSingle').value
@@ -182,16 +187,16 @@ module.exports = function (router: any) {
     return items
   }
 
-  async function findCurrenciesForMenu(product: any, organization: any, req: any) {
+  async function findCurrenciesForMenu(product: any, organization: any, req: any, isFromOrganizationAdminPath: boolean) {
 
     var items = []
     var filter: any = {}
     filter.createdByOrganization = organization._id
-    if (req.user && req.user.role && req.user.role == 'organizationAdmin') {
+    if (req.user && req.user.role && req.user.role == 'organizationAdmin' && isFromOrganizationAdminPath) {
     }else {
       filter.isVisibleForPublicMenuItem = true
     }
-
+    
     let data = await db.Currencies.find(filter).populate({
       path: 'currencyAddressesByNetwork',
       populate: {
@@ -204,7 +209,7 @@ module.exports = function (router: any) {
     })
       .sort({ createdAt: 1 })
 
-    if (data && data.length > 0) {
+      if (data && data.length > 0) {
 
       for (let i = 0; i < data.length; i++) {
         let item = data[i]
