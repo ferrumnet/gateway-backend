@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var jwt = require("jsonwebtoken");
 
 module.exports = {
 
@@ -120,5 +121,28 @@ module.exports = {
     let response = await db.Addresses.aggregate(filter);
 
     return response
+  },
+  async checkForOrganizationAdmin(model: any){
+    let user = model.user;
+    if(user && !user.organization){
+      model.token = this.createAPITokenForConnectWallet(user)
+      model.user = {}
+      return model
+    }else if(user && user.approvalStatusAsOrganizationAdminBySuperAdmin){
+      if(user.approvalStatusAsOrganizationAdminBySuperAdmin == 'approved'){
+        return model;
+      }else if(user.approvalStatusAsOrganizationAdminBySuperAdmin == 'pending'){
+        return {message: await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorApprovalIsOnPending)}
+      }else if(user.approvalStatusAsOrganizationAdminBySuperAdmin == 'declined'){
+        return {message: await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorApprovalIsOnDeclined)}
+      }
+    }
+
+    return user;
+  },createAPITokenForConnectWallet(payload: any) {
+    return jwt.sign(
+      { id: payload._id},
+      (global as any).environment.jwtSecret
+    );
   }
 }
