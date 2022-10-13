@@ -22,6 +22,12 @@ module.exports = function (router: any) {
       return res.http400('firstName & lastName & organizationName & organizationWebsiteUrl & organizationSiteName are required.');
     }
 
+    let emailCount = await db.Users.count({ email: req.body.email });
+
+    if (emailCount > 0) {
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorEmailIdAlreadyExists),stringHelper.strErrorEmailIdAlreadyExists,);
+    }
+
     let organizationCount = await db.Organizations.count({ siteName: req.body.organizationSiteName });
 
     if (organizationCount > 0) {
