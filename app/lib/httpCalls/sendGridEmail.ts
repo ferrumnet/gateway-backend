@@ -114,8 +114,8 @@ function makeObjectBodyForOrganizationAdminApprovedAndDeclined(user: any) {
   from.name = (global as any).environment.sendGridTransactionalFromName;
 
   to.push({ email: user.email });
-  dynamic_template_data.resetPasswordLink = capitalizeFirstLetter(user.approvalStatusAsOrganizationAdminBySuperAdmin);
-  dynamic_template_data.subject = (global as any).environment.sendGridSubjectLink;
+  dynamic_template_data.sendgridEmailTemplateMessage = capitalizeFirstLetter(user.approvalStatusAsOrganizationAdminBySuperAdmin);
+  dynamic_template_data.subject = (global as any).environment.sendGridSubjectAprovedDeclined;
 
   personalizations.push({
     to: to,
@@ -124,7 +124,7 @@ function makeObjectBodyForOrganizationAdminApprovedAndDeclined(user: any) {
 
   body.from = from;
   body.personalizations = personalizations;
-  body.template_id = (global as any).environment.sendGridTemplateIdForLink;
+  body.template_id = (global as any).environment.sendGridGenericTemplateId;
 
   return body;
 }

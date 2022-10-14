@@ -16,10 +16,10 @@ module.exports = function (router: any) {
     }
     user = await db.Users.findOne({_id: decoded.id});
 
-    if (!req.body.firstName || !req.body.lastName
+    if (!req.body.email || !req.body.firstName || !req.body.lastName
       || !req.body.organizationName || !req.body.organizationWebsiteUrl
       || !req.body.organizationSiteName) {
-      return res.http400('firstName & lastName & organizationName & organizationWebsiteUrl & organizationSiteName are required.');
+      return res.http400('email & firstName & lastName & organizationName & organizationWebsiteUrl & organizationSiteName are required.');
     }
 
     let emailCount = await db.Users.count({ email: req.body.email });
