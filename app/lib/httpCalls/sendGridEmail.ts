@@ -1,6 +1,6 @@
 var axios = require("axios").default;
 
-function sendGridEmail(user: any, isFor = "otp", to = null) {
+async function sendGridEmail(user: any, isFor = "otp", to = null) {
   var postData: any;
 
   let config = {
@@ -15,6 +15,12 @@ function sendGridEmail(user: any, isFor = "otp", to = null) {
   var detail = "";
   if (isFor == "link") {
     postData = makeObjectBodyForLink(user);
+    // detail = makeLinkDetailForSMTP(user)
+  }else if (isFor == "organizationAdminApproved") {
+    postData = makeObjectBodyForOrganizationAdminApprovedAndDeclined(user,await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorApprovalIsOnApproved));
+    // detail = makeLinkDetailForSMTP(user)
+  }else if (isFor == "organizationAdminDeclined") {
+    postData = makeObjectBodyForOrganizationAdminApprovedAndDeclined(user,await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorApprovalIsOnDeclined));
     // detail = makeLinkDetailForSMTP(user)
   } else {
     postData = makeObjectBodyForOtp(user, to);
@@ -97,6 +103,32 @@ function makeObjectBodyForLink(user: any) {
   return body;
 }
 
+function makeObjectBodyForOrganizationAdminApprovedAndDeclined(user: any, message: any) {
+  var body: any = {};
+  var from: any = {};
+  var personalizations = [];
+  var to = [];
+  var dynamic_template_data: any = {};
+
+  from.email = (global as any).environment.sendGridTransactionalFromEmailAddress;
+  from.name = (global as any).environment.sendGridTransactionalFromName;
+
+  to.push({ email: user.email });
+  dynamic_template_data.sendgridEmailTemplateMessage = message;
+  dynamic_template_data.subject = (global as any).environment.sendGridSubjectAprovedDeclined;
+
+  personalizations.push({
+    to: to,
+    dynamic_template_data: dynamic_template_data,
+  });
+
+  body.from = from;
+  body.personalizations = personalizations;
+  body.template_id = (global as any).environment.sendGridGenericTemplateId;
+
+  return body;
+}
+
 function makeOtpDetailForSMTP(user: any) {
   let detail = `To verify your email address, please use the following One Time Password (OTP):<br/><br/>
 
@@ -119,6 +151,13 @@ function makeLinkDetailForSMTP(user: any) {
   Thank you for being part of our community. See you around!`;
 
   return detail;
+}
+
+function capitalizeFirstLetter(data: any) {
+  if(!data){
+    return data;
+  }
+  return data.charAt(0).toUpperCase() + data.slice(1);
 }
 
 module.exports.sendGridEmail = sendGridEmail;

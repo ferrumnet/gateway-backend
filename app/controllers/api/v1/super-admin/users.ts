@@ -131,9 +131,17 @@ module.exports = function (router: any) {
     let user = await db.Users.findOneAndUpdate({ _id: req.params.id }, { approvalStatusAsOrganizationAdminBySuperAdmin: req.body.approvalStatusAsOrganizationAdminBySuperAdmin }, { new: true })
 
     if (user) {
+
+      if(user.approvalStatusAsOrganizationAdminBySuperAdmin == 'approved'){
+        (global as any).sendGrid.sendGridEmail(user, 'organizationAdminApproved')
+      }else if(user.approvalStatusAsOrganizationAdminBySuperAdmin == 'declined'){
+        (global as any).sendGrid.sendGridEmail(user, 'organizationAdminDeclined')
+      }
+
       return res.http200({
         user: user.toClientObject()
       });
+      
     } else {
       return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorUserNotFound),stringHelper.strErrorUserNotFound,);
     }
