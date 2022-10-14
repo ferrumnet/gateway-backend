@@ -47,9 +47,10 @@
   "Backend_Logs_Not_Found":"No swap log found on tx",
   "Backend_Error_Smart_contract_Should_Associate_With_Atleast_One_Network":"Smart contract should associate with at-least one network",
   "Backend_Error_X_Network_Have_Already_SmartContract":"is already have smart contract",
-  "Backend_Organization_Member_SignUp_Completed":"Your request have been sent to super admin",
-  "Backend_Approval_Is_On_Pending":"Approval is pending from super admin",
-  "Backend_Approval_Is_On_Declined":"Your approval is declined. For help please contact to help center"
+  "Backend_Organization_Member_SignUp_Completed":"The request has been shared for approval",
+  "Backend_Approval_Is_On_Pending":"The request is pending approval",
+  "Backend_Approval_Is_On_Declined":"The request for approval is rejected. Please contact help center for further details",
+  "Backend_Approval_Is_Approved":"The request has been approved. You can now access the dashboard"
 
 
 }

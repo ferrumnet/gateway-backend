@@ -1,6 +1,6 @@
 var axios = require("axios").default;
 
-function sendGridEmail(user: any, isFor = "otp", to = null) {
+async function sendGridEmail(user: any, isFor = "otp", to = null) {
   var postData: any;
 
   let config = {
@@ -17,10 +17,10 @@ function sendGridEmail(user: any, isFor = "otp", to = null) {
     postData = makeObjectBodyForLink(user);
     // detail = makeLinkDetailForSMTP(user)
   }else if (isFor == "organizationAdminApproved") {
-    postData = makeObjectBodyForOrganizationAdminApprovedAndDeclined(user);
+    postData = makeObjectBodyForOrganizationAdminApprovedAndDeclined(user,await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorApprovalIsOnApproved));
     // detail = makeLinkDetailForSMTP(user)
   }else if (isFor == "organizationAdminDeclined") {
-    postData = makeObjectBodyForOrganizationAdminApprovedAndDeclined(user);
+    postData = makeObjectBodyForOrganizationAdminApprovedAndDeclined(user,await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorApprovalIsOnDeclined));
     // detail = makeLinkDetailForSMTP(user)
   } else {
     postData = makeObjectBodyForOtp(user, to);
@@ -103,7 +103,7 @@ function makeObjectBodyForLink(user: any) {
   return body;
 }
 
-function makeObjectBodyForOrganizationAdminApprovedAndDeclined(user: any) {
+function makeObjectBodyForOrganizationAdminApprovedAndDeclined(user: any, message: any) {
   var body: any = {};
   var from: any = {};
   var personalizations = [];
@@ -114,7 +114,7 @@ function makeObjectBodyForOrganizationAdminApprovedAndDeclined(user: any) {
   from.name = (global as any).environment.sendGridTransactionalFromName;
 
   to.push({ email: user.email });
-  dynamic_template_data.sendgridEmailTemplateMessage = capitalizeFirstLetter(user.approvalStatusAsOrganizationAdminBySuperAdmin);
+  dynamic_template_data.sendgridEmailTemplateMessage = message;
   dynamic_template_data.subject = (global as any).environment.sendGridSubjectAprovedDeclined;
 
   personalizations.push({

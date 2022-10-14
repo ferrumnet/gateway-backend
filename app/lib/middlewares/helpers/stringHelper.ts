@@ -51,6 +51,7 @@ let strSuccessResetPasswordLink = 'Backend_Success_Reset_Password_Link'
 let strSuccessOtp = 'Backend_Success_Otp'
 let strSuccessContractTokenAddressIsunique = 'Backend_Success_ContractToken_Address_Is_Unique'
 let strSuccessOrganizationMemberSignUpCompleted = 'Backend_Organization_Member_SignUp_Completed'
+let strErrorApprovalIsOnApproved= 'Backend_Approval_Is_Approved'
 
 let strSuccess = 'Success'
 
@@ -111,6 +112,7 @@ module.exports = {
   strErrorNetworkHaveAlreadySmartContract,
   strSuccessOrganizationMemberSignUpCompleted,
   strErrorApprovalIsOnPending,
-  strErrorApprovalIsOnDeclined
+  strErrorApprovalIsOnDeclined,
+  strErrorApprovalIsOnApproved
 }
 
