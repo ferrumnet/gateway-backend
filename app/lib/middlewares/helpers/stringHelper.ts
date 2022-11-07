@@ -45,6 +45,9 @@ let strErrorSmartContractShouldAssociateWithAtleastOneNetwork = 'Backend_Error_S
 var strErrorNetworkHaveAlreadySmartContract = "Backend_Error_X_Network_Have_Already_SmartContract"
 var strErrorApprovalIsOnPending = "Backend_Approval_Is_On_Pending"
 var strErrorApprovalIsOnDeclined= "Backend_Approval_Is_On_Declined"
+var strErrorAddBaseFeeToken= "Backend_Add_Base_Fee_Token"
+var strErrorUpdateBaseFeeToken= "Backend_Update_Base_Fee_Token"
+var strErrorBaseFeeTokenIsNotSetupForUpdateCabn= "Backend_Base_Fee_Token_Is_Not_Setup"
 
 // success messages
 let strSuccessResetPasswordLink = 'Backend_Success_Reset_Password_Link'
@@ -113,6 +116,9 @@ module.exports = {
   strSuccessOrganizationMemberSignUpCompleted,
   strErrorApprovalIsOnPending,
   strErrorApprovalIsOnDeclined,
-  strErrorApprovalIsOnApproved
+  strErrorApprovalIsOnApproved,
+  strErrorAddBaseFeeToken,
+  strErrorUpdateBaseFeeToken,
+  strErrorBaseFeeTokenIsNotSetupForUpdateCabn
 }
 

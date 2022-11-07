@@ -8,6 +8,10 @@ var schema = mongoose.Schema({
   createdByOrganization: { type: mongoose.Schema.Types.ObjectId, ref: 'organizations' },
   tokenContractAddress: { type: String, default: "" },
   isAllowedOnMultiSwap: { type: Boolean, default: false },
+  isFeeToken: { type: Boolean, default: false },
+  isBaseFeeToken: { type: Boolean, default: false },
+  baseFeeAmount : { type: Number, default: null },
+  baseFeePercentage : { type: Number, default: null },
   isActive: { type: Boolean, default: true },
 
   createdAt: { type: Date, default: new Date() },
