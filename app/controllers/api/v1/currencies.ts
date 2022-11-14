@@ -126,7 +126,7 @@ module.exports = function (router: any) {
       })
       sort = { [req.query.sortKey] : parseInt(req.query.sortOrder)}
     }
-
+    
     if (req.query.isPagination != null && req.query.isPagination == 'false') {
 
       filter = [
