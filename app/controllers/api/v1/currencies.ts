@@ -84,7 +84,7 @@ module.exports = function (router: any) {
     var filterAndList: any= []
     var filter = []
     let cabns = []
-    var sort = { "createdAt": -1 }
+    var sort: any = { "createdAt": -1 }
 
     if (req.query.isFeeToken) {
 
@@ -118,6 +118,13 @@ module.exports = function (router: any) {
     if(filterAndList && filterAndList.length > 0){
       matchFilter.$and = []
       matchFilter.$and.push({$and: filterAndList})
+    }
+
+    if (req.query.sortKey) {
+      Object.keys(sort).forEach(key => {
+        delete sort[key];
+      })
+      sort = { [req.query.sortKey] : parseInt(req.query.sortOrder)}
     }
 
     if (req.query.isPagination != null && req.query.isPagination == 'false') {
