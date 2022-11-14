@@ -200,6 +200,25 @@ module.exports = function (router: any) {
 
   });
 
+  router.get('/cabn/list', async (req: any, res: any) => {
+
+    let filter:any = {}
+
+    if(req.query.networkId){
+      filter.network = req.query.networkId;
+    }
+
+    let cabns = await db.CurrencyAddressesByNetwork.find(filter)
+    .sort({ createdAt: -1 })
+    .skip(req.query.offset ? parseInt(req.query.offset) : 0)
+    .limit(req.query.limit ? parseInt(req.query.limit) : 10)
+
+    return res.http200({
+      cabns: cabns
+    });
+
+  });
+
   router.get('/cabn/:id', async (req: any, res: any) => {
 
     let filter = {}
@@ -222,6 +241,28 @@ module.exports = function (router: any) {
 
   });
 
+  router.put('/cabn/base/fee/values/:id', async (req: any, res: any) => {
+
+    let filter = { _id: req.params.id }
+
+    if (req.body.baseFeeAmount == null || req.body.baseFeePercentage == null) {
+      return res.http400('baseFeeAmount & baseFeePercentage are required.');
+    }
+
+    let oldCabnCount = await db.CurrencyAddressesByNetwork.countDocuments({_id: req.params.id, isBaseFeeToken: true})
+
+    if(oldCabnCount == 0){
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorBaseFeeTokenIsNotSetupForUpdateCabn), stringHelper.strErrorBaseFeeTokenIsNotSetupForUpdateCabn,);
+    }
+
+    let cabn = await db.CurrencyAddressesByNetwork.findOneAndUpdate(filter, { baseFeeAmount: req.body.baseFeeAmount,baseFeePercentage: req.body.baseFeePercentage }, { new: true })
+
+    return res.http200({
+      cabn: cabn
+    });
+
+  });
+
   router.put('/cabn/allow/on/multi/swap/:id', async (req: any, res: any) => {
 
     let filter = { _id: req.params.id }
@@ -231,6 +272,89 @@ module.exports = function (router: any) {
       return res.http400('Valid cabnId & isAllowedOnMultiSwap are required.');
     }
     let cabn = await db.CurrencyAddressesByNetwork.findOneAndUpdate(filter, { isAllowedOnMultiSwap }, { new: true })
+
+    return res.http200({
+      cabn: cabn
+    });
+
+  });
+
+  router.put('/cabn/allow/as/fee/token/:id', async (req: any, res: any) => {
+
+    let filter = { _id: req.params.id }
+    let isFeeToken = req.body.isFeeToken
+
+    if (!isValidObjectId(filter._id) || typeof isFeeToken != 'boolean') {
+      return res.http400('Valid cabnId & isFeeToken are required.');
+    }
+    let cabn = await db.CurrencyAddressesByNetwork.findOneAndUpdate(filter, { isFeeToken }, { new: true })
+
+    return res.http200({
+      cabn: cabn
+    });
+
+  });
+
+  router.put('/cabn/add/base/fee/token/:id', async (req: any, res: any) => {
+
+    let filter:any = { _id: req.params.id }
+
+    if (!req.body.networkId || !req.body.baseFeeAmount) {
+      return res.http400('networkId & baseFeeAmount are required.');
+    }
+
+    let cabnCount = await currencyHelper.validateCabnToAddBaseFeeToken(req, res, false);
+
+    if(cabnCount > 0){
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorAddBaseFeeToken), stringHelper.strErrorAddBaseFeeToken,);
+    }
+
+    let body: any = {}
+    body.isBaseFeeToken = true;
+    body.baseFeeAmount = req.body.baseFeeAmount
+    body.baseFeePercentage = req.body.baseFeePercentage
+    console.log(filter)
+    console.log(body)
+    let cabn = await db.CurrencyAddressesByNetwork.findOneAndUpdate(filter, body , { new: true })
+
+    return res.http200({
+      cabn: cabn
+    });
+
+  });
+
+  router.put('/cabn/update/base/fee/token/:id', async (req: any, res: any) => {
+
+    let filter:any = { _id: req.params.id }
+
+    if (!req.body.oldCabnId || !req.body.networkId || !req.body.baseFeeAmount) {
+      return res.http400('oldCabnId & networkId & baseFeeAmount are required.');
+    }
+
+    if (req.body.oldCabnId == req.params.id) {
+      return res.http400('old and new cabn id should not be same.');
+    }
+
+    let oldCabnCount = await db.CurrencyAddressesByNetwork.countDocuments({_id: req.body.oldCabnId, isBaseFeeToken: true, network: req.body.networkId})
+
+    if(oldCabnCount == 0){
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorUpdateBaseFeeToken), stringHelper.strErrorUpdateBaseFeeToken,);
+    }
+
+    let cabnCount = await currencyHelper.validateCabnToAddBaseFeeToken(req, res, true);
+
+    if(cabnCount > 0){
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorAddBaseFeeToken), stringHelper.strErrorAddBaseFeeToken,);
+    }
+
+    let body: any = {}
+    body.isBaseFeeToken = true;
+    body.baseFeeAmount = req.body.baseFeeAmount
+    body.baseFeePercentage = req.body.baseFeePercentage
+    console.log(filter)
+    console.log(body)
+    await db.CurrencyAddressesByNetwork.findOneAndUpdate({_id:req.body.oldCabnId}, {isBaseFeeToken: false, baseFeeAmount: null} , { new: true })
+    let cabn = await db.CurrencyAddressesByNetwork.findOneAndUpdate(filter, body , { new: true })
 
     return res.http200({
       cabn: cabn

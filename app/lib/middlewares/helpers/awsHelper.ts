@@ -10,9 +10,7 @@ module.exports = {
   async awsSecretsManagerInit() {
     return new Promise(async (resolve, reject) => {
       var client = new AWS.SecretsManager({
-        region: region,
-        accessKeyId: (global as any).environment.accessKeyId,
-        secretAccessKey: (global as any).environment.secretAccessKey,
+        region: region
       });
       client.getSecretValue({ SecretId: secretName }, function (err: any, data: any) {
         if (err) {
