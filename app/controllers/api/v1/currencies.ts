@@ -78,4 +78,83 @@ module.exports = function (router: any) {
     });
   });
 
+  router.get('/cabn/for/fee/token/list', async (req: any, res: any) => {
+    var matchFilter: any = {}
+    var filterOrList: any= []
+    var filterAndList: any= []
+    var filter = []
+    let cabns = []
+    var sort = { "createdAt": -1 }
+
+    if (req.query.isFeeToken) {
+
+      if (req.query.isFeeToken == 'true') {
+        filterAndList.push({"isFeeToken": true})
+      } else {
+        filterAndList.push({"isFeeToken": false})
+      }
+
+    }
+
+    if (req.query.isBaseFeeToken) {
+
+      if (req.query.isBaseFeeToken == 'true') {
+        filterAndList.push({"isBaseFeeToken": true})
+      } else {
+        filterAndList.push({"isBaseFeeToken": false})
+      }
+
+    }
+
+    if (req.query.networkId) {
+      filterAndList.push({"network._id": new mongoose.Types.ObjectId(req.query.networkId)})
+    }
+
+    if(filterOrList && filterOrList.length > 0){
+      matchFilter.$or = []
+      matchFilter.$or.push({$or: filterOrList})
+    }
+
+    if(filterAndList && filterAndList.length > 0){
+      matchFilter.$and = []
+      matchFilter.$and.push({$and: filterAndList})
+    }
+
+    if (req.query.isPagination != null && req.query.isPagination == 'false') {
+
+      filter = [
+        { $lookup: { from: 'networks', localField: 'network', foreignField: '_id', as: 'network' } },
+        { "$unwind": { "path": "$network","preserveNullAndEmptyArrays": true}},
+        { $lookup: { from: 'networkDexes', localField: 'networkDex', foreignField: '_id', as: 'networkDex' } },
+        { "$unwind": { "path": "$networkDex","preserveNullAndEmptyArrays": true}},
+        { $lookup: { from: 'currencies', localField: 'currency', foreignField: '_id', as: 'currency' } },
+        { "$unwind": { "path": "$currency","preserveNullAndEmptyArrays": true}},
+        { "$match": matchFilter },
+        { "$sort": sort }
+      ];
+
+    } else {
+
+      filter = [
+        { $lookup: { from: 'networks', localField: 'network', foreignField: '_id', as: 'network' } },
+        { "$unwind": { "path": "$network","preserveNullAndEmptyArrays": true}},
+        { $lookup: { from: 'networkDexes', localField: 'networkDex', foreignField: '_id', as: 'networkDex' } },
+        { "$unwind": { "path": "$networkDex","preserveNullAndEmptyArrays": true}},
+        { $lookup: { from: 'currencies', localField: 'currency', foreignField: '_id', as: 'currency' } },
+        { "$unwind": { "path": "$currency","preserveNullAndEmptyArrays": true}},
+        { "$match": matchFilter },
+        { "$sort": sort },
+        { $skip: req.query.offset ? parseInt(req.query.offset) : 0 },
+        { $limit: req.query.limit ? parseInt(req.query.limit) : 10 },
+      ];
+
+    }
+
+    cabns = await db.CurrencyAddressesByNetwork.aggregate(filter);
+
+    return res.http200({
+      currencyAddressesByNetworks: cabns
+    });
+  });
+
 };

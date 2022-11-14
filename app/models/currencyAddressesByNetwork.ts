@@ -12,6 +12,7 @@ var schema = mongoose.Schema({
   isBaseFeeToken: { type: Boolean, default: false },
   baseFeeAmount : { type: Number, default: null },
   baseFeePercentage : { type: Number, default: null },
+  positionForFeeToken: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
 
   createdAt: { type: Date, default: new Date() },
