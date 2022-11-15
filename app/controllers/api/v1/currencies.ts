@@ -126,7 +126,7 @@ module.exports = function (router: any) {
       matchFilter.$and = []
       matchFilter.$and.push({$and: filterAndList})
     }
-
+    
     if (req.query.isPagination != null && req.query.isPagination == 'false') {
 
       filter = [
