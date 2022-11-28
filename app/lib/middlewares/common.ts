@@ -137,23 +137,23 @@ module.exports = {
   },
 
   encryptApiKey: function (data: any) {
-    // try{
-      
-    // }catch(e){
-    //   return '';
-    // }
-    var ciphertext = CryptoJS.AES.encrypt(data, (global as any).environment.jwtSecret).toString();
-   return ciphertext;
+    try {
+      var ciphertext = CryptoJS.AES.encrypt(data, (global as any).environment.jwtSecret).toString();
+      return ciphertext;
+    } catch (e) {
+      console.log(e);
+      return '';
+    }
   },
 
   decryptApiKey: function (data: any) {
-    // try{
-      
-    // }catch(e){
-    //   return '';
-    // }
-    var bytes  = CryptoJS.AES.decrypt(data, (global as any).environment.jwtSecret);
-    var originalText = bytes.toString(CryptoJS.enc.Utf8);   
-    return originalText;
+    try {
+      var bytes = CryptoJS.AES.decrypt(data, (global as any).environment.jwtSecret);
+      var originalText = bytes.toString(CryptoJS.enc.Utf8);
+      return originalText;
+    } catch (e) {
+      console.log(e);
+      return '';
+    }
   }
 };
