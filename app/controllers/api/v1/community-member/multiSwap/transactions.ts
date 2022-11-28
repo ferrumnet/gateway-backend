@@ -82,12 +82,15 @@ module.exports = function (router: any) {
     var filter: any = {}
     let sort = {createdAt: -1 };
     let transactions = null;
+    let totalCount = 0;
 
     filter.createdByUser = req.user._id;
 
     if(req.query.sourceNetwork){
       filter.sourceNetwork = req.query.sourceNetwork;
     }
+
+    totalCount = await db.SwapAndWithdrawTransactions.countDocuments(filter);
 
     if (req.query.isPagination != null && req.query.isPagination == 'false') {
       transactions = await db.SwapAndWithdrawTransactions.find(filter)
@@ -132,7 +135,8 @@ module.exports = function (router: any) {
     }
 
     return res.http200({
-      swapAndWithdrawTransactions: transactions
+      swapAndWithdrawTransactions: transactions,
+      totalCount: totalCount
     });
 
   }));

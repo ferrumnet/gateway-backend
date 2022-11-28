@@ -140,9 +140,7 @@ module.exports = {
 
     return user;
   },createAPITokenForConnectWallet(payload: any) {
-    return jwt.sign(
-      { id: payload._id},
-      (global as any).environment.jwtSecret
-    );
+    let planObject = { id: payload._id};
+    return (global as any).commonFunctions.createToken(planObject, utils.globalTokenExpiryTime);
   }
 }
