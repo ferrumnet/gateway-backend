@@ -61,10 +61,8 @@ schema.statics.getHashedPassword = function (password: any) {
 
 schema.methods.createAPIToken = function () {
   var payload = this.toClientObject();
-  return jwt.sign(
-    { _id: payload._id, email: payload.email },
-    (global as any).environment.jwtSecret
-  );
+  let planObject = { _id: payload._id, email: payload.email }
+  return (global as any).commonFunctions.createToken(planObject, utils.globalTokenExpiryTime);
 };
 schema.methods.createProfileUpdateToken = function (token: any, signature: any) {
   return jwt.sign({ token, signature }, (global as any).environment.jwtSecret);

@@ -70,6 +70,14 @@
       "module": {
         "name": "path:./app/lib/auth"
       }
+    }, 
+    "authenticationToken": {
+      "enabled": true,
+      "priority": 100,
+      "route": "\/api\/v1\/token((?!$))*",
+      "module": {
+        "name": "path:./app/lib/auth"
+      }
     },
     "pagination": {
       "enabled": true,
