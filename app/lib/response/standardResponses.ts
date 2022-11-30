@@ -15,7 +15,6 @@ module.exports = {
   },
 
   http400: function (err: any,key='') {
-    console.log('\x1b[31m', '\n\n', (JSON.stringify(err, null, 12) as any) == {} || err, '\n\n')
 
     return this.status(400).send({
       status: {
@@ -27,7 +26,6 @@ module.exports = {
   },
 
   http401: function (err: any) {
-    console.log('\x1b[31m', '\n\n', (JSON.stringify(err, null, 12) as any) == {} || err, '\n\n')
 
     return this.status(401).send({
       status: {
@@ -38,7 +36,6 @@ module.exports = {
   },
 
   http404: function (err: any, key='') {
-    console.log('\x1b[31m', '\n\n', (JSON.stringify(err, null, 12) as any) == {} || err, '\n\n')
 
     return this.status(404).send({
       status: {
