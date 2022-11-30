@@ -1,72 +1,39 @@
-import moment from 'moment';
-const {
+import moment from "moment";
+import fs from "fs";
+import axios from "axios";
+import {
   waitForConfirmation,
-  default: algosdk,
+  default as algosdk,
   ALGORAND_MIN_TX_FEE,
-} = require("algosdk");
-var fs = require("fs");
-const { spawn } = require("child_process");
-var axios = require("axios").default;
+} from "algosdk";
 require("dotenv").config();
-// const PythonShell = require("python-shell").PythonShell;
-
-const algodToken =
-  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-const algodServer = "https://api-algorand.dev.svcs.ferrumnetwork.io";
-const algodPort = 443;
-const creatorMnemonic =
-  "flight permit skill quick enforce strong hobby cloud letter foot can fee affair buddy exact link glare amused drama rain airport casual shoe abstract puppy";
 
 async function deployContract(
   tokenAddress: any,
+  rewardTokenAddress: any,
   stakingCapital: any,
   stakingStarts: any,
   stakingEnds: any,
   withdrawStarts: any,
-  withdrawEnds: any,
-  stakingId: any,
-  storageAppId: any
+  withdrawEnds: any
 ) {
-  // ADMIN
-  // creatorMnemonic =
-  //   "wheel liar breeze fame pelican glove stool apology truth reduce salon junior orchard sign march unfair grid steak ecology satoshi honey horror drama ability patch";
-  // creatorMnemonic =
-  //   "flight permit skill quick enforce strong hobby cloud letter foot can fee affair buddy exact link glare amused drama rain airport casual shoe abstract puppy";
+  const algodPort = "";
+  const algodToken = JSON.parse((global as any).environment.algodToken);
+  const algodServer = (global as any).environment.algodServer;
+  const creatorMnemonic = (global as any).environment.creatorMnemonic;
   let creatorAccount = algosdk.mnemonicToSecretKey(creatorMnemonic);
   let sender = creatorAccount.addr;
-
-  // Setup AlgodClient Connection
-  // const algodToken =
-  //   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-  // const algodServer = "http://3.145.206.208";
-  // const algodPort = 4001;
   let algodClient = new algosdk.Algodv2(algodToken, algodServer, algodPort);
-
-  // get node suggested parameters (sp)
   let suggestedParams = await algodClient.getTransactionParams().do();
-  // comment out the next two lines to use suggested fee
-  // suggestedParams.fee = 5000;
-  // params.flatFee = true;
-
-  // let token_address = 66863719;
   let token_address = Number(tokenAddress);
-  // let reward_address = 66863719;
-  let reward_address = Number(tokenAddress);
-
-  // let staking_total = 500;
+  let reward_address = Number(rewardTokenAddress);
   let staking_total = Number(stakingCapital);
   let total_supply = 1000000;
-  // let stakingStarts = "2022-03-15 17:32:00.000";
-  // let stakingEnds = "2022-03-15 17:35:00.000";
-  // let withdrawStarts = "2022-03-15 17:36:00.000";
-  // let withdrawEnds = "2022-03-15 17:40:00.000";
-  // python3 -c "import algosdk.encoding as e; print(e.encode_address(e.checksum(b'appID'+(79584368).to_bytes(8, 'big'))))"
 
-  // \YTFCPZQS5RTECX72SXKHTD2NLRSCVNNOUDHJF3TJIRBU4WQ2QNJSRW6CB4
-  console.log(stakingStarts);
-  console.log(stakingEnds);
-  console.log(withdrawStarts);
-  console.log(withdrawEnds);
+  // console.log(stakingStarts);
+  // console.log(stakingEnds);
+  // console.log(withdrawStarts);
+  // console.log(withdrawEnds);
   let staking_starts = Math.floor(
     new Date(
       moment.utc(stakingStarts).format("YYYY-MM-DD HH:mm:ss Z")
@@ -138,8 +105,6 @@ async function deployContract(
     foreignAssets
   );
 
-  // console.log(txn);
-
   // to fetch the txn ID
   let txId = txn.txID().toString();
   console.log(txId);
@@ -167,7 +132,7 @@ async function deployContract(
   // console.log("Deployed a smartContract on Algorand: ", appId, encodedAddress);
 
   const encodedAddress = await axios.get(
-    `http://127.0.0.1:5000/algorand/${appId}`
+    `${(global as any).environment.algorandParserScriptUrl}/algorand/${appId}`
   );
   return { appId, encodedAddress: encodedAddress.data.contractAddress };
 }
@@ -203,11 +168,9 @@ async function getCompiledResult(data: any) {
 }
 
 async function compileTEAL(content: any) {
-  // Setup AlgodClient Connection
-  // const algodToken =
-  //   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-  // const algodServer = "http://3.145.206.208";
-  // const algodPort = 4001;
+  const algodPort = "";
+  const algodToken = JSON.parse((global as any).environment.algodToken);
+  const algodServer = (global as any).environment.algodServer;
   let algodClient = new algosdk.Algodv2(algodToken, algodServer, algodPort);
 
   // Read Teal from Content
@@ -228,29 +191,22 @@ async function compileProgram(algodClient: any, programSource: any) {
   );
   return compileBytes;
 }
-async function setup(tokenAddress: any, stakingCapital: any, appId: any) {
-  // Setup AlgodClient Connection
-  // const algodToken =
-  //   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-  // const algodServer = "http://3.145.206.208";
-  // const algodPort = 4001;
-  let algodClient = new algosdk.Algodv2(algodToken, algodServer, algodPort);
+async function setup(tokenAddress: any, rewardTokenAddress: any, appId: any) {
+  const algodPort = "";
+  const algodToken = JSON.parse((global as any).environment.algodToken);
+  const algodServer = (global as any).environment.algodServer;
+  const creatorMnemonic = (global as any).environment.creatorMnemonic;
 
-  // ADMIN
-  // let creatorMnemonic =
-  //   "flight permit skill quick enforce strong hobby cloud letter foot can fee affair buddy exact link glare amused drama rain airport casual shoe abstract puppy";
-  // let creatorMnemonic =
-  //   "wheel liar breeze fame pelican glove stool apology truth reduce salon junior orchard sign march unfair grid steak ecology satoshi honey horror drama ability patch";
+  let algodClient = new algosdk.Algodv2(algodToken, algodServer, algodPort);
   let creatorAccount = algosdk.mnemonicToSecretKey(creatorMnemonic);
   let sender = creatorAccount.addr;
-
   // get node suggested parameters (sp)
   let suggestedParams = await algodClient.getTransactionParams().do();
   suggestedParams.fee = 5000;
   let index = Number(appId);
   // let token_address = 66863719;
   let token_address = Number(tokenAddress);
-  let reward_address = Number(tokenAddress);
+  let reward_address = Number(rewardTokenAddress);
   // let reward_address = Number(stakingCapital);
   var account: any = [];
   var foreignApp: any = [];
@@ -295,29 +251,23 @@ async function setup(tokenAddress: any, stakingCapital: any, appId: any) {
   return txResponse;
 }
 async function addReward(
-  tokenAddress: any,
+  rewardTokenAddress: any,
   encodedAddress: any,
   rewardAmount: any,
   withdrawableAmount: any,
   appId: any
 ) {
-  console.log("---" + encodedAddress.replace(/\s/g, "") + "---");
+  // console.log("---" + encodedAddress.replace(/\s/g, "") + "---");
   // Setup AlgodClient Connection
-
+  const algodPort = "";
+  const algodToken = JSON.parse((global as any).environment.algodToken);
+  const algodServer = (global as any).environment.algodServer;
+  const creatorMnemonic = (global as any).environment.creatorMnemonic;
   let algodClient = new algosdk.Algodv2(algodToken, algodServer, algodPort);
 
-  //ADMIN
-
-  // let creatorMnemonic =
-  //   "flight permit skill quick enforce strong hobby cloud letter foot can fee affair buddy exact link glare amused drama rain airport casual shoe abstract puppy";
-  // let creatorMnemonic =
-  //   "wheel liar breeze fame pelican glove stool apology truth reduce salon junior orchard sign march unfair grid steak ecology satoshi honey horror drama ability patch";
   let creatorAccount = algosdk.mnemonicToSecretKey(creatorMnemonic);
   let sender = creatorAccount.addr;
 
-  // Contract Address
-  // let smartContract =
-  //   "YTFCPZQS5RTECX72SXKHTD2NLRSCVNNOUDHJF3TJIRBU4WQ2QNJSRW6CB4";
   let smartContract = encodedAddress.replace(/\s/g, "");
 
   // get node suggested parameters (sp)
@@ -325,14 +275,12 @@ async function addReward(
   suggestedParams.fee = ALGORAND_MIN_TX_FEE;
   let index = Number(appId);
 
-  //python3 -c "import algosdk.encoding as e; print(e.encode_address(e.checksum(b'appID'+(79584368).to_bytes(8, 'big'))))"
-  // \YTFCPZQS5RTECX72SXKHTD2NLRSCVNNOUDHJF3TJIRBU4WQ2QNJSRW6CB4
   // Arguments to be passed in App Call
-  let reward_address = Number(tokenAddress);
+  let reward_address = Number(rewardTokenAddress);
   // let reward_address = 66863719;
   // let reward_address = 77861997;
-  var account: any = [];
-  var foreignApp = [];
+  // var account: any = [];
+  // var foreignApp = [];
   var foreignAssets = [];
   foreignAssets.push(reward_address);
   let revocationTarget = undefined;
@@ -394,22 +342,6 @@ async function addReward(
   // Wait for transaction to be confirmed
   await waitForConfirmation(algodClient, tx.txId, 5);
 
-  // // get tx ID
-  // let txId = txn.txID().toString();
-  // console.log("NoOp Tx ID: ", txId);
-
-  // // sign transaction
-  // let signedTxn = txn.signTxn(userAccount.sk);
-  // console.log("NoOp signed Txn: ", signedTxn);
-
-  // // submit the transaction
-  // let response = await algodClient.sendRawTransaction(signedTxn).do();
-  // console.log("Raw transaction submitted: ", response);
-
-  // // wait for the transaction confirmation
-  // let timeout = 4;
-  // await waitForConfirmation(algodClient, txId, timeout);
-
   // response display
   let transactionResponse = await algodClient
     .pendingTransactionInformation(tx.txId)
@@ -435,17 +367,12 @@ async function addReward(
 }
 
 async function deployStorageApp() {
-  // ADMIN
-  // creatorMnemonic =
-  //   "flight permit skill quick enforce strong hobby cloud letter foot can fee affair buddy exact link glare amused drama rain airport casual shoe abstract puppy";
+  const algodPort = "";
+  const algodToken = JSON.parse((global as any).environment.algodToken);
+  const algodServer = (global as any).environment.algodServer;
+  const creatorMnemonic = (global as any).environment.creatorMnemonic;
   let creatorAccount = algosdk.mnemonicToSecretKey(creatorMnemonic);
   let sender = creatorAccount.addr;
-
-  // Setup AlgodClient Connection
-  // const algodToken =
-  //   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-  // const algodServer = "http://3.145.206.208";
-  // const algodPort = 4001;
   let algodClient = new algosdk.Algodv2(algodToken, algodServer, algodPort);
 
   // get node suggested parameters (sp)

@@ -4,6 +4,7 @@ var mongoose = require("mongoose");
 var schema = mongoose.Schema(
   {
     tokenAddress: { type: Number },
+    rewardTokenAddress: { type: Number },
     stakingCapital: { type: Number },
     stakingStarts: { type: String },
     stakingEnds: { type: String },
@@ -19,5 +20,5 @@ var schema = mongoose.Schema(
   { collection: "stakings", timestamps: true }
 );
 
-var stakingModel = mongoose.model("stakings",schema);
+var stakingModel = mongoose.model("stakings", schema);
 module.exports = stakingModel;
