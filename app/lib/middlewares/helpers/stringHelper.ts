@@ -48,6 +48,7 @@ var strErrorApprovalIsOnDeclined= "Backend_Approval_Is_On_Declined"
 var strErrorAddBaseFeeToken= "Backend_Add_Base_Fee_Token"
 var strErrorUpdateBaseFeeToken= "Backend_Update_Base_Fee_Token"
 var strErrorBaseFeeTokenIsNotSetupForUpdateCabn= "Backend_Base_Fee_Token_Is_Not_Setup"
+var strErrorEstimatedSwapTimeAlreadyExist= "Backend_Estimated_Swap_Time_Already_Exist"
 
 // success messages
 let strSuccessResetPasswordLink = 'Backend_Success_Reset_Password_Link'
@@ -119,6 +120,7 @@ module.exports = {
   strErrorApprovalIsOnApproved,
   strErrorAddBaseFeeToken,
   strErrorUpdateBaseFeeToken,
-  strErrorBaseFeeTokenIsNotSetupForUpdateCabn
+  strErrorBaseFeeTokenIsNotSetupForUpdateCabn,
+  strErrorEstimatedSwapTimeAlreadyExist
 }
 

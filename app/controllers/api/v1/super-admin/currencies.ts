@@ -362,4 +362,20 @@ module.exports = function (router: any) {
 
   });
 
+  router.put('/cabn/position/for/free/token/:id', async (req: any, res: any) => {
+
+    let filter = { _id: req.params.id }
+    let positionForFeeToken = req.body.positionForFeeToken
+
+    if (!isValidObjectId(filter._id) || !positionForFeeToken) {
+      return res.http400('Valid cabnId & positionForFeeToken are required.');
+    }
+    let cabn = await db.CurrencyAddressesByNetwork.findOneAndUpdate(filter, { positionForFeeToken }, { new: true })
+
+    return res.http200({
+      cabn: cabn
+    });
+
+  });
+
 };

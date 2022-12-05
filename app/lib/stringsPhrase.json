@@ -53,5 +53,6 @@
   "Backend_Approval_Is_Approved":"The request has been approved. You can now access the dashboard",
   "Backend_Add_Base_Fee_Token":"Base fee token network is already setup. If you want to update the base fee token for this network use the following api 'updateCabnForUpdateBaseFeeTokenByCabnId'",
   "Backend_Update_Base_Fee_Token":"Base fee token network is not setup for oldCabnId. If you want to add the base fee token for this network use the following api 'updateCabnForAddBaseFeeTokenByCabnId'",
-  "Backend_Base_Fee_Token_Is_Not_Setup":"Base fee token network is not setup against this cabn"
+  "Backend_Base_Fee_Token_Is_Not_Setup":"Base fee token network is not setup against this cabn",
+  "Backend_Estimated_Swap_Time_Already_Exist":"Estimated time already exist on this network"
 }
