@@ -28,7 +28,14 @@ module.exports = function (router: any) {
 
     var filter: any = {};
     let netwroks = [];
-    var sort = { createdAt: -1 }
+    var sort: any = { createdAt: -1 }
+
+    if (req.query.sortKey) {
+      Object.keys(sort).forEach(key => {
+        delete sort[key];
+      })
+      sort = { [req.query.sortKey] : parseInt(req.query.sortOrder)}
+    }
 
     if (req.query.isAllowedOnMultiSwap) {
 

@@ -198,5 +198,20 @@ module.exports = function (router: any) {
 
   });
 
+  router.put('/position/for/multi/swap/:id', async (req: any, res: any) => {
+
+    let filter = { _id: req.params.id }
+    let positionForMultiSwap = req.body.positionForMultiSwap
+
+    if (!isValidObjectId(filter._id) || !positionForMultiSwap) {
+      return res.http400('Valid networkId & positionForFeeToken are required.');
+    }
+    let network = await db.Networks.findOneAndUpdate(filter, { positionForMultiSwap }, { new: true })
+
+    return res.http200({
+      network: network
+    });
+
+  });
 
 };
