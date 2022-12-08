@@ -22,6 +22,7 @@ var schema = mongoose.Schema({
   logo: { type: String, default: "" },
   publicRpcUrl: { type: String, default: "" },
   backupRpcUrl: { type: String, default: "" },
+  positionForMultiSwap: { type: Number, default: 0 },
 
   createdAt: { type: Date, default: new Date() },
   updatedAt: { type: Date, default: new Date() },
