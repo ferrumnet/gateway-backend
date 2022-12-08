@@ -159,4 +159,26 @@ module.exports = function (router: any) {
       ),
     });
   });
+
+  router.post("/sign", async (req: any, res: any) => {
+    if (!req.body.stakeId || !req.body.walletAddress) {
+      return res.http400("Stake Id & Wallet Address are required.");
+    }
+    const signer = await db.StakeSignAddresses.create(req.body);
+    return res.http200({ signer });
+  });
+
+  router.get("/sign/:stakeId", async (req: any, res: any) => {
+    if (!req.params.stakeId || !req.query.walletAddress) {
+      return res.http400("Stake Id & Wallet Address are required.");
+    }
+    const signer = await db.StakeSignAddresses.findOne({
+      stakeId: req.params.stakeId,
+      walletAddress: req.query.walletAddress,
+    });
+    if (!signer) {
+      return res.http200(false);
+    }
+    return res.http200(true);
+  });
 };
