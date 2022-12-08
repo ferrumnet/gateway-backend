@@ -4,11 +4,11 @@ module.exports = function (router: any) {
 
   router.post('/create', async (req: any, res: any) => {
 
-    if (!req.body.network || !req.body.time) {
-      return res.http400('network & time are required.');
+    if (!req.body.sourceNetwork || !req.body.destinationNetwork || !req.body.time) {
+      return res.http400('nesourceNetworktwork & destinationNetwork & time are required.');
     }
 
-    let count = await db.EstimatedSwapTimeByNetwork.countDocuments({network: req.body.network})
+    let count = await db.EstimatedSwapTimeByNetwork.countDocuments({sourceNetwork: req.body.sourceNetwork, destinationNetwork: req.body.destinationNetwork})
     if (count > 0) {
       return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorEstimatedSwapTimeAlreadyExist), stringHelper.strErrorEstimatedSwapTimeAlreadyExist,);
     }
