@@ -2,7 +2,8 @@
 var mongoose = require('mongoose');
 
 var schema = mongoose.Schema({
-  network: { type: mongoose.Schema.Types.ObjectId, ref: 'networks' },
+  sourceNetwork: { type: mongoose.Schema.Types.ObjectId, ref: 'networks' },
+  destinationNetwork: { type: mongoose.Schema.Types.ObjectId, ref: 'networks' },
   time : { type: String, default: '' },
   isActive: { type: Boolean, default: true },
 

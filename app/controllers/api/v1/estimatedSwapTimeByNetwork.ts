@@ -1,8 +1,15 @@
 module.exports = function (router: any) {
 
   router.get('/by/network', async (req: any, res: any) => {
-    let filter = {}
-    filter = { network: req.query.networkId }
+    let filter: any = {}
+
+    if(req.query.sourceNetworkId){
+      filter.sourceNetwork = req.query.sourceNetworkId;
+    }
+
+    if(req.query.destinationNetworkId){
+      filter.destinationNetwork = req.query.destinationNetworkId;
+    }
 
     let estimatedSwapTimeByNetwork = await db.EstimatedSwapTimeByNetwork.findOne(filter)
 
