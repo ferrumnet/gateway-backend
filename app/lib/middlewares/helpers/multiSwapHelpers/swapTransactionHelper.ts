@@ -24,7 +24,7 @@ module.exports = {
       // need to move this error in phrase
       return standardStatuses.status400(`Transaction "${txId}" is failed`);
     }
-    
+
     console.log('status::::: ',receipt.status)
 
     let swapLog = receipt.logs.find((l: any) => contractAddress.toLocaleLowerCase() === (l.address || '').toLocaleLowerCase()); // Index for the swap event
@@ -84,13 +84,6 @@ module.exports = {
     console.log('txSummary',txSummary);
     
     let payBySig = null;
-    if (isV12) {
-      payBySig = await signatureHelper.createSignedPaymentV1_2(swap);
-    } else {
-      payBySig = await signatureHelper.createSignedPaymentV1_0(swap);
-    }
-    console.log('swap::: ',swap);
-
     let newItem = {
       timestamp: new Date().valueOf(),
       destinationCurrency: signatureHelper.toCurrency(swap.toNetwork.networkShortName, swap.toCabn.tokenContractAddress),
@@ -114,14 +107,6 @@ module.exports = {
       version: schemaVersion,
       signatures: 0,
     }
-
-    if (isV12) {
-      newItem.payBySig.hash = signatureHelper.bridgeHashV1_2(newItem, swap);
-    } else {
-      newItem.payBySig.swapTxId = signatureHelper.bridgeSaltV1_0(newItem);
-      newItem.payBySig.hash = signatureHelper.bridgeHashV1_0(newItem, swap);
-    }
-
     return newItem;
   },
 

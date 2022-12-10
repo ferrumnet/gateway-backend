@@ -23,6 +23,7 @@ var schema = mongoose.Schema({
   publicRpcUrl: { type: String, default: "" },
   backupRpcUrl: { type: String, default: "" },
   positionForMultiSwap: { type: Number, default: 0 },
+  multiSwapFiberRouterSmartContractAddress: { type: String, default: "" },
 
   createdAt: { type: Date, default: new Date() },
   updatedAt: { type: Date, default: new Date() },
