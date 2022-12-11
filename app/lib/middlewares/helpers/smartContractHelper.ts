@@ -27,10 +27,10 @@ module.exports = {
     return results
   },
 
-  async getSmartContractAddressByNetworkIdAndTag(id: any) {
+  async getSmartContractAddressByNetworkIdAndTag(id: any, tag: any = '#bridge') {
 
     let filterSmartContract: any = {};
-    filterSmartContract.tags = '#bridge';
+    filterSmartContract.tags = tag;
     let smartContract= await db.SmartContracts.findOne(filterSmartContract)
     if(smartContract){
       let filterScabn: any = {};

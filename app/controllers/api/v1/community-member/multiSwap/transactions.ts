@@ -30,7 +30,7 @@ module.exports = function (router: any) {
     sourceNetwork = await db.Networks.findOne({ _id: req.query.sourceNetworkId });
 
     if(sourceNetwork){
-      req.query.smartContractAddress = await smartContractHelper.getSmartContractAddressByNetworkIdAndTag(sourceNetwork._id);
+      req.query.smartContractAddress = await smartContractHelper.getSmartContractAddressByNetworkIdAndTag(sourceNetwork._id, '#fiberFund');
     }
 
     if (address && req.query.smartContractAddress) {
@@ -46,13 +46,14 @@ module.exports = function (router: any) {
       if (receipt) {
         receipt.sourceSmartContractAddress = req.query.smartContractAddress;
         swapTransaction = await swapTransactionHelper.swapTransactionSummary(receipt, utils.expectedSchemaVersionV1_0);
+        console.log('come here')
       }
 
       if(swapTransaction ){
         swapTransaction.sourceNetwork = receipt.fromNetwork._id;
         swapTransaction.destinationNetwork = receipt.toNetwork._id;
-        swapTransaction.destinationCabn = (await db.CurrencyAddressesByNetwork.findOne({tokenContractAddress: receipt.toCabn.tokenContractAddress}))._id;
-        swapTransaction.sourceCabn = (await db.CurrencyAddressesByNetwork.findOne({tokenContractAddress: receipt.fromCabn.tokenContractAddress}))._id;
+        swapTransaction.destinationCabn = (await db.CurrencyAddressesByNetwork.findOne({tokenContractAddress: req.query.sourceTokenContractAddress}))._id;
+        swapTransaction.sourceCabn = (await db.CurrencyAddressesByNetwork.findOne({tokenContractAddress: req.query.destinationTokenContractAddress}))._id;
         swapTransaction.createdByUser = req.user._id;
         swapTransaction.createdAt = new Date();
         swapTransaction.updatedAt = new Date();
@@ -233,7 +234,7 @@ module.exports = function (router: any) {
     destinationNetwork = oldSwapTransaction.destinationNetwork;
 
     if(sourceNetwork){
-      req.query.smartContractAddress = await smartContractHelper.getSmartContractAddressByNetworkIdAndTag(sourceNetwork._id);
+      req.query.smartContractAddress = await smartContractHelper.getSmartContractAddressByNetworkIdAndTag(sourceNetwork._id, '#fiberFund');
     }
 
     if (address && sourceNetwork && oldSwapTransaction && req.query.smartContractAddress) {
