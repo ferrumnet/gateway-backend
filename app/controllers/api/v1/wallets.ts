@@ -6,7 +6,8 @@ module.exports = function (router: any) {
     var matchFilter: any = {}
     var filterOrList: any= []
     var filterAndList: any= []
-    var filter = []
+    var filter: any = []
+    var innerFilter: any = []
     let wbns = []
     var sort: any = { "createdAt": -1 }
 
@@ -31,9 +32,19 @@ module.exports = function (router: any) {
       sort = { [req.query.sortKey] : parseInt(req.query.sortOrder)}
     }
 
-    if (req.query.isPagination != null && req.query.isPagination == 'false') {
-
-      filter = [
+    if (!req.query.networkId) {
+      innerFilter = [
+        { $lookup: { from: 'networks', localField: 'network', foreignField: '_id', as: 'network' } },
+        { "$unwind": { "path": "$network","preserveNullAndEmptyArrays": true}},
+        { $lookup: { from: 'wallets', localField: 'wallet', foreignField: '_id', as: 'wallet' } },
+        { "$unwind": { "path": "$wallet","preserveNullAndEmptyArrays": true}},
+        { "$group": { _id: { wallet: "$wallet" } } },
+        { "$project": { _id: 0, wallet: "$_id.wallet"} },
+        { "$match": matchFilter },
+        { "$sort": sort }
+      ];
+    }else {
+      innerFilter = [
         { $lookup: { from: 'networks', localField: 'network', foreignField: '_id', as: 'network' } },
         { "$unwind": { "path": "$network","preserveNullAndEmptyArrays": true}},
         { $lookup: { from: 'wallets', localField: 'wallet', foreignField: '_id', as: 'wallet' } },
@@ -41,22 +52,24 @@ module.exports = function (router: any) {
         { "$match": matchFilter },
         { "$sort": sort }
       ];
+    }
+
+    if (req.query.isPagination != null && req.query.isPagination == 'false') {
+
+      filter = [
+        ...innerFilter
+      ];
 
     } else {
 
       filter = [
-        { $lookup: { from: 'networks', localField: 'network', foreignField: '_id', as: 'network' } },
-        { "$unwind": { "path": "$network","preserveNullAndEmptyArrays": true}},
-        { $lookup: { from: 'wallets', localField: 'wallet', foreignField: '_id', as: 'wallet' } },
-        { "$unwind": { "path": "$wallet","preserveNullAndEmptyArrays": true}},
-        { "$match": matchFilter },
-        { "$sort": sort },
+        ...innerFilter,
         { $skip: req.query.offset ? parseInt(req.query.offset) : 0 },
         { $limit: req.query.limit ? parseInt(req.query.limit) : 10 },
       ];
 
     }
-
+    
     wbns = await db.WalletByNetwork.aggregate(filter);
 
     return res.http200({

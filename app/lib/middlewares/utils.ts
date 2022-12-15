@@ -75,7 +75,7 @@ module.exports = function () {
 
   utils.expectedSchemaVersionV1_0 = '1.0'
   utils.expectedSchemaVersionV1_2 = '1.2'
-  utils.globalTokenExpiryTime = '600s'
+  utils.globalTokenExpiryTime = '1800s'
 
   return utils;
 }
