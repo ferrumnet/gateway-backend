@@ -99,6 +99,24 @@ module.exports = function (router: any) {
       filter.sourceNetwork = req.query.sourceNetwork;
     }
 
+    if(req.query.transactionHash){
+      filter.$or = [
+        { 'useTransactions.transactionId': { "$in" : req.query.transactionHash} },
+        { receiveTransactionId: req.query.transactionHash }
+      ]
+    }
+
+    if(req.query.swapTransactionId){
+      filter.receiveTransactionId = req.query.swapTransactionId;
+    }
+
+    if(req.query.withdrawTransactionId){
+      let withdrawTrahsactionHashFilter = { 'useTransactions.transactionId': { "$in" : req.query.withdrawTransactionId} }
+      filter = { ...withdrawTrahsactionHashFilter, ...filter};
+    }
+
+    console.log(filter);
+
     totalCount = await db.SwapAndWithdrawTransactions.countDocuments(filter);
 
     if (req.query.isPagination != null && req.query.isPagination == 'false') {
