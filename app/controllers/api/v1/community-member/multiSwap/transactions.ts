@@ -6,14 +6,19 @@ module.exports = function (router: any) {
 
     let address = null;
     let sourceNetwork = null;
+    let destinationNetwork = null;
     let swapTransaction = null;
 
-    if (!req.params.txId || !req.query.sourceNetworkId) {
-      return res.http400('txId & sourceNetworkId are required.');
+    if (!req.params.txId || !req.query.sourceNetworkId || !req.query.destinationNetworkId) {
+      return res.http400('txId & sourceNetworkId & destinationNetworkId are required.');
     }
 
     if (!mongoose.Types.ObjectId.isValid(req.query.sourceNetworkId)) {
       return res.http400('Invalid sourceNetworkId');
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.query.destinationNetworkId)) {
+      return res.http400('Invalid destinationNetworkId');
     }
 
     let oldSwapTransaction = await db.SwapAndWithdrawTransactions.findOne({receiveTransactionId: req.params.txId});
@@ -28,13 +33,15 @@ module.exports = function (router: any) {
     }
 
     sourceNetwork = await db.Networks.findOne({ _id: req.query.sourceNetworkId });
-
+    destinationNetwork = await db.Networks.findOne({ _id: req.query.destinationNetworkId });
+    console.log(sourceNetwork?._id)
+    console.log(destinationNetwork?._id)
     if(sourceNetwork){
       req.query.smartContractAddress = await smartContractHelper.getSmartContractAddressByNetworkIdAndTag(sourceNetwork._id, '#fiberFund');
     }
 
     if (address && req.query.smartContractAddress) {
-      let receipt = await swapTransactionHelper.getTransactionReceiptByTxIdUsingWeb3(sourceNetwork, req.params.txId, req.query.smartContractAddress);
+      let receipt = await swapTransactionHelper.getTransactionReceiptByTxIdUsingWeb3(sourceNetwork, req.params.txId);
       
       if(receipt.code == 401){
         return res.http400(await commonFunctions.getValueFromStringsPhrase(receipt.message), receipt.message);
@@ -45,15 +52,26 @@ module.exports = function (router: any) {
       receipt = receipt.data;
       if (receipt) {
         receipt.sourceSmartContractAddress = req.query.smartContractAddress;
-        swapTransaction = await swapTransactionHelper.swapTransactionSummary(receipt, utils.expectedSchemaVersionV1_0);
-        console.log('come here')
+        swapTransaction = await swapTransactionHelper.swapTransactionSummary(sourceNetwork, receipt);
       }
 
-      if(swapTransaction ){
-        swapTransaction.sourceNetwork = receipt.fromNetwork._id;
-        swapTransaction.destinationNetwork = receipt.toNetwork._id;
-        swapTransaction.destinationCabn = (await db.CurrencyAddressesByNetwork.findOne({tokenContractAddress: req.query.sourceTokenContractAddress}))._id;
-        swapTransaction.sourceCabn = (await db.CurrencyAddressesByNetwork.findOne({tokenContractAddress: req.query.destinationTokenContractAddress}))._id;
+      if(swapTransaction){
+
+        let sourceCabn = await db.CurrencyAddressesByNetwork.findOne({_id: req.query.sourceCabn});
+        let destinationCabn = await db.CurrencyAddressesByNetwork.findOne({_id: req.query.destinationCabn});
+        console.log('sourceCabn',sourceCabn);
+        console.log('destinationCabn',destinationCabn);
+        console.log('swapTransaction.sourceAmount',swapTransaction.sourceAmount);
+
+        if(swapTransaction.sourceAmount){
+          swapTransaction.sourceAmount = await swapUtilsHelper.amountToHuman_(sourceNetwork, sourceCabn, swapTransaction.sourceAmount);
+        }
+        console.log(sourceNetwork?._id)
+        console.log(destinationNetwork?._id)
+        swapTransaction.sourceNetwork = sourceNetwork?._id;
+        swapTransaction.destinationNetwork = destinationNetwork?._id;
+        swapTransaction.destinationCabn = destinationCabn?._id;
+        swapTransaction.sourceCabn = sourceCabn?._id;
         swapTransaction.createdByUser = req.user._id;
         swapTransaction.createdAt = new Date();
         swapTransaction.updatedAt = new Date();
@@ -62,16 +80,6 @@ module.exports = function (router: any) {
           swapAndWithdrawTransaction: swapTransaction
         })
       }
-
-
-      // console.log('swapTransaction', swapTransaction);
-      // let hash = signatureHelper.bridgeHashV1_0(swapTransaction, swap);
-      // console.log('final hash', hash);
-      // let msgHash = hash.replace('0x', '');
-      // let signatureResponse = await ecdsaHelper.sign('915c8bf73c84c0482beef48bb4bf782892d38d57d3c9af32de6af27a54d12c5a', msgHash);
-      // console.log(signatureResponse);
-      // let withdrawSigned = await contractHelper.withdrawSigned(address, swapTransaction, swap.toNetwork, '0x544db7e44d73761c00cfc4525c38f896bd20b69fb8487ba12f2a21af013502d565d02ade27351679f16c832cc1eaf6202a831ad2ecec47fbf2fbfe4a70bafcb11c');
-      // console.log(withdrawSigned);
     }
 
     return res.http400('Invalid txId, sourceNetwork or smartContractAddress');
@@ -224,7 +232,7 @@ module.exports = function (router: any) {
       return res.http400('txId and withdrawTxId required.');
     }
 
-    let oldSwapTransaction = await db.SwapAndWithdrawTransactions.findOne({receiveTransactionId: req.params.txId}).populate('sourceNetwork').populate('destinationNetwork');
+    let oldSwapTransaction = await db.SwapAndWithdrawTransactions.findOne({receiveTransactionId: req.params.txId}).populate('sourceNetwork').populate('destinationNetwork').populate('sourceCabn').populate('destinationCabn');
 
     if (req.user) {
       address = await db.Addresses.findOne({ user: req.user._id });
@@ -234,20 +242,21 @@ module.exports = function (router: any) {
     destinationNetwork = oldSwapTransaction.destinationNetwork;
 
     if(sourceNetwork){
-      req.query.smartContractAddress = await smartContractHelper.getSmartContractAddressByNetworkIdAndTag(sourceNetwork._id, '#fiberFund');
+      req.query.smartContractAddress = await smartContractHelper.getSmartContractAddressByNetworkIdAndTag(destinationNetwork._id, '#fiberFund');
     }
 
-    if (address && sourceNetwork && oldSwapTransaction && req.query.smartContractAddress) {
-      let receipt = await swapTransactionHelper.getTransactionReceiptStatusByTxIdUsingWeb3(destinationNetwork, req.body.withdrawTxId, req.query.smartContractAddress);
+    if (address && sourceNetwork && oldSwapTransaction) {
+      let receipt = await swapTransactionHelper.getTransactionReceiptStatusByTxIdUsingWeb3(destinationNetwork, req.body.withdrawTxId);
   
       if(receipt.code == 401){
         return res.http400(await commonFunctions.getValueFromStringsPhrase(receipt.message), receipt.message);
       }else if (receipt.code == 400){
         return res.http400(receipt.message);
       }
-      console.log(receipt);
       receipt = receipt.data;
-
+      if(receipt.destinationAmount){
+        oldSwapTransaction.destinationAmount = await swapUtilsHelper.amountToHuman_(destinationNetwork, oldSwapTransaction.destinationCabn, receipt.destinationAmount);
+      }
       if(receipt.status == 'swapWithdrawFailed'){
         oldSwapTransaction.status = 'swapWithdrawFailed'
       }else if(receipt.status == 'swapWithdrawCompleted'){
