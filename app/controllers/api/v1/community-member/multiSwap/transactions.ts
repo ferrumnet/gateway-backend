@@ -40,7 +40,7 @@ module.exports = function (router: any) {
       req.query.smartContractAddress = await smartContractHelper.getSmartContractAddressByNetworkIdAndTag(sourceNetwork._id, '#fiberFund');
     }
 
-    if (address && req.query.smartContractAddress) {
+    if (address) {
       let receipt = await swapTransactionHelper.getTransactionReceiptByTxIdUsingWeb3(sourceNetwork, req.params.txId);
       
       if(receipt.code == 401){
@@ -71,6 +71,7 @@ module.exports = function (router: any) {
         swapTransaction.sourceNetwork = sourceNetwork?._id;
         swapTransaction.destinationNetwork = destinationNetwork?._id;
         swapTransaction.destinationCabn = destinationCabn?._id;
+        swapTransaction.sourceSmartContractAddress = req.query.smartContractAddress;
         swapTransaction.sourceCabn = sourceCabn?._id;
         swapTransaction.createdByUser = req.user._id;
         swapTransaction.createdAt = new Date();
@@ -271,6 +272,7 @@ module.exports = function (router: any) {
       }else if (receipt.code == 400){
         return res.http400(receipt.message);
       }
+      oldSwapTransaction.destinationSmartContractAddress = req.query.smartContractAddress;
       receipt = receipt.data;
       if(receipt.destinationAmount){
         oldSwapTransaction.destinationAmount = await swapUtilsHelper.amountToHuman_(destinationNetwork, oldSwapTransaction.destinationCabn, receipt.destinationAmount);
