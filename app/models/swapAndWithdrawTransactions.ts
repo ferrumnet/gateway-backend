@@ -60,7 +60,9 @@ var schema = mongoose.Schema({
   },
   signature: { type: Number, default: null },
   blocked: { type: Boolean, default: false },
-  creator: { type: String, default: "" }
+  creator: { type: String, default: "" },
+  sourceSmartContractAddress: { type: String, default: "" },
+  destinationSmartContractAddress: { type: String, default: "" },
 
 },{ collection: 'swapAndWithdrawTransactions' });
 
