@@ -161,9 +161,22 @@ module.exports = function (router: any) {
     let isAllowedOnGateway = req.body.isAllowedOnGateway
 
     if (!isValidObjectId(filter._id) || typeof isAllowedOnGateway != 'boolean') {
-      return res.http400('valid networkId & isAllowedOnGateway are required.');
+      return res.http400('Valid networkId & isAllowedOnGateway are required.');
     }
     let network = await db.Networks.findOneAndUpdate(filter, { isAllowedOnGateway }, { new: true })
+    return network ? res.http200({ network }) : res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorNetwrokNotFound), stringHelper.strErrorNetwrokNotFound);
+
+  });
+
+  router.put('/allow/on/multi/swap/:id', async (req: any, res: any) => {
+
+    let filter = { _id: req.params.id }
+    let isAllowedOnMultiSwap = req.body.isAllowedOnMultiSwap
+
+    if (!isValidObjectId(filter._id) || typeof isAllowedOnMultiSwap != 'boolean') {
+      return res.http400('Valid networkId & isAllowedOnMultiSwap are required.');
+    }
+    let network = await db.Networks.findOneAndUpdate(filter, { isAllowedOnMultiSwap }, { new: true })
     return network ? res.http200({ network }) : res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorNetwrokNotFound), stringHelper.strErrorNetwrokNotFound);
 
   });
@@ -185,5 +198,20 @@ module.exports = function (router: any) {
 
   });
 
+  router.put('/position/for/multi/swap/:id', async (req: any, res: any) => {
+
+    let filter = { _id: req.params.id }
+    let positionForMultiSwap = req.body.positionForMultiSwap
+
+    if (!isValidObjectId(filter._id) || !positionForMultiSwap) {
+      return res.http400('Valid networkId & positionForFeeToken are required.');
+    }
+    let network = await db.Networks.findOneAndUpdate(filter, { positionForMultiSwap }, { new: true })
+
+    return res.http200({
+      network: network
+    });
+
+  });
 
 };

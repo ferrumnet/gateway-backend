@@ -1,10 +1,10 @@
-import moment from 'moment';
+import moment from "moment";
 
 module.exports = function (router: any) {
-
   router.post("/create", async (req: any, res: any) => {
     if (
       !req.body.tokenAddress ||
+      !req.body.rewardTokenAddress ||
       !req.body.stakingCapital ||
       !req.body.stakingStarts ||
       !req.body.stakingEnds ||
@@ -25,14 +25,15 @@ module.exports = function (router: any) {
 
   router.patch("/:id/deploy", async (req: any, res: any) => {
     // console.log("params", req.params.id);
-    // if (!req.params.id) {
-    //   return res.http400("Staking id is required.");
-    // }
+    if (!req.params.id) {
+      return res.http400("Staking id is required.");
+    }
     try {
       const staking = await db.Stakings.findOne({ _id: req.params.id });
       const storageAppId = await stakingHelper.deployStorageApp();
       const result = await stakingHelper.deployContract(
         staking.tokenAddress,
+        staking.rewardTokenAddress,
         staking.stakingCapital,
         staking.stakingStarts,
         staking.stakingEnds,
@@ -73,9 +74,9 @@ module.exports = function (router: any) {
         return res.http400("Staking id is required.");
       }
       const staking = await db.Stakings.findOne({ _id: req.params.id });
-      const setup = await stakingHelper.setup(
+      await stakingHelper.setup(
         staking.tokenAddress,
-        staking.stakingCapital,
+        staking.rewardTokenAddress,
         staking.appId
       ); //staking.encodedAddress
       Object.assign(staking, {
@@ -105,8 +106,8 @@ module.exports = function (router: any) {
         return res.http400("Staking id is required.");
       }
       const staking = await db.Stakings.findOne({ _id: req.params.id });
-      const setup = await stakingHelper.addReward(
-        staking.tokenAddress,
+      await stakingHelper.addReward(
+        staking.rewardTokenAddress,
         staking.encodedAddress,
         req.body.rewardAmount,
         req.body.withdrawableAmount,
@@ -157,5 +158,27 @@ module.exports = function (router: any) {
         "yyyy-MM-DD HH:mm:ss.SSS"
       ),
     });
+  });
+
+  router.post("/sign", async (req: any, res: any) => {
+    if (!req.body.stakeId || !req.body.walletAddress) {
+      return res.http400("Stake Id & Wallet Address are required.");
+    }
+    const signer = await db.StakeSignAddresses.create(req.body);
+    return res.http200({ signer });
+  });
+
+  router.get("/sign/:stakeId", async (req: any, res: any) => {
+    if (!req.params.stakeId || !req.query.walletAddress) {
+      return res.http400("Stake Id & Wallet Address are required.");
+    }
+    const signer = await db.StakeSignAddresses.findOne({
+      stakeId: req.params.stakeId,
+      walletAddress: req.query.walletAddress,
+    });
+    if (!signer) {
+      return res.http200(false);
+    }
+    return res.http200(true);
   });
 };

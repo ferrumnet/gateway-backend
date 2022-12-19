@@ -1,12 +1,25 @@
+var jwt = require("jsonwebtoken");
 
 module.exports = function (router: any) {
 
   router.post('/sign-up', async (req: any, res: any) => {
+    let user = null;
 
-    if (!req.body.firstName || !req.body.lastName || !req.body.email || !req.body.password
+    if (!req.headers.authorization) {
+      return res.http401('Authorization header missing');
+    }
+
+    const token = req.headers.authorization.split(' ')[1];
+    const decoded = jwt.verify(token, (global as any).environment.jwtSecret);
+    if (!decoded) {
+      return res.http401('Invalid token');
+    }
+    user = await db.Users.findOne({_id: decoded.id});
+
+    if (!req.body.email || !req.body.firstName || !req.body.lastName
       || !req.body.organizationName || !req.body.organizationWebsiteUrl
       || !req.body.organizationSiteName) {
-      return res.http400('firstName & lastName & email & password & organizationName & organizationWebsiteUrl & organizationSiteName are required.');
+      return res.http400('email & firstName & lastName & organizationName & organizationWebsiteUrl & organizationSiteName are required.');
     }
 
     let emailCount = await db.Users.count({ email: req.body.email });
@@ -32,28 +45,21 @@ module.exports = function (router: any) {
     req.body.name = req.body.firstName + " " + req.body.lastName
     req.body.nameInLower = (req.body.name).toLowerCase()
     req.body.role = 'organizationAdmin'
-    req.body.createdAt = new Date()
     req.body.emailVerificationCodeGenratedAt = new Date()
     req.body.emailVerificationCode = (global as any).helper.getOtp()
+    req.body.approvalStatusAsOrganizationAdminBySuperAdmin = 'pending'
 
-    if (req.body.password) {
-      req.body.password = db.Users.getHashedPassword(req.body.password);
-    }
-
-    let user;
     let organization: any;
     try {
-      user = await db.Users.create(req.body);
+      user = await db.Users.findOneAndUpdate({_id: user._id},req.body);
       organization = await createOrganization(req,user);
       user.organization = organization;
-      (global as any).sendGrid.sendGridEmail(user);
     } catch(err: any) {
       return res.http400(err.message);
     }
 
     res.http200({
-      user: user.toClientObject(),
-      token: user.createAPIToken(user)
+      message: await commonFunctions.getValueFromStringsPhrase(stringHelper.strSuccessOrganizationMemberSignUpCompleted)
     });
 
   });

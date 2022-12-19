@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var jwt = require("jsonwebtoken");
 
 module.exports = {
 
@@ -9,7 +10,7 @@ module.exports = {
     let nonce = Math.floor(100000 + Math.random() * 900000)
     req.body.nonce = nonce
 
-    if(address._id){
+    if(address._id && address.network && network && address.network.ferrumNetworkIdentifier == network.ferrumNetworkIdentifier){
       let updateBody: any = {nonce: req.body.nonce}
       updateBody.updatedAt = new Date()
       updateBody.nonce = req.body.nonce
@@ -17,6 +18,9 @@ module.exports = {
     }else {
       if(network){
         req.body.network = network._id
+      }
+      if(address && address.user){
+        req.body.user = address.user;
       }
       resAddress = await db.Addresses.create(req.body);
     }
@@ -38,6 +42,17 @@ module.exports = {
       user = await db.Users.create(userbody);
     }else {
       user._id = address.user
+      let userWithAddressCount = await db.Users.count({_id:user._id, addresses: {$in: address._id}});
+      if(userWithAddressCount == 0){
+        let userForUpdateAddresses = await db.Users.findOne({_id:user._id});
+        if(userForUpdateAddresses){
+          let addresses = userForUpdateAddresses.addresses;
+          addresses.push(address._id);
+          userForUpdateAddresses.addresses = addresses;
+          userForUpdateAddresses.updatedAt = new Date();
+          await db.Users.findOneAndUpdate({_id: user._id}, userForUpdateAddresses);
+        }
+      }
     }
 
     let status = {isAddressAuthenticated: true, updatedAt: new Date()}
@@ -59,7 +74,7 @@ module.exports = {
     response.token = user.createAPIToken(user)
     return response
   },
-  async getAddress(req: any, res: any, isFromUniqueAndAuthenticated = false){
+  async getAddress(req: any, res: any, isFromUniqueAndAuthenticated = false, isWithoutferrumNetworkIdentifier = false){
     let sort = { createdAt: -1 }
     var matchFilter: any = {}
     var filterAndList= []
@@ -87,7 +102,9 @@ module.exports = {
     }
 
     filterAndList.push({address: (address).toLowerCase()})
-    filterAndList.push({'network.ferrumNetworkIdentifier': ferrumNetworkIdentifier })
+    if(!isWithoutferrumNetworkIdentifier){
+      filterAndList.push({'network.ferrumNetworkIdentifier': ferrumNetworkIdentifier })
+    }
 
     if(filterAndList && filterAndList.length > 0){
       matchFilter.$and = []
@@ -104,5 +121,26 @@ module.exports = {
     let response = await db.Addresses.aggregate(filter);
 
     return response
+  },
+  async checkForOrganizationAdmin(model: any){
+    let user = model.user;
+    if(user && !user.organization){
+      model.token = this.createAPITokenForConnectWallet(user)
+      model.user = {}
+      return model
+    }else if(user && user.approvalStatusAsOrganizationAdminBySuperAdmin){
+      if(user.approvalStatusAsOrganizationAdminBySuperAdmin == 'approved'){
+        return model;
+      }else if(user.approvalStatusAsOrganizationAdminBySuperAdmin == 'pending'){
+        return {message: await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorApprovalIsOnPending)}
+      }else if(user.approvalStatusAsOrganizationAdminBySuperAdmin == 'declined'){
+        return {message: await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorApprovalIsOnDeclined)}
+      }
+    }
+
+    return user;
+  },createAPITokenForConnectWallet(payload: any) {
+    let planObject = { id: payload._id};
+    return (global as any).commonFunctions.createToken(planObject, utils.globalTokenExpiryTime);
   }
 }

@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+var CryptoJS = require("crypto-js");
 import * as jwt from 'jsonwebtoken';
 var fs = require("fs");
 
@@ -16,7 +17,7 @@ module.exports = {
   },
 
   decodeAPiToken: function (token: any) {
-    return jwt.verify(token,((global as any) as any).environment.jwtSecret);
+    return jwt.verify(token, ((global as any) as any).environment.jwtSecret);
   },
 
   async validationForUniqueCBN(req: any, res: any) {
@@ -25,6 +26,8 @@ module.exports = {
         let filter: any = {};
         filter.tokenContractAddress =
           req.body.networks[i].tokenContractAddress.toLowerCase();
+        filter.network =
+          req.body.networks[i].network;
         let count = await db.CurrencyAddressesByNetwork.count(filter);
         if (count != 0) {
           let stringMessage = await this.getValueFromStringsPhrase(
@@ -33,6 +36,37 @@ module.exports = {
           return (
             req.body.networks[i].tokenContractAddress + " " + stringMessage
           );
+        }
+      }
+    }
+
+    return "";
+  },
+
+  async validationForSCBN(req: any, res: any, smartContract: any) {
+    if (req.body.scabn && req.body.scabn.length > 0) {
+      for (let i = 0; i < req.body.scabn.length; i++) {
+        if (!req.body.scabn[i].network
+          || !req.body.scabn[i].smartContractAddress) {
+          return res.http400('network & smartContractAddress are required at ' + (i + 1));
+        }
+      }
+
+      if(smartContract){
+        for (let i = 0; i < req.body.scabn.length; i++) {
+          let filter: any = {};
+          filter.smartContract = smartContract._id;
+          filter.network = req.body.scabn[i].network;
+          let count = await db.SmartCurrencyAddressesByNetwork.count(filter);
+          if (count != 0) {
+            let stringMessage = await this.getValueFromStringsPhrase(
+              stringHelper.strErrorNetworkHaveAlreadySmartContract
+            );
+            let network = await db.Networks.findOne({ _id: req.body.scabn[i].network });
+            return (
+              network.name+ " " + stringMessage
+            );
+          }
         }
       }
     }
@@ -82,7 +116,7 @@ module.exports = {
           },
         },
       });
-      (global as any).timeoutHelper.setCompetitionTimeout(job);
+    (global as any).timeoutHelper.setCompetitionTimeout(job);
   },
 
   async isUniqueEmail(email: any) {
@@ -97,8 +131,29 @@ module.exports = {
       for (let i = 0; i < model.leaderboard.leaderboardCurrencyAddressesByNetwork.length; i++) {
         let item = model.leaderboard.leaderboardCurrencyAddressesByNetwork[i].currencyAddressesByNetwork
         item.tokenHolderBalanceSnapshotEvent = model._id
-        (global as any).timeoutCallBack.fetchTokenHolderBalanceSnapshotEvent(item);
+          (global as any).timeoutCallBack.fetchTokenHolderBalanceSnapshotEvent(item);
       }
     }
   },
+
+  encryptApiKey: function (data: any) {
+    try {
+      var ciphertext = CryptoJS.AES.encrypt(data, (global as any).environment.jwtSecret).toString();
+      return ciphertext;
+    } catch (e) {
+      console.log(e);
+      return '';
+    }
+  },
+
+  decryptApiKey: function (data: any) {
+    try {
+      var bytes = CryptoJS.AES.decrypt(data, (global as any).environment.jwtSecret);
+      var originalText = bytes.toString(CryptoJS.enc.Utf8);
+      return originalText;
+    } catch (e) {
+      console.log(e);
+      return '';
+    }
+  }
 };

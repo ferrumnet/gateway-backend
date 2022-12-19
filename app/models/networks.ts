@@ -18,7 +18,12 @@ var schema = mongoose.Schema({
   parentId: { type: mongoose.Schema.Types.ObjectId, ref: 'networks' },
   isActive: { type: Boolean, default: true },
   isAllowedOnGateway: { type: Boolean, default: false },
+  isAllowedOnMultiSwap: { type: Boolean, default: false },
   logo: { type: String, default: "" },
+  publicRpcUrl: { type: String, default: "" },
+  backupRpcUrl: { type: String, default: "" },
+  positionForMultiSwap: { type: Number, default: 0 },
+  multiSwapFiberRouterSmartContractAddress: { type: String, default: "" },
 
   createdAt: { type: Date, default: new Date() },
   updatedAt: { type: Date, default: new Date() },

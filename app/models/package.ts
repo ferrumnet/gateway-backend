@@ -4,13 +4,13 @@ var mongoose = require("mongoose");
 var packageSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
-    nameInLower: { type: String, lowercase: true },
+    nameInLower: { type: String, default: '',lowercase: true },
     product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true  },
     limitation: { type: Number, default: false },
     isFree: { type: Boolean, default: false },
     isActive: { type: Boolean, default: false },
     createdByUser: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    price: {  
+    price: {
       type: Number,
       get: (v: any) => (v/100).toFixed(2),
       set: (v: any) => v*100
@@ -29,8 +29,9 @@ packageSchema.pre("save", async function (next: any) {
 });
 
 packageSchema.pre("findOneAndUpdate", async function (next: any) {
-  if(packageSchema._update.name)
-  packageSchema._update.nameInLower = packageSchema._update.name;
+  if(packageSchema._update && packageSchema._update.name){
+    packageSchema._update.nameInLower = packageSchema._update.name;
+  }
   next();
 });
 

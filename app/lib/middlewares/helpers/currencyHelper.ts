@@ -48,4 +48,13 @@ module.exports = {
     var cabnIds =  await db.CurrencyAddressesByNetwork.find(filter).distinct('_id')
     return await db.TokenHoldersBalanceSnapshots.countDocuments({currencyAddressesByNetwork: {$in: cabnIds}});
   },
+  async validateCabnToAddBaseFeeToken(req: any, res: any, isFromUpdate = false) {
+    let filter:any = {}
+    filter.network = req.body.networkId;
+    filter.isBaseFeeToken = true;
+    if(isFromUpdate){
+      filter._id = {$ne: req.body.oldCabnId}
+    }
+    return await db.CurrencyAddressesByNetwork.countDocuments(filter);
+  },
 }

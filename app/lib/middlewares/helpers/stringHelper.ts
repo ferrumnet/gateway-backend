@@ -38,11 +38,24 @@ let strErrorOrganizationDelete='Backend_Error_Organization_Delete'
 let strErrorNetworkDelete='Backend_Error_Network_Delete'
 let strErrorDexDelete='Backend_Error_Dex_Delete'
 let strErrorDelete='Backend_Error_Delete'
+let strAddressNotFound='Backend_Address_Not_Found'
+let strSameNetwork='Backend_Same_Network'
+let strLogsNotFound='Backend_Logs_Not_Found'
+let strErrorSmartContractShouldAssociateWithAtleastOneNetwork = 'Backend_Error_Smart_contract_Should_Associate_With_Atleast_One_Network'
+var strErrorNetworkHaveAlreadySmartContract = "Backend_Error_X_Network_Have_Already_SmartContract"
+var strErrorApprovalIsOnPending = "Backend_Approval_Is_On_Pending"
+var strErrorApprovalIsOnDeclined= "Backend_Approval_Is_On_Declined"
+var strErrorAddBaseFeeToken= "Backend_Add_Base_Fee_Token"
+var strErrorUpdateBaseFeeToken= "Backend_Update_Base_Fee_Token"
+var strErrorBaseFeeTokenIsNotSetupForUpdateCabn= "Backend_Base_Fee_Token_Is_Not_Setup"
+var strErrorEstimatedSwapTimeAlreadyExist= "Backend_Estimated_Swap_Time_Already_Exist"
 
 // success messages
 let strSuccessResetPasswordLink = 'Backend_Success_Reset_Password_Link'
 let strSuccessOtp = 'Backend_Success_Otp'
 let strSuccessContractTokenAddressIsunique = 'Backend_Success_ContractToken_Address_Is_Unique'
+let strSuccessOrganizationMemberSignUpCompleted = 'Backend_Organization_Member_SignUp_Completed'
+let strErrorApprovalIsOnApproved= 'Backend_Approval_Is_Approved'
 
 let strSuccess = 'Success'
 
@@ -95,6 +108,19 @@ module.exports = {
   strErrorOrganizationDelete,
   strErrorNetworkDelete,
   strErrorDexDelete,
-  strErrorDelete
+  strErrorDelete,
+  strAddressNotFound,
+  strSameNetwork,
+  strLogsNotFound,
+  strErrorSmartContractShouldAssociateWithAtleastOneNetwork,
+  strErrorNetworkHaveAlreadySmartContract,
+  strSuccessOrganizationMemberSignUpCompleted,
+  strErrorApprovalIsOnPending,
+  strErrorApprovalIsOnDeclined,
+  strErrorApprovalIsOnApproved,
+  strErrorAddBaseFeeToken,
+  strErrorUpdateBaseFeeToken,
+  strErrorBaseFeeTokenIsNotSetupForUpdateCabn,
+  strErrorEstimatedSwapTimeAlreadyExist
 }
 

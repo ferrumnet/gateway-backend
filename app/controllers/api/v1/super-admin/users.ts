@@ -104,6 +104,50 @@ module.exports = function (router: any) {
 
   });
 
+  router.put('/update/active/inactive/:id', async (req: any, res: any) => {
+
+    if (req.body.isActive == null) {
+      return res.http400('isActive is required.');
+    }
+
+    let user = await db.Users.findOneAndUpdate({ _id: req.params.id }, { isActive: req.body.isActive }, { new: true })
+
+    if (user) {
+      return res.http200({
+        user: user.toClientObject()
+      });
+    } else {
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorUserNotFound),stringHelper.strErrorUserNotFound,);
+    }
+
+  });
+
+  router.put('/update/approval/status/:id', async (req: any, res: any) => {
+
+    if (!req.body.approvalStatusAsOrganizationAdminBySuperAdmin ) {
+      return res.http400('approvalStatusAsOrganizationAdminBySuperAdmin is required.');
+    }
+
+    let user = await db.Users.findOneAndUpdate({ _id: req.params.id }, { approvalStatusAsOrganizationAdminBySuperAdmin: req.body.approvalStatusAsOrganizationAdminBySuperAdmin }, { new: true })
+
+    if (user) {
+
+      if(user.approvalStatusAsOrganizationAdminBySuperAdmin == 'approved'){
+        (global as any).sendGrid.sendGridEmail(user, 'organizationAdminApproved')
+      }else if(user.approvalStatusAsOrganizationAdminBySuperAdmin == 'declined'){
+        (global as any).sendGrid.sendGridEmail(user, 'organizationAdminDeclined')
+      }
+
+      return res.http200({
+        user: user.toClientObject()
+      });
+      
+    } else {
+      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorUserNotFound),stringHelper.strErrorUserNotFound,);
+    }
+
+  });
+
   router.post('/create/application-user', async (req: any, res: any) => {
 
     if (!req.body.email || !req.body.userName) {
