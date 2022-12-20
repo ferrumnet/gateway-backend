@@ -1,0 +1,28 @@
+"use strict";
+var mongoose = require("mongoose");
+
+var schema = mongoose.Schema(
+  {
+    currencyAddressesByNetwork: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "currencyAddressesByNetwork",
+    },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+    stakingContractAddress: { type: String },
+    tokenContractAddress: { type: String },
+    stakeHolderWalletAddress: { type: String },
+    walletBalance: { type: String }, // intialBalance
+    stakedAmount: { type: String },
+    rewardAmount: { type: String },
+    stakingLeaderboardBalance: { type: String }, //totalStakedAmount
+    rank: { type: Number },
+    levelUpAmount: { type: String },
+  },
+  {
+    timestamps: true,
+    collection: "stakingsTracker",
+  }
+);
+
+var stakingTrackerModel = mongoose.model("stakingsTracker",schema);
+module.exports = stakingTrackerModel;
