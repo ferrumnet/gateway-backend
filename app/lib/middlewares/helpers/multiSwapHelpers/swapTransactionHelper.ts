@@ -15,7 +15,7 @@ module.exports = {
 
     let web3 = web3ConfigurationHelper.web3(network.rpcUrl).eth;
     let receipt = await this.getTransactionReceipt(txId, web3);
-
+    console.log('swap receipt::', receipt)
     if (!receipt) {
       // need to move this error in phrase
       return standardStatuses.status400(`Transaction "${txId}" is invalid`);
@@ -44,6 +44,12 @@ module.exports = {
     // }
 
     return this.parseSwapEvent(txId, receipt);
+  },
+
+  async getTransactionReceiptReceiptForApi(network: any, txId: any) {
+    let web3 = web3ConfigurationHelper.web3(network.rpcUrl).eth;
+    let receipt = await this.getTransactionReceipt(txId, web3);
+    return receipt;
   },
 
   async parseSwapEvent(transactionHash: any, receipt: any) {
@@ -84,6 +90,9 @@ module.exports = {
       
       if (transaction) {
         data.sourceAmount = await this.getAmountFromWebTransaction(transaction, 'amountIn');
+        if(!data.sourceAmount){
+          data.sourceAmount = await this.getAmountFromWebTransaction(transaction, 'amount');
+        }
         block = await web3.getBlockNumber();
         txBlock = await web3.getBlock(transaction.blockNumber, false);
         data.confirmationTime = Number(txBlock.timestamp || '0') * 1000;
@@ -111,6 +120,9 @@ module.exports = {
     receipt.status = !!receipt.status ? 'swapWithdrawCompleted' : 'swapWithdrawFailed'
     let transaction = await web3Helper.getTransaction(network, txId);
     receipt.destinationAmount = await this.getAmountFromWebTransaction(transaction, 'amountOutMin');
+    if(!receipt.destinationAmount){
+      receipt.destinationAmount = await this.getAmountFromWebTransaction(transaction, 'amount');
+    }
     console.log(receipt.destinationAmount);
     return standardStatuses.status200(receipt);
   },
