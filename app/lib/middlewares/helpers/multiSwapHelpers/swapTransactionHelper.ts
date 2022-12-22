@@ -75,13 +75,15 @@ module.exports = {
       destinationTransactionTimestamp: txSummary.confirmationTime,
       v: 0,
       signatures: 0,
-      sourceAmount: txSummary.sourceAmount
+      sourceAmount: txSummary.sourceAmount,
+      sourceWalletAddress: txSummary.sourceWalletAddress,
+      destinationWalletAddress: txSummary.destinationWalletAddress
     }
     return newItem;
   },
 
   async getTransactionSummary(fromNetwork: any, txId: string) {
-    let data: any = {confirmationTime: 0, confirmations: 0, sourceAmount: null}
+    let data: any = {confirmationTime: 0, confirmations: 0, sourceAmount: null, sourceWalletAddress: null, destinationWalletAddress: null}
     try{
       let block = null;
       let txBlock = null;
@@ -89,9 +91,17 @@ module.exports = {
       let transaction = await web3.getTransaction(txId);
       
       if (transaction) {
-        data.sourceAmount = await this.getAmountFromWebTransaction(transaction, 'amountIn');
+        data.sourceAmount = await this.getValueFromWebTransaction(transaction, 'amountIn');
         if(!data.sourceAmount){
-          data.sourceAmount = await this.getAmountFromWebTransaction(transaction, 'amount');
+          data.sourceAmount = await this.getValueFromWebTransaction(transaction, 'amount');
+        }
+        data.sourceWalletAddress = transaction.from;
+        data.destinationWalletAddress = await this.getValueFromWebTransaction(transaction, 'targetAddress');
+        if(data.sourceWalletAddress){
+          data.sourceWalletAddress = (data.sourceWalletAddress).toLowerCase();
+        }
+        if(data.destinationWalletAddress){
+          data.destinationWalletAddress = (data.destinationWalletAddress).toLowerCase();
         }
         block = await web3.getBlockNumber();
         txBlock = await web3.getBlock(transaction.blockNumber, false);
@@ -119,9 +129,9 @@ module.exports = {
     console.log('status::::: ',receipt.status)
     receipt.status = !!receipt.status ? 'swapWithdrawCompleted' : 'swapWithdrawFailed'
     let transaction = await web3Helper.getTransaction(network, txId);
-    receipt.destinationAmount = await this.getAmountFromWebTransaction(transaction, 'amountOutMin');
+    receipt.destinationAmount = await this.getValueFromWebTransaction(transaction, 'amountOutMin');
     if(!receipt.destinationAmount){
-      receipt.destinationAmount = await this.getAmountFromWebTransaction(transaction, 'amount');
+      receipt.destinationAmount = await this.getValueFromWebTransaction(transaction, 'amount');
     }
     console.log(receipt.destinationAmount);
     return standardStatuses.status200(receipt);
@@ -134,7 +144,7 @@ module.exports = {
     return receipt;
   },
 
-  async getAmountFromWebTransaction(transaction: any, paramName: any) {
+  async getValueFromWebTransaction(transaction: any, paramName: any) {
     let amount = null;
     if(transaction){
       abiDecoder.addABI(web3ConfigurationHelper.getfiberAbi());
