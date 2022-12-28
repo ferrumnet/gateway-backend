@@ -15,7 +15,9 @@ async function deployContract(
   stakingStarts: any,
   stakingEnds: any,
   withdrawStarts: any,
-  withdrawEnds: any
+  withdrawEnds: any,
+  stakingId: any,
+  storageAppId: any
 ) {
   const algodPort = "";
   const algodToken = JSON.parse((global as any).environment.algodToken);
@@ -29,6 +31,7 @@ async function deployContract(
   let reward_address = Number(rewardTokenAddress);
   let staking_total = Number(stakingCapital);
   let total_supply = 1000000;
+  let storage_app_id = Number(storageAppId);
 
   // console.log(stakingStarts);
   // console.log(stakingEnds);
@@ -67,6 +70,7 @@ async function deployContract(
   appArgs.push(algosdk.encodeUint64(total_supply));
   var accounts: any = [];
   var foreignApps: any = [];
+  foreignApps.push(storage_app_id);
   var foreignAssets: any = [];
   foreignAssets.push(token_address);
   foreignAssets.push(reward_address);
