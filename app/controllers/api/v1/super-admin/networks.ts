@@ -75,6 +75,22 @@ module.exports = function (router: any) {
 
   });
 
+  router.post('/create/multiswap/fiber/information/and/update/network/:id', async (req: any, res: any) => {
+
+    let filter = {}
+    filter = { _id: req.params.id }
+    req.body.createdAt = new Date()
+    req.body.updatedAt = new Date()
+
+    let multiswapNetworkFIBERInformation = await db.MultiswapNetworkFIBERInformations.create(req.body);
+    let network = await db.Networks.findOneAndUpdate(filter, {multiswapNetworkFIBERInformation: multiswapNetworkFIBERInformation._id}, { new: true })
+
+    return res.http200({
+      network: network
+    });
+
+  });
+
   router.put('/active/inactive/:id', async (req: any, res: any) => {
 
     let filter = {}
