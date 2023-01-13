@@ -310,7 +310,7 @@ module.exports = function (router: any) {
     return res.http400('Invalid txId, withdrawTxId or smartContractAddress');
 
   }));
-
+  // need to retire this end point
   router.get('/receipt/by/hash/:txId', asyncMiddleware(async (req: any, res: any) => {
 
     let sourceNetwork = null;

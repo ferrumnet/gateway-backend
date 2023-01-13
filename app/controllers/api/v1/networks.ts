@@ -29,6 +29,7 @@ module.exports = function (router: any) {
     var filter: any = {};
     let networks = [];
     var sort: any = { createdAt: -1 }
+    let multiswapNetworkFIBERInformation = 'temp'
 
     if (req.query.sortKey) {
       Object.keys(sort).forEach(key => {
@@ -57,14 +58,18 @@ module.exports = function (router: any) {
 
     }
 
+    if (req.query.allowFIBERData && req.query.allowFIBERData == (global as any).environment.apiKeyForGateway) {
+      multiswapNetworkFIBERInformation = 'multiswapNetworkFIBERInformation';
+    }
+
     if (req.query.isPagination != null && req.query.isPagination == 'false') {
 
-      networks = await db.Networks.find(filter).populate('parentId')
+      networks = await db.Networks.find(filter).populate('parentId').populate(multiswapNetworkFIBERInformation)
         .sort(sort)
 
     } else {
 
-      networks = await db.Networks.find(filter).populate('parentId')
+      networks = await db.Networks.find(filter).populate('parentId').populate(multiswapNetworkFIBERInformation)
         .sort(sort)
         .skip(req.query.offset ? parseInt(req.query.offset) : 0)
         .limit(req.query.limit ? parseInt(req.query.limit) : 10)
