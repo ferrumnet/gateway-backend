@@ -14,7 +14,8 @@ var schema = mongoose.Schema({
   baseFeePercentage : { type: Number, default: null },
   positionForFeeToken: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
-
+  isNonEVM: { type: Boolean, default: false },
+  
   createdAt: { type: Date, default: new Date() },
   updatedAt: { type: Date, default: new Date() },
 },{ collection: 'currencyAddressesByNetwork' });
