@@ -58,6 +58,16 @@ module.exports = function (router: any) {
 
     }
 
+    if (req.query.isNonEVM) {
+
+      if (req.query.isNonEVM == 'true') {
+        filter.isNonEVM = true;
+      } else {
+        filter.isNonEVM = false;
+      }
+
+    }
+
     if (req.query.allowFIBERData && req.query.allowFIBERData == (global as any).environment.apiKeyForGateway) {
       multiswapNetworkFIBERInformation = 'multiswapNetworkFIBERInformation';
     }
