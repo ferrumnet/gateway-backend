@@ -39,7 +39,9 @@ ecdsaHelper: any,
 addressFromPublicKeyHelper: any,
 swapUtilsHelper: any,
 standardStatuses: any,
-smartContractHelper: any
+smartContractHelper: any,
+withdrawTransactionHelper: any,
+fiberHelper: any
 
 
 
@@ -76,6 +78,20 @@ module.exports = function () {
   utils.expectedSchemaVersionV1_0 = '1.0'
   utils.expectedSchemaVersionV1_2 = '1.2'
   utils.globalTokenExpiryTime = '1800s'
-
+  utils.swapAndWithdrawTransactionStatuses = {
+    swapPending: 'swapPending',
+    swapCreated: 'swapCreated',
+    swapCompleted: 'swapCompleted',
+    swapFailed: 'swapFailed',
+    swapWithdrawGenerated: 'swapWithdrawGenerated',
+    swapWithdrawPending: 'swapWithdrawPending',
+    swapWithdrawFailed: 'swapWithdrawFailed',
+    swapWithdrawCompleted: 'swapWithdrawCompleted',
+  }
+  utils.swapAndWithdrawTransactionJobStatuses = {
+    pending: 'pending',
+    failed: 'failed',
+    completed: 'completed'
+  }
   return utils;
 }
