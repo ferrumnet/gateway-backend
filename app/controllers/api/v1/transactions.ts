@@ -21,10 +21,10 @@ module.exports = function (router: any) {
     })
   }));
 
-  router.put('/update/swap/and/withdraw/:swapTxId', asyncMiddleware(async (req: any, res: any) => {
+  router.put('/update/swap/and/withdraw/job/:jobId', asyncMiddleware(async (req: any, res: any) => {
 
-    if (!req.params.swapTxId) {
-      return res.http400('swapTxId is required.');
+    if (!req.params.jobId) {
+      return res.http400('jobId is required.');
     }
     console.log('update swapAndWitdraw body', req.body);
     return res.http200({
