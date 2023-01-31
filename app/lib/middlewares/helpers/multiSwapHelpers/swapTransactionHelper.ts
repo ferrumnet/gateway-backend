@@ -2,6 +2,7 @@ import Web3 from 'web3';
 var { Big } = require("big.js");
 let TRANSACTION_TIMEOUT = 36 * 1000;
 const abiDecoder = require('abi-decoder'); // NodeJS
+var mongoose = require('mongoose');
 
 module.exports = {
 
@@ -163,6 +164,72 @@ module.exports = {
       }
     }
     return amount;
+  },
+
+  validationForDoSwapAndWithdraw(req: any) {
+    if (!req.params.swapTxId || !req.query.sourceNetworkId || !req.query.destinationNetworkId
+      || !req.query.sourceCabnId || !req.query.destinationCabnId) {
+      throw 'swapTxId & sourceNetworkId & destinationNetworkId & sourceCabnId & destinationCabnId are required.';
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.query.sourceNetworkId)) {
+      throw 'Invalid sourceNetworkId';
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.query.destinationNetworkId)) {
+      throw 'Invalid destinationNetworkId';
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.query.sourceCabnId)) {
+      throw 'Invalid sourceCabnId';
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.query.destinationCabnId)) {
+      throw 'Invalid destinationCabnId';
+    }
+  },
+
+  async createPendingSwap(req: any) {
+    let filter: any = {};
+    filter.createdByUser = req.user._id;
+    filter.receiveTransactionId = req.params.swapTxId;
+    let count = await db.SwapAndWithdrawTransactions.countDocuments(filter)
+    if(count){
+      let oldSwapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.findOne({receiveTransactionId: req.params.txId});
+      return oldSwapAndWithdrawTransaction;
+    }
+
+    let body: any = {};
+    body.createdByUser = req.user._id;
+    body.updatedByUser = req.user._id;
+    body.createdAt = new Date();
+    body.updatedAt = new Date();
+    body.sourceCabn = req.query.sourceCabnId;
+    body.destinationCabn = req.query.destinationCabnId;
+    body.sourceNetwork = req.query.sourceNetworkId;
+    body.destinationNetwork = req.query.destinationNetworkId;
+    body.status = utils.swapAndWithdrawTransactionStatuses.swapPending;
+    console.log('doSwapAndWithdraw pendingObject', body);
+    let swapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.create(body);
+    return swapAndWithdrawTransaction;
+  },
+
+  async createJobInsideSwapAndWithdraw(req: any, swapAndWithdrawTransactionObject: any) {
+    let filter: any = {};
+    filter._id = swapAndWithdrawTransactionObject._id;
+
+    if(!swapAndWithdrawTransactionObject){
+      throw 'Invalid operation';
+    }
+
+    if(!swapAndWithdrawTransactionObject.nodeJob){
+      swapAndWithdrawTransactionObject.updatedByUser = req.user._id;
+      swapAndWithdrawTransactionObject.updatedAt = new Date();
+      swapAndWithdrawTransactionObject.nodeJob.createdAt = new Date();
+      swapAndWithdrawTransactionObject.nodeJob.updatedAt = new Date();
+      swapAndWithdrawTransactionObject = await db.SwapAndWithdrawTransactions.findOneAndUpdate(filter, swapAndWithdrawTransactionObject); 
+    }
+    return swapAndWithdrawTransactionObject;
   },
 
 }

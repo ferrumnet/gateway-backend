@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
 module.exports = function (router: any) {
-
+// need to retire this end point
   router.post('/create/:txId', asyncMiddleware(async (req: any, res: any) => {
 
     let address = null;
@@ -240,7 +240,7 @@ module.exports = function (router: any) {
     });
 
   }));
-
+// need to retire this end point 
   router.put('/update/status/:txId', asyncMiddleware(async (req: any, res: any) => {
 
     let address = null;
@@ -327,6 +327,35 @@ module.exports = function (router: any) {
 
     return res.http200({
       receipt: await swapTransactionHelper.getTransactionReceiptReceiptForApi(sourceNetwork, req.params.txId)
+    })
+  }));
+
+  router.post('/do/swap/and/withdraw/:swapTxId', asyncMiddleware(async (req: any, res: any) => {
+
+    // validation
+    swapTransactionHelper.validationForDoSwapAndWithdraw(req);
+    req.sourceNetwork = await db.Networks.findOne({ _id: req.query.sourceNetworkId });
+    req.destinationNetwork = await db.Networks.findOne({ _id: req.query.destinationNetworkId });
+    if(!req.sourceNetwork || !req.destinationNetwork){
+      throw 'Invalid sourceNetwork or destinationNetwork';
+    }
+    // pending swap
+    let swapAndWithdrawTransaction = await swapTransactionHelper.createPendingSwap(req);
+    
+    if(swapAndWithdrawTransaction.status == utils.swapAndWithdrawTransactionStatuses.swapPending && !swapAndWithdrawTransaction.nodeJob){
+      // create job and send api to node
+      // send call first
+      swapAndWithdrawTransaction = await swapTransactionHelper.createJobInsideSwapAndWithdraw(req, swapAndWithdrawTransaction);
+    }
+
+    if(swapAndWithdrawTransaction.status == utils.swapAndWithdrawTransactionStatuses.swapCompleted 
+      && swapAndWithdrawTransaction.nodeJob && swapAndWithdrawTransaction.nodeJob.status == utils.swapAndWithdrawTransactionJobStatuses.completed){
+      // send getWithdrawSigned call to FIBER Engine backend
+      swapAndWithdrawTransaction = await withdrawTransactionHelper.doWithdrawSignedFromFIBER(req, swapAndWithdrawTransaction);
+    }
+
+    return res.http200({
+      swapAndWithdrawTransaction: swapAndWithdrawTransaction
     })
   }));
 
