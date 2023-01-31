@@ -21,4 +21,15 @@ module.exports = function (router: any) {
     })
   }));
 
+  router.put('/update/swap/and/withdraw/:swapTxId', asyncMiddleware(async (req: any, res: any) => {
+
+    if (!req.params.swapTxId) {
+      return res.http400('swapTxId is required.');
+    }
+    console.log('update swapAndWitdraw body', req.body);
+    return res.http200({
+      message: stringHelper.strSuccess
+    });
+  }));
+
 };
