@@ -150,7 +150,6 @@ module.exports = {
     if(transaction){
       abiDecoder.addABI(web3ConfigurationHelper.getfiberAbi());
       const decodedData = await abiDecoder.decodeMethod(transaction.input);
-      console.log(decodedData);
       if(decodedData && decodedData.params && decodedData.params.length > 0){
         for(let item of decodedData.params||[]){
           console.log(item.name);
@@ -189,17 +188,31 @@ module.exports = {
     }
   },
 
+  async doSwapAndWithdraw(req: any, swapAndWithdrawTransaction: any) {
+    if(swapAndWithdrawTransaction && swapAndWithdrawTransaction.status == utils.swapAndWithdrawTransactionStatuses.swapPending && 
+      swapAndWithdrawTransaction.nodeJob.status == utils.swapAndWithdrawTransactionJobStatuses.pending){
+      swapAndWithdrawTransaction = await this.createJobInsideSwapAndWithdraw(req, swapAndWithdrawTransaction);
+    }
+
+    if(swapAndWithdrawTransaction && swapAndWithdrawTransaction.status == utils.swapAndWithdrawTransactionStatuses.swapCompleted 
+      && swapAndWithdrawTransaction.nodeJob && swapAndWithdrawTransaction.nodeJob.status == utils.swapAndWithdrawTransactionJobStatuses.completed){
+      withdrawTransactionHelper.doWithdrawSignedFromFIBER(req, swapAndWithdrawTransaction);
+    }
+    return swapAndWithdrawTransaction;
+  },
+
   async createPendingSwap(req: any) {
     let filter: any = {};
     filter.createdByUser = req.user._id;
     filter.receiveTransactionId = req.params.swapTxId;
     let count = await db.SwapAndWithdrawTransactions.countDocuments(filter)
-    if(count){
-      let oldSwapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.findOne({receiveTransactionId: req.params.txId});
+    if(count > 0){
+      let oldSwapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.findOne({receiveTransactionId: req.params.swapTxId});
       return oldSwapAndWithdrawTransaction;
     }
 
     let body: any = {};
+    body.receiveTransactionId = req.params.swapTxId;
     body.createdByUser = req.user._id;
     body.updatedByUser = req.user._id;
     body.createdAt = new Date();
@@ -222,14 +235,52 @@ module.exports = {
       throw 'Invalid operation';
     }
 
-    if(!swapAndWithdrawTransactionObject.nodeJob){
-      swapAndWithdrawTransactionObject.updatedByUser = req.user._id;
-      swapAndWithdrawTransactionObject.updatedAt = new Date();
-      swapAndWithdrawTransactionObject.nodeJob.createdAt = new Date();
-      swapAndWithdrawTransactionObject.nodeJob.updatedAt = new Date();
-      swapAndWithdrawTransactionObject = await db.SwapAndWithdrawTransactions.findOneAndUpdate(filter, swapAndWithdrawTransactionObject); 
+    if(swapAndWithdrawTransactionObject.nodeJob.status == utils.swapAndWithdrawTransactionJobStatuses.pending){
+      let jobId = await multiswapNodeAxiosHelper.createJobBySwapHash(req, swapAndWithdrawTransactionObject);
+      console.log('doSwapAndWithdraw jobId',jobId);
+      if(jobId){
+        swapAndWithdrawTransactionObject.updatedByUser = req.user._id;
+        swapAndWithdrawTransactionObject.updatedAt = new Date();
+        swapAndWithdrawTransactionObject.nodeJob.id = jobId;
+        swapAndWithdrawTransactionObject.nodeJob.status = utils.swapAndWithdrawTransactionJobStatuses.created;
+        swapAndWithdrawTransactionObject.nodeJob.createdAt = new Date();
+        swapAndWithdrawTransactionObject.nodeJob.updatedAt = new Date();
+        swapAndWithdrawTransactionObject = await db.SwapAndWithdrawTransactions.findOneAndUpdate(filter, swapAndWithdrawTransactionObject, { new: true }); 
+      }
     }
     return swapAndWithdrawTransactionObject;
+  },
+
+  async filterTransactionDetail(swapAndWithdrawTransaction: any, transaction: any) {
+    let data: any = { sourceAmount: null, destinationAmount: null };
+    try{
+      if (transaction) {
+        swapAndWithdrawTransaction.sourceAmount = await this.getValueFromWebTransaction(transaction, 'amountIn');
+        if(!data.sourceAmount){
+          data.sourceAmount = await this.getValueFromWebTransaction(transaction, 'amount');
+        }
+        data.destinationAmount = await this.getValueFromWebTransaction(transaction, 'amountOutMin');
+        if (!data.destinationAmount) {
+          data.destinationAmount = await this.getValueFromWebTransaction(transaction, 'amount');
+        }
+
+        swapAndWithdrawTransaction.sourceWalletAddress = transaction.from;
+        swapAndWithdrawTransaction.destinationWalletAddress = await this.getValueFromWebTransaction(transaction, 'targetAddress');
+        if(swapAndWithdrawTransaction.sourceWalletAddress){
+          swapAndWithdrawTransaction.sourceWalletAddress = (swapAndWithdrawTransaction.sourceWalletAddress).toLowerCase();
+        }
+        if(swapAndWithdrawTransaction.destinationWalletAddress){
+          swapAndWithdrawTransaction.destinationWalletAddress = (swapAndWithdrawTransaction.destinationWalletAddress).toLowerCase();
+        }
+
+        if(data.sourceAmount){
+          swapAndWithdrawTransaction.sourceAmount = await swapUtilsHelper.amountToHuman_(swapAndWithdrawTransaction.sourceNetwork, swapAndWithdrawTransaction.sourceCabn, data.sourceAmount);
+        }
+      }
+    }catch(e){
+      console.log(e);
+    }
+    return swapAndWithdrawTransaction;
   },
 
 }

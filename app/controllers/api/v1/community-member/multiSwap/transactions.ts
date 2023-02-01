@@ -332,28 +332,14 @@ module.exports = function (router: any) {
 
   router.post('/do/swap/and/withdraw/:swapTxId', asyncMiddleware(async (req: any, res: any) => {
 
-    // validation
     swapTransactionHelper.validationForDoSwapAndWithdraw(req);
     req.sourceNetwork = await db.Networks.findOne({ _id: req.query.sourceNetworkId });
     req.destinationNetwork = await db.Networks.findOne({ _id: req.query.destinationNetworkId });
     if(!req.sourceNetwork || !req.destinationNetwork){
       throw 'Invalid sourceNetwork or destinationNetwork';
     }
-    // pending swap
     let swapAndWithdrawTransaction = await swapTransactionHelper.createPendingSwap(req);
-    
-    if(swapAndWithdrawTransaction.status == utils.swapAndWithdrawTransactionStatuses.swapPending && !swapAndWithdrawTransaction.nodeJob){
-      // create job and send api to node
-      // send call first
-      swapAndWithdrawTransaction = await swapTransactionHelper.createJobInsideSwapAndWithdraw(req, swapAndWithdrawTransaction);
-    }
-
-    if(swapAndWithdrawTransaction.status == utils.swapAndWithdrawTransactionStatuses.swapCompleted 
-      && swapAndWithdrawTransaction.nodeJob && swapAndWithdrawTransaction.nodeJob.status == utils.swapAndWithdrawTransactionJobStatuses.completed){
-      // send getWithdrawSigned call to FIBER Engine backend
-      swapAndWithdrawTransaction = await withdrawTransactionHelper.doWithdrawSignedFromFIBER(req, swapAndWithdrawTransaction);
-    }
-
+    swapAndWithdrawTransaction = await swapTransactionHelper.doSwapAndWithdraw(req, swapAndWithdrawTransaction);
     return res.http200({
       swapAndWithdrawTransaction: swapAndWithdrawTransaction
     })

@@ -41,7 +41,8 @@ swapUtilsHelper: any,
 standardStatuses: any,
 smartContractHelper: any,
 withdrawTransactionHelper: any,
-fiberHelper: any
+fiberAxiosHelper: any,
+multiswapNodeAxiosHelper: any
 
 
 
@@ -90,6 +91,7 @@ module.exports = function () {
   }
   utils.swapAndWithdrawTransactionJobStatuses = {
     pending: 'pending',
+    created: 'created',
     failed: 'failed',
     completed: 'completed'
   }

@@ -21,12 +21,28 @@ module.exports = function (router: any) {
     })
   }));
 
-  router.put('/update/swap/and/withdraw/job/:jobId', asyncMiddleware(async (req: any, res: any) => {
+  router.put('/update/swap/and/withdraw/job/:txHash', asyncMiddleware(async (req: any, res: any) => {
 
-    if (!req.params.jobId) {
-      return res.http400('jobId is required.');
+    if (!req.params.txHash) {
+      return res.http400('txHash is required.');
     }
     console.log('update swapAndWitdraw body', req.body);
+    if(req.body){
+      let transaction = req.body;
+      if(transaction){
+        let swapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.findOne({receiveTransactionId: req.params.txHash})
+        .populate('sourceNetwork').populate('destinationNetwork')
+        .populate('sourceCabn').populate('destinationCabn');
+        if(swapAndWithdrawTransaction){
+          swapAndWithdrawTransaction = await swapTransactionHelper.filterTransactionDetail(swapAndWithdrawTransaction, transaction);
+          swapAndWithdrawTransaction.nodeJob.status = utils.swapAndWithdrawTransactionJobStatuses.completed;
+          swapAndWithdrawTransaction.status = utils.swapAndWithdrawTransactionStatuses.swapCompleted;
+          swapAndWithdrawTransaction.nodeJob.updatedAt = new Date();
+          swapAndWithdrawTransaction.updatedAt = new Date();
+          swapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.findOneAndUpdate({_id: swapAndWithdrawTransaction._id}, swapAndWithdrawTransaction, { new: true });
+        } 
+      }
+    }
     return res.http200({
       message: stringHelper.strSuccess
     });
