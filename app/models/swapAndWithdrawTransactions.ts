@@ -64,7 +64,8 @@ var schema = mongoose.Schema({
   sourceSmartContractAddress: { type: String, default: "" },
   destinationSmartContractAddress: { type: String, default: "" },
   nodeJob: {
-    status: { type: String, default: "pending" }, //can be '', 'pending', 'failed', 'completed'
+    id: { type: String, default: "" },
+    status: { type: String, default: "pending" }, //can be '', 'pending', 'created', 'failed', 'completed'
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() }, 
   },
