@@ -314,7 +314,7 @@ module.exports = function (router: any) {
   router.get('/receipt/by/hash/:txId', asyncMiddleware(async (req: any, res: any) => {
 
     let sourceNetwork = null;
-
+    let receipt = null;
     if (!req.params.txId || !req.query.sourceNetworkId) {
       return res.http400('txId & sourceNetworkId are required.');
     }
@@ -325,9 +325,16 @@ module.exports = function (router: any) {
 
     sourceNetwork = await db.Networks.findOne({ _id: req.query.sourceNetworkId });
 
+    if(sourceNetwork.isNonEVM && sourceNetwork.isNonEVM == false){
+      receipt = await swapTransactionHelper.getTransactionReceiptReceiptForApi(sourceNetwork, req.params.txId);
+    }else {
+      receipt = await nonEvmHelper.getTransactionByHash(req.params.txId,sourceNetwork.rpcUrl);
+    }
+
     return res.http200({
-      receipt: await swapTransactionHelper.getTransactionReceiptReceiptForApi(sourceNetwork, req.params.txId)
+      receipt: receipt
     })
+    
   }));
 
   router.post('/do/swap/and/withdraw/:swapTxId', asyncMiddleware(async (req: any, res: any) => {

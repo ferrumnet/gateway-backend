@@ -42,7 +42,8 @@ standardStatuses: any,
 smartContractHelper: any,
 withdrawTransactionHelper: any,
 fiberAxiosHelper: any,
-multiswapNodeAxiosHelper: any
+multiswapNodeAxiosHelper: any,
+nonEvmHelper: any
 
 
 
