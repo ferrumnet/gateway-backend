@@ -108,6 +108,10 @@ if (
 (global as any).swapUtilsHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/swapUtilsHelper");
 (global as any).standardStatuses = require("./app/lib/response/standardStatuses");
 (global as any).smartContractHelper = require("./app/lib/middlewares/helpers/smartContractHelper");
+(global as any).withdrawTransactionHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/withdrawTransactionHelper");
+(global as any).fiberAxiosHelper = require("./app/lib/httpCalls/fiberAxiosHelper");
+(global as any).swapAndWithdrawTransactionsJob = require("./app/lib/crons/swapAndWithdrawTransactionsJob");
+(global as any).multiswapNodeAxiosHelper = require("./app/lib/httpCalls/multiswapNodeAxiosHelper");
 
 (global as any).kraken = app.kraken;
 // const whitelist = (global as any).environment.whitelist;

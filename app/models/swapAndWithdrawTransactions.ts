@@ -63,6 +63,12 @@ var schema = mongoose.Schema({
   creator: { type: String, default: "" },
   sourceSmartContractAddress: { type: String, default: "" },
   destinationSmartContractAddress: { type: String, default: "" },
+  nodeJob: {
+    id: { type: String, default: "" },
+    status: { type: String, default: "pending" }, //can be '', 'pending', 'created', 'failed', 'completed'
+    createdAt: { type: Date, default: new Date() },
+    updatedAt: { type: Date, default: new Date() }, 
+  },
 
 },{ collection: 'swapAndWithdrawTransactions' });
 
