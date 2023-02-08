@@ -34,15 +34,19 @@ module.exports = function (router: any) {
 
     sourceNetwork = await db.Networks.findOne({ _id: req.query.sourceNetworkId });
     destinationNetwork = await db.Networks.findOne({ _id: req.query.destinationNetworkId });
-    console.log(sourceNetwork?._id)
-    console.log(destinationNetwork?._id)
     if(sourceNetwork){
       req.query.smartContractAddress = await smartContractHelper.getSmartContractAddressByNetworkIdAndTag(sourceNetwork._id, '#fiberFund');
     }
 
     if (address) {
-      let receipt = await swapTransactionHelper.getTransactionReceiptByTxIdUsingWeb3(sourceNetwork, req.params.txId);
-      
+
+      let receipt = null;
+      if(sourceNetwork.isNonEVM != null && sourceNetwork.isNonEVM == true){
+        receipt = await nonEvmHelper.getTransactionReceiptByTxIdUsingCosmWasm(sourceNetwork, req.params.txId);
+      }else {
+        receipt = await swapTransactionHelper.getTransactionReceiptByTxIdUsingWeb3(sourceNetwork, req.params.txId);
+      }
+
       if(receipt.code == 401){
         return res.http400(await commonFunctions.getValueFromStringsPhrase(receipt.message), receipt.message);
       }else if (receipt.code == 400){
@@ -50,22 +54,22 @@ module.exports = function (router: any) {
       }
 
       receipt = receipt.data;
+      receipt.sourceSmartContractAddress = req.query.smartContractAddress;
+      let sourceCabn = await db.CurrencyAddressesByNetwork.findOne({_id: req.query.sourceCabn});
+      let destinationCabn = await db.CurrencyAddressesByNetwork.findOne({_id: req.query.destinationCabn});
       if (receipt) {
-        receipt.sourceSmartContractAddress = req.query.smartContractAddress;
-        swapTransaction = await swapTransactionHelper.swapTransactionSummary(sourceNetwork, receipt);
+        if(sourceNetwork.isNonEVM != null && sourceNetwork.isNonEVM == true){
+          swapTransaction = await nonEvmHelper.swapTransactionSummary(sourceNetwork, receipt, req);
+        }else {
+          swapTransaction = await swapTransactionHelper.swapTransactionSummary(sourceNetwork, receipt);
+          if(swapTransaction.sourceAmount){
+            swapTransaction.sourceAmount = await swapUtilsHelper.amountToHuman_(sourceNetwork, sourceCabn, swapTransaction.sourceAmount);
+          }
+        }
       }
 
       if(swapTransaction){
-
-        let sourceCabn = await db.CurrencyAddressesByNetwork.findOne({_id: req.query.sourceCabn});
-        let destinationCabn = await db.CurrencyAddressesByNetwork.findOne({_id: req.query.destinationCabn});
-        console.log('sourceCabn',sourceCabn);
-        console.log('destinationCabn',destinationCabn);
         console.log('swapTransaction.sourceAmount',swapTransaction.sourceAmount);
-
-        if(swapTransaction.sourceAmount){
-          swapTransaction.sourceAmount = await swapUtilsHelper.amountToHuman_(sourceNetwork, sourceCabn, swapTransaction.sourceAmount);
-        }
         console.log(sourceNetwork?._id)
         console.log(destinationNetwork?._id)
         swapTransaction.sourceNetwork = sourceNetwork?._id;
@@ -265,7 +269,13 @@ module.exports = function (router: any) {
     }
 
     if (address && sourceNetwork && oldSwapTransaction) {
-      let receipt = await swapTransactionHelper.getTransactionReceiptStatusByTxIdUsingWeb3(destinationNetwork, req.body.withdrawTxId);
+
+      let receipt = null;
+      if(destinationNetwork.isNonEVM != null && destinationNetwork.isNonEVM == true){
+        receipt = await nonEvmHelper.getTransactionReceiptByTxIdUsingCosmWasm(destinationNetwork, req.body.withdrawTxId);
+      }else {
+        receipt = await swapTransactionHelper.getTransactionReceiptStatusByTxIdUsingWeb3(destinationNetwork, req.body.withdrawTxId);
+      }
   
       if(receipt.code == 401){
         return res.http400(await commonFunctions.getValueFromStringsPhrase(receipt.message), receipt.message);
@@ -274,8 +284,13 @@ module.exports = function (router: any) {
       }
       oldSwapTransaction.destinationSmartContractAddress = req.query.smartContractAddress;
       receipt = receipt.data;
-      if(receipt.destinationAmount){
-        oldSwapTransaction.destinationAmount = await swapUtilsHelper.amountToHuman_(destinationNetwork, oldSwapTransaction.destinationCabn, receipt.destinationAmount);
+
+      if(destinationNetwork.isNonEVM != null && destinationNetwork.isNonEVM == true){
+        receipt = await nonEvmHelper.withdrawTransactionSummary(receipt, req);
+      }else {
+        if(receipt.destinationAmount){
+          oldSwapTransaction.destinationAmount = await swapUtilsHelper.amountToHuman_(destinationNetwork, oldSwapTransaction.destinationCabn, receipt.destinationAmount);
+        }
       }
       if(receipt.status == 'swapWithdrawFailed'){
         oldSwapTransaction.status = 'swapWithdrawFailed'
@@ -314,7 +329,7 @@ module.exports = function (router: any) {
   router.get('/receipt/by/hash/:txId', asyncMiddleware(async (req: any, res: any) => {
 
     let sourceNetwork = null;
-
+    let receipt = null;
     if (!req.params.txId || !req.query.sourceNetworkId) {
       return res.http400('txId & sourceNetworkId are required.');
     }
@@ -325,35 +340,28 @@ module.exports = function (router: any) {
 
     sourceNetwork = await db.Networks.findOne({ _id: req.query.sourceNetworkId });
 
+    if(sourceNetwork.isNonEVM != null && sourceNetwork.isNonEVM == true){
+      receipt = await nonEvmHelper.getTransactionByHash(req.params.txId,sourceNetwork.rpcUrl);
+    }else {
+      receipt = await swapTransactionHelper.getTransactionReceiptReceiptForApi(sourceNetwork, req.params.txId);
+    }
+
     return res.http200({
-      receipt: await swapTransactionHelper.getTransactionReceiptReceiptForApi(sourceNetwork, req.params.txId)
+      receipt: receipt
     })
+
   }));
 
   router.post('/do/swap/and/withdraw/:swapTxId', asyncMiddleware(async (req: any, res: any) => {
 
-    // validation
     swapTransactionHelper.validationForDoSwapAndWithdraw(req);
     req.sourceNetwork = await db.Networks.findOne({ _id: req.query.sourceNetworkId });
     req.destinationNetwork = await db.Networks.findOne({ _id: req.query.destinationNetworkId });
     if(!req.sourceNetwork || !req.destinationNetwork){
       throw 'Invalid sourceNetwork or destinationNetwork';
     }
-    // pending swap
     let swapAndWithdrawTransaction = await swapTransactionHelper.createPendingSwap(req);
-    
-    if(swapAndWithdrawTransaction.status == utils.swapAndWithdrawTransactionStatuses.swapPending && !swapAndWithdrawTransaction.nodeJob){
-      // create job and send api to node
-      // send call first
-      swapAndWithdrawTransaction = await swapTransactionHelper.createJobInsideSwapAndWithdraw(req, swapAndWithdrawTransaction);
-    }
-
-    if(swapAndWithdrawTransaction.status == utils.swapAndWithdrawTransactionStatuses.swapCompleted 
-      && swapAndWithdrawTransaction.nodeJob && swapAndWithdrawTransaction.nodeJob.status == utils.swapAndWithdrawTransactionJobStatuses.completed){
-      // send getWithdrawSigned call to FIBER Engine backend
-      swapAndWithdrawTransaction = await withdrawTransactionHelper.doWithdrawSignedFromFIBER(req, swapAndWithdrawTransaction);
-    }
-
+    swapAndWithdrawTransaction = await swapTransactionHelper.doSwapAndWithdraw(req, swapAndWithdrawTransaction);
     return res.http200({
       swapAndWithdrawTransaction: swapAndWithdrawTransaction
     })
