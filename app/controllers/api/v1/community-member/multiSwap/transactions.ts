@@ -287,6 +287,7 @@ module.exports = function (router: any) {
 
       if(destinationNetwork.isNonEVM != null && destinationNetwork.isNonEVM == true){
         receipt = await nonEvmHelper.withdrawTransactionSummary(receipt, req);
+        oldSwapTransaction.destinationAmount = receipt.destinationAmount;
       }else {
         if(receipt.destinationAmount){
           oldSwapTransaction.destinationAmount = await swapUtilsHelper.amountToHuman_(destinationNetwork, oldSwapTransaction.destinationCabn, receipt.destinationAmount);
