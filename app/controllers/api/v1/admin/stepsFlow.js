@@ -21,7 +21,7 @@ module.exports = function (router) {
 
         if(req.body.productId){
 
-            const product = await db.Products.findById(req.body.productId);
+            const product = await db.Product.findById(req.body.productId);
 
             if(!product){
                 return res.http400('invalid product detail provided.');
