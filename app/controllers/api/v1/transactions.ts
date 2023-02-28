@@ -8,6 +8,9 @@ module.exports = function (router: any) {
       return res.http400('txHash is required.');
     }
     console.log('update swapAndWitdraw body', req.body);
+    if(req.body.signedData){
+      console.log('update swapAndWitdraw body signedData', req.body.signedData);
+    }
     let swapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.findOne({ receiveTransactionId: req.params.txHash })
       .populate('sourceNetwork').populate('destinationNetwork')
       .populate('sourceCabn').populate('destinationCabn');
