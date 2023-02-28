@@ -39,10 +39,18 @@
         "name": "path:./app/lib/auth"
       }
     },
-    "authenticationCommunityMember": {
+    "authenticationCommunityMemberV1": {
       "enabled": true,
       "priority": 100,
       "route": "\/api\/v1\/community-member((?!$))((?!\/users\/forgot-password))((?!\/users\/reset-password))((?!\/users\/sign-in))((?!\/users\/sign-up))((?!\/users\/test))*",
+      "module": {
+        "name": "path:./app/lib/auth"
+      }
+    },
+    "authenticationCommunityMemberV2": {
+      "enabled": true,
+      "priority": 100,
+      "route": "\/api\/v2\/community-member((?!$))*",
       "module": {
         "name": "path:./app/lib/auth"
       }
