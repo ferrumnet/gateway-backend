@@ -5,7 +5,7 @@ module.exports = {
   async createJobBySwapHash(req: any, swapAndWithdrawTransactionObject: any, token: any) {
     try {
       let baseUrl = ((global as any) as any).environment.baseUrlMultiswapNodeBackend;
-      let url = `${baseUrl}/jobs`;
+      let url = `${baseUrl}/api/jobs`;
       console.log('doSwapAndWithdraw createJobBySwapHash url',url);
       let body: any = {};
       body.name = 'transactionReceipt';
