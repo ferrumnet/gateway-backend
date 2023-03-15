@@ -5,8 +5,8 @@ module.exports = function (router: any) {
     let filter: any = {}
     filter = { walletAddress: req.params.walletAddress };
 
-    if(req.query.type){
-      filter.type = req.query.type;
+    if(req.query.stakingContractAddress){
+      filter.stakingContractAddress = req.query.stakingContractAddress;
     }
 
     let count = await db.WalletAddressWhiteList.countDocuments(filter)
