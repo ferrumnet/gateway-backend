@@ -10,9 +10,9 @@ module.exports = {
         }
       };
       let baseUrl = ((global as any) as any).environment.baseUrlFIBEREngineBackend;
-      let url = `${baseUrl}/multiswap/withdraw/signed?swapTransactionHash=${swapAndWithdrawTransactionObject.receiveTransactionId}&sourceAmount=${swapAndWithdrawTransactionObject.sourceAmount}&sourceNetworkChainId=${req.sourceNetwork.chainId}&destinationNetworkChainId=${req.destinationNetwork.chainId}&sourceTokenContractAddress=${swapAndWithdrawTransactionObject.sourceCabn.tokenContractAddress}&destinationTokenContractAddress=${swapAndWithdrawTransactionObject.destinationCabn.tokenContractAddress}&sourceWalletAddress=${swapAndWithdrawTransactionObject.sourceWalletAddress}&destinationWalletAddress=${swapAndWithdrawTransactionObject.destinationWalletAddress}`;
+      let url = `${baseUrl}/v2/multiswap/withdraw/signed/${swapAndWithdrawTransactionObject.receiveTransactionId}`;
       console.log('doSwapAndWithdraw doWithdrawSigned url',url);
-      let res = await axios.get(url, config);
+      let res = await axios.post(url, this.getWithdrawBody(swapAndWithdrawTransactionObject, ), config);
       if(res.data.body && res.data.body.data){
         console.log('doSwapAndWithdraw doWithdrawSigned hash',res.data.body.data);
         return res.data.body;
@@ -21,6 +21,23 @@ module.exports = {
       console.log(error.data);
     }
     return null;
+  },
+
+  getWithdrawBody(model: any){
+    let body: any = {};
+    body.sourceAmount = model.sourceAmount;
+    body.sourceNetworkChainId = model.sourceNetwork.chainId;
+    body.sourceTokenContractAddress = model.sourceCabn.tokenContractAddress;
+    body.sourceWalletAddress = model.sourceWalletAddress;
+    body.destinationNetworkChainId = model.destinationNetwork.chainId;
+    body.destinationTokenContractAddress = model.destinationCabn.tokenContractAddress;
+    body.destinationWalletAddress = model.destinationWalletAddress;
+    body.salt = model.payBySig.salt;
+    body.hash = model.payBySig.hash;
+    body.signatures = model.payBySig.signatures;
+    
+    console.log('getWithdrawBody body',body);
+    return body;
   }
 
 };
