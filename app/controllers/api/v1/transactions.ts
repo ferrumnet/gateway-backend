@@ -4,6 +4,8 @@ module.exports = function (router: any) {
 
   router.put('/update/swap/and/withdraw/job/:txHash', asyncMiddleware(async (req: any, res: any) => {
 
+    commonFunctions.doAuthForNodeApis(req);
+
     if (!req.params.txHash) {
       return res.http400('txHash is required.');
     }
@@ -11,6 +13,7 @@ module.exports = function (router: any) {
     if(req.body.signedData){
       console.log('update swapAndWitdraw body signedData', req.body.signedData);
     }
+
     let swapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.findOne({ receiveTransactionId: req.params.txHash })
       .populate('sourceNetwork').populate('destinationNetwork')
       .populate('sourceCabn').populate('destinationCabn');

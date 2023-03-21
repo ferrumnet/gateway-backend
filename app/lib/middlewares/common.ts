@@ -155,5 +155,21 @@ module.exports = {
       console.log(e);
       return '';
     }
+  },
+
+  doAuthForNodeApis: function (req: any) {
+    if (req.headers.authorization) {
+      const token = req.headers.authorization.split(' ')[1];
+      if(token){
+        var bytes = CryptoJS.AES.decrypt(token, (global as any).environment.privateKey);
+        var originalText = bytes.toString(CryptoJS.enc.Utf8);
+        if (originalText == (global as any).environment.publicKey) {
+          return;
+        }
+      }
+    } else {
+      throw 'Authorization header missing';
+    }
+    throw 'Invalid token';
   }
 };
