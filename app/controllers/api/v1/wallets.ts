@@ -15,6 +15,14 @@ module.exports = function (router: any) {
       filterAndList.push({"network._id": new mongoose.Types.ObjectId(req.query.networkId)})
     }
 
+    if (req.query.isNonEVM) {
+      if (req.query.isNonEVM == 'true') {
+        filterAndList.push({ "wallet.isNonEVM": true })
+      } else {
+        filterAndList.push({ "wallet.isNonEVM": false })
+      }
+    }
+
     if(filterOrList && filterOrList.length > 0){
       matchFilter.$or = []
       matchFilter.$or.push({$or: filterOrList})
