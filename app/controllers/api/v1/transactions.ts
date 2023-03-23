@@ -10,7 +10,7 @@ module.exports = function (router: any) {
       return res.http400('txHash & signedData are required.');
     }
 
-    if(req.body.signatures && req.body.signatures.length == 0){
+    if (req.body.signatures && req.body.signatures.length == 0) {
       return res.http401('signatures can not be empty');
     }
 
@@ -24,16 +24,14 @@ module.exports = function (router: any) {
       let transaction = req.body.transaction;
       let transactionReceipt = req?.body?.transactionReceipt;
       swapAndWithdrawTransaction.nodeJob.status = utils.swapAndWithdrawTransactionJobStatuses.completed;
-     
+
       if (transactionReceipt?.status && transactionReceipt?.status == true) {
         swapAndWithdrawTransaction.status = utils.swapAndWithdrawTransactionStatuses.swapCompleted;
       } else {
         swapAndWithdrawTransaction.status = utils.swapAndWithdrawTransactionStatuses.swapFailed;
       }
 
-      if (transaction) {
-        swapAndWithdrawTransaction = await swapTransactionHelper.filterTransactionDetail(swapAndWithdrawTransaction, transaction);
-      }
+      swapAndWithdrawTransaction = await getTransactionDetail(swapAndWithdrawTransaction, req.body.signedData);
       swapAndWithdrawTransaction = getSignedData(swapAndWithdrawTransaction, req.body.signedData);
       swapAndWithdrawTransaction.nodeJob.updatedAt = new Date();
       swapAndWithdrawTransaction.updatedAt = new Date();
@@ -45,13 +43,33 @@ module.exports = function (router: any) {
 
   }));
 
-  function getSignedData(swapAndWithdrawTransaction: any,  signedData: any){
+  async function getTransactionDetail(swapAndWithdrawTransaction: any, signedData: any) {
 
-    swapAndWithdrawTransaction.payBySig.salt = signedData.salt;
-    swapAndWithdrawTransaction.payBySig.hash = signedData.hash;
-    swapAndWithdrawTransaction.payBySig.signatures = signedData.signatures;
-
+    try {
+      swapAndWithdrawTransaction.sourceAmount = signedData.amount;
+      swapAndWithdrawTransaction.sourceWalletAddress = signedData.from;
+      swapAndWithdrawTransaction.destinationWalletAddress = signedData.targetAddress;
+      if (swapAndWithdrawTransaction.sourceAmount) {
+        swapAndWithdrawTransaction.sourceAmount = await swapUtilsHelper.amountToHuman_(swapAndWithdrawTransaction.sourceNetwork, swapAndWithdrawTransaction.sourceCabn, swapAndWithdrawTransaction.sourceAmount);
+      }
+    } catch (e) {
+      console.log(e);
+    }
     return swapAndWithdrawTransaction;
+
+  }
+
+  function getSignedData(swapAndWithdrawTransaction: any, signedData: any) {
+
+    try {
+      swapAndWithdrawTransaction.payBySig.salt = signedData.salt;
+      swapAndWithdrawTransaction.payBySig.hash = signedData.hash;
+      swapAndWithdrawTransaction.payBySig.signatures = signedData.signatures;
+    } catch (e) {
+      console.log(e);
+    }
+    return swapAndWithdrawTransaction;
+
   }
 
 };
