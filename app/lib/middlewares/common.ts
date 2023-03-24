@@ -161,9 +161,9 @@ module.exports = {
     if (req.headers.authorization) {
       const token = req.headers.authorization.split(' ')[1];
       if(token){
-        var bytes = CryptoJS.AES.decrypt(token, (global as any).environment.privateKey);
+        var bytes = CryptoJS.AES.decrypt(token, (global as any).environment.privateKeyForNode);
         var originalText = bytes.toString(CryptoJS.enc.Utf8);
-        if (originalText == (global as any).environment.publicKey) {
+        if (originalText == (global as any).environment.publicKeyForNode) {
           return;
         }
       }
