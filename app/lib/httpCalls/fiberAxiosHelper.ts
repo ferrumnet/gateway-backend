@@ -23,6 +23,27 @@ module.exports = {
     return null;
   },
 
+  async getTokenQuoteInformation(req: any) {
+    try {
+      const config = {
+        headers:{
+          Authorization: await withdrawTransactionHelper.fiberAuthorizationToken()
+        }
+      };
+      let baseUrl = ((global as any) as any).environment.baseUrlFIBEREngineBackend;
+      let url = `${baseUrl}/v1/multiswap/token/categorized/quote/info?sourceAmount=${req.query.sourceAmount}&sourceNetworkChainId=${req.query.sourceNetwork}&destinationNetworkChainId=${req.query.destinationNetwork}&sourceTokenContractAddress=${req.query.sourceCabn}&destinationTokenContractAddress=${req.query.destinationCabn}`;
+      console.log('getTokenQuoteInformation url',url);
+      let res = await axios.get(url, config);
+      if(res.data.body){
+        console.log('getTokenQuoteInformation response',res.data.body);
+        return res.data.body;
+      }
+    } catch (error: any) {
+      console.log(error.data);
+    }
+    return null;
+  },
+
   getWithdrawBody(model: any){
     let body: any = {};
     body.sourceAmount = model.sourceAmount;

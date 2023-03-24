@@ -11,6 +11,7 @@ module.exports = {
       body.name = 'transactionReceipt';
       body.sourceRpcURL = req.sourceNetwork.rpcUrl;
       body.destinationRpcURL = req.destinationNetwork.rpcUrl;
+      body.bridgeAmount = swapAndWithdrawTransactionObject.bridgeAmount;
       body.txId = swapAndWithdrawTransactionObject.receiveTransactionId;
       console.log('doSwapAndWithdraw createJobBySwapHash body',body);
       let res = await axios.post(url, body);
