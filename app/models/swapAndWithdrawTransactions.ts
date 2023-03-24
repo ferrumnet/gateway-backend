@@ -69,7 +69,10 @@ var schema = mongoose.Schema({
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() }, 
   },
-
+  sourceAssetType: { type: String, default: "" },
+  destinationAssetType: { type: String, default: "" },
+  bridgeAmount: { type: String, default: "" },
+  
 },{ collection: 'swapAndWithdrawTransactions' });
 
 var currenciesModel = mongoose.model("swapAndWithdrawTransactions",schema);

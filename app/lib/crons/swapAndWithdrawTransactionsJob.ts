@@ -35,11 +35,13 @@ async function triggerJobs(offset: any) {
   if (transactions && transactions.length > 0) {
     for (let i = 0; i < transactions.length; i++) {
       let req: any = {};
+      req.query = {}
       let user: any = {}
       let transaction = transactions[i];
       req.swapTxId = transaction.receiveTransactionId;
       req.sourceNetwork = transaction.sourceNetwork;
       req.destinationNetwork = transaction.destinationNetwork;
+      req.query.bridgeAmount = transaction.bridgeAmount ? transaction.bridgeAmount : 0;
       user._id = transaction.createdByUser;
       req.user = user;
       await swapTransactionHelper.doSwapAndWithdraw(req, transaction);

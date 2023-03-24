@@ -47,6 +47,11 @@ module.exports = {
         return swapAndWithdrawTransactionObject;
     },
 
+    async getTokenQuoteInformationFromFIBER(req: any) {
+        let tokenQuoteInformation = await fiberAxiosHelper.getTokenQuoteInformation(req);
+        return tokenQuoteInformation;
+    },
+
     async fiberAuthorizationToken() {
         let timelapse = 5;
         let currentTime = new Date();

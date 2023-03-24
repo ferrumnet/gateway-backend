@@ -191,18 +191,19 @@ module.exports = {
   async doSwapAndWithdraw(req: any, swapAndWithdrawTransaction: any) {
     if(swapAndWithdrawTransaction && swapAndWithdrawTransaction.status == utils.swapAndWithdrawTransactionStatuses.swapPending && 
       swapAndWithdrawTransaction.nodeJob.status == utils.swapAndWithdrawTransactionJobStatuses.pending){
-      swapAndWithdrawTransaction = await this.createJobInsideSwapAndWithdraw(req, swapAndWithdrawTransaction);
+        swapAndWithdrawTransaction = await this.createJobInsideSwapAndWithdraw(req, swapAndWithdrawTransaction);
     }
 
     if(swapAndWithdrawTransaction && swapAndWithdrawTransaction.status == utils.swapAndWithdrawTransactionStatuses.swapCompleted 
       && swapAndWithdrawTransaction.nodeJob && swapAndWithdrawTransaction.nodeJob.status == utils.swapAndWithdrawTransactionJobStatuses.completed){
-      withdrawTransactionHelper.doWithdrawSignedFromFIBER(req, swapAndWithdrawTransaction);
+        withdrawTransactionHelper.doWithdrawSignedFromFIBER(req, swapAndWithdrawTransaction);
     }
     return swapAndWithdrawTransaction;
   },
 
   async createPendingSwap(req: any) {
     let filter: any = {};
+    let swapAndWithdrawTransaction = null;
     filter.createdByUser = req.user._id;
     filter.receiveTransactionId = req.params.swapTxId;
     let count = await db.SwapAndWithdrawTransactions.countDocuments(filter)
@@ -210,20 +211,40 @@ module.exports = {
       let oldSwapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.findOne({receiveTransactionId: req.params.swapTxId});
       return oldSwapAndWithdrawTransaction;
     }
+    let sourceCabn = await db.CurrencyAddressesByNetwork.findOne({_id: req.query.sourceCabnId});
+    let destinationCabn = await db.CurrencyAddressesByNetwork.findOne({_id: req.query.destinationCabnId});
+    req.query.sourceCabn = sourceCabn? sourceCabn.tokenContractAddress : '';
+    req.query.destinationCabn = destinationCabn? destinationCabn.tokenContractAddress : '';
 
-    let body: any = {};
-    body.receiveTransactionId = req.params.swapTxId;
-    body.createdByUser = req.user._id;
-    body.updatedByUser = req.user._id;
-    body.createdAt = new Date();
-    body.updatedAt = new Date();
-    body.sourceCabn = req.query.sourceCabnId;
-    body.destinationCabn = req.query.destinationCabnId;
-    body.sourceNetwork = req.query.sourceNetworkId;
-    body.destinationNetwork = req.query.destinationNetworkId;
-    body.status = utils.swapAndWithdrawTransactionStatuses.swapPending;
-    console.log('doSwapAndWithdraw pendingObject', body);
-    let swapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.create(body);
+    let sourceNetwork = await db.Networks.findOne({_id: req.query.sourceNetworkId});
+    let destinationNetwork = await db.Networks.findOne({_id: req.query.destinationNetworkId});
+    req.query.sourceNetwork = sourceNetwork? sourceNetwork.chainId : '';
+    req.query.destinationNetwork = destinationNetwork? destinationNetwork.chainId : '';
+
+    let tokenQuoteInformation = await withdrawTransactionHelper.getTokenQuoteInformationFromFIBER(req);
+    console.log('tokenQuoteInformation',tokenQuoteInformation);
+    if(tokenQuoteInformation && tokenQuoteInformation.data 
+      && tokenQuoteInformation.data.destinationTokenCategorizedInfo
+      && tokenQuoteInformation.data.destinationTokenCategorizedInfo.destinationAmount){
+        req.query.bridgeAmount = tokenQuoteInformation.data.destinationTokenCategorizedInfo.bridgeAmount;
+        let body: any = {};
+        body.sourceAssetType = tokenQuoteInformation.data.sourceTokenCategorizedInfo.type;
+        body.destinationAssetType = tokenQuoteInformation.data.destinationTokenCategorizedInfo.type;
+        body.receiveTransactionId = req.params.swapTxId;
+        body.sourceAmount = req.query.sourceAmount;
+        body.bridgeAmount = req.query.bridgeAmount;
+        body.createdByUser = req.user._id;
+        body.updatedByUser = req.user._id;
+        body.createdAt = new Date();
+        body.updatedAt = new Date();
+        body.sourceCabn = req.query.sourceCabnId;
+        body.destinationCabn = req.query.destinationCabnId;
+        body.sourceNetwork = req.query.sourceNetworkId;
+        body.destinationNetwork = req.query.destinationNetworkId;
+        body.status = utils.swapAndWithdrawTransactionStatuses.swapPending;
+        console.log('doSwapAndWithdraw pendingObject', body);
+        swapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.create(body);
+    }
     return swapAndWithdrawTransaction;
   },
 
