@@ -72,6 +72,7 @@ var schema = mongoose.Schema({
   sourceAssetType: { type: String, default: "" },
   destinationAssetType: { type: String, default: "" },
   bridgeAmount: { type: String, default: "" },
+  version: { type: String, default: "" },
   
 },{ collection: 'swapAndWithdrawTransactions' });
 

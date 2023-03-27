@@ -26,6 +26,7 @@ async function triggerJobs(offset: any) {
     { status: { $eq: utils.swapAndWithdrawTransactionStatuses.swapPending } },
     { status: { $eq: utils.swapAndWithdrawTransactionStatuses.swapCompleted } },
   ]
+  filter.version = 'v2';
   let transactions = await db.SwapAndWithdrawTransactions.find(filter)
     .populate('sourceNetwork').populate('destinationNetwork')
     .populate('sourceCabn').populate('destinationCabn')
