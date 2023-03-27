@@ -172,4 +172,81 @@ module.exports = function (router: any) {
     });
   });
 
+  router.get('/token/data', async (req: any, res: any) => {
+    var matchFilter: any = {}
+    var filterOrList: any= []
+    var filterAndList: any= []
+    var filter = []
+    let cabns = []
+    var sort = { "createdAt": -1 }
+    var finalMatchFilter: any = {}
+
+    if (!req.query.tokenContractAddress || !req.query.chainId) {
+      return res.http400('tokenContractAddress & chainId are required.');
+    }
+
+    filterAndList.push({ "tokenContractAddress": req.query.tokenContractAddress.toLowerCase() })
+    filterAndList.push({ "network.chainId": req.query.chainId })
+
+    if(filterOrList && filterOrList.length > 0){
+      matchFilter.$or = []
+      matchFilter.$or.push({$or: filterOrList})
+    }
+
+    if(filterAndList && filterAndList.length > 0){
+      matchFilter.$and = []
+      matchFilter.$and.push({$and: filterAndList})
+    }
+
+    let currenyFilter = [
+      { $lookup: { from: 'networks', localField: 'network', foreignField: '_id', as: 'network' } },
+      { "$unwind": { "path": "$network", "preserveNullAndEmptyArrays": true } },
+      { "$match": matchFilter },
+      { "$sort": sort }
+    ]
+
+    cabns = await db.CurrencyAddressesByNetwork.aggregate(currenyFilter);
+
+    if(cabns && cabns.length > 0){
+      let cabn = cabns[0];
+      if(cabn && cabn.currency){
+        finalMatchFilter.$and = []
+        finalMatchFilter.$and.push({$and: [{"currency._id": new mongoose.Types.ObjectId(cabn.currency)}]})
+      }
+    }
+
+    let commonFilter = [
+      { $lookup: { from: 'networks', localField: 'network', foreignField: '_id', as: 'network' } },
+      { "$unwind": { "path": "$network", "preserveNullAndEmptyArrays": true } },
+      { $lookup: { from: 'networkDexes', localField: 'networkDex', foreignField: '_id', as: 'networkDex' } },
+      { "$unwind": { "path": "$networkDex", "preserveNullAndEmptyArrays": true } },
+      { $lookup: { from: 'currencies', localField: 'currency', foreignField: '_id', as: 'currency' } },
+      { "$unwind": { "path": "$currency", "preserveNullAndEmptyArrays": true } },
+      { "$match": finalMatchFilter },
+      { "$sort": sort }
+    ]
+
+    if (req.query.isPagination != null && req.query.isPagination == 'false') {
+
+      filter = [
+        ...commonFilter
+      ];
+
+    } else {
+
+      filter = [
+        ...commonFilter,
+        { $skip: req.query.offset ? parseInt(req.query.offset) : 0 },
+        { $limit: req.query.limit ? parseInt(req.query.limit) : 10 },
+      ];
+
+    }
+
+    cabns = await db.CurrencyAddressesByNetwork.aggregate(filter);
+
+    return res.http200({
+      currencyAddressesByNetworks: cabns
+    });
+  });
+
 };
