@@ -15,6 +15,7 @@ var schema = mongoose.Schema({
   positionForFeeToken: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
   isNonEVM: { type: Boolean, default: false },
+  decimals: { type: Number, default: 0 },
   
   createdAt: { type: Date, default: new Date() },
   updatedAt: { type: Date, default: new Date() },
