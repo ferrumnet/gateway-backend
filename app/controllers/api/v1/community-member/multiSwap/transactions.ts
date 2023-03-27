@@ -68,6 +68,10 @@ module.exports = function (router: any) {
         }
       }
 
+      if(req.query.destinationWalletAddress){
+        swapTransaction.destinationWalletAddress = req.query.destinationWalletAddress.toLowerCase();
+      }
+
       if(swapTransaction){
         console.log('swapTransaction.sourceAmount',swapTransaction.sourceAmount);
         console.log(sourceNetwork?._id)
