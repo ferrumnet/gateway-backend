@@ -233,6 +233,7 @@ module.exports = {
         body.receiveTransactionId = req.params.swapTxId;
         body.sourceAmount = req.query.sourceAmount;
         body.bridgeAmount = req.query.bridgeAmount;
+        body.version = 'v2';
         body.createdByUser = req.user._id;
         body.updatedByUser = req.user._id;
         body.createdAt = new Date();
