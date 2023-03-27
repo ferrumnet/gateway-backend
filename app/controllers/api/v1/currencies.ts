@@ -17,6 +17,10 @@ module.exports = function (router: any) {
       filterOrList.push({"tokenContractAddress": reg })
     }
 
+    if (req.query.tokenContractAddress) {
+      filterAndList.push({ "tokenContractAddress": req.query.tokenContractAddress.toLowerCase() })
+    }
+
     if (req.query.isAllowedOnMultiSwap) {
 
       if (req.query.isAllowedOnMultiSwap == 'true') {
@@ -29,6 +33,10 @@ module.exports = function (router: any) {
 
     if (req.query.network) {
       filterAndList.push({"network._id": new mongoose.Types.ObjectId(req.query.network)})
+    }
+
+    if (req.query.chainId) {
+      filterAndList.push({ "network.chainId": req.query.chainId })
     }
 
     if(filterOrList && filterOrList.length > 0){
