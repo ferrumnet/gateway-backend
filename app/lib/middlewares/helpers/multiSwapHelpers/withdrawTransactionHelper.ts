@@ -38,8 +38,9 @@ module.exports = {
             }
 
             if (withdrawData.withdraw.destinationAmount) {
-                swapAndWithdrawTransactionObject.destinationAmount = await swapUtilsHelper.amountToHuman_(swapAndWithdrawTransactionObject.destinationNetwork, swapAndWithdrawTransactionObject.destinationCabn, withdrawData.withdraw.destinationAmount);
+                swapAndWithdrawTransactionObject.destinationAmount = withdrawData.withdraw.destinationAmount;
             }
+
             swapAndWithdrawTransactionObject.status = utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted;
             swapAndWithdrawTransactionObject.updatedAt = new Date();
             swapAndWithdrawTransactionObject = await db.SwapAndWithdrawTransactions.findOneAndUpdate(filter, swapAndWithdrawTransactionObject);
