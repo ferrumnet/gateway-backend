@@ -13,38 +13,6 @@ module.exports = {
         await db.SwapAndWithdrawTransactions.findOneAndUpdate({ _id: swapAndWithdrawTransactionObject._id }, swapAndWithdrawTransactionObject, { new: true });
 
         let withdrawData = await fiberAxiosHelper.doWithdrawSigned(req, swapAndWithdrawTransactionObject);
-        if (withdrawData) {
-            console.log('doSwapAndWithdraw withdrawHash', withdrawData);
-            let filter: any = {};
-            filter._id = swapAndWithdrawTransactionObject._id;
-
-            if (!swapAndWithdrawTransactionObject) {
-                throw 'Invalid operation';
-            }
-
-            let useTransaction = {
-                transactionId: withdrawData.data,
-                status: utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted,
-                timestamp: new Date()
-            }
-
-            if (swapAndWithdrawTransactionObject.useTransactions && swapAndWithdrawTransactionObject.useTransactions.length > 0) {
-                let txItem = (swapAndWithdrawTransactionObject.useTransactions || []).find((t: any) => t.transactionId === withdrawData.data);
-                if (!txItem) {
-                    swapAndWithdrawTransactionObject.useTransactions.push(useTransaction);
-                }
-            } else {
-                swapAndWithdrawTransactionObject.useTransactions.push(useTransaction);
-            }
-
-            if (withdrawData.withdraw.destinationAmount) {
-                swapAndWithdrawTransactionObject.destinationAmount = withdrawData.withdraw.destinationAmount;
-            }
-
-            swapAndWithdrawTransactionObject.status = utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted;
-            swapAndWithdrawTransactionObject.updatedAt = new Date();
-            swapAndWithdrawTransactionObject = await db.SwapAndWithdrawTransactions.findOneAndUpdate(filter, swapAndWithdrawTransactionObject);
-        }
         return swapAndWithdrawTransactionObject;
     },
 
