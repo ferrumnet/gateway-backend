@@ -4,6 +4,7 @@ var mongoose = require("mongoose");
 var schema = mongoose.Schema(
   {
     walletAddress: { type: String, default: "" },
+    stakingContractAddress: { type: String, default: "" },
     isActive: { type: Boolean, default: true },
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() }

@@ -63,7 +63,17 @@ var schema = mongoose.Schema({
   creator: { type: String, default: "" },
   sourceSmartContractAddress: { type: String, default: "" },
   destinationSmartContractAddress: { type: String, default: "" },
-
+  nodeJob: {
+    id: { type: String, default: "" },
+    status: { type: String, default: "pending" }, //can be '', 'pending', 'created', 'failed', 'completed'
+    createdAt: { type: Date, default: new Date() },
+    updatedAt: { type: Date, default: new Date() }, 
+  },
+  sourceAssetType: { type: String, default: "" },
+  destinationAssetType: { type: String, default: "" },
+  bridgeAmount: { type: String, default: "" },
+  version: { type: String, default: "" },
+  
 },{ collection: 'swapAndWithdrawTransactions' });
 
 var currenciesModel = mongoose.model("swapAndWithdrawTransactions",schema);

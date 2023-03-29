@@ -75,6 +75,22 @@ module.exports = function (router: any) {
 
   });
 
+  router.post('/create/multiswap/fiber/information/and/update/network/:id', async (req: any, res: any) => {
+
+    let filter = {}
+    filter = { _id: req.params.id }
+    req.body.createdAt = new Date()
+    req.body.updatedAt = new Date()
+
+    let multiswapNetworkFIBERInformation = await db.MultiswapNetworkFIBERInformations.create(req.body);
+    let network = await db.Networks.findOneAndUpdate(filter, {multiswapNetworkFIBERInformation: multiswapNetworkFIBERInformation._id}, { new: true })
+
+    return res.http200({
+      network: network
+    });
+
+  });
+
   router.put('/active/inactive/:id', async (req: any, res: any) => {
 
     let filter = {}
@@ -96,7 +112,17 @@ module.exports = function (router: any) {
 
   router.get('/list', async (req: any, res: any) => {
 
-    var filter = {}
+    var filter: any = {}
+
+    if (req.query.isNonEVM) {
+
+      if (req.query.isNonEVM == 'true') {
+        filter.isNonEVM = true;
+      } else {
+        filter.isNonEVM = false;
+      }
+
+    }
 
     let netwroks = await db.Networks.find(filter).populate('parentId')
       .populate({
@@ -164,6 +190,19 @@ module.exports = function (router: any) {
       return res.http400('Valid networkId & isAllowedOnGateway are required.');
     }
     let network = await db.Networks.findOneAndUpdate(filter, { isAllowedOnGateway }, { new: true })
+    return network ? res.http200({ network }) : res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorNetwrokNotFound), stringHelper.strErrorNetwrokNotFound);
+
+  });
+
+  router.put('/set/non/evm/:id', async (req: any, res: any) => {
+
+    let filter = { _id: req.params.id }
+    let isNonEVM = req.body.isNonEVM
+
+    if (!isValidObjectId(filter._id) || typeof isNonEVM != 'boolean') {
+      return res.http400('Valid networkId & isNonEVM are required.');
+    }
+    let network = await db.Networks.findOneAndUpdate(filter, { isNonEVM }, { new: true })
     return network ? res.http200({ network }) : res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorNetwrokNotFound), stringHelper.strErrorNetwrokNotFound);
 
   });

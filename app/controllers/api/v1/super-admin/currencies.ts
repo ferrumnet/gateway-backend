@@ -362,6 +362,26 @@ module.exports = function (router: any) {
 
   });
 
+  router.put('/cabn/update/decimals/:id', async (req: any, res: any) => {
+
+    let filter:any = { _id: req.params.id }
+
+    if (!req.body.decimals) {
+      return res.http400('decimals is required.');
+    }
+
+    let body: any = {}
+    body.decimals = req.body.decimals;
+    body.updatedAt = new Date()
+
+    let cabn = await db.CurrencyAddressesByNetwork.findOneAndUpdate(filter, body , { new: true })
+
+    return res.http200({
+      cabn: cabn
+    });
+
+  });
+
   router.put('/cabn/position/for/free/token/:id', async (req: any, res: any) => {
 
     let filter = { _id: req.params.id }
@@ -371,6 +391,22 @@ module.exports = function (router: any) {
       return res.http400('Valid cabnId & positionForFeeToken are required.');
     }
     let cabn = await db.CurrencyAddressesByNetwork.findOneAndUpdate(filter, { positionForFeeToken }, { new: true })
+
+    return res.http200({
+      cabn: cabn
+    });
+
+  });
+
+  router.put('/cabn/set/non/evm/:id', async (req: any, res: any) => {
+
+    let filter = { _id: req.params.id }
+    let isNonEVM = req.body.isNonEVM
+
+    if (!isValidObjectId(filter._id) || typeof isNonEVM != 'boolean') {
+      return res.http400('Valid cabnId & isNonEVM are required.');
+    }
+    let cabn = await db.CurrencyAddressesByNetwork.findOneAndUpdate(filter, { isNonEVM }, { new: true })
 
     return res.http200({
       cabn: cabn

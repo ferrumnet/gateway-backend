@@ -2,6 +2,7 @@ import Web3 from 'web3';
 var { Big } = require("big.js");
 let TRANSACTION_TIMEOUT = 36 * 1000;
 const abiDecoder = require('abi-decoder'); // NodeJS
+var mongoose = require('mongoose');
 
 module.exports = {
 
@@ -149,7 +150,6 @@ module.exports = {
     if(transaction){
       abiDecoder.addABI(web3ConfigurationHelper.getfiberAbi());
       const decodedData = await abiDecoder.decodeMethod(transaction.input);
-      console.log(decodedData);
       if(decodedData && decodedData.params && decodedData.params.length > 0){
         for(let item of decodedData.params||[]){
           console.log(item.name);
@@ -163,6 +163,146 @@ module.exports = {
       }
     }
     return amount;
+  },
+
+  validationForDoSwapAndWithdraw(req: any) {
+    if (!req.params.swapTxId || !req.query.sourceNetworkId || !req.query.destinationNetworkId
+      || !req.query.sourceCabnId || !req.query.destinationCabnId) {
+      throw 'swapTxId & sourceNetworkId & destinationNetworkId & sourceCabnId & destinationCabnId are required.';
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.query.sourceNetworkId)) {
+      throw 'Invalid sourceNetworkId';
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.query.destinationNetworkId)) {
+      throw 'Invalid destinationNetworkId';
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.query.sourceCabnId)) {
+      throw 'Invalid sourceCabnId';
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.query.destinationCabnId)) {
+      throw 'Invalid destinationCabnId';
+    }
+  },
+
+  async doSwapAndWithdraw(req: any, swapAndWithdrawTransaction: any) {
+    if(swapAndWithdrawTransaction && swapAndWithdrawTransaction.status == utils.swapAndWithdrawTransactionStatuses.swapPending && 
+      swapAndWithdrawTransaction.nodeJob.status == utils.swapAndWithdrawTransactionJobStatuses.pending){
+        swapAndWithdrawTransaction = await this.createJobInsideSwapAndWithdraw(req, swapAndWithdrawTransaction);
+    }
+
+    if(swapAndWithdrawTransaction && swapAndWithdrawTransaction.status == utils.swapAndWithdrawTransactionStatuses.swapCompleted 
+      && swapAndWithdrawTransaction.nodeJob && swapAndWithdrawTransaction.nodeJob.status == utils.swapAndWithdrawTransactionJobStatuses.completed){
+        withdrawTransactionHelper.doWithdrawSignedFromFIBER(req, swapAndWithdrawTransaction);
+    }
+    return swapAndWithdrawTransaction;
+  },
+
+  async createPendingSwap(req: any) {
+    let filter: any = {};
+    let swapAndWithdrawTransaction = null;
+    filter.createdByUser = req.user._id;
+    filter.receiveTransactionId = req.params.swapTxId;
+    let count = await db.SwapAndWithdrawTransactions.countDocuments(filter)
+    if(count > 0){
+      let oldSwapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.findOne({receiveTransactionId: req.params.swapTxId});
+      return oldSwapAndWithdrawTransaction;
+    }
+    let sourceCabn = await db.CurrencyAddressesByNetwork.findOne({_id: req.query.sourceCabnId});
+    let destinationCabn = await db.CurrencyAddressesByNetwork.findOne({_id: req.query.destinationCabnId});
+    req.query.sourceCabn = sourceCabn? sourceCabn.tokenContractAddress : '';
+    req.query.destinationCabn = destinationCabn? destinationCabn.tokenContractAddress : '';
+
+    let sourceNetwork = await db.Networks.findOne({_id: req.query.sourceNetworkId});
+    let destinationNetwork = await db.Networks.findOne({_id: req.query.destinationNetworkId});
+    req.query.sourceNetwork = sourceNetwork? sourceNetwork.chainId : '';
+    req.query.destinationNetwork = destinationNetwork? destinationNetwork.chainId : '';
+
+    let tokenQuoteInformation = await withdrawTransactionHelper.getTokenQuoteInformationFromFIBER(req);
+    console.log('tokenQuoteInformation',tokenQuoteInformation);
+    if(tokenQuoteInformation && tokenQuoteInformation.data 
+      && tokenQuoteInformation.data.destinationTokenCategorizedInfo
+      && tokenQuoteInformation.data.destinationTokenCategorizedInfo.destinationAmount){
+        req.query.bridgeAmount = tokenQuoteInformation.data.destinationTokenCategorizedInfo.bridgeAmount;
+        let body: any = {};
+        body.sourceAssetType = tokenQuoteInformation.data.sourceTokenCategorizedInfo.type;
+        body.destinationAssetType = tokenQuoteInformation.data.destinationTokenCategorizedInfo.type;
+        body.receiveTransactionId = req.params.swapTxId;
+        body.sourceAmount = req.query.sourceAmount;
+        body.bridgeAmount = req.query.bridgeAmount;
+        body.version = 'v2';
+        body.createdByUser = req.user._id;
+        body.updatedByUser = req.user._id;
+        body.createdAt = new Date();
+        body.updatedAt = new Date();
+        body.sourceCabn = req.query.sourceCabnId;
+        body.destinationCabn = req.query.destinationCabnId;
+        body.sourceNetwork = req.query.sourceNetworkId;
+        body.destinationNetwork = req.query.destinationNetworkId;
+        body.status = utils.swapAndWithdrawTransactionStatuses.swapPending;
+        console.log('doSwapAndWithdraw pendingObject', body);
+        swapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.create(body);
+    }
+    return swapAndWithdrawTransaction;
+  },
+
+  async createJobInsideSwapAndWithdraw(req: any, swapAndWithdrawTransactionObject: any) {
+    let filter: any = {};
+    filter._id = swapAndWithdrawTransactionObject._id;
+
+    if(!swapAndWithdrawTransactionObject){
+      throw 'Invalid operation';
+    }
+
+    if(swapAndWithdrawTransactionObject.nodeJob.status == utils.swapAndWithdrawTransactionJobStatuses.pending){
+      let jobId = await multiswapNodeAxiosHelper.createJobBySwapHash(req, swapAndWithdrawTransactionObject);
+      console.log('doSwapAndWithdraw jobId',jobId);
+      if(jobId){
+        swapAndWithdrawTransactionObject.updatedByUser = req.user._id;
+        swapAndWithdrawTransactionObject.updatedAt = new Date();
+        swapAndWithdrawTransactionObject.nodeJob.id = jobId;
+        swapAndWithdrawTransactionObject.nodeJob.status = utils.swapAndWithdrawTransactionJobStatuses.created;
+        swapAndWithdrawTransactionObject.nodeJob.createdAt = new Date();
+        swapAndWithdrawTransactionObject.nodeJob.updatedAt = new Date();
+        swapAndWithdrawTransactionObject = await db.SwapAndWithdrawTransactions.findOneAndUpdate(filter, swapAndWithdrawTransactionObject, { new: true }); 
+      }
+    }
+    return swapAndWithdrawTransactionObject;
+  },
+
+  async filterTransactionDetail(swapAndWithdrawTransaction: any, transaction: any) {
+    let data: any = { sourceAmount: null, destinationAmount: null };
+    try{
+      if (transaction) {
+        swapAndWithdrawTransaction.sourceAmount = await this.getValueFromWebTransaction(transaction, 'amountIn');
+        if(!data.sourceAmount){
+          data.sourceAmount = await this.getValueFromWebTransaction(transaction, 'amount');
+        }
+        data.destinationAmount = await this.getValueFromWebTransaction(transaction, 'amountOutMin');
+        if (!data.destinationAmount) {
+          data.destinationAmount = await this.getValueFromWebTransaction(transaction, 'amount');
+        }
+
+        swapAndWithdrawTransaction.sourceWalletAddress = transaction.from;
+        swapAndWithdrawTransaction.destinationWalletAddress = await this.getValueFromWebTransaction(transaction, 'targetAddress');
+        if(swapAndWithdrawTransaction.sourceWalletAddress){
+          swapAndWithdrawTransaction.sourceWalletAddress = (swapAndWithdrawTransaction.sourceWalletAddress).toLowerCase();
+        }
+        if(swapAndWithdrawTransaction.destinationWalletAddress){
+          swapAndWithdrawTransaction.destinationWalletAddress = (swapAndWithdrawTransaction.destinationWalletAddress).toLowerCase();
+        }
+
+        if(data.sourceAmount){
+          swapAndWithdrawTransaction.sourceAmount = await swapUtilsHelper.amountToHuman_(swapAndWithdrawTransaction.sourceNetwork, swapAndWithdrawTransaction.sourceCabn, data.sourceAmount);
+        }
+      }
+    }catch(e){
+      console.log(e);
+    }
+    return swapAndWithdrawTransaction;
   },
 
 }

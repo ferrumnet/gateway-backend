@@ -37,7 +37,7 @@ module.exports = {
       filterScabn.network = id;
       filterScabn.smartContract = smartContract._id;
       let result = await db.SmartCurrencyAddressesByNetwork.findOne(filterScabn)
-      return result.smartContractAddress;
+      return result?.smartContractAddress;
     }
 
     return null;
