@@ -56,7 +56,8 @@ module.exports = {
     body.salt = model.payBySig.salt;
     body.hash = model.payBySig.hash;
     body.signatures = model.payBySig.signatures;
-    
+    body.bridgeAmount = model.bridgeAmount;
+
     console.log('getWithdrawBody body',body);
     return body;
   }

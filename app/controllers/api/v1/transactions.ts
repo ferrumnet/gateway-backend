@@ -19,7 +19,7 @@ module.exports = function (router: any) {
 
       console.log('update swapAndWitdraw body', req.body);
 
-      let swapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.findOne({ receiveTransactionId: req.params.txHash })
+      let swapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.findOne({ receiveTransactionId: req.params.txHash, status: utils.swapAndWithdrawTransactionStatuses.swapPending })
         .populate('sourceNetwork').populate('destinationNetwork')
         .populate('sourceCabn').populate('destinationCabn');
 
