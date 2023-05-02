@@ -15,8 +15,8 @@ module.exports = {
       body.name = "transactionReceipt";
       body.sourceRpcURL = req.sourceNetwork.rpcUrl;
       body.isSourceNonEVM = req.sourceNetwork.isNonEVM;
-      body.isDestinationNonEVM = req.destinationNetwork.isNonEVM;
       body.destinationRpcURL = req.destinationNetwork.rpcUrl;
+      body.isDestinationNonEVM = req.destinationNetwork.isNonEVM;
       body.bridgeAmount = swapAndWithdrawTransactionObject.bridgeAmount;
       body.txId = swapAndWithdrawTransactionObject.receiveTransactionId;
       console.log("doSwapAndWithdraw createJobBySwapHash body", body);
