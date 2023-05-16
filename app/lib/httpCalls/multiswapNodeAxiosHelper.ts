@@ -7,8 +7,8 @@ module.exports = {
     token: any
   ) {
     try {
-      // let baseUrl = ((global as any) as any).environment.baseUrlMultiswapNodeBackend;
-      let baseUrl = "http://localhost:3000";
+      let baseUrl = (global as any as any).environment
+        .baseUrlMultiswapNodeBackend;
       let url = `${baseUrl}/api/jobs`;
       console.log("doSwapAndWithdraw createJobBySwapHash url", url);
       let body: any = {};
