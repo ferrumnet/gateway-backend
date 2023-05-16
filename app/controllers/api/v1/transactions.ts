@@ -75,17 +75,19 @@ module.exports = function (router: any) {
     signedData: any
   ) {
     try {
-      swapAndWithdrawTransaction.sourceAmount = signedData.amount;
       swapAndWithdrawTransaction.sourceWalletAddress = signedData.from;
       swapAndWithdrawTransaction.destinationWalletAddress =
         signedData.targetAddress;
-      if (swapAndWithdrawTransaction.sourceAmount) {
-        swapAndWithdrawTransaction.sourceAmount =
-          await swapUtilsHelper.amountToHuman_(
-            swapAndWithdrawTransaction.sourceNetwork,
-            swapAndWithdrawTransaction.sourceCabn,
-            swapAndWithdrawTransaction.sourceAmount
-          );
+      if (swapAndWithdrawTransaction.sourceNetwork.isNonEVM == false) {
+        swapAndWithdrawTransaction.sourceAmount = signedData.amount;
+        if (swapAndWithdrawTransaction.sourceAmount) {
+          swapAndWithdrawTransaction.sourceAmount =
+            await swapUtilsHelper.amountToHuman_(
+              swapAndWithdrawTransaction.sourceNetwork,
+              swapAndWithdrawTransaction.sourceCabn,
+              swapAndWithdrawTransaction.sourceAmount
+            );
+        }
       }
     } catch (e) {
       console.log(e);
