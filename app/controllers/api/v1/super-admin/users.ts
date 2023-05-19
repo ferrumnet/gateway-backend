@@ -1,35 +1,44 @@
 const mailer = (global as any).mailer;
-var jwt = require('jsonwebtoken');
-var mongoose = require('mongoose');
-const { v4: uuidv4 } = require('uuid');
+var jwt = require("jsonwebtoken");
+var mongoose = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
 
 module.exports = function (router: any) {
-
-  router.post('/sign-up', async (req: any, res: any) => {
-
-    if (!req.body.firstName || !req.body.lastName || !req.body.email || !req.body.password) {
-      return res.http400('firstName & lastName & & email & password are required.');
+  router.post("/sign-up", async (req: any, res: any) => {
+    if (
+      !req.body.firstName ||
+      !req.body.lastName ||
+      !req.body.email ||
+      !req.body.password
+    ) {
+      return res.http400(
+        "firstName & lastName & & email & password are required."
+      );
     }
 
     let emailCount = await db.Users.count({ email: req.body.email });
 
     if (emailCount > 0) {
-      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorEmailIdAlreadyExists),stringHelper.strErrorEmailIdAlreadyExists,);
+      return res.http400(
+        await commonFunctions.getValueFromStringsPhrase(
+          stringHelper.strErrorEmailIdAlreadyExists
+        ),
+        stringHelper.strErrorEmailIdAlreadyExists
+      );
     }
 
     if (req.body.firstName) {
-      req.body.firstNameInLower = req.body.firstName.toLowerCase()
+      req.body.firstNameInLower = req.body.firstName.toLowerCase();
     }
 
     if (req.body.lastName) {
-      req.body.lastNameInLower = req.body.lastName.toLowerCase()
+      req.body.lastNameInLower = req.body.lastName.toLowerCase();
     }
 
-    req.body.name = req.body.firstName + " " + req.body.lastName
-    req.body.nameInLower = (req.body.name).toLowerCase()
-    req.body.role = 'superAdmin'
-    req.body.createdAt = new Date()
-
+    req.body.name = req.body.firstName + " " + req.body.lastName;
+    req.body.nameInLower = req.body.name.toLowerCase();
+    req.body.role = "superAdmin";
+    req.body.createdAt = new Date();
 
     if (req.body.password) {
       req.body.password = db.Users.getHashedPassword(req.body.password);
@@ -37,121 +46,152 @@ module.exports = function (router: any) {
 
     let user;
     try {
-      user = await db.Users.create(req.body)
+      user = await db.Users.create(req.body);
     } catch (err: any) {
       return res.http400(err.message);
     }
 
     res.http200({
       user: user.toClientObject(),
-      token: user.createAPIToken(user)
+      token: user.createAPIToken(user),
     });
-
   });
 
-  router.post('/sign-in', async (req: any, res: any) => {
-    var filter: any = {}
+  router.post("/sign-in", async (req: any, res: any) => {
+    var filter: any = {};
     if (!req.body.email || !req.body.password) {
-      return res.http400('Email & password is required.');
+      return res.http400("Email & password is required.");
     }
 
-    filter.role = 'superAdmin'
+    filter.role = "superAdmin";
 
-    filter.email = req.body.email
-    //filter.password = req.body.password
+    filter.email = req.body.email;
+    filter.password = db.Users.getHashedPassword(req.body.password);
 
     let user = await db.Users.findOne(filter);
 
     if (user) {
-
       res.http200({
         user: user.toClientObject(),
-        token: user.createAPIToken(user)
+        token: user.createAPIToken(user),
       });
-
     } else {
-      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorInvalidCredentials),stringHelper.strErrorInvalidCredentials,);
+      return res.http401(
+        await commonFunctions.getValueFromStringsPhrase(
+          stringHelper.strErrorInvalidCredentials
+        ),
+        stringHelper.strErrorInvalidCredentials
+      );
     }
   });
 
-  router.get('/profile/me', async (req: any, res: any) => {
+  router.get("/profile/me", async (req: any, res: any) => {
+    let filter: any = {};
+    filter = { _id: req.user._id };
 
-    let filter: any = {}
-    filter = { _id: req.user._id }
-
-    let user = await db.Users.findOne(filter)
+    let user = await db.Users.findOne(filter);
     res.http200({
-      user: user.toClientObject()
+      user: user.toClientObject(),
     });
-
   });
 
-  router.put('/update/active/inactive/:id', async (req: any, res: any) => {
-
+  router.put("/update/active/inactive/:id", async (req: any, res: any) => {
     if (req.body.isActive == null) {
-      return res.http400('isActive is required.');
+      return res.http400("isActive is required.");
     }
 
-    let user = await db.Users.findOneAndUpdate({ _id: req.params.id }, { isActive: req.body.isActive }, { new: true })
+    let user = await db.Users.findOneAndUpdate(
+      { _id: req.params.id },
+      { isActive: req.body.isActive },
+      { new: true }
+    );
 
     if (user) {
       return res.http200({
-        user: user.toClientObject()
+        user: user.toClientObject(),
       });
     } else {
-      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorUserNotFound),stringHelper.strErrorUserNotFound,);
+      return res.http400(
+        await commonFunctions.getValueFromStringsPhrase(
+          stringHelper.strErrorUserNotFound
+        ),
+        stringHelper.strErrorUserNotFound
+      );
     }
-
   });
 
-  router.put('/update/active/inactive/:id', async (req: any, res: any) => {
-
+  router.put("/update/active/inactive/:id", async (req: any, res: any) => {
     if (req.body.isActive == null) {
-      return res.http400('isActive is required.');
+      return res.http400("isActive is required.");
     }
 
-    let user = await db.Users.findOneAndUpdate({ _id: req.params.id }, { isActive: req.body.isActive }, { new: true })
+    let user = await db.Users.findOneAndUpdate(
+      { _id: req.params.id },
+      { isActive: req.body.isActive },
+      { new: true }
+    );
 
     if (user) {
       return res.http200({
-        user: user.toClientObject()
+        user: user.toClientObject(),
       });
     } else {
-      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorUserNotFound),stringHelper.strErrorUserNotFound,);
+      return res.http400(
+        await commonFunctions.getValueFromStringsPhrase(
+          stringHelper.strErrorUserNotFound
+        ),
+        stringHelper.strErrorUserNotFound
+      );
     }
-
   });
 
-  router.put('/update/approval/status/:id', async (req: any, res: any) => {
-
-    if (!req.body.approvalStatusAsOrganizationAdminBySuperAdmin ) {
-      return res.http400('approvalStatusAsOrganizationAdminBySuperAdmin is required.');
+  router.put("/update/approval/status/:id", async (req: any, res: any) => {
+    if (!req.body.approvalStatusAsOrganizationAdminBySuperAdmin) {
+      return res.http400(
+        "approvalStatusAsOrganizationAdminBySuperAdmin is required."
+      );
     }
 
-    let user = await db.Users.findOneAndUpdate({ _id: req.params.id }, { approvalStatusAsOrganizationAdminBySuperAdmin: req.body.approvalStatusAsOrganizationAdminBySuperAdmin }, { new: true })
+    let user = await db.Users.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        approvalStatusAsOrganizationAdminBySuperAdmin:
+          req.body.approvalStatusAsOrganizationAdminBySuperAdmin,
+      },
+      { new: true }
+    );
 
     if (user) {
-
-      if(user.approvalStatusAsOrganizationAdminBySuperAdmin == 'approved'){
-        (global as any).sendGrid.sendGridEmail(user, 'organizationAdminApproved')
-      }else if(user.approvalStatusAsOrganizationAdminBySuperAdmin == 'declined'){
-        (global as any).sendGrid.sendGridEmail(user, 'organizationAdminDeclined')
+      if (user.approvalStatusAsOrganizationAdminBySuperAdmin == "approved") {
+        (global as any).sendGrid.sendGridEmail(
+          user,
+          "organizationAdminApproved"
+        );
+      } else if (
+        user.approvalStatusAsOrganizationAdminBySuperAdmin == "declined"
+      ) {
+        (global as any).sendGrid.sendGridEmail(
+          user,
+          "organizationAdminDeclined"
+        );
       }
 
       return res.http200({
-        user: user.toClientObject()
+        user: user.toClientObject(),
       });
-      
     } else {
-      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorUserNotFound),stringHelper.strErrorUserNotFound,);
+      return res.http400(
+        await commonFunctions.getValueFromStringsPhrase(
+          stringHelper.strErrorUserNotFound
+        ),
+        stringHelper.strErrorUserNotFound
+      );
     }
-
   });
 
-  router.post('/create/application-user', async (req: any, res: any) => {
-
+  router.post("/create/application-user", async (req: any, res: any) => {
     if (!req.body.email || !req.body.userName) {
-      return res.http400('email & userName are required.');
+      return res.http400("email & userName are required.");
     }
 
     let emailCount = await db.Users.count({ email: req.body.email });
@@ -163,133 +203,149 @@ module.exports = function (router: any) {
     let userNameCount = await db.Users.count({ userName: req.body.userName });
 
     if (userNameCount > 0) {
-      return res.http400(await commonFunctions.getValueFromStringsPhrase(stringHelper.strErrorUserNameAlreadyExists),stringHelper.strErrorUserNameAlreadyExists,);
+      return res.http400(
+        await commonFunctions.getValueFromStringsPhrase(
+          stringHelper.strErrorUserNameAlreadyExists
+        ),
+        stringHelper.strErrorUserNameAlreadyExists
+      );
     }
 
-    req.body.apiKey = uuidv4()
-    req.body.role = 'applicationUser'
-    req.body.createdBy = req.user._id
-    req.body.isActive = true
-    req.body.isActive = true
-    req.body.isEmailAuthenticated = true
-    req.body.createdAt = new Date()
+    req.body.apiKey = uuidv4();
+    req.body.role = "applicationUser";
+    req.body.createdBy = req.user._id;
+    req.body.isActive = true;
+    req.body.isActive = true;
+    req.body.isEmailAuthenticated = true;
+    req.body.createdAt = new Date();
 
     try {
-      let user = await db.Users.create(req.body)
+      let user = await db.Users.create(req.body);
       return res.http200({
         user: user.toClientObject(),
-        token: user.createAPIToken(user)
+        token: user.createAPIToken(user),
       });
     } catch (err: any) {
       return res.http400(err.message);
     }
-
   });
 
-  router.get('/profile/:id', async (req: any, res: any) => {
-
-    let filter = {}
-    filter = { _id: req.params.id }
+  router.get("/profile/:id", async (req: any, res: any) => {
+    let filter = {};
+    filter = { _id: req.params.id };
 
     try {
-      let user = await db.Users.findOne(filter)
+      let user = await db.Users.findOne(filter);
       return res.http200({
-        user: user.toClientObject()
+        user: user.toClientObject(),
       });
     } catch (err: any) {
       return res.http400(err.message);
     }
-
   });
 
-  router.get('/list', async (req: any, res: any) => {
+  router.get("/list", async (req: any, res: any) => {
+    var matchFilter: any = {};
+    var filterOrList: any = [];
+    var filterAndList = [];
+    var filter = [];
+    let sort = { createdAt: -1 };
+    let users = [];
 
-    var matchFilter: any = {}
-    var filterOrList: any= []
-    var filterAndList= []
-    var filter = []
-    let sort = { createdAt: -1 }
-    let users = []
-
-
-    if(req.query.name){
-      let reg = new RegExp(unescape(req.query.name), 'i');
-      filterAndList.push({nameInLower: reg})
+    if (req.query.name) {
+      let reg = new RegExp(unescape(req.query.name), "i");
+      filterAndList.push({ nameInLower: reg });
     }
 
-    if(req.query.email) {
-      if(req.query.email.includes(' ')){
-        req.query.email = req.query.email .replace(' ', '+')
+    if (req.query.email) {
+      if (req.query.email.includes(" ")) {
+        req.query.email = req.query.email.replace(" ", "+");
       }
-      console.log(req.query.email)
-      filterAndList.push({email: req.query.email})
+      console.log(req.query.email);
+      filterAndList.push({ email: req.query.email });
     }
 
-
-    if(req.query.role) {
-      filterAndList.push({role: req.query.role})
+    if (req.query.role) {
+      filterAndList.push({ role: req.query.role });
     }
 
-    if(req.query.isEmailAuthenticated) {
-      let isBoolean = false
-      if(req.query.isEmailAuthenticated == 'true'){
-        isBoolean = true
+    if (req.query.isEmailAuthenticated) {
+      let isBoolean = false;
+      if (req.query.isEmailAuthenticated == "true") {
+        isBoolean = true;
       }
-      filterAndList.push({isEmailAuthenticated: isBoolean})
+      filterAndList.push({ isEmailAuthenticated: isBoolean });
     }
 
-    if(req.query.address) {
-      req.query.address = (req.query.address).toLowerCase()
-      filterAndList.push({'addresses.address': req.query.address})
+    if (req.query.address) {
+      req.query.address = req.query.address.toLowerCase();
+      filterAndList.push({ "addresses.address": req.query.address });
     }
 
-    if(req.query.isAddressAuthenticated) {
-      let isBoolean = false
-      if(req.query.isAddressAuthenticated == 'true'){
-        isBoolean = true
+    if (req.query.isAddressAuthenticated) {
+      let isBoolean = false;
+      if (req.query.isAddressAuthenticated == "true") {
+        isBoolean = true;
       }
-      filterAndList.push({'addresses.status.isAddressAuthenticated': isBoolean})
+      filterAndList.push({
+        "addresses.status.isAddressAuthenticated": isBoolean,
+      });
     }
 
-    if(filterOrList && filterOrList.length > 0){
-      matchFilter.$or = []
-      matchFilter.$or.push({$or: filterOrList})
+    if (filterOrList && filterOrList.length > 0) {
+      matchFilter.$or = [];
+      matchFilter.$or.push({ $or: filterOrList });
     }
 
-    if(filterAndList && filterAndList.length > 0){
-      matchFilter.$and = []
-      matchFilter.$and.push({$and: filterAndList})
+    if (filterAndList && filterAndList.length > 0) {
+      matchFilter.$and = [];
+      matchFilter.$and.push({ $and: filterAndList });
     }
 
-    if (req.query.isPagination != null && req.query.isPagination == 'false') {
-
+    if (req.query.isPagination != null && req.query.isPagination == "false") {
       filter = [
-        { $lookup: { from: 'addresses', localField: 'addresses', foreignField: '_id', as: 'addresses' } },
-        { $unwind: { "path": "$addresses","preserveNullAndEmptyArrays": true}},
+        {
+          $lookup: {
+            from: "addresses",
+            localField: "addresses",
+            foreignField: "_id",
+            as: "addresses",
+          },
+        },
+        { $unwind: { path: "$addresses", preserveNullAndEmptyArrays: true } },
         { $match: matchFilter },
-        { $sort: sort }
+        { $sort: sort },
       ];
-
     } else {
-
       filter = [
-        { $lookup: { from: 'addresses', localField: 'addresses', foreignField: '_id', as: 'addresses' } },
-        { $unwind: { "path": "$addresses","preserveNullAndEmptyArrays": true}},
-        { $unset: [ "password", "emailVerificationCode", "forgotPasswordAuthenticationToken", "emailVerificationCodeGenratedAt" ]},
+        {
+          $lookup: {
+            from: "addresses",
+            localField: "addresses",
+            foreignField: "_id",
+            as: "addresses",
+          },
+        },
+        { $unwind: { path: "$addresses", preserveNullAndEmptyArrays: true } },
+        {
+          $unset: [
+            "password",
+            "emailVerificationCode",
+            "forgotPasswordAuthenticationToken",
+            "emailVerificationCodeGenratedAt",
+          ],
+        },
         { $match: matchFilter },
         { $sort: sort },
         { $skip: req.query.offset ? parseInt(req.query.offset) : 0 },
         { $limit: req.query.limit ? parseInt(req.query.limit) : 10 },
       ];
-
     }
 
     users = await db.Users.aggregate(filter);
 
     return res.http200({
-      users: users
+      users: users,
     });
-
   });
-
 };
