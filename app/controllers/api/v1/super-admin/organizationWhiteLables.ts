@@ -20,4 +20,17 @@ module.exports = function (router: any) {
       organizationWhiteLables: organizationWhiteLables,
     });
   });
+
+  router.get("/list", async (req: any, res: any) => {
+    var filter = {};
+
+    let organizationWhiteLables = await db.OrganizationWhiteLables.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(req.query.offset ? parseInt(req.query.offset) : 0)
+      .limit(req.query.limit ? parseInt(req.query.limit) : 10);
+
+    return res.http200({
+      organizationWhiteLables: organizationWhiteLables,
+    });
+  });
 };
