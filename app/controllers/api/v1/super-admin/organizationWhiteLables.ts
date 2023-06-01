@@ -33,4 +33,17 @@ module.exports = function (router: any) {
       organizationWhiteLables: organizationWhiteLables,
     });
   });
+
+  router.get("/:id", async (req: any, res: any) => {
+    let filter = {};
+    filter = { _id: req.params.id };
+
+    let organizationWhiteLables = await db.OrganizationWhiteLables.findOne(
+      filter
+    );
+
+    return res.http200({
+      organizationWhiteLables: organizationWhiteLables,
+    });
+  });
 };
