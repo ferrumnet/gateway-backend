@@ -1,7 +1,7 @@
 module.exports = function (router: any) {
   router.post("/create", async (req: any, res: any) => {
-    if (!req.body.backgroundImage || !req.body.tittle || !req.body.type) {
-      return res.http400("backgroundImage & tittle & type are required.");
+    if (!req.body.type) {
+      return res.http400("type is required.");
     }
 
     req.body.createdByUser = req.user._id;
@@ -41,6 +41,39 @@ module.exports = function (router: any) {
     let organizationWhiteLables = await db.OrganizationWhiteLables.findOne(
       filter
     );
+
+    return res.http200({
+      organizationWhiteLables: organizationWhiteLables,
+    });
+  });
+
+  router.put("/update/:id", async (req: any, res: any) => {
+    let filter = {};
+    filter = { _id: req.params.id };
+
+    if (!req.body.type) {
+      return res.http400("type is required.");
+    }
+
+    req.body.updatedByUser = req.user._id;
+    req.body.updatedAt = new Date();
+
+    let organizationWhiteLables =
+      await db.OrganizationWhiteLables.findOneAndUpdate(filter, req.body, {
+        new: true,
+      });
+
+    return res.http200({
+      organizationWhiteLables: organizationWhiteLables,
+    });
+  });
+
+  router.delete("/:id", async (req: any, res: any) => {
+    let filter = {};
+
+    let organizationWhiteLables = await db.OrganizationWhiteLables.remove({
+      _id: req.params.id,
+    });
 
     return res.http200({
       organizationWhiteLables: organizationWhiteLables,
