@@ -6,7 +6,7 @@ module.exports = function (router: any) {
 
     req.body.createdByUser = req.user._id;
     req.body.updatedByUser = req.user._id;
-    if (req.body.organization) {
+    if (req.body.organizationId) {
       req.body.createdByOrganization = req.body.organizationId;
     }
     req.body.createdAt = new Date();
