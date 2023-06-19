@@ -1,7 +1,7 @@
 module.exports = function (router: any) {
   router.post("/create", async (req: any, res: any) => {
-    if (!req.body.type) {
-      return res.http400("type is required.");
+    if (!req.body.type || !req.body.organizationId) {
+      return res.http400("type & organizationId are required.");
     }
 
     req.body.createdByUser = req.user._id;
