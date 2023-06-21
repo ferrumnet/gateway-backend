@@ -32,6 +32,8 @@ var schema = mongoose.Schema(
     crucibleModalTransactionConfirmationCard: { type: String, default: "" },
     crucibleModalApprovedCard: { type: String, default: "" },
     crucibleModalTransactionProcessedCard: { type: String, default: "" },
+    crucibleModalConnectWalletCard: { type: String, default: "" },
+    crucibleModalAccountCard: { type: String, default: "" },
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
   },
