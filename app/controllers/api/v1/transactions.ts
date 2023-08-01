@@ -70,6 +70,90 @@ module.exports = function (router: any) {
     })
   );
 
+  router.get(
+    "/list",
+    asyncMiddleware(async (req: any, res: any) => {
+      var filter: any = {};
+      let sort = { createdAt: -1 };
+      let transactions = null;
+
+      if (req.query.sourceNetwork) {
+        filter.sourceNetwork = req.query.sourceNetwork;
+      }
+
+      if (req.query.transactionHash) {
+        filter.$or = [
+          {
+            "useTransactions.transactionId": { $in: req.query.transactionHash },
+          },
+          { receiveTransactionId: req.query.transactionHash },
+        ];
+      }
+
+      if (req.query.swapTransactionId) {
+        filter.receiveTransactionId = req.query.swapTransactionId;
+      }
+
+      if (req.query.withdrawTransactionId) {
+        let withdrawTrahsactionHashFilter = {
+          "useTransactions.transactionId": {
+            $in: req.query.withdrawTransactionId,
+          },
+        };
+        filter = { ...withdrawTrahsactionHashFilter, ...filter };
+      }
+
+      console.log(filter);
+
+      if (req.query.isPagination != null && req.query.isPagination == "false") {
+        transactions = await db.SwapAndWithdrawTransactions.find(filter)
+          .populate("destinationNetwork")
+          .populate("sourceNetwork")
+          .populate({
+            path: "toCabn",
+            populate: {
+              path: "currency",
+              model: "currencies",
+            },
+          })
+          .populate({
+            path: "fromCabn",
+            populate: {
+              path: "currency",
+              model: "currencies",
+            },
+          })
+          .sort(sort);
+      } else {
+        transactions = await db.SwapAndWithdrawTransactions.find(filter)
+          .populate("networks")
+          .populate("destinationNetwork")
+          .populate("sourceNetwork")
+          .populate({
+            path: "destinationCabn",
+            populate: {
+              path: "currency",
+              model: "currencies",
+            },
+          })
+          .populate({
+            path: "sourceCabn",
+            populate: {
+              path: "currency",
+              model: "currencies",
+            },
+          })
+          .sort(sort)
+          .skip(req.query.offset ? parseInt(req.query.offset) : 0)
+          .limit(req.query.limit ? parseInt(req.query.limit) : 10);
+      }
+
+      return res.http200({
+        swapAndWithdrawTransactions: transactions,
+      });
+    })
+  );
+
   async function getTransactionDetail(
     swapAndWithdrawTransaction: any,
     signedData: any
