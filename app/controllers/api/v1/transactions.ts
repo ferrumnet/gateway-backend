@@ -77,70 +77,44 @@ module.exports = function (router: any) {
       let sort = { createdAt: -1 };
       let transactions = null;
 
-      if (req.query.sourceNetwork) {
-        filter.sourceNetwork = req.query.sourceNetwork;
+      if (req.query.status) {
+        filter.status = req.query.status;
       }
-
-      if (req.query.transactionHash) {
-        filter.$or = [
-          {
-            "useTransactions.transactionId": { $in: req.query.transactionHash },
-          },
-          { receiveTransactionId: req.query.transactionHash },
-        ];
-      }
-
-      if (req.query.swapTransactionId) {
-        filter.receiveTransactionId = req.query.swapTransactionId;
-      }
-
-      if (req.query.withdrawTransactionId) {
-        let withdrawTrahsactionHashFilter = {
-          "useTransactions.transactionId": {
-            $in: req.query.withdrawTransactionId,
-          },
-        };
-        filter = { ...withdrawTrahsactionHashFilter, ...filter };
-      }
+      filter.version = "v2";
 
       console.log(filter);
 
       if (req.query.isPagination != null && req.query.isPagination == "false") {
         transactions = await db.SwapAndWithdrawTransactions.find(filter)
-          .populate("destinationNetwork")
-          .populate("sourceNetwork")
           .populate({
-            path: "toCabn",
+            path: "destinationNetwork",
             populate: {
-              path: "currency",
-              model: "currencies",
+              path: "multiswapNetworkFIBERInformation",
+              model: "multiswapNetworkFIBERInformations",
             },
           })
           .populate({
-            path: "fromCabn",
+            path: "sourceNetwork",
             populate: {
-              path: "currency",
-              model: "currencies",
+              path: "multiswapNetworkFIBERInformation",
+              model: "multiswapNetworkFIBERInformations",
             },
           })
           .sort(sort);
       } else {
         transactions = await db.SwapAndWithdrawTransactions.find(filter)
-          .populate("networks")
-          .populate("destinationNetwork")
-          .populate("sourceNetwork")
           .populate({
-            path: "destinationCabn",
+            path: "destinationNetwork",
             populate: {
-              path: "currency",
-              model: "currencies",
+              path: "multiswapNetworkFIBERInformation",
+              model: "multiswapNetworkFIBERInformations",
             },
           })
           .populate({
-            path: "sourceCabn",
+            path: "sourceNetwork",
             populate: {
-              path: "currency",
-              model: "currencies",
+              path: "multiswapNetworkFIBERInformation",
+              model: "multiswapNetworkFIBERInformations",
             },
           })
           .sort(sort)
@@ -149,7 +123,7 @@ module.exports = function (router: any) {
       }
 
       return res.http200({
-        swapAndWithdrawTransactions: transactions,
+        transactions: transactions,
       });
     })
   );
