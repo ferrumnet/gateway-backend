@@ -80,7 +80,14 @@ module.exports = function (router: any) {
       if (req.query.status) {
         filter.status = req.query.status;
       }
-      filter.version = "v2";
+
+      if (req.query.address) {
+        filter.validatorSig = {
+          $not: { $elemMatch: { address: req.query.address } },
+        };
+      }
+
+      filter.version = "v3";
 
       console.log(filter);
 

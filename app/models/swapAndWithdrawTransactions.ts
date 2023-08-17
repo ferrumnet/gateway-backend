@@ -32,6 +32,27 @@ var schema = mongoose.Schema(
     sourceTimestamp: { type: Number, default: null },
     sourceCurrency: { type: String, default: "" },
     sourceAmount: { type: String, default: "" },
+    generatorSig: {
+      signatures: [
+        {
+          hash: { type: String, default: "" },
+          signature: { type: String, default: "" },
+        },
+      ],
+      salt: { type: String, default: "" },
+    },
+    validatorSig: [
+      {
+        signatures: [
+          {
+            hash: { type: String, default: "" },
+            signature: { type: String, default: "" },
+          },
+        ],
+        salt: { type: String, default: "" },
+        address: { type: String, default: "" },
+      },
+    ],
     payBySig: {
       hash: { type: String, default: "" },
       signatures: [],

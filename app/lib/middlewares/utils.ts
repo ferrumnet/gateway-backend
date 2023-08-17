@@ -70,6 +70,10 @@ module.exports = function () {
   utils.expectedSchemaVersionV1_2 = "1.2";
   utils.globalTokenExpiryTime = "1800s";
   utils.swapAndWithdrawTransactionStatuses = {
+    generatorSignatureCreated: "generatorSignatureCreated",
+    generatorSignatureFailed: "generatorSignatureFailed",
+    validatorSignatureCreated: "validatorSignatureCreated",
+    validatorSignatureFailed: "validatorSignatureFailed",
     swapPending: "swapPending",
     swapCreated: "swapCreated",
     swapCompleted: "swapCompleted",
