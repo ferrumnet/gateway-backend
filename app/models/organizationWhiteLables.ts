@@ -25,6 +25,27 @@ var schema = mongoose.Schema(
       neutralLight: { type: String, default: "" },
       backgroundLight: { type: String, default: "" },
     },
+    crucibleConfig: {
+      isDashboardEnabled: { type: Boolean, default: true },
+      crucibleFlowType: { type: String, enum: [ 'default', 'mintWithMintAndStake', 'mintAndStakeOnly', 'stakeOnly' ] },
+      isCustomClaimEnabled: { type: Boolean, default: false },
+      customClaimLink: { type: String, default: "" },
+      baseCurrencyCabnId: { type: mongoose.Schema.Types.ObjectId, ref: 'currencyAddressesByNetwork' },
+      crucibleFarms : [
+        {
+          sustainableCrucibleFarms: { type: String, default: "" },
+          stepFlowName: { type: String, default: "" },
+          stakingAddress: { type: String, default: "" },
+          logo: { type: String, default: "" },
+          stepFlowId: { type: String, default: "" },
+          contract: { type: String, default: "" },
+          LpCurrency: { type: String, default: "" },
+          LPstakingAddress: { type: String, default: "" },
+          network: { type: String, default: "" },
+          internalName: { type: String, default: "" }
+        }
+      ]
+    },
     cards: {
       crucibleLandingMiniCard: { type: String, default: "" },
       crucibleIntroductionCard: { type: String, default: "" },

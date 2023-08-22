@@ -6,7 +6,7 @@ module.exports = function (router: any) {
     let organizationId = await db.Organizations.findOne(filter).distinct("_id");
     let organizationWhiteLables = await db.OrganizationWhiteLables.findOne({
       createdByOrganization: organizationId,
-    });
+    }).populate('crucibleConfig.baseCurrencyCabnId');
 
     return res.http200({
       organizationWhiteLables: organizationWhiteLables,
