@@ -42,6 +42,21 @@ module.exports = function (router: any) {
     });
 
   });
+  
+  router.put('/set/non/evm/:id', async (req: any, res: any) => {
+
+    let filter = { _id: req.params.id }
+    let isNonEVM = req.body.isNonEVM
+
+    if (!isValidObjectId(filter._id) || typeof isNonEVM != 'boolean') {
+      return res.http400('Valid walletId & isNonEVM are required.');
+    }
+    let wallet = await db.Wallets.findOneAndUpdate(filter, { isNonEVM }, { new: true })
+    
+    return res.http200({
+      wallet: wallet
+    });
+  });
 
   router.get('/list', async (req: any, res: any) => {
 

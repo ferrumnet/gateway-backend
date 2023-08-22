@@ -20,7 +20,7 @@ module.exports = {
           if ('SecretString' in data) {
             secret = data.SecretString;
             var secretJson = JSON.parse(secret);
-            (global as any).environment = secretJson
+            (global as any).environment = { ...(global as any).environment, ...secretJson }
           } else {
             let buff = new Buffer(data.SecretBinary, 'base64');
             decodedBinarySecret = buff.toString('ascii');

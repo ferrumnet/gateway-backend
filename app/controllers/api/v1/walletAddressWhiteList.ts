@@ -2,8 +2,12 @@ module.exports = function (router: any) {
 
   router.get('/:walletAddress', async (req: any, res: any) => {
     let isAllowed = false;
-    let filter = {}
+    let filter: any = {}
     filter = { walletAddress: req.params.walletAddress };
+
+    if(req.query.stakingContractAddress){
+      filter.stakingContractAddress = req.query.stakingContractAddress;
+    }
 
     let count = await db.WalletAddressWhiteList.countDocuments(filter)
     if(count > 0){

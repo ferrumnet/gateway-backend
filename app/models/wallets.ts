@@ -8,7 +8,8 @@ var schema = mongoose.Schema({
   nameInLower: { type: String, default: ""},
   logo: { type: String, default: "" },
   isActive: { type: Boolean, default: true },
-
+  isNonEVM: { type: Boolean, default: false },
+  
   createdAt: { type: Date, default: new Date() },
   updatedAt: { type: Date, default: new Date() }
 },{ collection: 'wallets' });

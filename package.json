@@ -24,6 +24,7 @@
     "nodemon-prod-cron": "nodemon server.ts prod cron"
   },
   "dependencies": {
+    "@cosmjs/cosmwasm-stargate": "^0.29.5",
     "abi-decoder": "^2.4.0",
     "algosdk": "^1.16.0",
     "array-unique": "^0.3.2",

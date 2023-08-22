@@ -16,9 +16,9 @@ var schema = mongoose.Schema({
   v: { type: Number, default: null },
   timestamp: { type: Number, default: null },
   destinationTransactionTimestamp: { type: Number, default: null },
-  destinationAddress: { type: String, default: "" },
+  destinationWalletAddress: { type: String, default: "" },
   destinationAmount: { type: String, default: "" },
-  sourceAddress: { type: String, default: "" },
+  sourceWalletAddress: { type: String, default: "" },
   sourceTimestamp: { type: Number, default: null },
   sourceCurrency: { type: String, default: "" },
   sourceAmount: { type: String, default: "" },
@@ -63,7 +63,17 @@ var schema = mongoose.Schema({
   creator: { type: String, default: "" },
   sourceSmartContractAddress: { type: String, default: "" },
   destinationSmartContractAddress: { type: String, default: "" },
-
+  nodeJob: {
+    id: { type: String, default: "" },
+    status: { type: String, default: "pending" }, //can be '', 'pending', 'created', 'failed', 'completed'
+    createdAt: { type: Date, default: new Date() },
+    updatedAt: { type: Date, default: new Date() }, 
+  },
+  sourceAssetType: { type: String, default: "" },
+  destinationAssetType: { type: String, default: "" },
+  bridgeAmount: { type: String, default: "" },
+  version: { type: String, default: "" },
+  
 },{ collection: 'swapAndWithdrawTransactions' });
 
 var currenciesModel = mongoose.model("swapAndWithdrawTransactions",schema);
