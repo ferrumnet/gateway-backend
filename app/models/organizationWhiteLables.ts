@@ -28,6 +28,7 @@ var schema = mongoose.Schema(
     crucibleConfig: {
       isDashboardEnabled: { type: Boolean, default: true },
       crucibleFlowType: { type: String, enum: [ 'default', 'mintWithMintAndStake', 'mintAndStakeOnly', 'stakeOnly' ] },
+      crucibleFlowTypeTooltipMessage:  { type: String, default: "" },
       isCustomClaimEnabled: { type: Boolean, default: false },
       customClaimLink: { type: String, default: "" },
       baseCurrency: {
