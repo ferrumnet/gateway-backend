@@ -30,4 +30,75 @@ module.exports = {
     }
     return null;
   },
+
+  async createGeneratorJobBySwapHash(swapAndWithdrawTransactionObject: any) {
+    try {
+      let url = await nodeConfigurationsHelper.getNodeUrl(
+        utils.nodeTypes.generator
+      );
+      console.log("doSwapAndWithdraw createGeneratorJobBySwapHash url", url);
+      let body: any = {};
+      body.swapAndWithdrawTransaction = swapAndWithdrawTransactionObject;
+      let res = await axios.post(url, body);
+      if (res.data) {
+        console.log(
+          "doSwapAndWithdraw createGeneratorJobBySwapHash response",
+          res.data
+        );
+        return true;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    return false;
+  },
+
+  async createMasterJobBySwapHash(swapAndWithdrawTransactionObject: any) {
+    try {
+      let url = await nodeConfigurationsHelper.getNodeUrl(
+        utils.nodeTypes.master
+      );
+      console.log("doSwapAndWithdraw createMasterJobBySwapHash url", url);
+      let body: any = {};
+      body.swapAndWithdrawTransaction = swapAndWithdrawTransactionObject;
+      let res = await axios.post(url, body);
+      if (res.data) {
+        console.log(
+          "doSwapAndWithdraw createMasterJobBySwapHash response",
+          res.data
+        );
+        return true;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    return false;
+  },
+
+  async createValidatorJobsBySwapHash(swapAndWithdrawTransactionObject: any) {
+    try {
+      let urls = await nodeConfigurationsHelper.getValidatorNodeUrls();
+      if (urls && urls.length > 0) {
+        for (let url of urls) {
+          console.log(
+            "doSwapAndWithdraw createValidatorJobsBySwapHash url",
+            url
+          );
+          let body: any = {};
+          body.swapAndWithdrawTransaction = swapAndWithdrawTransactionObject;
+          let res = await axios.post(url, body);
+          if (res.data) {
+            console.log(
+              "doSwapAndWithdraw createValidatorJobsBySwapHash response",
+              res.data
+            );
+          }
+        }
+      }
+      return true;
+    } catch (error) {
+      console.log(error);
+    }
+    return false;
+  },
 };
