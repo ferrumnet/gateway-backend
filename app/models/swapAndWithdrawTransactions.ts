@@ -58,9 +58,6 @@ var schema = mongoose.Schema(
       signatures: [],
       salt: { type: String, default: "" },
     },
-    originCurrency: { type: String, default: "" },
-    sendToCurrency: { type: String, default: "" },
-    used: { type: String, default: "" }, //can be '', 'pending', 'failed', 'completed'
     status: { type: String, default: "swapPending" },
     useTransactions: [
       {
