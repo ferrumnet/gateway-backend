@@ -206,6 +206,10 @@ if (
   global as any
 ).nonEvmHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/nonEvmHelper");
 
+(
+  global as any
+).nodeConfigurationsHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/nodeConfigurationsHelper");
+
 (global as any).kraken = app.kraken;
 // const whitelist = (global as any).environment.whitelist;
 // const corsOptions = {

@@ -38,7 +38,8 @@ declare const db: any,
   withdrawTransactionHelper: any,
   fiberAxiosHelper: any,
   multiswapNodeAxiosHelper: any,
-  nonEvmHelper: any;
+  nonEvmHelper: any,
+  nodeConfigurationsHelper: any;
 
 module.exports = function () {
   const utils: any = {};
@@ -88,6 +89,11 @@ module.exports = function () {
     created: "created",
     failed: "failed",
     completed: "completed",
+  };
+  utils.nodeTypes = {
+    generator: "generator",
+    validator: "validator",
+    master: "master",
   };
   return utils;
 };
