@@ -1,6 +1,34 @@
 var mongoose = require("mongoose");
 
 module.exports = function (router: any) {
+  router.get("/:name", async (req: any, res: any) => {
+    let filter = {};
+    filter = { name: req.params.name.toUpperCase() };
+
+    let currency = await db.Currencies.findOne(filter)
+      .populate({
+        path: "currencyAddressesByNetwork",
+        populate: {
+          path: "network",
+          model: "networks",
+        },
+      })
+      .populate({
+        path: "currencyAddressesByNetwork",
+        populate: {
+          path: "networkDex",
+          populate: {
+            path: "dex",
+            model: "decentralizedExchanges",
+          },
+        },
+      });
+
+    return res.http200({
+      currency: currency,
+    });
+  });
+
   router.get("/cabn/list", async (req: any, res: any) => {
     var matchFilter: any = {};
     var filterOrList = [];
