@@ -75,6 +75,7 @@ module.exports = function () {
     generatorSignatureFailed: "generatorSignatureFailed",
     validatorSignatureCreated: "validatorSignatureCreated",
     validatorSignatureFailed: "validatorSignatureFailed",
+    masterValidationFailed: "masterValidationFailed",
     swapPending: "swapPending",
     swapCreated: "swapCreated",
     swapCompleted: "swapCompleted",
