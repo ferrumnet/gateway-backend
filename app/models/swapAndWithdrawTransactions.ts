@@ -23,8 +23,6 @@ var schema = mongoose.Schema(
     },
     destinationCurrency: { type: String, default: "" },
     receiveTransactionId: { type: String, default: "" },
-    v: { type: Number, default: null },
-    timestamp: { type: Number, default: null },
     destinationTransactionTimestamp: { type: Number, default: null },
     destinationWalletAddress: { type: String, default: "" },
     destinationAmount: { type: String, default: "" },
@@ -59,25 +57,12 @@ var schema = mongoose.Schema(
       salt: { type: String, default: "" },
     },
     status: { type: String, default: "swapPending" },
-    useTransactions: [
+    withdrawTransactions: [
       {
         transactionId: { type: String },
         status: { type: String },
-        timestamp: { type: Number },
       },
     ],
-    execution: {
-      status: { type: String, default: "" }, // can be '', 'pending', 'failed', 'timedout', 'sucess'
-      transactions: {
-        network: { type: String, default: "" },
-        transactionId: { type: String, default: "" },
-        timestamp: { type: Number, default: null },
-        status: { type: String, default: "" }, //can be 'pending', 'failed', 'timedout', 'sucess'
-        message: { type: String, default: "" },
-      },
-    },
-    signature: { type: Number, default: null },
-    blocked: { type: Boolean, default: false },
     creator: { type: String, default: "" },
     sourceSmartContractAddress: { type: String, default: "" },
     destinationSmartContractAddress: { type: String, default: "" },
