@@ -38,7 +38,7 @@ module.exports = {
       );
       console.log("doSwapAndWithdraw createGeneratorJobBySwapHash url", url);
       let body: any = {};
-      body.swapAndWithdrawTransaction = swapAndWithdrawTransactionObject;
+      body.transaction = swapAndWithdrawTransactionObject;
       let res = await axios.post(url, body);
       if (res.data) {
         console.log(
@@ -60,7 +60,7 @@ module.exports = {
       );
       console.log("doSwapAndWithdraw createMasterJobBySwapHash url", url);
       let body: any = {};
-      body.swapAndWithdrawTransaction = swapAndWithdrawTransactionObject;
+      body.transaction = swapAndWithdrawTransactionObject;
       let res = await axios.post(url, body);
       if (res.data) {
         console.log(
@@ -85,7 +85,7 @@ module.exports = {
             url
           );
           let body: any = {};
-          body.swapAndWithdrawTransaction = swapAndWithdrawTransactionObject;
+          body.transaction = swapAndWithdrawTransactionObject;
           let res = await axios.post(url, body);
           if (res.data) {
             console.log(

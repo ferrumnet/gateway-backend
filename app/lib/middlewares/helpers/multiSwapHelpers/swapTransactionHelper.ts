@@ -184,25 +184,39 @@ module.exports = {
   },
 
   async doSwapAndWithdraw(req: any, swapAndWithdrawTransaction: any) {
-    swapAndWithdrawTransaction = await this.createGeneratorNodeJob(
-      req,
-      swapAndWithdrawTransaction
-    );
-
-    swapAndWithdrawTransaction = await this.createValidatorNodeJob(
-      req,
-      swapAndWithdrawTransaction
-    );
-
-    swapAndWithdrawTransaction = await this.createMasterNodeJob(
-      req,
-      swapAndWithdrawTransaction
-    );
+    if (
+      swapAndWithdrawTransaction?.status ==
+      utils.swapAndWithdrawTransactionStatuses.swapPending
+    ) {
+      swapAndWithdrawTransaction = await this.createGeneratorNodeJob(
+        req,
+        swapAndWithdrawTransaction
+      );
+    }
 
     if (
-      swapAndWithdrawTransaction &&
-      swapAndWithdrawTransaction.status ==
-        utils.swapAndWithdrawTransactionStatuses.swapCompleted
+      swapAndWithdrawTransaction?.status ==
+      utils.swapAndWithdrawTransactionStatuses.generatorSignatureCreated
+    ) {
+      swapAndWithdrawTransaction = await this.createValidatorNodeJob(
+        req,
+        swapAndWithdrawTransaction
+      );
+    }
+
+    if (
+      swapAndWithdrawTransaction?.status ==
+      utils.swapAndWithdrawTransactionStatuses.validatorSignatureCreated
+    ) {
+      swapAndWithdrawTransaction = await this.createMasterNodeJob(
+        req,
+        swapAndWithdrawTransaction
+      );
+    }
+
+    if (
+      swapAndWithdrawTransaction?.status ==
+      utils.swapAndWithdrawTransactionStatuses.swapCompleted
     ) {
       withdrawTransactionHelper.doWithdrawSignedFromFIBER(
         req,
@@ -218,70 +232,81 @@ module.exports = {
     filter.createdByUser = req.user._id;
     filter.receiveTransactionId = req.params.swapTxId;
     let count = await db.SwapAndWithdrawTransactions.countDocuments(filter);
-    if (count > 0) {
-      let oldSwapAndWithdrawTransaction =
-        await db.SwapAndWithdrawTransactions.findOne({
-          receiveTransactionId: req.params.swapTxId,
-        });
-      return oldSwapAndWithdrawTransaction;
-    }
-    let sourceCabn = await db.CurrencyAddressesByNetwork.findOne({
-      _id: req.query.sourceCabnId,
-    });
-    let destinationCabn = await db.CurrencyAddressesByNetwork.findOne({
-      _id: req.query.destinationCabnId,
-    });
-    req.query.sourceCabn = sourceCabn ? sourceCabn.tokenContractAddress : "";
-    req.query.destinationCabn = destinationCabn
-      ? destinationCabn.tokenContractAddress
-      : "";
+    if (count == 0) {
+      let sourceCabn = await db.CurrencyAddressesByNetwork.findOne({
+        _id: req.query.sourceCabnId,
+      });
+      let destinationCabn = await db.CurrencyAddressesByNetwork.findOne({
+        _id: req.query.destinationCabnId,
+      });
+      req.query.sourceCabn = sourceCabn ? sourceCabn.tokenContractAddress : "";
+      req.query.destinationCabn = destinationCabn
+        ? destinationCabn.tokenContractAddress
+        : "";
 
-    let sourceNetwork = await db.Networks.findOne({
-      _id: req.query.sourceNetworkId,
-    });
-    let destinationNetwork = await db.Networks.findOne({
-      _id: req.query.destinationNetworkId,
-    });
-    req.query.sourceNetwork = sourceNetwork ? sourceNetwork.chainId : "";
-    req.query.destinationNetwork = destinationNetwork
-      ? destinationNetwork.chainId
-      : "";
+      let sourceNetwork = await db.Networks.findOne({
+        _id: req.query.sourceNetworkId,
+      });
+      let destinationNetwork = await db.Networks.findOne({
+        _id: req.query.destinationNetworkId,
+      });
+      req.query.sourceNetwork = sourceNetwork ? sourceNetwork.chainId : "";
+      req.query.destinationNetwork = destinationNetwork
+        ? destinationNetwork.chainId
+        : "";
 
-    let tokenQuoteInformation =
-      await withdrawTransactionHelper.getTokenQuoteInformationFromFIBER(req);
-    console.log("tokenQuoteInformation", tokenQuoteInformation);
-    if (
-      tokenQuoteInformation &&
-      tokenQuoteInformation.data &&
-      tokenQuoteInformation.data.destinationTokenCategorizedInfo &&
-      tokenQuoteInformation.data.destinationTokenCategorizedInfo
-        .destinationAmount
-    ) {
-      req.query.bridgeAmount =
-        tokenQuoteInformation.data.destinationTokenCategorizedInfo.bridgeAmount;
-      let body: any = {};
-      body.sourceAssetType =
-        tokenQuoteInformation.data.sourceTokenCategorizedInfo.type;
-      body.destinationAssetType =
-        tokenQuoteInformation.data.destinationTokenCategorizedInfo.type;
-      body.receiveTransactionId = req.params.swapTxId;
-      body.sourceAmount = req.query.sourceAmount;
-      body.bridgeAmount = req.query.bridgeAmount;
-      body.version = "v2";
-      body.createdByUser = req.user._id;
-      body.updatedByUser = req.user._id;
-      body.createdAt = new Date();
-      body.updatedAt = new Date();
-      body.sourceCabn = req.query.sourceCabnId;
-      body.destinationCabn = req.query.destinationCabnId;
-      body.sourceNetwork = req.query.sourceNetworkId;
-      body.destinationNetwork = req.query.destinationNetworkId;
-      body.status = utils.swapAndWithdrawTransactionStatuses.swapPending;
-      console.log("doSwapAndWithdraw pendingObject", body);
-      swapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.create(
-        body
-      );
+      let tokenQuoteInformation =
+        await withdrawTransactionHelper.getTokenQuoteInformationFromFIBER(req);
+      console.log("tokenQuoteInformation", tokenQuoteInformation);
+      if (
+        tokenQuoteInformation &&
+        tokenQuoteInformation.data &&
+        tokenQuoteInformation.data.destinationTokenCategorizedInfo &&
+        tokenQuoteInformation.data.destinationTokenCategorizedInfo
+          .destinationAmount
+      ) {
+        req.query.bridgeAmount =
+          tokenQuoteInformation.data.destinationTokenCategorizedInfo.bridgeAmount;
+        let body: any = {};
+        body.sourceAssetType =
+          tokenQuoteInformation.data.sourceTokenCategorizedInfo.type;
+        body.destinationAssetType =
+          tokenQuoteInformation.data.destinationTokenCategorizedInfo.type;
+        body.receiveTransactionId = req.params.swapTxId;
+        body.sourceAmount = req.query.sourceAmount;
+        body.bridgeAmount = req.query.bridgeAmount;
+        body.version = "v3";
+        body.createdByUser = req.user._id;
+        body.updatedByUser = req.user._id;
+        body.createdAt = new Date();
+        body.updatedAt = new Date();
+        body.sourceCabn = req.query.sourceCabnId;
+        body.destinationCabn = req.query.destinationCabnId;
+        body.sourceNetwork = req.query.sourceNetworkId;
+        body.destinationNetwork = req.query.destinationNetworkId;
+        body.status = utils.swapAndWithdrawTransactionStatuses.swapPending;
+        console.log("doSwapAndWithdraw pendingObject", body);
+        swapAndWithdrawTransaction =
+          await db.SwapAndWithdrawTransactions.create(body);
+      }
     }
+    swapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.findOne({
+      receiveTransactionId: req.params.swapTxId,
+    })
+      .populate({
+        path: "destinationNetwork",
+        populate: {
+          path: "multiswapNetworkFIBERInformation",
+          model: "multiswapNetworkFIBERInformations",
+        },
+      })
+      .populate({
+        path: "sourceNetwork",
+        populate: {
+          path: "multiswapNetworkFIBERInformation",
+          model: "multiswapNetworkFIBERInformations",
+        },
+      });
     return swapAndWithdrawTransaction;
   },
 
@@ -338,9 +363,7 @@ module.exports = {
       throw "Invalid operation";
     }
     let count = await db.SwapAndWithdrawTransactions.countDocuments(
-      countFilter,
-      swapAndWithdrawTransactionObject,
-      { new: true }
+      countFilter
     );
     console.log("createGeneratorNodeJob", count);
 
@@ -388,9 +411,7 @@ module.exports = {
       throw "Invalid operation";
     }
     let count = await db.SwapAndWithdrawTransactions.countDocuments(
-      countFilter,
-      swapAndWithdrawTransactionObject,
-      { new: true }
+      countFilter
     );
     console.log("createValidatorNodeJob", count);
 
@@ -435,9 +456,7 @@ module.exports = {
       throw "Invalid operation";
     }
     let count = await db.SwapAndWithdrawTransactions.countDocuments(
-      countFilter,
-      swapAndWithdrawTransactionObject,
-      { new: true }
+      countFilter
     );
     console.log("createMasterNodeJob", count);
 

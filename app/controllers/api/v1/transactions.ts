@@ -197,19 +197,19 @@ module.exports = function (router: any) {
           };
 
           if (
-            swapAndWithdrawTransactionObject.useTransactions &&
-            swapAndWithdrawTransactionObject.useTransactions.length > 0
+            swapAndWithdrawTransactionObject.withdrawTransactions &&
+            swapAndWithdrawTransactionObject.withdrawTransactions.length > 0
           ) {
             let txItem = (
-              swapAndWithdrawTransactionObject.useTransactions || []
+              swapAndWithdrawTransactionObject.withdrawTransactions || []
             ).find((t: any) => t.transactionId === withdrawData.data);
             if (!txItem) {
-              swapAndWithdrawTransactionObject.useTransactions.push(
+              swapAndWithdrawTransactionObject.withdrawTransactions.push(
                 useTransaction
               );
             }
           } else {
-            swapAndWithdrawTransactionObject.useTransactions.push(
+            swapAndWithdrawTransactionObject.withdrawTransactions.push(
               useTransaction
             );
           }

@@ -2,7 +2,10 @@ var mongoose = require("mongoose");
 const TAG_FIBER = "fiber";
 const TAG_GENERATOR = "generator";
 const TAG_VALIDATOR = "validator";
-const NUMBER_OF_VALIDATORS = 1;
+const TAG_MASTER = "master";
+const TAG_MASTER_VALIDATION_ERROR = "masterValidatorError";
+
+const NUMBER_OF_VALIDATORS_SHOULD_BE = 1;
 
 module.exports = function (router: any) {
   router.put(
@@ -77,6 +80,32 @@ module.exports = function (router: any) {
     return swapAndWithdrawTransaction;
   }
 
+  function getMasterSignedData(
+    swapAndWithdrawTransaction: any,
+    signedData: any
+  ) {
+    try {
+      swapAndWithdrawTransaction.payBySig.salt = signedData.salt;
+      swapAndWithdrawTransaction.payBySig.hash = signedData.hash;
+      swapAndWithdrawTransaction.payBySig.signatures = signedData.signatures;
+    } catch (e) {
+      console.log(e);
+    }
+    return swapAndWithdrawTransaction;
+  }
+
+  async function handleMasterValidationError(swapAndWithdrawTransaction: any) {
+    swapAndWithdrawTransaction =
+      await db.SwapAndWithdrawTransactions.findOneAndUpdate(
+        { _id: swapAndWithdrawTransaction._id },
+        {
+          status:
+            utils.swapAndWithdrawTransactionStatuses.masterValidationFailed,
+        },
+        { new: true }
+      );
+  }
+
   async function handleFIBERRequest(req: any) {
     try {
       if (req.body && req.params.txHash) {
@@ -103,19 +132,19 @@ module.exports = function (router: any) {
           };
 
           if (
-            swapAndWithdrawTransactionObject.useTransactions &&
-            swapAndWithdrawTransactionObject.useTransactions.length > 0
+            swapAndWithdrawTransactionObject.withdrawTransactions &&
+            swapAndWithdrawTransactionObject.withdrawTransactions.length > 0
           ) {
             let txItem = (
-              swapAndWithdrawTransactionObject.useTransactions || []
+              swapAndWithdrawTransactionObject.withdrawTransactions || []
             ).find((t: any) => t.transactionId === withdrawData.data);
             if (!txItem) {
-              swapAndWithdrawTransactionObject.useTransactions.push(
+              swapAndWithdrawTransactionObject.withdrawTransactions.push(
                 useTransaction
               );
             }
           } else {
-            swapAndWithdrawTransactionObject.useTransactions.push(
+            swapAndWithdrawTransactionObject.withdrawTransactions.push(
               useTransaction
             );
           }
@@ -158,6 +187,12 @@ module.exports = function (router: any) {
         filter.validatorSig = {
           $not: { $elemMatch: { address: req.query.address } },
         };
+      } else if (
+        req.query.isFrom == TAG_MASTER_VALIDATION_ERROR ||
+        req.query.isFrom == TAG_MASTER
+      ) {
+        filter.status =
+          utils.swapAndWithdrawTransactionStatuses.validatorSignatureCreated;
       }
 
       let swapAndWithdrawTransaction =
@@ -167,10 +202,16 @@ module.exports = function (router: any) {
           .populate("sourceCabn")
           .populate("destinationCabn");
 
+      if (
+        swapAndWithdrawTransaction &&
+        req.query.isFrom == TAG_MASTER_VALIDATION_ERROR
+      ) {
+        await handleMasterValidationError(swapAndWithdrawTransaction);
+        return;
+      }
+
       if (req.body && swapAndWithdrawTransaction) {
         let transactionReceipt = req?.body?.transactionReceipt;
-        swapAndWithdrawTransaction.nodeJob.status =
-          utils.swapAndWithdrawTransactionJobStatuses.completed;
 
         if (req.query.isFrom == TAG_GENERATOR) {
           swapAndWithdrawTransaction = getGeneratorSignedData(
@@ -186,6 +227,11 @@ module.exports = function (router: any) {
             swapAndWithdrawTransaction,
             req.body.signedData
           );
+        } else if (req.query.isFrom == TAG_MASTER) {
+          swapAndWithdrawTransaction = getMasterSignedData(
+            swapAndWithdrawTransaction,
+            req.body.signedData
+          );
         }
 
         if (transactionReceipt?.status && transactionReceipt?.status == true) {
@@ -195,7 +241,7 @@ module.exports = function (router: any) {
           } else if (req.query.isFrom == TAG_VALIDATOR) {
             if (
               swapAndWithdrawTransaction?.validatorSig?.length ==
-              NUMBER_OF_VALIDATORS
+              NUMBER_OF_VALIDATORS_SHOULD_BE
             ) {
               swapAndWithdrawTransaction.status =
                 utils.swapAndWithdrawTransactionStatuses.validatorSignatureCreated;
