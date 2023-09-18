@@ -1,7 +1,7 @@
 module.exports = function (router: any) {
   router.post("/create", async (req: any, res: any) => {
-    if (!req.body.createJobUrl || !req.body.address) {
-      return res.http400("createJobUrl & address are required.");
+    if (!req.body.createJobUrl || !req.body.address || !req.body.type) {
+      return res.http400("createJobUrl & address & type are required.");
     }
 
     req.body.createdByUser = req.user._id;
@@ -20,8 +20,8 @@ module.exports = function (router: any) {
     let filter = {};
     filter = { _id: req.params.id };
 
-    if (!req.body.createJobUrl || !req.body.address) {
-      return res.http400("createJobUrl & address are required.");
+    if (!req.body.createJobUrl || !req.body.address || !req.body.type) {
+      return res.http400("createJobUrl & address & type are required.");
     }
 
     req.body.updatedByUser = req.user._id;

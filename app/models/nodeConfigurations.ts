@@ -7,6 +7,7 @@ var schema = mongoose.Schema(
   {
     createJobUrl: { type: String, default: "" },
     address: { type: String, default: "" },
+    type: { type: String, default: "" },
     isActive: { type: Boolean, default: true },
 
     createdAt: { type: Date, default: new Date() },
