@@ -36,6 +36,7 @@ var schema = mongoose.Schema(
           "stakeOnly",
         ],
       },
+      crucibleFlowTypeTooltipMessage: { type: String, default: "" },
       isCustomClaimEnabled: { type: Boolean, default: false },
       customClaimLink: { type: String, default: "" },
       homeDefaultPath: { type: String, default: "" },
