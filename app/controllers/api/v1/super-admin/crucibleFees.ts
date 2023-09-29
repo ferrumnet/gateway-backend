@@ -14,6 +14,17 @@ module.exports = function (router: any) {
         });
     })
 
+    router.put("/:cabn",  async (req: any, res: any) => {
+        let cabn = req.params.cabn
+        let fee = await db.CrucibleFees.findOneAndUpdate({cabn: cabn}, {
+            ...req.body
+         }, { new: true });
+         
+        return res.http200({
+            data: fee
+        });
+    })
+
     router.post("/",  async (req: any, res: any) => {
         let fees = await db.CrucibleFees.create(req.body)
         return res.http200({
