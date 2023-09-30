@@ -72,7 +72,7 @@ app_global_get
 ==
 assert
 txna ApplicationArgs 1
-callsub sub7
+callsub realaddress_7
 byte "application_admin"
 txna ApplicationArgs 1
 app_global_put
@@ -88,20 +88,20 @@ txna ApplicationArgs 1
 btoi
 txna ApplicationArgs 2
 btoi
-callsub sub14
+callsub addreward_15
 int 1
 return
 main_l17:
 txn Sender
 txna ApplicationArgs 1
 btoi
-callsub sub13
+callsub withdraw_14
 int 1
 return
 main_l18:
 txna ApplicationArgs 1
 btoi
-callsub sub10
+callsub staketoken_11
 int 1
 return
 main_l19:
@@ -114,12 +114,12 @@ byte "staking_token"
 app_global_get
 int 0
 global CurrentApplicationAddress
-callsub sub8
+callsub executeassettransfer_8
 byte "reward_token"
 app_global_get
 int 0
 global CurrentApplicationAddress
-callsub sub8
+callsub executeassettransfer_8
 int 1
 return
 main_l20:
@@ -203,24 +203,26 @@ byte "staking_starts"
 global LatestTimestamp
 app_global_put
 b main_l22
-sub0: // convert_uint_to_bytes
+
+// convert_uint_to_bytes
+convertuinttobytes_0:
 store 9
 load 9
 int 0
 ==
-bnz sub0_l5
+bnz convertuinttobytes_0_l5
 byte ""
 store 10
 load 9
 store 11
-sub0_l2:
+convertuinttobytes_0_l2:
 load 11
 int 0
 >
-bnz sub0_l4
+bnz convertuinttobytes_0_l4
 load 10
-b sub0_l6
-sub0_l4:
+b convertuinttobytes_0_l6
+convertuinttobytes_0_l4:
 load 11
 int 10
 %
@@ -238,104 +240,120 @@ load 11
 int 10
 /
 store 11
-b sub0_l2
-sub0_l5:
+b convertuinttobytes_0_l2
+convertuinttobytes_0_l5:
 byte "0"
-sub0_l6:
+convertuinttobytes_0_l6:
 retsub
-sub1: // staked
+
+// staked
+staked_1:
 store 8
 store 7
 store 6
 byte "staked { token: "
 load 6
-callsub sub0
+callsub convertuinttobytes_0
 concat
 byte ", requested_amount: "
 concat
 load 7
-callsub sub0
+callsub convertuinttobytes_0
 concat
 byte ", staked_amount: "
 concat
 load 8
-callsub sub0
+callsub convertuinttobytes_0
 concat
 byte "}"
 concat
 log
 retsub
-sub2: // paid_out
+
+// paid_out
+paidout_2:
 store 30
 store 29
 store 28
 store 27
 byte "paid_out { token: "
 load 27
-callsub sub0
+callsub convertuinttobytes_0
 concat
 load 28
-callsub sub0
+callsub convertuinttobytes_0
 concat
 byte ", amount: "
 concat
 load 29
-callsub sub0
+callsub convertuinttobytes_0
 concat
 byte ", reward: "
 concat
 load 30
-callsub sub0
+callsub convertuinttobytes_0
 concat
 byte "}"
 concat
 log
 retsub
-sub3: // refunded
+
+// refunded
+refunded_3:
 store 14
 store 13
 byte "refunded { token: "
 load 13
-callsub sub0
+callsub convertuinttobytes_0
 concat
 byte ", amount: "
 concat
 load 14
-callsub sub0
+callsub convertuinttobytes_0
 concat
 byte "}"
 concat
 log
 retsub
-sub4: // positive
+
+// positive
+positive_4:
 store 15
 load 15
 int 0
 >
 assert
 retsub
-sub5: // after
+
+// after
+after_5:
 store 16
 global LatestTimestamp
 load 16
 >=
 assert
 retsub
-sub6: // before
+
+// before
+before_6:
 store 17
 global LatestTimestamp
 load 17
 <
 assert
 retsub
-sub7: // real_address
+
+// real_address
+realaddress_7:
 store 0
 load 0
 global ZeroAddress
 !=
 assert
 retsub
-sub8: // execute_asset_transfer
+
+// execute_asset_transfer
+executeassettransfer_8:
 store 3
 store 2
 store 1
@@ -352,11 +370,13 @@ int 0
 itxn_field Fee
 itxn_submit
 retsub
-sub9: // is_asset_transfered
+
+// is_asset_transfered
+isassettransfered_9:
 store 19
 store 18
 global GroupSize
-int 2
+int 3
 ==
 gtxn 0 TypeEnum
 int axfer
@@ -380,20 +400,52 @@ load 19
 &&
 assert
 retsub
-sub10: // stake_token
+
+// is_reward_transfered
+isrewardtransfered_10:
+store 38
+store 37
+global GroupSize
+int 2
+==
+gtxn 0 TypeEnum
+int axfer
+==
+&&
+gtxn 0 XferAsset
+load 37
+==
+&&
+gtxn 0 Sender
+txn Sender
+==
+&&
+gtxn 0 AssetReceiver
+global CurrentApplicationAddress
+==
+&&
+gtxn 0 AssetAmount
+load 38
+==
+&&
+assert
+retsub
+
+// stake_token
+staketoken_11:
 store 4
 byte "staking_starts"
 app_global_get
-callsub sub5
+callsub after_5
 byte "staking_ends"
 app_global_get
-callsub sub6
+callsub before_6
 load 4
-callsub sub4
+callsub positive_4
 byte "staking_token"
 app_global_get
 load 4
-callsub sub9
+callsub isassettransfered_9
 load 4
 byte "staking_total"
 app_global_get
@@ -401,10 +453,10 @@ byte "staked_balance"
 app_global_get
 -
 >
-bnz sub10_l4
+bnz staketoken_11_l4
 load 4
 store 5
-sub10_l2:
+staketoken_11_l2:
 load 5
 int 0
 >
@@ -420,30 +472,30 @@ assert
 load 5
 load 4
 <
-bz sub10_l5
+bz staketoken_11_l5
 byte "staking_token"
 app_global_get
 load 4
 load 5
 -
 txn Sender
-callsub sub8
+callsub executeassettransfer_8
 byte "staking_token"
 app_global_get
 load 4
 load 5
 -
-callsub sub3
-b sub10_l5
-sub10_l4:
+callsub refunded_3
+b staketoken_11_l5
+staketoken_11_l4:
 byte "staking_total"
 app_global_get
 byte "staked_balance"
 app_global_get
 -
 store 5
-b sub10_l2
-sub10_l5:
+b staketoken_11_l2
+staketoken_11_l5:
 byte "staked_total"
 byte "staked_total"
 app_global_get
@@ -468,9 +520,11 @@ byte "staking_token"
 app_global_get
 load 4
 load 5
-callsub sub1
+callsub staked_1
 retsub
-sub11: // withdraw_early
+
+// withdraw_early
+withdrawearly_12:
 store 23
 store 22
 byte "withdraw_ends"
@@ -499,26 +553,26 @@ app_global_get
 byte "reward_token"
 app_global_get
 ==
-bnz sub11_l2
+bnz withdrawearly_12_l2
 byte "staking_token"
 app_global_get
 load 23
 load 22
-callsub sub8
+callsub executeassettransfer_8
 byte "reward_token"
 app_global_get
 load 25
 load 22
-callsub sub8
+callsub executeassettransfer_8
 byte "staking_token"
 app_global_get
 byte "reward_token"
 app_global_get
 load 23
 load 25
-callsub sub2
-b sub11_l3
-sub11_l2:
+callsub paidout_2
+b withdrawearly_12_l3
+withdrawearly_12_l2:
 load 23
 load 25
 +
@@ -527,15 +581,15 @@ byte "staking_token"
 app_global_get
 load 26
 load 22
-callsub sub8
+callsub executeassettransfer_8
 byte "staking_token"
 app_global_get
 byte "reward_token"
 app_global_get
 load 23
 load 25
-callsub sub2
-sub11_l3:
+callsub paidout_2
+withdrawearly_12_l3:
 byte "reward_balance"
 byte "reward_balance"
 app_global_get
@@ -557,7 +611,9 @@ load 23
 -
 app_local_put
 retsub
-sub12: // withdraw_after_close
+
+// withdraw_after_close
+withdrawafterclose_13:
 store 32
 store 31
 byte "reward_balance"
@@ -573,26 +629,26 @@ app_global_get
 byte "reward_token"
 app_global_get
 ==
-bnz sub12_l2
+bnz withdrawafterclose_13_l2
 byte "staking_token"
 app_global_get
 load 32
 load 31
-callsub sub8
+callsub executeassettransfer_8
 byte "reward_token"
 app_global_get
 load 33
 load 31
-callsub sub8
+callsub executeassettransfer_8
 byte "staking_token"
 app_global_get
 byte "reward_token"
 app_global_get
 load 32
 load 33
-callsub sub2
-b sub12_l3
-sub12_l2:
+callsub paidout_2
+b withdrawafterclose_13_l3
+withdrawafterclose_13_l2:
 load 32
 load 33
 +
@@ -601,15 +657,15 @@ byte "staking_token"
 app_global_get
 load 34
 load 31
-callsub sub8
+callsub executeassettransfer_8
 byte "staking_token"
 app_global_get
 byte "reward_token"
 app_global_get
 load 32
 load 33
-callsub sub2
-sub12_l3:
+callsub paidout_2
+withdrawafterclose_13_l3:
 byte "reward_balance"
 byte "reward_balance"
 app_global_get
@@ -631,12 +687,14 @@ load 32
 -
 app_local_put
 retsub
-sub13: // withdraw
+
+// withdraw
+withdraw_14:
 store 21
 store 20
 byte "withdraw_starts"
 app_global_get
-callsub sub5
+callsub after_5
 load 21
 load 20
 byte "stakes"
@@ -647,23 +705,25 @@ global LatestTimestamp
 byte "withdraw_ends"
 app_global_get
 <
-bnz sub13_l2
+bnz withdraw_14_l2
 load 20
 load 21
-callsub sub12
-b sub13_l3
-sub13_l2:
+callsub withdrawafterclose_13
+b withdraw_14_l3
+withdraw_14_l2:
 load 20
 load 21
-callsub sub11
-sub13_l3:
+callsub withdrawearly_12
+withdraw_14_l3:
 retsub
-sub14: // add_reward
+
+// add_reward
+addreward_15:
 store 36
 store 35
 byte "withdraw_starts"
 app_global_get
-callsub sub6
+callsub before_6
 load 35
 int 0
 >
@@ -679,7 +739,7 @@ assert
 byte "reward_token"
 app_global_get
 load 35
-callsub sub9
+callsub isrewardtransfered_10
 byte "total_rewards"
 byte "total_rewards"
 app_global_get
