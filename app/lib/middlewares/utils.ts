@@ -39,7 +39,8 @@ declare const db: any,
   fiberAxiosHelper: any,
   multiswapNodeAxiosHelper: any,
   nonEvmHelper: any,
-  nodeConfigurationsHelper: any;
+  nodeConfigurationsHelper: any,
+  nodeAuthHelper: any;
 
 module.exports = function () {
   const utils: any = {};

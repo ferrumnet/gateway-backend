@@ -76,7 +76,7 @@ module.exports = function (router: any) {
       var filter: any = {};
       let sort = { createdAt: -1 };
       let transactions = null;
-
+      commonFunctions.doAuthForNodeApis(req);
       if (req.query.status) {
         filter.status = req.query.status;
       }

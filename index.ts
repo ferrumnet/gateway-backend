@@ -210,6 +210,10 @@ if (
   global as any
 ).nodeConfigurationsHelper = require("./app/lib/middlewares/helpers/multiSwapHelpers/nodeConfigurationsHelper");
 
+(
+  global as any
+).nodeAuthHelper = require("./app/lib/middlewares/helpers/nodeAuthHelper");
+
 (global as any).kraken = app.kraken;
 // const whitelist = (global as any).environment.whitelist;
 // const corsOptions = {

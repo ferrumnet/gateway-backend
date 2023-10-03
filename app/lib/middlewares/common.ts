@@ -1,6 +1,6 @@
-import crypto from 'crypto';
+import crypto from "crypto";
 var CryptoJS = require("crypto-js");
-import * as jwt from 'jsonwebtoken';
+import * as jwt from "jsonwebtoken";
 var fs = require("fs");
 
 module.exports = {
@@ -17,7 +17,7 @@ module.exports = {
   },
 
   decodeAPiToken: function (token: any) {
-    return jwt.verify(token, ((global as any) as any).environment.jwtSecret);
+    return jwt.verify(token, (global as any as any).environment.jwtSecret);
   },
 
   async validationForUniqueCBN(req: any, res: any) {
@@ -26,8 +26,7 @@ module.exports = {
         let filter: any = {};
         filter.tokenContractAddress =
           req.body.networks[i].tokenContractAddress.toLowerCase();
-        filter.network =
-          req.body.networks[i].network;
+        filter.network = req.body.networks[i].network;
         let count = await db.CurrencyAddressesByNetwork.count(filter);
         if (count != 0) {
           let stringMessage = await this.getValueFromStringsPhrase(
@@ -46,13 +45,17 @@ module.exports = {
   async validationForSCBN(req: any, res: any, smartContract: any) {
     if (req.body.scabn && req.body.scabn.length > 0) {
       for (let i = 0; i < req.body.scabn.length; i++) {
-        if (!req.body.scabn[i].network
-          || !req.body.scabn[i].smartContractAddress) {
-          return res.http400('network & smartContractAddress are required at ' + (i + 1));
+        if (
+          !req.body.scabn[i].network ||
+          !req.body.scabn[i].smartContractAddress
+        ) {
+          return res.http400(
+            "network & smartContractAddress are required at " + (i + 1)
+          );
         }
       }
 
-      if(smartContract){
+      if (smartContract) {
         for (let i = 0; i < req.body.scabn.length; i++) {
           let filter: any = {};
           filter.smartContract = smartContract._id;
@@ -62,10 +65,10 @@ module.exports = {
             let stringMessage = await this.getValueFromStringsPhrase(
               stringHelper.strErrorNetworkHaveAlreadySmartContract
             );
-            let network = await db.Networks.findOne({ _id: req.body.scabn[i].network });
-            return (
-              network.name+ " " + stringMessage
-            );
+            let network = await db.Networks.findOne({
+              _id: req.body.scabn[i].network,
+            });
+            return network.name + " " + stringMessage;
           }
         }
       }
@@ -76,24 +79,28 @@ module.exports = {
 
   async getValueFromStringsPhrase(queryKey: any) {
     return new Promise((resolve, reject) => {
-      fs.readFile("./app/lib/stringsPhrase.json", "utf8", function (err: any, data: any) {
-        if (err) {
-          console.log(err);
-          resolve("");
-        }
-        if (data) {
-          const phraseObj = JSON.parse(data);
-          if (phraseObj) {
-            for (const [key, value] of Object.entries(phraseObj)) {
-              if (key == queryKey) {
-                resolve(value);
-                return;
+      fs.readFile(
+        "./app/lib/stringsPhrase.json",
+        "utf8",
+        function (err: any, data: any) {
+          if (err) {
+            console.log(err);
+            resolve("");
+          }
+          if (data) {
+            const phraseObj = JSON.parse(data);
+            if (phraseObj) {
+              for (const [key, value] of Object.entries(phraseObj)) {
+                if (key == queryKey) {
+                  resolve(value);
+                  return;
+                }
               }
             }
           }
+          resolve("");
         }
-        resolve("");
-      });
+      );
     });
   },
 
@@ -125,51 +132,92 @@ module.exports = {
   },
 
   async fetchTokenHolderBalanceSnapshotAgainstCABNs(model: any) {
-
-    if (model && model.leaderboard && model.leaderboard.leaderboardCurrencyAddressesByNetwork &&
-      model.leaderboard.leaderboardCurrencyAddressesByNetwork.length > 0) {
-      for (let i = 0; i < model.leaderboard.leaderboardCurrencyAddressesByNetwork.length; i++) {
-        let item = model.leaderboard.leaderboardCurrencyAddressesByNetwork[i].currencyAddressesByNetwork
-        item.tokenHolderBalanceSnapshotEvent = model._id
-          (global as any).timeoutCallBack.fetchTokenHolderBalanceSnapshotEvent(item);
+    if (
+      model &&
+      model.leaderboard &&
+      model.leaderboard.leaderboardCurrencyAddressesByNetwork &&
+      model.leaderboard.leaderboardCurrencyAddressesByNetwork.length > 0
+    ) {
+      for (
+        let i = 0;
+        i < model.leaderboard.leaderboardCurrencyAddressesByNetwork.length;
+        i++
+      ) {
+        let item =
+          model.leaderboard.leaderboardCurrencyAddressesByNetwork[i]
+            .currencyAddressesByNetwork;
+        item.tokenHolderBalanceSnapshotEvent = model
+          ._id(global as any)
+          .timeoutCallBack.fetchTokenHolderBalanceSnapshotEvent(item);
       }
     }
   },
 
   encryptApiKey: function (data: any) {
     try {
-      var ciphertext = CryptoJS.AES.encrypt(data, (global as any).environment.jwtSecret).toString();
+      var ciphertext = CryptoJS.AES.encrypt(
+        data,
+        (global as any).environment.jwtSecret
+      ).toString();
       return ciphertext;
     } catch (e) {
       console.log(e);
-      return '';
+      return "";
     }
   },
 
   decryptApiKey: function (data: any) {
     try {
-      var bytes = CryptoJS.AES.decrypt(data, (global as any).environment.jwtSecret);
+      var bytes = CryptoJS.AES.decrypt(
+        data,
+        (global as any).environment.jwtSecret
+      );
       var originalText = bytes.toString(CryptoJS.enc.Utf8);
       return originalText;
     } catch (e) {
       console.log(e);
-      return '';
+      return "";
+    }
+  },
+
+  encrypt: function (data: string, key: string) {
+    try {
+      var ciphertext = CryptoJS.AES.encrypt(data, key).toString();
+      return ciphertext;
+    } catch (e) {
+      console.log(e);
+      return "";
+    }
+  },
+
+  decrypt: function (data: string, key: string) {
+    try {
+      var bytes = CryptoJS.AES.decrypt(data, key);
+      var originalText = bytes.toString(CryptoJS.enc.Utf8);
+      return originalText;
+    } catch (e) {
+      console.log(e);
+      return "";
     }
   },
 
   doAuthForNodeApis: function (req: any) {
     if (req.headers.authorization) {
-      const token = req.headers.authorization.split(' ')[1];
-      if(token){
-        var bytes = CryptoJS.AES.decrypt(token, (global as any).environment.privateKeyForNode);
-        var originalText = bytes.toString(CryptoJS.enc.Utf8);
-        if (originalText == (global as any).environment.publicKeyForNode) {
-          return;
-        }
+      const token = req.headers.authorization.split(" ")[1];
+      let key = "";
+      if (req.query.isFrom == utils.nodeTypes.generator) {
+        key = (global as any).environment.generatorNodeApiKey;
+      } else if (req.query.isFrom == utils.nodeTypes.validator) {
+        key = (global as any).environment.validatorNodeApiKey;
+      } else if (req.query.isFrom == utils.nodeTypes.master) {
+        key = (global as any).environment.masterNodeApiKey;
+      }
+      if (token && nodeAuthHelper.isTokenValid(token, key)) {
+        return;
       }
     } else {
-      throw 'Authorization header missing';
+      throw "Authorization header missing";
     }
-    throw 'Invalid token';
-  }
+    throw "Invalid token";
+  },
 };

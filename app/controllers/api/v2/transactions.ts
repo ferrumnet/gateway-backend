@@ -1,9 +1,9 @@
 var mongoose = require("mongoose");
 const TAG_FIBER = "fiber";
-const TAG_GENERATOR = "generator";
-const TAG_VALIDATOR = "validator";
-const TAG_MASTER = "master";
-const TAG_MASTER_VALIDATION_ERROR = "masterValidatorError";
+let TAG_GENERATOR = "";
+let TAG_VALIDATOR = "";
+let TAG_MASTER = "";
+let TAG_MASTER_VALIDATION_ERROR = "masterValidatorError";
 
 const NUMBER_OF_VALIDATORS_SHOULD_BE = 1;
 
@@ -11,7 +11,10 @@ module.exports = function (router: any) {
   router.put(
     "/update/swap/and/withdraw/job/:txHash",
     asyncMiddleware(async (req: any, res: any) => {
-      // commonFunctions.doAuthForNodeApis(req);
+      TAG_GENERATOR = utils.nodeTypes.generator;
+      TAG_VALIDATOR = utils.nodeTypes.validator;
+      TAG_MASTER = utils.nodeTypes.master;
+      commonFunctions.doAuthForNodeApis(req);
 
       if (req.query.isFrom == TAG_FIBER) {
         await handleFIBERRequest(req);
