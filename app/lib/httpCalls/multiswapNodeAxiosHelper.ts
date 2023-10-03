@@ -36,10 +36,19 @@ module.exports = {
       let url = await nodeConfigurationsHelper.getNodeUrl(
         utils.nodeTypes.generator
       );
+      let config = {
+        headers: {
+          Authorization:
+            "Bearer " +
+            nodeAuthHelper.createAuthToken(
+              (global as any).environment.generatorNodeApiKey
+            ),
+        },
+      };
       console.log("doSwapAndWithdraw createGeneratorJobBySwapHash url", url);
       let body: any = {};
       body.transaction = swapAndWithdrawTransactionObject;
-      let res = await axios.post(url, body);
+      let res = await axios.post(url, body, config);
       if (res.data) {
         console.log(
           "doSwapAndWithdraw createGeneratorJobBySwapHash response",
@@ -58,10 +67,19 @@ module.exports = {
       let url = await nodeConfigurationsHelper.getNodeUrl(
         utils.nodeTypes.master
       );
+      let config = {
+        headers: {
+          Authorization:
+            "Bearer " +
+            nodeAuthHelper.createAuthToken(
+              (global as any).environment.masterNodeApiKey
+            ),
+        },
+      };
       console.log("doSwapAndWithdraw createMasterJobBySwapHash url", url);
       let body: any = {};
       body.transaction = swapAndWithdrawTransactionObject;
-      let res = await axios.post(url, body);
+      let res = await axios.post(url, body, config);
       if (res.data) {
         console.log(
           "doSwapAndWithdraw createMasterJobBySwapHash response",
@@ -78,6 +96,15 @@ module.exports = {
   async createValidatorJobsBySwapHash(swapAndWithdrawTransactionObject: any) {
     try {
       let urls = await nodeConfigurationsHelper.getValidatorNodeUrls();
+      let config = {
+        headers: {
+          Authorization:
+            "Bearer " +
+            nodeAuthHelper.createAuthToken(
+              (global as any).environment.validatorNodeApiKey
+            ),
+        },
+      };
       if (urls && urls.length > 0) {
         for (let url of urls) {
           console.log(
@@ -86,7 +113,7 @@ module.exports = {
           );
           let body: any = {};
           body.transaction = swapAndWithdrawTransactionObject;
-          let res = await axios.post(url, body);
+          let res = await axios.post(url, body, config);
           if (res.data) {
             console.log(
               "doSwapAndWithdraw createValidatorJobsBySwapHash response",

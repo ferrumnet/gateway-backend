@@ -27,21 +27,36 @@ var schema = mongoose.Schema(
     },
     crucibleConfig: {
       isDashboardEnabled: { type: Boolean, default: true },
-      crucibleFlowType: { type: String, enum: [ 'default', 'mintWithMintAndStake', 'mintAndStakeOnly', 'stakeOnly' ] },
-      crucibleFlowTypeTooltipMessage:  { type: String, default: "" },
+      crucibleFlowType: {
+        type: String,
+        enum: [
+          "default",
+          "mintWithMintAndStake",
+          "mintAndStakeOnly",
+          "stakeOnly",
+        ],
+      },
+      crucibleFlowTypeTooltipMessage: { type: String, default: "" },
       isCustomClaimEnabled: { type: Boolean, default: false },
       customClaimLink: { type: String, default: "" },
+      homeDefaultPath: { type: String, default: "" },
       baseCurrency: {
-        cabn: { type: mongoose.Schema.Types.ObjectId, ref: 'currencyAddressesByNetwork' },
+        cabn: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "currencyAddressesByNetwork",
+        },
         isDexEnabled: { type: Boolean, default: false },
         dexLink: { type: String, default: "" },
       },
-      crucibleFarms : [
+      crucibleFarms: [
         {
           sustainableCrucibleFarms: { type: String, default: "" },
           stepFlowName: { type: String, default: "" },
           stakingAddress: { type: String, default: "" },
-          cabn: { type: mongoose.Schema.Types.ObjectId, ref: 'currencyAddressesByNetwork' },
+          cabn: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "currencyAddressesByNetwork",
+          },
           isDexEnabled: { type: Boolean, default: false },
           contract: { type: String, default: "" },
           crucibleDexLink: { type: String, default: "" },
@@ -50,9 +65,9 @@ var schema = mongoose.Schema(
           LpCurrency: { type: String, default: "" },
           LPstakingAddress: { type: String, default: "" },
           network: { type: String, default: "" },
-          internalName: { type: String, default: "" }
-        }
-      ]
+          internalName: { type: String, default: "" },
+        },
+      ],
     },
     cards: {
       crucibleLandingMiniCard: { type: String, default: "" },
