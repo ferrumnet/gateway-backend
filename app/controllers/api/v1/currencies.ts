@@ -386,4 +386,109 @@ module.exports = function (router: any) {
       currencyAddressesByNetworks: cabns,
     });
   });
+
+  router.get("/cabn/bulk/list", async (req: any, res: any) => {
+    let filter: any[] = [];
+    const query: { [key: string]: string | boolean } = {};
+    const embeddedDocumentQuery: { [key: string]: any } = {};
+
+    if (req.query.network) {
+      query["network"] = new mongoose.Types.ObjectId(req.query.network);
+    }
+    if (req.query.tokenContractAddress) {
+      query["tokenContractAddress"] =
+        req.query.tokenContractAddress.toLowerCase();
+    }
+    if (req.query.isAllowedOnMultiSwap === "true") {
+      query["isAllowedOnMultiSwap"] = true;
+    } else if (req.query.isAllowedOnMultiSwap === "false") {
+      query["isAllowedOnMultiSwap"] = false;
+    }
+
+    if (Object.keys(query).length) {
+      filter = [
+        {
+          $match: {
+            ...query,
+          },
+        },
+      ];
+    }
+
+    filter = [
+      ...filter,
+      {
+        $lookup: {
+          from: "networks",
+          localField: "network",
+          foreignField: "_id",
+          as: "network",
+        },
+      },
+      { $unwind: { path: "$network", preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: "currencies",
+          localField: "currency",
+          foreignField: "_id",
+          as: "currency",
+        },
+      },
+      { $unwind: { path: "$currency", preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          tokenContractAddress: 1,
+          isActive: 1,
+          isAllowedOnMultiSwap: 1,
+          "network._id": 1,
+          "network.name": 1,
+          "network.nameInLower": 1,
+          "network.networkShortName": 1,
+          "network.logo": 1,
+          "network.chainId": 1,
+          "network.isNonEVM": 1,
+          "network.multiSwapFiberRouterSmartContractAddress": 1,
+          "currency.name": 1,
+          "currency.nameInLower": 1,
+          "currency.symbol": 1,
+          "currency.logo": 1,
+        },
+      },
+    ];
+
+    if (req.query.chainId) {
+      embeddedDocumentQuery["network.chainId"] = req.query.chainId;
+    }
+    if (req.query.search) {
+      const reg = new RegExp(req.query.search, "i");
+      embeddedDocumentQuery.$or = [
+        { "currency.name": reg },
+        { "currency.nameInLower": reg },
+        { "currency.symbol": reg },
+        { tokenContractAddress: reg },
+      ];
+    }
+
+    if (Object.keys(embeddedDocumentQuery).length) {
+      filter.push({
+        $match: {
+          ...embeddedDocumentQuery,
+        },
+      });
+    }
+
+    if (req.query.isPagination && req.query.isPagination == "true") {
+      filter = [
+        ...filter,
+        { $skip: req.query.offset ? parseInt(req.query.offset) : 0 },
+        { $limit: req.query.limit ? parseInt(req.query.limit) : 10 },
+      ];
+    }
+
+    const cabns = await db.CurrencyAddressesByNetwork.aggregate(filter);
+
+    return res.http200({
+      currencyAddressesByNetworks: cabns,
+    });
+  });
 };
