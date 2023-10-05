@@ -389,7 +389,7 @@ module.exports = function (router: any) {
 
   router.get("/cabn/bulk/list", async (req: any, res: any) => {
     let filter: any[] = [];
-    const query: { [key: string]: string | boolean } = {};
+    const query: { [key: string]: any } = {};
     const embeddedDocumentQuery: { [key: string]: any } = {};
 
     if (req.query.network) {
@@ -405,7 +405,50 @@ module.exports = function (router: any) {
       query["isAllowedOnMultiSwap"] = false;
     }
 
-    if (Object.keys(query).length) {
+    if (
+      Object.keys(query).length &&
+      req.query.network &&
+      req.query.priority === "true"
+    ) {
+      filter = [
+        {
+          $facet: {
+            prioritySorted: [
+              {
+                $match: {
+                  priority: { $exists: true, $ne: 0 },
+                  network: mongoose.Types.ObjectId(req.query.network),
+                },
+              },
+              { $sort: { priority: 1 } },
+            ],
+            alphabeticalSorted: [
+              {
+                $match: {
+                  priority: { $exists: false },
+                  network: mongoose.Types.ObjectId(req.query.network),
+                },
+              },
+              { $sort: { name: 1 } },
+            ],
+          },
+        },
+        {
+          $project: {
+            items: {
+              $concatArrays: ["$prioritySorted", "$alphabeticalSorted"],
+            },
+          },
+        },
+        {
+          $unwind: {
+            path: "$items",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        { $replaceRoot: { newRoot: "$items" } },
+      ];
+    } else if (Object.keys(query).length) {
       filter = [
         {
           $match: {
@@ -439,6 +482,7 @@ module.exports = function (router: any) {
         $project: {
           tokenContractAddress: 1,
           isActive: 1,
+          priority: 1,
           isAllowedOnMultiSwap: 1,
           "network._id": 1,
           "network.name": 1,
@@ -475,113 +519,6 @@ module.exports = function (router: any) {
           ...embeddedDocumentQuery,
         },
       });
-    }
-
-    if (req.query.isPagination && req.query.isPagination == "true") {
-      filter = [
-        ...filter,
-        { $skip: req.query.offset ? parseInt(req.query.offset) : 0 },
-        { $limit: req.query.limit ? parseInt(req.query.limit) : 10 },
-      ];
-    }
-
-    const cabns = await db.CurrencyAddressesByNetwork.aggregate(filter);
-
-    return res.http200({
-      currencyAddressesByNetworks: cabns,
-    });
-  });
-
-  router.get("/cabn/network/:networkId", async (req: any, res: any) => {
-    let filter: any[] = [];
-
-    if (!req.params.networkId) {
-      return res.http400("networkId is required.");
-    }
-
-    filter = [
-      {
-        $match: {
-          network: new mongoose.Types.ObjectId(req.params.networkId),
-        },
-      },
-      {
-        $lookup: {
-          from: "networks",
-          localField: "network",
-          foreignField: "_id",
-          as: "network",
-        },
-      },
-      { $unwind: { path: "$network", preserveNullAndEmptyArrays: true } },
-      {
-        $lookup: {
-          from: "currencies",
-          localField: "currency",
-          foreignField: "_id",
-          as: "currency",
-        },
-      },
-      { $unwind: { path: "$currency", preserveNullAndEmptyArrays: true } },
-      {
-        $project: {
-          tokenContractAddress: 1,
-          isActive: 1,
-          isAllowedOnMultiSwap: 1,
-          priority: 1,
-          "network._id": 1,
-          "network.name": 1,
-          "network.nameInLower": 1,
-          "network.networkShortName": 1,
-          "network.logo": 1,
-          "network.chainId": 1,
-          "network.isNonEVM": 1,
-          "network.multiSwapFiberRouterSmartContractAddress": 1,
-          "currency.name": 1,
-          "currency.nameInLower": 1,
-          "currency.symbol": 1,
-          "currency.logo": 1,
-        },
-      },
-    ];
-
-    if (req.query.priority) {
-      filter.push(
-        {
-          $facet: {
-            prioritySorted: [
-              {
-                $match: {
-                  priority: { $exists: true, $ne: 0 },
-                },
-              },
-              { $sort: { priority: 1 } },
-            ],
-            alphabeticalSorted: [
-              {
-                $match: {
-                  priority: { $exists: false },
-                },
-              },
-              { $sort: { name: 1 } },
-            ],
-          },
-        },
-        {
-          $project: {
-            items: {
-              $concatArrays: ["$prioritySorted", "$alphabeticalSorted"],
-            },
-          },
-        },
-        {
-          $unwind: {
-            path: "$items",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        { $replaceRoot: { newRoot: "$items" } }
-      );
     }
 
     if (req.query.isPagination && req.query.isPagination == "true") {
