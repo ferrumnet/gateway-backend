@@ -425,7 +425,10 @@ module.exports = function (router: any) {
             alphabeticalSorted: [
               {
                 $match: {
-                  priority: { $exists: false },
+                  $or: [
+                    { priority: { $exists: false } },
+                    { priority: { $eq: 0 } },
+                  ],
                   ...query,
                 },
               },
