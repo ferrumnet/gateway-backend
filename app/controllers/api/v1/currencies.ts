@@ -417,7 +417,7 @@ module.exports = function (router: any) {
               {
                 $match: {
                   priority: { $exists: true, $ne: 0 },
-                  network: mongoose.Types.ObjectId(req.query.network),
+                  ...query,
                 },
               },
               { $sort: { priority: 1 } },
@@ -425,8 +425,11 @@ module.exports = function (router: any) {
             alphabeticalSorted: [
               {
                 $match: {
-                  priority: { $exists: false },
-                  network: mongoose.Types.ObjectId(req.query.network),
+                  $or: [
+                    { priority: { $exists: false } },
+                    { priority: { $eq: 0 } },
+                  ],
+                  ...query,
                 },
               },
               { $sort: { name: 1 } },
@@ -532,7 +535,7 @@ module.exports = function (router: any) {
     const cabns = await db.CurrencyAddressesByNetwork.aggregate(filter);
 
     return res.http200({
-      length: cabns.length,
+      count: cabns.length,
       currencyAddressesByNetworks: cabns,
     });
   });
