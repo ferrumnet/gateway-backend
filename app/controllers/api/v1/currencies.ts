@@ -461,8 +461,6 @@ module.exports = function (router: any) {
       ];
     }
 
-    console.log("filter", JSON.stringify(filter));
-
     filter = [
       ...filter,
       {
