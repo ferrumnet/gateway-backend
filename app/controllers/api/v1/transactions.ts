@@ -124,38 +124,47 @@ module.exports = function (router: any) {
             throw "Invalid operation";
           }
 
-          let useTransaction = {
-            transactionId: withdrawData.data,
-            status:
-              utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted,
-            timestamp: new Date(),
-          };
+          if (req?.body?.responseCode && req?.body?.responseCode == 200) {
+            let useTransaction = {
+              transactionId: withdrawData.data,
+              status:
+                utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted,
+              timestamp: new Date(),
+            };
 
-          if (
-            swapAndWithdrawTransactionObject.useTransactions &&
-            swapAndWithdrawTransactionObject.useTransactions.length > 0
-          ) {
-            let txItem = (
-              swapAndWithdrawTransactionObject.useTransactions || []
-            ).find((t: any) => t.transactionId === withdrawData.data);
-            if (!txItem) {
+            if (
+              swapAndWithdrawTransactionObject.useTransactions &&
+              swapAndWithdrawTransactionObject.useTransactions.length > 0
+            ) {
+              let txItem = (
+                swapAndWithdrawTransactionObject.useTransactions || []
+              ).find((t: any) => t.transactionId === withdrawData.data);
+              if (!txItem) {
+                swapAndWithdrawTransactionObject.useTransactions.push(
+                  useTransaction
+                );
+              }
+            } else {
               swapAndWithdrawTransactionObject.useTransactions.push(
                 useTransaction
               );
             }
+
+            if (withdrawData.withdraw.destinationAmount) {
+              swapAndWithdrawTransactionObject.destinationAmount =
+                withdrawData.withdraw.destinationAmount;
+            }
+            swapAndWithdrawTransactionObject.status =
+              utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted;
           } else {
-            swapAndWithdrawTransactionObject.useTransactions.push(
-              useTransaction
-            );
+            swapAndWithdrawTransactionObject.status =
+              utils.swapAndWithdrawTransactionStatuses.swapWithdrawFailed;
           }
 
-          if (withdrawData.withdraw.destinationAmount) {
-            swapAndWithdrawTransactionObject.destinationAmount =
-              withdrawData.withdraw.destinationAmount;
-          }
-
-          swapAndWithdrawTransactionObject.status =
-            utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted;
+          swapAndWithdrawTransactionObject.responseCode =
+            req?.body?.responseCode;
+          swapAndWithdrawTransactionObject.responseMessage =
+            req?.body?.responseMessage;
           swapAndWithdrawTransactionObject.updatedAt = new Date();
           swapAndWithdrawTransactionObject =
             await db.SwapAndWithdrawTransactions.findOneAndUpdate(
