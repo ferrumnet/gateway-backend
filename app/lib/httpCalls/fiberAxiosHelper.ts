@@ -15,7 +15,7 @@ module.exports = {
       };
       let baseUrl = (global as any as any).environment
         .baseUrlFIBEREngineBackend;
-      let url = `${baseUrl}/v2/multiswap/withdraw/signed/${swapAndWithdrawTransactionObject.receiveTransactionId}`;
+      let url = `${baseUrl}/v1/multiswap/withdraw/signed/${swapAndWithdrawTransactionObject.receiveTransactionId}`;
       console.log("doSwapAndWithdraw doWithdrawSigned url", url);
       let res = await axios.post(
         url,
@@ -72,6 +72,8 @@ module.exports = {
     body.hash = model.payBySig.hash;
     body.signatures = model.payBySig.signatures;
     body.bridgeAmount = model.bridgeAmount;
+    body.sourceAssetType = model.sourceAssetType;
+    body.destinationAssetType = model.destinationAssetType;
 
     console.log("getWithdrawBody body", body);
     return body;
