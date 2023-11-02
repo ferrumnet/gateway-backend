@@ -16,7 +16,7 @@ module.exports = function (router: any) {
         }
       }
     }).populate('crucibleConfig.crucibleFarms.cabn')
-    .populate('leaderboardConfig.leaderboardRefs')
+    .populate('leaderboardConfig.leaderboards')
 
     return res.http200({
       organizationWhiteLables: organizationWhiteLables,

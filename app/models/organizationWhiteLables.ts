@@ -26,7 +26,7 @@ var schema = mongoose.Schema(
       backgroundLight: { type: String, default: "" },
     },
     leaderboardConfig: {
-      leaderboardRefs: [
+      leaderboards: [
         { type: mongoose.Schema.Types.ObjectId, ref: "leaderboards" },
       ],
     },
