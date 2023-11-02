@@ -30,7 +30,18 @@ var schema = mongoose.Schema({
       }
     }
   ],
-
+  snapHodlConfigId: { type: String, default: "" },
+  snapShotConfigName: { type: String, default: "" },
+  stakingContractDataBalances: [
+    {
+      stakingContractAddress: { type: String, default: "" },
+      tokenContractAddress: { type: String, default: "" },
+      chainId: { type: String, default: "" },
+      totalStakedBalance: { type: String, default: "" },
+    },
+  ],
+  levelUpUrl: { type: String, default: "" },
+  balanceColumnName: { type: String, default: "" },
   createdAt: { type: Date, default: new Date() },
   updatedAt: { type: Date, default: new Date() },
 }, { collection: 'leaderboards' });
