@@ -45,8 +45,11 @@ async function triggerJobs(offset: any) {
       req.swapTxId = transaction.receiveTransactionId;
       req.sourceNetwork = transaction.sourceNetwork;
       req.destinationNetwork = transaction.destinationNetwork;
-      req.query.bridgeAmount = transaction.bridgeAmount
-        ? transaction.bridgeAmount
+      req.query.sourceBridgeAmount = transaction.sourceBridgeAmount
+        ? transaction.sourceBridgeAmount
+        : 0;
+      req.query.destinationBridgeAmount = transaction.destinationBridgeAmount
+        ? transaction.destinationBridgeAmount
         : 0;
       user._id = transaction.createdByUser;
       req.user = user;
