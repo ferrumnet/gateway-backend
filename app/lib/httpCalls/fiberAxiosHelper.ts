@@ -71,7 +71,8 @@ module.exports = {
     body.salt = model.payBySig.salt;
     body.hash = model.payBySig.hash;
     body.signatures = model.payBySig.signatures;
-    body.bridgeAmount = model.bridgeAmount;
+    body.destinationBridgeAmount = model.destinationBridgeAmount;
+    body.sourceBridgeAmount = model.sourceBridgeAmount;
     body.sourceAssetType = model.sourceAssetType;
     body.destinationAssetType = model.destinationAssetType;
 

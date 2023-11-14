@@ -25,11 +25,6 @@ var schema = mongoose.Schema(
       neutralLight: { type: String, default: "" },
       backgroundLight: { type: String, default: "" },
     },
-    leaderboardConfig: {
-      leaderboards: [
-        { type: mongoose.Schema.Types.ObjectId, ref: "leaderboards" },
-      ],
-    },
     crucibleConfig: {
       isDashboardEnabled: { type: Boolean, default: true },
       crucibleFlowType: {
