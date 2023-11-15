@@ -5,7 +5,7 @@ const DELAY = 120000;
 module.exports = function () {
   if (
     (global as any).starterEnvironment
-      .isCronEnvironmentSupportedForSwapAndWithdrawTransactionsJob === "yes"
+      .isCronEnvironmentSupportedForSwapAndWithdrawTransactionsJob === "no"
   ) {
     start();
   }
