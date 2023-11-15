@@ -193,9 +193,11 @@ module.exports = {
       !req.query.sourceNetworkId ||
       !req.query.destinationNetworkId ||
       !req.query.sourceCabnId ||
-      !req.query.destinationCabnId
+      !req.query.destinationCabnId ||
+      !req.query.sourceAssetType ||
+      !req.query.destinationAssetType
     ) {
-      throw "swapTxId & sourceNetworkId & destinationNetworkId & sourceCabnId & destinationCabnId are required.";
+      throw "swapTxId & sourceNetworkId & destinationNetworkId & sourceCabnId & destinationCabnId & sourceAssetType & destinationAssetType are required.";
     }
 
     if (!mongoose.Types.ObjectId.isValid(req.query.sourceNetworkId)) {
@@ -280,44 +282,27 @@ module.exports = {
       ? destinationNetwork.chainId
       : "";
 
-    let tokenQuoteInformation =
-      await withdrawTransactionHelper.getTokenQuoteInformationFromFIBER(req);
-    console.log("tokenQuoteInformation", tokenQuoteInformation);
-    if (
-      tokenQuoteInformation &&
-      tokenQuoteInformation.data &&
-      tokenQuoteInformation.data.destinationTokenCategorizedInfo &&
-      tokenQuoteInformation.data.destinationTokenCategorizedInfo
-        .destinationAmount
-    ) {
-      req.query.sourceBridgeAmount =
-        tokenQuoteInformation.data.sourceTokenCategorizedInfo.sourceBridgeAmount;
-      req.query.destinationBridgeAmount =
-        tokenQuoteInformation.data.destinationTokenCategorizedInfo.destinationBridgeAmount;
-      let body: any = {};
-      body.sourceAssetType =
-        tokenQuoteInformation.data.sourceTokenCategorizedInfo.type;
-      body.destinationAssetType =
-        tokenQuoteInformation.data.destinationTokenCategorizedInfo.type;
-      body.receiveTransactionId = req.params.swapTxId;
-      body.sourceAmount = req.query.sourceAmount;
-      body.sourceBridgeAmount = req.query.sourceBridgeAmount;
-      body.destinationBridgeAmount = req.query.destinationBridgeAmount;
-      body.version = "v2";
-      body.createdByUser = req.user._id;
-      body.updatedByUser = req.user._id;
-      body.createdAt = new Date();
-      body.updatedAt = new Date();
-      body.sourceCabn = req.query.sourceCabnId;
-      body.destinationCabn = req.query.destinationCabnId;
-      body.sourceNetwork = req.query.sourceNetworkId;
-      body.destinationNetwork = req.query.destinationNetworkId;
-      body.status = utils.swapAndWithdrawTransactionStatuses.swapPending;
-      console.log("doSwapAndWithdraw pendingObject", body);
-      swapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.create(
-        body
-      );
-    }
+    let body: any = {};
+    body.sourceAssetType = req.query.sourceAssetType;
+    body.destinationAssetType = req.query.destinationAssetType;
+    body.receiveTransactionId = req.params.swapTxId;
+    body.sourceAmount = req.query.sourceAmount;
+    body.sourceBridgeAmount = req.query.sourceBridgeAmount;
+    body.destinationBridgeAmount = req.query.destinationBridgeAmount;
+    body.version = "v2";
+    body.createdByUser = req.user._id;
+    body.updatedByUser = req.user._id;
+    body.createdAt = new Date();
+    body.updatedAt = new Date();
+    body.sourceCabn = req.query.sourceCabnId;
+    body.destinationCabn = req.query.destinationCabnId;
+    body.sourceNetwork = req.query.sourceNetworkId;
+    body.destinationNetwork = req.query.destinationNetworkId;
+    body.status = utils.swapAndWithdrawTransactionStatuses.swapPending;
+    console.log("doSwapAndWithdraw pendingObject", body);
+    swapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.create(
+      body
+    );
     return swapAndWithdrawTransaction;
   },
 
