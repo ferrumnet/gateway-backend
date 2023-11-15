@@ -487,6 +487,7 @@ module.exports = function (router: any) {
           isActive: 1,
           priority: 1,
           isAllowedOnMultiSwap: 1,
+          decimals: 1,
           "network._id": 1,
           "network.name": 1,
           "network.nameInLower": 1,
