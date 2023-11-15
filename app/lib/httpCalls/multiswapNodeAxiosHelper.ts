@@ -9,6 +9,9 @@ module.exports = {
     try {
       let baseUrl = (global as any as any).environment
         .baseUrlMultiswapNodeBackend;
+      if ((global as any as any).utils.IS_LOCAL_ENV) {
+        baseUrl = "http://localhost:3000";
+      }
       let url = `${baseUrl}/api/jobs`;
       console.log("doSwapAndWithdraw createJobBySwapHash url", url);
       let body: any = {};

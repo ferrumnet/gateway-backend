@@ -100,6 +100,8 @@ module.exports = function (router: any) {
       swapAndWithdrawTransaction.payBySig.salt = signedData.salt;
       swapAndWithdrawTransaction.payBySig.hash = signedData.hash;
       swapAndWithdrawTransaction.payBySig.signatures = signedData.signatures;
+      swapAndWithdrawTransaction.destinationBridgeAmount =
+        signedData.swapBridgeAmount;
     } catch (e) {
       console.log(e);
     }
