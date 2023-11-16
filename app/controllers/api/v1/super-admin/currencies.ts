@@ -516,4 +516,42 @@ module.exports = function (router: any) {
       cabn: cabn,
     });
   });
+
+  router.patch("/cabn/priority/:cabnId", async (req: any, res: any) => {
+    if (!req.params.cabnId) {
+      return res.http400("cabnId is required");
+    }
+
+    const cabn = await db.CurrencyAddressesByNetwork.findOneAndUpdate(
+      { _id: req.params.cabnId },
+      { $set: { priority: req.body.priority } },
+      { new: true }
+    );
+
+    return res.http200({
+      cabn,
+    });
+  });
+
+  router.patch("/cabn/priority", async (req: any, res: any) => {
+    if (!req.body.priorities || !req.body.priorities.length) {
+      return res.http400(
+        "Priorities array is required and should not be empty array."
+      );
+    }
+
+    const cabns = await Promise.all(
+      req.body.priorities.map((item: any) => {
+        return db.CurrencyAddressesByNetwork.updateOne(
+          { _id: item.cabnId },
+          { $set: { priority: item.priority } },
+          { new: true }
+        );
+      })
+    );
+
+    return res.http200({
+      cabns,
+    });
+  });
 };

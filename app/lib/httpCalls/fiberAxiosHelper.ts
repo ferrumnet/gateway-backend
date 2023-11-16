@@ -15,7 +15,10 @@ module.exports = {
       };
       let baseUrl = (global as any as any).environment
         .baseUrlFIBEREngineBackend;
-      let url = `${baseUrl}/v2/multiswap/withdraw/signed/${swapAndWithdrawTransactionObject.receiveTransactionId}`;
+      if ((global as any as any).utils.IS_LOCAL_ENV) {
+        baseUrl = "http://localhost:8081/api";
+      }
+      let url = `${baseUrl}/v1/multiswap/withdraw/signed/${swapAndWithdrawTransactionObject.receiveTransactionId}`;
       console.log("doSwapAndWithdraw doWithdrawSigned url", url);
       let res = await axios.post(
         url,
@@ -45,6 +48,9 @@ module.exports = {
       };
       let baseUrl = (global as any as any).environment
         .baseUrlFIBEREngineBackend;
+      if ((global as any as any).utils.IS_LOCAL_ENV) {
+        baseUrl = "http://localhost:8081/api";
+      }
       let url = `${baseUrl}/v1/multiswap/token/categorized/quote/info?sourceAmount=${req.query.sourceAmount}&sourceNetworkChainId=${req.query.sourceNetwork}&destinationNetworkChainId=${req.query.destinationNetwork}&sourceTokenContractAddress=${req.query.sourceCabn}&destinationTokenContractAddress=${req.query.destinationCabn}`;
       console.log("getTokenQuoteInformation url", url);
       let res = await axios.get(url, config);
@@ -71,7 +77,10 @@ module.exports = {
     body.salt = model.payBySig.salt;
     body.hash = model.payBySig.hash;
     body.signatures = model.payBySig.signatures;
-    body.bridgeAmount = model.bridgeAmount;
+    body.destinationBridgeAmount = model.destinationBridgeAmount;
+    body.sourceBridgeAmount = model.sourceBridgeAmount;
+    body.sourceAssetType = model.sourceAssetType;
+    body.destinationAssetType = model.destinationAssetType;
 
     console.log("getWithdrawBody body", body);
     return body;
