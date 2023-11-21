@@ -26,6 +26,7 @@ async function triggerJobs(offset: any) {
   filter.$or = [
     { status: { $eq: utils.swapAndWithdrawTransactionStatuses.swapPending } },
     { status: { $eq: utils.swapAndWithdrawTransactionStatuses.swapCompleted } },
+    { responseCode: 701 },
   ];
   filter.version = "v2";
   let transactions = await db.SwapAndWithdrawTransactions.find(filter)
