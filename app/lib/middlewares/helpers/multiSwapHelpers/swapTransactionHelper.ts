@@ -243,6 +243,14 @@ module.exports = {
         req,
         swapAndWithdrawTransaction
       );
+    } else if (
+      swapAndWithdrawTransaction &&
+      swapAndWithdrawTransaction.responseCode == 701
+    ) {
+      withdrawTransactionHelper.doWithdrawSignedFromFIBER(
+        req,
+        swapAndWithdrawTransaction
+      );
     }
     return swapAndWithdrawTransaction;
   },
