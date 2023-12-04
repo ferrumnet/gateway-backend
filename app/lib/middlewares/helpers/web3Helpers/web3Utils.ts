@@ -90,16 +90,16 @@ export const isValidSwapTransaction = async (
 ) => {
   if (sourceNetwork && destinationNetwork && decodedDtata) {
     let transaction = await getTransactionByHash(txId, sourceNetwork.rpcUrl);
-    // if (
-    //   transaction &&
-    //   transaction.to &&
-    //   sourceNetwork.multiSwapFiberRouterSmartContractAddress &&
-    //   transaction.to.toLowerCase() ==
-    //     sourceNetwork.multiSwapFiberRouterSmartContractAddress.toLowerCase()
-    // ) {
+    if (
+      transaction &&
+      transaction.to &&
+      sourceNetwork.multiSwapFiberRouterSmartContractAddress &&
+      transaction.to.toLowerCase() ==
+        sourceNetwork.multiSwapFiberRouterSmartContractAddress.toLowerCase()
+    ) {
     console.log("transaction", transaction?.to);
     return true;
-    // }
+    }
   }
   return false;
 };
