@@ -261,11 +261,7 @@ module.exports = function (router: any) {
             if (
               (global as any).helper.diffInMinuts(
                 new Date(),
-                transaction.createdAt
-              ) > DIFF_IN_MINUTES &&
-              (global as any).helper.diffInMinuts(
-                new Date(),
-                transaction?.nodeJob?.createdAt
+                transaction.updatedAt
               ) > DIFF_IN_MINUTES
             ) {
               if (
@@ -277,6 +273,7 @@ module.exports = function (router: any) {
                 transaction.nodeJob.status =
                   utils.swapAndWithdrawTransactionJobStatuses.pending;
                 transaction.nodeJob.updatedAt = new Date();
+                transaction.updatedAt = new Date();
                 console.log(transaction?.nodeJob);
                 // await db.SwapAndWithdrawTransactions.findOneAndUpdate(
                 //   filter,
