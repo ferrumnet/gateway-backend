@@ -195,7 +195,7 @@ module.exports = function (router: any) {
       });
 
       if (!sourceNetwork) {
-        return res.http400("Invalid chainId.");
+        return res.http400("Network not supported.");
       }
 
       let receipt = await getTransactionReceipt(
@@ -282,7 +282,7 @@ module.exports = function (router: any) {
                 // );
               } else if (
                 transaction?.status ==
-                utils.swapAndWithdrawTransactionStatuses.swapPending
+                utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted
               ) {
                 // swap and witdraw completed
                 resopnseMessage = withdrawlSuccessfulMessage;
@@ -315,7 +315,7 @@ module.exports = function (router: any) {
         }
       }
 
-      let text = `swapHash: ${req.params.txId}\nonChianStatus: ${onChianStatus}\nsystemPreviousStatus: ${informationForSupport.status}\nsystemCurrentStatus: ${informationForSupport.status}`;
+      let text = `swapHash: ${req.params.txId}\nonChianStatus: ${onChianStatus}\nsystemPreviousStatus: ${informationForSupport.status}\nsystemCurrentStatus: ${informationForSupport.status}\n========================`;
       console.log("text", text);
       // await postMultiswapAlertIntoChannel({
       //   text: text,
@@ -323,8 +323,6 @@ module.exports = function (router: any) {
 
       return res.http200({
         message: resopnseMessage,
-        isShowInformationForSupport: isShowInformationForSupport,
-        informationForSupport: informationForSupport,
       });
     })
   );
