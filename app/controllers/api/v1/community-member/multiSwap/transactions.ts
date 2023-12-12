@@ -175,15 +175,6 @@ module.exports = function (router: any) {
       let systemPreviousStatus = "";
       let systemCurrentStatus = "";
 
-      // response messages
-      let failedMessageOne =
-        "Transaction is currently in progress. Please wait!. If transaction does not proceed in next 5 minutes, please contact support.";
-      let failedMessageTwo =
-        "We are having trouble processing the Transaction, please contact support to proceed further.";
-      let invalidHashMessage = "Swap unsuccessful due to invalid hash.";
-      let swapFailedMessage = "Swap transaction has failed.";
-      let withdrawlSuccessfulMessage = "Transaction withdrawal successful.";
-
       filter.receiveTransactionId = req.params.txId;
 
       if (!req.query.chainId) {
@@ -268,7 +259,10 @@ module.exports = function (router: any) {
                 transaction?.status ==
                 utils.swapAndWithdrawTransactionStatuses.swapPending
               ) {
-                resopnseMessage = failedMessageOne;
+                resopnseMessage =
+                  await commonFunctions.getValueFromStringsPhrase(
+                    stringHelper.transactionFailedMessageOne
+                  );
                 transaction.nodeJob.id = "";
                 transaction.nodeJob.status =
                   utils.swapAndWithdrawTransactionJobStatuses.pending;
@@ -285,32 +279,48 @@ module.exports = function (router: any) {
                 utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted
               ) {
                 // swap and witdraw completed
-                resopnseMessage = withdrawlSuccessfulMessage;
+                resopnseMessage =
+                  await commonFunctions.getValueFromStringsPhrase(
+                    stringHelper.withdrawlSuccessfulMessage
+                  );
               } else {
                 // swap should be proceed manually
-                resopnseMessage = failedMessageTwo;
+                resopnseMessage =
+                  await commonFunctions.getValueFromStringsPhrase(
+                    stringHelper.transactionFailedMessageTwo
+                  );
               }
             } else {
               // swap is generator less then 3 minutes
-              resopnseMessage = failedMessageOne;
+              resopnseMessage = await commonFunctions.getValueFromStringsPhrase(
+                stringHelper.transactionFailedMessageOne
+              );
             }
           } else {
             // swap does not exist in our system
-            resopnseMessage = failedMessageTwo;
+            resopnseMessage = await commonFunctions.getValueFromStringsPhrase(
+              stringHelper.transactionFailedMessageTwo
+            );
           }
         } else {
           // swap is not from our contract
-          resopnseMessage = invalidHashMessage;
+          resopnseMessage = await commonFunctions.getValueFromStringsPhrase(
+            stringHelper.invalidHashMessage
+          );
         }
       } else {
         // swap might not be on the chain or swap is failed
         if (receipt == null) {
           // swap is on pending status / it can be fail or success
-          resopnseMessage = failedMessageOne;
+          resopnseMessage = await commonFunctions.getValueFromStringsPhrase(
+            stringHelper.transactionFailedMessageOne
+          );
         } else if (receipt?.status == false) {
           // swap is failed on chain
           onChianStatus = "failed";
-          resopnseMessage = swapFailedMessage;
+          resopnseMessage = await commonFunctions.getValueFromStringsPhrase(
+            stringHelper.swapFailedMessage
+          );
           informationForSupport.status = "onChainStatusFailed";
         }
       }

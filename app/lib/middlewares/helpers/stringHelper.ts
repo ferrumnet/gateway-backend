@@ -70,6 +70,11 @@ var strErrorEstimatedSwapTimeAlreadyExist =
   "Backend_Estimated_Swap_Time_Already_Exist";
 var strErrorBackendNoCurrencyFoundAgainstTokenAddress =
   "Backend_No_Currency_Found_Against_Token_Address";
+let strErrorApprovalIsOnApproved = "Backend_Approval_Is_Approved";
+let transactionFailedMessageOne = "Backend_Transaction_Failed_Message_One";
+let transactionFailedMessageTwo = "Backend_Transaction_Failed_Message_Two";
+let invalidHashMessage = "Backend_Invalid_Hash_Message";
+let swapFailedMessage = "Backend_Swap_Failed_Message";
 
 // success messages
 let strSuccessResetPasswordLink = "Backend_Success_Reset_Password_Link";
@@ -78,7 +83,7 @@ let strSuccessContractTokenAddressIsunique =
   "Backend_Success_ContractToken_Address_Is_Unique";
 let strSuccessOrganizationMemberSignUpCompleted =
   "Backend_Organization_Member_SignUp_Completed";
-let strErrorApprovalIsOnApproved = "Backend_Approval_Is_Approved";
+let withdrawlSuccessfulMessage = "Backend_Withdrawl_Successful_Message";
 
 let strSuccess = "Success";
 
@@ -146,4 +151,9 @@ module.exports = {
   strErrorBaseFeeTokenIsNotSetupForUpdateCabn,
   strErrorEstimatedSwapTimeAlreadyExist,
   strErrorBackendNoCurrencyFoundAgainstTokenAddress,
+  transactionFailedMessageOne,
+  transactionFailedMessageTwo,
+  invalidHashMessage,
+  swapFailedMessage,
+  withdrawlSuccessfulMessage,
 };
