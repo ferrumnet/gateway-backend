@@ -213,6 +213,7 @@ if (
 (
   global as any
 ).nodeAuthHelper = require("./app/lib/middlewares/helpers/nodeAuthHelper");
+(global as any).utils.IS_LOCAL_ENV = (global as any).environment.isLocalEnv;
 
 (global as any).kraken = app.kraken;
 // const whitelist = (global as any).environment.whitelist;

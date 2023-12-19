@@ -44,6 +44,7 @@ declare const db: any,
 
 module.exports = function () {
   const utils: any = {};
+  utils.IS_LOCAL_ENV = true;
 
   (utils.increaseTimeOutCount = function () {
     // if(!this.count){
