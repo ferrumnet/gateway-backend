@@ -6,8 +6,8 @@ module.exports = function (router: any) {
       filter.chainId = req.params.chainId;
     }
 
-    if (req.params.type) {
-      filter.type = req.params.type;
+    if (req.query.type) {
+      filter.type = req.query.type;
     }
 
     let gasFees = await db.GasFees.findOne(filter);
