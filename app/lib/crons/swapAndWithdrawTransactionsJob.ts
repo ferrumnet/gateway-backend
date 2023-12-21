@@ -40,8 +40,6 @@ async function triggerJobs(offset: any) {
   ];
   filter.version = "v3";
   let transactions = await db.SwapAndWithdrawTransactions.find(filter)
-    .populate("sourceNetwork")
-    .populate("destinationNetwork")
     .populate("sourceCabn")
     .populate("destinationCabn")
     .populate({
@@ -70,8 +68,11 @@ async function triggerJobs(offset: any) {
       req.swapTxId = transaction.receiveTransactionId;
       req.sourceNetwork = transaction.sourceNetwork;
       req.destinationNetwork = transaction.destinationNetwork;
-      req.query.bridgeAmount = transaction.bridgeAmount
-        ? transaction.bridgeAmount
+      req.query.sourceBridgeAmount = transaction.sourceBridgeAmount
+        ? transaction.sourceBridgeAmount
+        : 0;
+      req.query.destinationBridgeAmount = transaction.destinationBridgeAmount
+        ? transaction.destinationBridgeAmount
         : 0;
       user._id = transaction.createdByUser;
       req.user = user;

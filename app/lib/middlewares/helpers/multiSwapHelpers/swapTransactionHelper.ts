@@ -161,9 +161,11 @@ module.exports = {
       !req.query.sourceNetworkId ||
       !req.query.destinationNetworkId ||
       !req.query.sourceCabnId ||
-      !req.query.destinationCabnId
+      !req.query.destinationCabnId ||
+      !req.query.sourceAssetType ||
+      !req.query.destinationAssetType
     ) {
-      throw "swapTxId & sourceNetworkId & destinationNetworkId & sourceCabnId & destinationCabnId are required.";
+      throw "swapTxId & sourceNetworkId & destinationNetworkId & sourceCabnId & destinationCabnId & sourceAssetType & destinationAssetType are required.";
     }
 
     if (!mongoose.Types.ObjectId.isValid(req.query.sourceNetworkId)) {

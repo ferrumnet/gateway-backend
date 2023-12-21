@@ -134,31 +134,41 @@ module.exports = function (router: any) {
             timestamp: new Date(),
           };
 
-          if (
-            swapAndWithdrawTransactionObject.withdrawTransactions &&
-            swapAndWithdrawTransactionObject.withdrawTransactions.length > 0
-          ) {
-            let txItem = (
-              swapAndWithdrawTransactionObject.withdrawTransactions || []
-            ).find((t: any) => t.transactionId === withdrawData.data);
-            if (!txItem) {
+          if (req?.body?.responseCode && req?.body?.responseCode == 200) {
+            if (
+              swapAndWithdrawTransactionObject.withdrawTransactions &&
+              swapAndWithdrawTransactionObject.withdrawTransactions.length > 0
+            ) {
+              let txItem = (
+                swapAndWithdrawTransactionObject.withdrawTransactions || []
+              ).find((t: any) => t.transactionId === withdrawData.data);
+              if (!txItem) {
+                swapAndWithdrawTransactionObject.withdrawTransactions.push(
+                  useTransaction
+                );
+              }
+            } else {
               swapAndWithdrawTransactionObject.withdrawTransactions.push(
                 useTransaction
               );
             }
+
+            if (withdrawData.withdraw.destinationAmount) {
+              swapAndWithdrawTransactionObject.destinationAmount =
+                withdrawData.withdraw.destinationAmount;
+            }
+
+            swapAndWithdrawTransactionObject.status =
+              utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted;
           } else {
-            swapAndWithdrawTransactionObject.withdrawTransactions.push(
-              useTransaction
-            );
+            swapAndWithdrawTransactionObject.status =
+              utils.swapAndWithdrawTransactionStatuses.swapWithdrawFailed;
           }
 
-          if (withdrawData.withdraw.destinationAmount) {
-            swapAndWithdrawTransactionObject.destinationAmount =
-              withdrawData.withdraw.destinationAmount;
-          }
-
-          swapAndWithdrawTransactionObject.status =
-            utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted;
+          swapAndWithdrawTransactionObject.responseCode =
+            req?.body?.responseCode;
+          swapAndWithdrawTransactionObject.responseMessage =
+            req?.body?.responseMessage;
           swapAndWithdrawTransactionObject.updatedAt = new Date();
           swapAndWithdrawTransactionObject =
             await db.SwapAndWithdrawTransactions.findOneAndUpdate(

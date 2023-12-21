@@ -165,6 +165,8 @@ module.exports = function (router: any) {
       swapAndWithdrawTransaction.payBySig.salt = signedData.salt;
       swapAndWithdrawTransaction.payBySig.hash = signedData.hash;
       swapAndWithdrawTransaction.payBySig.signatures = signedData.signatures;
+      swapAndWithdrawTransaction.destinationBridgeAmount =
+        signedData.swapBridgeAmount;
     } catch (e) {
       console.log(e);
     }
@@ -189,38 +191,46 @@ module.exports = function (router: any) {
             throw "Invalid operation";
           }
 
-          let useTransaction = {
-            transactionId: withdrawData.data,
-            status:
-              utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted,
-            timestamp: new Date(),
-          };
+          if (req?.body?.responseCode && req?.body?.responseCode == 200) {
+            let useTransaction = {
+              transactionId: withdrawData.data,
+              status:
+                utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted,
+              timestamp: new Date(),
+            };
 
-          if (
-            swapAndWithdrawTransactionObject.withdrawTransactions &&
-            swapAndWithdrawTransactionObject.withdrawTransactions.length > 0
-          ) {
-            let txItem = (
-              swapAndWithdrawTransactionObject.withdrawTransactions || []
-            ).find((t: any) => t.transactionId === withdrawData.data);
-            if (!txItem) {
+            if (
+              swapAndWithdrawTransactionObject.withdrawTransactions &&
+              swapAndWithdrawTransactionObject.withdrawTransactions.length > 0
+            ) {
+              let txItem = (
+                swapAndWithdrawTransactionObject.withdrawTransactions || []
+              ).find((t: any) => t.transactionId === withdrawData.data);
+              if (!txItem) {
+                swapAndWithdrawTransactionObject.withdrawTransactions.push(
+                  useTransaction
+                );
+              }
+            } else {
               swapAndWithdrawTransactionObject.withdrawTransactions.push(
                 useTransaction
               );
             }
+            if (withdrawData.withdraw.destinationAmount) {
+              swapAndWithdrawTransactionObject.destinationAmount =
+                withdrawData.withdraw.destinationAmount;
+            }
+            swapAndWithdrawTransactionObject.status =
+              utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted;
           } else {
-            swapAndWithdrawTransactionObject.withdrawTransactions.push(
-              useTransaction
-            );
+            swapAndWithdrawTransactionObject.status =
+              utils.swapAndWithdrawTransactionStatuses.swapWithdrawFailed;
           }
 
-          if (withdrawData.withdraw.destinationAmount) {
-            swapAndWithdrawTransactionObject.destinationAmount =
-              withdrawData.withdraw.destinationAmount;
-          }
-
-          swapAndWithdrawTransactionObject.status =
-            utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted;
+          swapAndWithdrawTransactionObject.responseCode =
+            req?.body?.responseCode;
+          swapAndWithdrawTransactionObject.responseMessage =
+            req?.body?.responseMessage;
           swapAndWithdrawTransactionObject.updatedAt = new Date();
           swapAndWithdrawTransactionObject =
             await db.SwapAndWithdrawTransactions.findOneAndUpdate(
