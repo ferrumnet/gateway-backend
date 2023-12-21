@@ -1,6 +1,6 @@
 module.exports = function (router: any) {
   router.get("/:chainId", async (req: any, res: any) => {
-    var filter: any = {};
+    var filter: any = { type: "general" };
 
     if (req.params.chainId) {
       filter.chainId = req.params.chainId;
