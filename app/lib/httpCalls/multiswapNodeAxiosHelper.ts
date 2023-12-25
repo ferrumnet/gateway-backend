@@ -22,8 +22,6 @@ module.exports = {
       body.isDestinationNonEVM = req.destinationNetwork.isNonEVM;
       body.sourceBridgeAmount =
         swapAndWithdrawTransactionObject.sourceBridgeAmount;
-      body.destinationBridgeAmount =
-        swapAndWithdrawTransactionObject.destinationBridgeAmount;
       body.txId = swapAndWithdrawTransactionObject.receiveTransactionId;
       console.log("doSwapAndWithdraw createJobBySwapHash body", body);
       let res = await axios.post(url, body);

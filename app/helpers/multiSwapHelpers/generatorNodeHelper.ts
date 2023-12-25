@@ -7,7 +7,9 @@ export const handleGeneratorRequest = async (data: any, swapTxHash: string) => {
 
     let transaction = await db.SwapAndWithdrawTransactions.findOne(filter)
       .populate("sourceNetwork")
-      .populate("sourceCabn");
+      .populate("sourceCabn")
+      .populate("destinationNetwork")
+      .populate("destinationCabn");
 
     if (data && transaction) {
       let transactionReceipt = data?.transactionReceipt;
@@ -52,11 +54,19 @@ async function getTransactionDetail(transaction: any, signedData: any) {
     transaction.destinationWalletAddress = signedData.targetAddress;
     if (transaction.sourceNetwork.isNonEVM == false) {
       transaction.sourceAmount = signedData.amount;
+      transaction.destinationAmount = signedData.amontOut;
       if (transaction.sourceAmount) {
         transaction.sourceAmount = await swapUtilsHelper.amountToHuman_(
           transaction.sourceNetwork,
           transaction.sourceCabn,
           transaction.sourceAmount
+        );
+      }
+      if (transaction.destinationAmount) {
+        transaction.destinationAmount = await swapUtilsHelper.amountToHuman_(
+          transaction.destinationNetwork,
+          transaction.destinationCabn,
+          transaction.destinationAmount
         );
       }
     }
