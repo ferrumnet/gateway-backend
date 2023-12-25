@@ -200,24 +200,4 @@ module.exports = {
       return "";
     }
   },
-
-  doAuthForNodeApis: function (req: any) {
-    if (req.headers.authorization) {
-      const token = req.headers.authorization.split(" ")[1];
-      let key = "";
-      if (req.query.isFrom == utils.nodeTypes.generator) {
-        key = (global as any).environment.generatorNodeApiKey;
-      } else if (req.query.isFrom == utils.nodeTypes.validator) {
-        key = (global as any).environment.validatorNodeApiKey;
-      } else if (req.query.isFrom == utils.nodeTypes.master) {
-        key = (global as any).environment.masterNodeApiKey;
-      }
-      if (token && nodeInfraAuthHelper.isTokenValid(token, key)) {
-        return;
-      }
-    } else {
-      throw "Authorization header missing";
-    }
-    throw "Invalid token";
-  },
 };
