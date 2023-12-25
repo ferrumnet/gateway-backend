@@ -3,7 +3,7 @@ import {
   getTransactionReceipt,
   getLogsFromTransactionReceipt,
   isValidSwapTransaction,
-} from "../../../../../lib/middlewares/helpers/web3Helpers/web3Utils";
+} from "../../../../../helpers/web3Helpers/web3Utils";
 import { postMultiswapAlertIntoChannel } from "../../../../../lib/httpCalls/slackAxiosHelper";
 
 module.exports = function (router: any) {
