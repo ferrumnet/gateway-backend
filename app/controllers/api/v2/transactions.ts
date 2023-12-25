@@ -8,7 +8,7 @@ import { handleFiberRequest } from "../../../lib/middlewares/helpers/multiSwapHe
 
 module.exports = function (router: any) {
   router.put(
-    "/from/fiber/update/:swapTxHash",
+    "/update/from/fiber/:swapTxHash",
     asyncMiddleware(async (req: any, res: any) => {
       await handleFiberRequest(req?.body, req?.params?.swapTxHash);
       return res.http200({
@@ -47,7 +47,10 @@ module.exports = function (router: any) {
       if (req.query.isValidationFailed) {
         await handleMasterValidationFailureRequest(req?.params?.swapTxHash);
       } else {
-        await handleMasterSignatureCreationRequest(req?.body, req?.params?.swapTxHash);
+        await handleMasterSignatureCreationRequest(
+          req?.body,
+          req?.params?.swapTxHash
+        );
       }
       return res.http200({
         message: stringHelper.strSuccess,
