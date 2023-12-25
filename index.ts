@@ -174,26 +174,12 @@ if (
   global as any
 ).nodeConfigurationsHelper = require("./app/helpers/multiSwapHelpers/nodeConfigurationsHelper");
 
-(global as any).nodeAuthHelper = require("./app/helpers/nodeAuthHelper");
+(
+  global as any
+).nodeInfraAuthHelper = require("./app/helpers/authHelpers/nodeInfraAuthHelper");
 (global as any).utils.IS_LOCAL_ENV = (global as any).environment.isLocalEnv;
 
 (global as any).kraken = app.kraken;
-// const whitelist = (global as any).environment.whitelist;
-// const corsOptions = {
-//   origin: function (origin, callback) {
-//     console.log("Origin: ", origin);
-//     if(origin){
-//       if (whitelist.indexOf(origin) !== -1) {
-//         callback(null, true)
-//       } else {
-//         callback(new Error('Not allowed by CORS'));
-//       }
-//     }else {
-//       callback(null, true)
-//     }
-//   }
-// };
-// app.use(cors(corsOptions));
 app.use(kraken(options));
 app.on("start", function () {
   (global as any).kraken = app.kraken;

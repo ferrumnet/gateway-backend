@@ -212,7 +212,7 @@ module.exports = {
       } else if (req.query.isFrom == utils.nodeTypes.master) {
         key = (global as any).environment.masterNodeApiKey;
       }
-      if (token && nodeAuthHelper.isTokenValid(token, key)) {
+      if (token && nodeInfraAuthHelper.isTokenValid(token, key)) {
         return;
       }
     } else {
