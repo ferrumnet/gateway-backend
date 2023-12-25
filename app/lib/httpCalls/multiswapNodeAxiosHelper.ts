@@ -46,7 +46,7 @@ module.exports = {
         headers: {
           Authorization:
             "Bearer " +
-            nodeAuthHelper.createAuthToken(
+            nodeInfraAuthHelper.createAuthToken(
               (global as any).environment.generatorNodeApiKey
             ),
         },
@@ -77,7 +77,7 @@ module.exports = {
         headers: {
           Authorization:
             "Bearer " +
-            nodeAuthHelper.createAuthToken(
+            nodeInfraAuthHelper.createAuthToken(
               (global as any).environment.masterNodeApiKey
             ),
         },
@@ -106,7 +106,7 @@ module.exports = {
         headers: {
           Authorization:
             "Bearer " +
-            nodeAuthHelper.createAuthToken(
+            nodeInfraAuthHelper.createAuthToken(
               (global as any).environment.validatorNodeApiKey
             ),
         },

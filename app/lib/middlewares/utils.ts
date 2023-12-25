@@ -40,7 +40,7 @@ declare const db: any,
   multiswapNodeAxiosHelper: any,
   nonEvmHelper: any,
   nodeConfigurationsHelper: any,
-  nodeAuthHelper: any;
+  nodeInfraAuthHelper: any;
 
 module.exports = function () {
   const utils: any = {};

@@ -26,7 +26,7 @@
     "authenticationSuperAdmin": {
       "enabled": true,
       "priority": 100,
-      "route": "\/api\/v1\/super-admin((?!$))((?!\/users\/forgot-password))((?!\/users\/reset-password))((?!\/users\/sign-in))((?!\/users\/sign-up))*",
+      "route": "/api/v1/super-admin((?!$))((?!/users/forgot-password))((?!/users/reset-password))((?!/users/sign-in))((?!/users/sign-up))*",
       "module": {
         "name": "path:./app/lib/auth"
       }
@@ -34,7 +34,7 @@
     "authenticationAdmin": {
       "enabled": true,
       "priority": 100,
-      "route": "\/api\/v1\/admin((?!$))((?!\/users\/forgot-password))((?!\/users\/reset-password))((?!\/users\/sign-in))((?!\/users\/sign-up))*",
+      "route": "/api/v1/admin((?!$))((?!/users/forgot-password))((?!/users/reset-password))((?!/users/sign-in))((?!/users/sign-up))*",
       "module": {
         "name": "path:./app/lib/auth"
       }
@@ -42,7 +42,7 @@
     "authenticationCommunityMemberV1": {
       "enabled": true,
       "priority": 100,
-      "route": "\/api\/v1\/community-member((?!$))((?!\/users\/forgot-password))((?!\/users\/reset-password))((?!\/users\/sign-in))((?!\/users\/sign-up))((?!\/users\/test))*",
+      "route": "/api/v1/community-member((?!$))((?!/users/forgot-password))((?!/users/reset-password))((?!/users/sign-in))((?!/users/sign-up))((?!/users/test))*",
       "module": {
         "name": "path:./app/lib/auth"
       }
@@ -50,7 +50,7 @@
     "authenticationCommunityMemberV2": {
       "enabled": true,
       "priority": 100,
-      "route": "\/api\/v2\/community-member((?!$))*",
+      "route": "/api/v2/community-member((?!$))*",
       "module": {
         "name": "path:./app/lib/auth"
       }
@@ -58,7 +58,7 @@
     "authenticationApplicationUser": {
       "enabled": true,
       "priority": 100,
-      "route": "\/api\/v1\/application-user((?!$))((?!\/token))*",
+      "route": "/api/v1/application-user((?!$))((?!/token))*",
       "module": {
         "name": "path:./app/lib/auth"
       }
@@ -66,7 +66,7 @@
     "authenticationPublicMember": {
       "enabled": true,
       "priority": 100,
-      "route": "\/api\/v1\/users((?!$))((?!\/forgot-password))((?!\/forgot-password\/authenticate\/link))((?!\/re-send\/email\/otp))((?!\/authenticate\/email\/otp))*",
+      "route": "/api/v1/users((?!$))((?!/forgot-password))((?!/forgot-password/authenticate/link))((?!/re-send/email/otp))((?!/authenticate/email/otp))*",
       "module": {
         "name": "path:./app/lib/auth"
       }
@@ -74,15 +74,23 @@
     "authenticationLogs": {
       "enabled": true,
       "priority": 100,
-      "route": "\/api\/v1\/logs((?!$))*",
+      "route": "/api/v1/logs((?!$))*",
       "module": {
         "name": "path:./app/lib/auth"
       }
-    }, 
+    },
     "authenticationToken": {
       "enabled": true,
       "priority": 100,
-      "route": "\/api\/v1\/token((?!$))*",
+      "route": "/api/v1/token((?!$))*",
+      "module": {
+        "name": "path:./app/lib/auth"
+      }
+    },
+    "authenticationNodeInfra": {
+      "enabled": true,
+      "priority": 100,
+      "route": "/api/v1/transactions((?!$))*",
       "module": {
         "name": "path:./app/lib/auth"
       }
@@ -111,6 +119,6 @@
   },
   "appInfo": {
     "appName": "Leaderboard",
-    "environment":"production"
+    "environment": "production"
   }
 }
