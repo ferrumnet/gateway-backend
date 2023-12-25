@@ -1,4 +1,4 @@
-export const handleMasterSuccessRequest = async (
+export const handleMasterSignatureCreationRequest = async (
   data: any,
   swapTxHash: string
 ) => {
@@ -37,7 +37,7 @@ export const handleMasterSuccessRequest = async (
   }
 };
 
-export const handleMasterFailureRequest = async (swapTxHash: string) => {
+export const handleMasterValidationFailureRequest = async (swapTxHash: string) => {
   try {
     let filter: any = {
       receiveTransactionId: swapTxHash,

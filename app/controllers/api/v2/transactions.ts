@@ -1,8 +1,8 @@
 import { handleGeneratorRequest } from "../../../lib/middlewares/helpers/multiSwapHelpers/generatorNodeHelper";
 import { handleValidatorRequest } from "../../../lib/middlewares/helpers/multiSwapHelpers/validatorNodeHelper";
 import {
-  handleMasterSuccessRequest,
-  handleMasterFailureRequest,
+  handleMasterSignatureCreationRequest,
+  handleMasterValidationFailureRequest,
 } from "../../../lib/middlewares/helpers/multiSwapHelpers/masterNodeHelper";
 import { handleFiberRequest } from "../../../lib/middlewares/helpers/multiSwapHelpers/fiberHelper";
 
@@ -44,10 +44,10 @@ module.exports = function (router: any) {
   router.put(
     "/update/from/master/:swapTxHash",
     asyncMiddleware(async (req: any, res: any) => {
-      if (req.query.isSuccess) {
-        await handleMasterSuccessRequest(req?.body, req?.params?.swapTxHash);
+      if (req.query.isValidationFailed) {
+        await handleMasterValidationFailureRequest(req?.params?.swapTxHash);
       } else {
-        await handleMasterFailureRequest(req?.params?.swapTxHash);
+        await handleMasterSignatureCreationRequest(req?.body, req?.params?.swapTxHash);
       }
       return res.http200({
         message: stringHelper.strSuccess,
