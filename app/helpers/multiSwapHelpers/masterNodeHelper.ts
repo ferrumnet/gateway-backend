@@ -37,7 +37,9 @@ export const handleMasterSignatureCreationRequest = async (
   }
 };
 
-export const handleMasterValidationFailureRequest = async (swapTxHash: string) => {
+export const handleMasterValidationFailureRequest = async (
+  swapTxHash: string
+) => {
   try {
     let filter: any = {
       receiveTransactionId: swapTxHash,
@@ -49,6 +51,7 @@ export const handleMasterValidationFailureRequest = async (swapTxHash: string) =
       { _id: transaction?._id },
       {
         status: utils.swapAndWithdrawTransactionStatuses.masterValidationFailed,
+        updatedAt: new Date(),
       },
       { new: true }
     );
@@ -57,13 +60,14 @@ export const handleMasterValidationFailureRequest = async (swapTxHash: string) =
   }
 };
 
-function getMasterSignedData(swapAndWithdrawTransaction: any, signedData: any) {
+function getMasterSignedData(transaction: any, signedData: any) {
   try {
-    swapAndWithdrawTransaction.payBySig.salt = signedData.salt;
-    swapAndWithdrawTransaction.payBySig.hash = signedData.hash;
-    swapAndWithdrawTransaction.payBySig.signatures = signedData.signatures;
+    transaction.payBySig.salt = signedData.salt;
+    transaction.payBySig.hash = signedData.hash;
+    transaction.payBySig.signatures = signedData.signatures;
+    transaction.payBySig.updatedAt = new Date();
   } catch (e) {
     console.log(e);
   }
-  return swapAndWithdrawTransaction;
+  return transaction;
 }

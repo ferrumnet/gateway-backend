@@ -71,10 +71,9 @@ async function triggerJobs(offset: any) {
       req.query.sourceBridgeAmount = transaction.sourceBridgeAmount
         ? transaction.sourceBridgeAmount
         : 0;
-      req.query.destinationBridgeAmountIn =
-        transaction.destinationBridgeAmountIn
-          ? transaction.destinationBridgeAmountIn
-          : 0;
+      req.query.destinationAmountIn = transaction.destinationAmountIn
+        ? transaction.destinationAmountIn
+        : 0;
       user._id = transaction.createdByUser;
       req.user = user;
       await swapTransactionHelper.doSwapAndWithdraw(req, transaction);
