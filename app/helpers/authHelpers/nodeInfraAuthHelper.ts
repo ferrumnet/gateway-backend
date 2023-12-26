@@ -17,6 +17,8 @@ export const getKey = (url: string, nodeType: string): string => {
     nodeType == utils.nodeTypes.master
   ) {
     return (global as any).environment.masterNodeApiKey;
+  } else if (url.includes(utils.nodeTypes.fiber)) {
+    return (global as any).environment.fiberApiKey;
   }
   return "";
 };

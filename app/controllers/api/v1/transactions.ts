@@ -44,6 +44,8 @@ module.exports = function (router: any) {
               model: "multiswapNetworkFIBERInformations",
             },
           })
+          .populate("sourceCabn")
+          .populate("destinationCabn")
           .sort(sort);
       } else {
         transactions = await db.SwapAndWithdrawTransactions.find(filter)
@@ -61,6 +63,8 @@ module.exports = function (router: any) {
               model: "multiswapNetworkFIBERInformations",
             },
           })
+          .populate("sourceCabn")
+          .populate("destinationCabn")
           .sort(sort)
           .skip(req.query.offset ? parseInt(req.query.offset) : 0)
           .limit(req.query.limit ? parseInt(req.query.limit) : 10);

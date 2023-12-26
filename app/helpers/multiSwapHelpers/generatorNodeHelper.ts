@@ -57,9 +57,11 @@ async function getTransactionDetail(transaction: any, signedData: any) {
     transaction.destinationAmountOut = signedData?.destinationAmountOut;
     transaction.sourceOneInchData = signedData?.sourceOneInchData;
     transaction.destinationOneInchData = signedData?.destinationOneInchData;
+    transaction.withdrawalData = signedData?.withdrawalData;
     transaction.signatureExpiry = signedData?.expiry;
     if (transaction.sourceNetwork.isNonEVM == false) {
       transaction.sourceAmount = signedData.amount;
+      transaction.sourceAmountInMachine = signedData.amount;
       transaction.destinationAmount = signedData.amontOut;
       if (transaction.sourceAmount) {
         transaction.sourceAmount = await swapUtilsHelper.amountToHuman_(

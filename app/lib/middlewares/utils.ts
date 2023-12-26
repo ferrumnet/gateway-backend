@@ -97,6 +97,7 @@ module.exports = function () {
     generator: "generator",
     validator: "validator",
     master: "master",
+    fiber: "fiber",
   };
   return utils;
 };
