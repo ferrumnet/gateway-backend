@@ -10,10 +10,18 @@ export interface Response {
 
 export const decodeToken = (req: any): Response => {
   const token = req.headers.authorization.split(" ")[1];
-  return filterRoutesAndVerify(token ? token : "", req.originalUrl);
+  return filterRoutesAndVerify(
+    token ? token : "",
+    req?.originalUrl,
+    req?.query?.nodeType
+  );
 };
 
-const filterRoutesAndVerify = (token: string, url: string): Response => {
+const filterRoutesAndVerify = (
+  token: string,
+  url: string,
+  nodeType: string
+): Response => {
   let authResponse: Response = {
     isFromNodeInfra: false,
     isValid: false,
@@ -21,7 +29,7 @@ const filterRoutesAndVerify = (token: string, url: string): Response => {
   };
 
   if (url.includes("/v1/transactions/")) {
-    let key = getKey(url);
+    let key = getKey(url, nodeType);
     if (isTokenValid(token, key)) {
       authResponse.isFromNodeInfra = true;
       authResponse.isValid = true;

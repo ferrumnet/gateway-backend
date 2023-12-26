@@ -71,8 +71,8 @@ async function triggerJobs(offset: any) {
       req.query.sourceBridgeAmount = transaction.sourceBridgeAmount
         ? transaction.sourceBridgeAmount
         : 0;
-      req.query.destinationBridgeAmount = transaction.destinationBridgeAmount
-        ? transaction.destinationBridgeAmount
+      req.query.destinationAmountIn = transaction.destinationAmountIn
+        ? transaction.destinationAmountIn
         : 0;
       user._id = transaction.createdByUser;
       req.user = user;

@@ -1,12 +1,21 @@
 import moment from "moment";
 var crypto = require("crypto");
 
-export const getKey = (url: string): string => {
-  if (url.includes(utils.nodeTypes.generator)) {
+export const getKey = (url: string, nodeType: string): string => {
+  if (
+    url.includes(utils.nodeTypes.generator) ||
+    nodeType == utils.nodeTypes.generator
+  ) {
     return (global as any).environment.generatorNodeApiKey;
-  } else if (url.includes(utils.nodeTypes.validator)) {
+  } else if (
+    url.includes(utils.nodeTypes.validator) ||
+    nodeType == utils.nodeTypes.validator
+  ) {
     return (global as any).environment.validatorNodeApiKey;
-  } else if (url.includes(utils.nodeTypes.master)) {
+  } else if (
+    url.includes(utils.nodeTypes.master) ||
+    nodeType == utils.nodeTypes.master
+  ) {
     return (global as any).environment.masterNodeApiKey;
   }
   return "";

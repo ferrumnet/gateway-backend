@@ -14,7 +14,6 @@ module.exports = function () {
 
     try {
       let response: Response = decodeToken(req);
-      console.log(response);
       if (!response?.isValid) {
         return invalidRequest(res);
       }

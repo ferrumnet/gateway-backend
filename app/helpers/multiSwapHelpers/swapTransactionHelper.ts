@@ -162,8 +162,8 @@ module.exports = {
       !req.query.destinationNetworkId ||
       !req.query.sourceCabnId ||
       !req.query.destinationCabnId ||
-      !req.query.sourceAssetType ||
-      !req.query.destinationAssetType
+      !req.body.sourceAssetType ||
+      !req.body.destinationAssetType
     ) {
       throw "swapTxId & sourceNetworkId & destinationNetworkId & sourceCabnId & destinationCabnId & sourceAssetType & destinationAssetType are required.";
     }
@@ -196,35 +196,35 @@ module.exports = {
       );
     }
 
-    if (
-      swapAndWithdrawTransaction?.status ==
-      utils.swapAndWithdrawTransactionStatuses.generatorSignatureCreated
-    ) {
-      swapAndWithdrawTransaction = await this.createValidatorNodeJob(
-        req,
-        swapAndWithdrawTransaction
-      );
-    }
+    // if (
+    //   swapAndWithdrawTransaction?.status ==
+    //   utils.swapAndWithdrawTransactionStatuses.generatorSignatureCreated
+    // ) {
+    //   swapAndWithdrawTransaction = await this.createValidatorNodeJob(
+    //     req,
+    //     swapAndWithdrawTransaction
+    //   );
+    // }
 
-    if (
-      swapAndWithdrawTransaction?.status ==
-      utils.swapAndWithdrawTransactionStatuses.validatorSignatureCreated
-    ) {
-      swapAndWithdrawTransaction = await this.createMasterNodeJob(
-        req,
-        swapAndWithdrawTransaction
-      );
-    }
+    // if (
+    //   swapAndWithdrawTransaction?.status ==
+    //   utils.swapAndWithdrawTransactionStatuses.validatorSignatureCreated
+    // ) {
+    //   swapAndWithdrawTransaction = await this.createMasterNodeJob(
+    //     req,
+    //     swapAndWithdrawTransaction
+    //   );
+    // }
 
-    if (
-      swapAndWithdrawTransaction?.status ==
-      utils.swapAndWithdrawTransactionStatuses.swapCompleted
-    ) {
-      withdrawTransactionHelper.doWithdrawSignedFromFIBER(
-        req,
-        swapAndWithdrawTransaction
-      );
-    }
+    // if (
+    //   swapAndWithdrawTransaction?.status ==
+    //   utils.swapAndWithdrawTransactionStatuses.swapCompleted
+    // ) {
+    //   withdrawTransactionHelper.doWithdrawSignedFromFIBER(
+    //     req,
+    //     swapAndWithdrawTransaction
+    //   );
+    // }
     return swapAndWithdrawTransaction;
   },
 
@@ -257,40 +257,23 @@ module.exports = {
         ? destinationNetwork.chainId
         : "";
 
-      let tokenQuoteInformation =
-        await withdrawTransactionHelper.getTokenQuoteInformationFromFIBER(req);
-      console.log("tokenQuoteInformation", tokenQuoteInformation);
-      if (
-        tokenQuoteInformation &&
-        tokenQuoteInformation.data &&
-        tokenQuoteInformation.data.destinationTokenCategorizedInfo &&
-        tokenQuoteInformation.data.destinationTokenCategorizedInfo
-          .destinationAmount
-      ) {
-        req.query.bridgeAmount =
-          tokenQuoteInformation.data.destinationTokenCategorizedInfo.bridgeAmount;
-        let body: any = {};
-        body.sourceAssetType =
-          tokenQuoteInformation.data.sourceTokenCategorizedInfo.type;
-        body.destinationAssetType =
-          tokenQuoteInformation.data.destinationTokenCategorizedInfo.type;
-        body.receiveTransactionId = req.params.swapTxId;
-        body.sourceAmount = req.query.sourceAmount;
-        body.bridgeAmount = req.query.bridgeAmount;
-        body.version = "v3";
-        body.createdByUser = req.user._id;
-        body.updatedByUser = req.user._id;
-        body.createdAt = new Date();
-        body.updatedAt = new Date();
-        body.sourceCabn = req.query.sourceCabnId;
-        body.destinationCabn = req.query.destinationCabnId;
-        body.sourceNetwork = req.query.sourceNetworkId;
-        body.destinationNetwork = req.query.destinationNetworkId;
-        body.status = utils.swapAndWithdrawTransactionStatuses.swapPending;
-        console.log("doSwapAndWithdraw pendingObject", body);
-        swapAndWithdrawTransaction =
-          await db.SwapAndWithdrawTransactions.create(body);
-      }
+      let body: any = {};
+      body.receiveTransactionId = req.params.swapTxId;
+      body.version = "v3";
+      body.createdByUser = req.user._id;
+      body.updatedByUser = req.user._id;
+      body.createdAt = new Date();
+      body.updatedAt = new Date();
+      body.sourceCabn = req.query.sourceCabnId;
+      body.destinationCabn = req.query.destinationCabnId;
+      body.sourceNetwork = req.query.sourceNetworkId;
+      body.destinationNetwork = req.query.destinationNetworkId;
+      body.status = utils.swapAndWithdrawTransactionStatuses.swapPending;
+      body = { ...body, ...req.body };
+      console.log("doSwapAndWithdraw pendingObject", body);
+      swapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.create(
+        body
+      );
     }
     swapAndWithdrawTransaction = await db.SwapAndWithdrawTransactions.findOne({
       receiveTransactionId: req.params.swapTxId,

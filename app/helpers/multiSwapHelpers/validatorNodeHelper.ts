@@ -45,18 +45,16 @@ export const handleValidatorRequest = async (
   }
 };
 
-function getValidatorSignedData(
-  swapAndWithdrawTransaction: any,
-  signedData: any
-) {
+function getValidatorSignedData(transaction: any, signedData: any) {
   try {
     let validator: any = {};
     validator.salt = signedData.salt;
     validator.address = signedData.address.toLowerCase();
     validator.signatures = signedData.signatures;
-    swapAndWithdrawTransaction.validatorSig.push(validator);
+    validator.updatedAt = new Date();
+    transaction.validatorSig.push(validator);
   } catch (e) {
     console.log(e);
   }
-  return swapAndWithdrawTransaction;
+  return transaction;
 }

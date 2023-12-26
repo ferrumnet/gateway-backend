@@ -38,6 +38,8 @@ var schema = mongoose.Schema(
         },
       ],
       salt: { type: String, default: "" },
+      createdAt: { type: Date, default: new Date() },
+      updatedAt: { type: Date, default: new Date() },
     },
     validatorSig: [
       {
@@ -49,12 +51,16 @@ var schema = mongoose.Schema(
         ],
         salt: { type: String, default: "" },
         address: { type: String, default: "" },
+        createdAt: { type: Date, default: new Date() },
+        updatedAt: { type: Date, default: new Date() },
       },
     ],
     payBySig: {
       hash: { type: String, default: "" },
       signatures: [],
       salt: { type: String, default: "" },
+      createdAt: { type: Date, default: new Date() },
+      updatedAt: { type: Date, default: new Date() },
     },
     status: { type: String, default: "swapPending" },
     withdrawTransactions: [
@@ -79,7 +85,11 @@ var schema = mongoose.Schema(
     destinationAssetType: { type: String, default: "" },
     version: { type: String, default: "" },
     sourceBridgeAmount: { type: String, default: "" },
-    destinationBridgeAmount: { type: String, default: "" },
+    destinationAmountIn: { type: String, default: "" },
+    destinationAmountOut: { type: String, default: "" },
+    sourceOneInchData: { type: String, default: "" },
+    destinationOneInchData: { type: String, default: "" },
+    signatureExpiry: { type: Number, default: null },
     responseCode: { type: Number, default: "" },
     responseMessage: {},
   },

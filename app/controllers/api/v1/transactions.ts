@@ -83,9 +83,9 @@ module.exports = function (router: any) {
   );
 
   router.put(
-    "/update/from/generator/:txHash",
+    "/update/from/generator/:swapTxHash",
     asyncMiddleware(async (req: any, res: any) => {
-      await handleGeneratorRequest(req?.body, req?.params?.txHash);
+      await handleGeneratorRequest(req?.body, req?.params?.swapTxHash);
       return res.http200({
         message: stringHelper.strSuccess,
       });
