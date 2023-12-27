@@ -18,7 +18,7 @@ module.exports = function (router: any) {
         filter.status = req.query.status;
       }
 
-      if (req.query.address) {
+      if (req.query.address && req.query.status == utils.nodeTypes.validator) {
         filter.validatorSig = {
           $not: { $elemMatch: { address: req.query.address } },
         };
