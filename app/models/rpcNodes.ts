@@ -6,6 +6,7 @@ var collectionName = "rpcNodes";
 var schema = mongoose.Schema(
   {
     url: { type: String, default: "" },
+    chainId: { type: String, default: "" },
     address: { type: String, default: "" },
     type: { type: String, default: "" },
     isActive: { type: Boolean, default: true },

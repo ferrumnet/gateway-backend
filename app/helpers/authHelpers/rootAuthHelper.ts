@@ -13,23 +13,25 @@ export const decodeToken = (req: any): Response => {
   return filterRoutesAndVerify(
     token ? token : "",
     req?.originalUrl,
-    req?.query?.nodeType
+    req?.query?.nodeType,
+    req?.query?.address ? req?.query?.address : ""
   );
 };
 
 const filterRoutesAndVerify = (
   token: string,
   url: string,
-  nodeType: string
+  nodeType: string,
+  address: string
 ): Response => {
   let authResponse: Response = {
     isFromNodeInfra: false,
     isValid: false,
     id: "",
   };
-
-  if (url.includes("/v1/transactions/")) {
-    let key = getKey(url, nodeType);
+  console.log(url);
+  if (url.includes("/v1/transactions/") || url.includes("/v1/rpcNodes/")) {
+    let key = getKey(url, nodeType, address);
     if (isTokenValid(token, key)) {
       authResponse.isFromNodeInfra = true;
       authResponse.isValid = true;

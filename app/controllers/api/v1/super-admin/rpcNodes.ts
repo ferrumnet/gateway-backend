@@ -1,7 +1,12 @@
 module.exports = function (router: any) {
   router.post("/create", async (req: any, res: any) => {
-    if (!req.body.address || !req.body.url || !req.body.type) {
-      return res.http400("address & url & type are required.");
+    if (
+      !req.body.address ||
+      !req.body.url ||
+      !req.body.type ||
+      !req.body.chainId
+    ) {
+      return res.http400("address & url & type & chainId are required.");
     }
     let count = await db.RpcNodes.countDocuments({
       address: req.body.address,
@@ -24,8 +29,13 @@ module.exports = function (router: any) {
   router.put("/update/:id", async (req: any, res: any) => {
     let filter = {};
     filter = { _id: req.params.id };
-    if (!req.body.address || !req.body.url || !req.body.type) {
-      return res.http400("address & url & type are required.");
+    if (
+      !req.body.address ||
+      !req.body.url ||
+      !req.body.type ||
+      !req.body.chainId
+    ) {
+      return res.http400("address & url & type & chainId are required.");
     }
     req.body.address = req.body.address.toLowerCase();
     let count = await db.RpcNodes.countDocuments({
