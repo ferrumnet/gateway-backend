@@ -30,6 +30,7 @@ var schema = mongoose.Schema(
     sourceTimestamp: { type: Number, default: null },
     sourceCurrency: { type: String, default: "" },
     sourceAmount: { type: String, default: "" },
+    sourceAmountInMachine: { type: String, default: "" },
     generatorSig: {
       signatures: [
         {
@@ -55,7 +56,7 @@ var schema = mongoose.Schema(
         updatedAt: { type: Date, default: new Date() },
       },
     ],
-    payBySig: {
+    withdrawalSig: {
       hash: { type: String, default: "" },
       signatures: [],
       salt: { type: String, default: "" },
@@ -89,6 +90,7 @@ var schema = mongoose.Schema(
     destinationAmountOut: { type: String, default: "" },
     sourceOneInchData: { type: String, default: "" },
     destinationOneInchData: { type: String, default: "" },
+    withdrawalData: { type: String, default: "" },
     signatureExpiry: { type: Number, default: null },
     responseCode: { type: Number, default: "" },
     responseMessage: {},

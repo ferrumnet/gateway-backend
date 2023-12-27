@@ -200,4 +200,20 @@ module.exports = {
       return "";
     }
   },
+
+  findKey: function (address: string, keys: string) {
+    let key = "";
+    try {
+      let data = JSON.parse(keys);
+      if (data && data.length > 0 && address) {
+        let item = data.find(
+          (item: any) => item.address.toLowerCase() === address.toLowerCase()
+        );
+        return item ? item.key : "";
+      }
+    } catch (e) {
+      console.log(e);
+    }
+    return key;
+  },
 };

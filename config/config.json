@@ -87,10 +87,18 @@
         "name": "path:./app/lib/auth"
       }
     },
-    "authenticationNodeInfra": {
+    "authenticationTransaction": {
       "enabled": true,
       "priority": 100,
       "route": "/api/v1/transactions((?!$))*",
+      "module": {
+        "name": "path:./app/lib/auth"
+      }
+    },
+    "authenticationRpcNode": {
+      "enabled": true,
+      "priority": 100,
+      "route": "/api/v1/rpcNodes((?!$))*",
       "module": {
         "name": "path:./app/lib/auth"
       }

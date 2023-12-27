@@ -1,22 +1,34 @@
 import moment from "moment";
 var crypto = require("crypto");
 
-export const getKey = (url: string, nodeType: string): string => {
+export const getKey = (
+  url: string,
+  nodeType: string,
+  address: string
+): string => {
   if (
     url.includes(utils.nodeTypes.generator) ||
     nodeType == utils.nodeTypes.generator
   ) {
-    return (global as any).environment.generatorNodeApiKey;
+    return commonFunctions.findKey(
+      address,
+      (global as any).environment.generatorNodeApiKeys
+    );
   } else if (
     url.includes(utils.nodeTypes.validator) ||
     nodeType == utils.nodeTypes.validator
   ) {
-    return (global as any).environment.validatorNodeApiKey;
+    return commonFunctions.findKey(
+      address,
+      (global as any).environment.validatorNodeApiKeys
+    );
   } else if (
     url.includes(utils.nodeTypes.master) ||
     nodeType == utils.nodeTypes.master
   ) {
     return (global as any).environment.masterNodeApiKey;
+  } else if (url.includes(utils.nodeTypes.fiber)) {
+    return (global as any).environment.fiberApiKey;
   }
   return "";
 };

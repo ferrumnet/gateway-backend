@@ -10,22 +10,11 @@ export const handleMasterSignatureCreationRequest = async (
     };
 
     let transaction = await db.SwapAndWithdrawTransactions.findOne(filter);
-
     if (data && transaction) {
-      let transactionReceipt = data?.transactionReceipt;
-
       transaction = getMasterSignedData(transaction, data?.signedData);
-
-      if (transactionReceipt?.status && transactionReceipt?.status == true) {
-        transaction.status =
-          utils.swapAndWithdrawTransactionStatuses.swapCompleted;
-      } else {
-        transaction.status =
-          utils.swapAndWithdrawTransactionStatuses.swapFailed;
-      }
-
+      transaction.status =
+        utils.swapAndWithdrawTransactionStatuses.swapCompleted;
       transaction.updatedAt = new Date();
-
       transaction = await db.SwapAndWithdrawTransactions.findOneAndUpdate(
         { _id: transaction._id },
         transaction,
@@ -62,10 +51,10 @@ export const handleMasterValidationFailureRequest = async (
 
 function getMasterSignedData(transaction: any, signedData: any) {
   try {
-    transaction.payBySig.salt = signedData.salt;
-    transaction.payBySig.hash = signedData.hash;
-    transaction.payBySig.signatures = signedData.signatures;
-    transaction.payBySig.updatedAt = new Date();
+    transaction.withdrawalSig.salt = signedData.salt;
+    transaction.withdrawalSig.hash = signedData.hash;
+    transaction.withdrawalSig.signatures = signedData.signatures;
+    transaction.withdrawalSig.updatedAt = new Date();
   } catch (e) {
     console.log(e);
   }

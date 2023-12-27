@@ -13,22 +13,18 @@ export const handleGeneratorRequest = async (data: any, swapTxHash: string) => {
 
     if (data && transaction) {
       let transactionReceipt = data?.transactionReceipt;
-
-      transaction = getGeneratorSignedData(transaction, data?.signedData);
-
-      transaction = await getTransactionDetail(transaction, data?.signedData);
-
       if (transactionReceipt?.status && transactionReceipt?.status == true) {
+        transaction = getGeneratorSignedData(transaction, data?.signedData);
+        transaction = await getTransactionDetail(transaction, data?.signedData);
         transaction.status =
           utils.swapAndWithdrawTransactionStatuses.generatorSignatureCreated;
       } else {
         transaction.status =
           utils.swapAndWithdrawTransactionStatuses.swapFailed;
       }
-
       transaction.updatedAt = new Date();
       transaction = await db.SwapAndWithdrawTransactions.findOneAndUpdate(
-        { _id: transaction._id },
+        { _id: transaction._id, "generatorSig.salt": "" },
         transaction,
         { new: true }
       );
@@ -57,9 +53,11 @@ async function getTransactionDetail(transaction: any, signedData: any) {
     transaction.destinationAmountOut = signedData?.destinationAmountOut;
     transaction.sourceOneInchData = signedData?.sourceOneInchData;
     transaction.destinationOneInchData = signedData?.destinationOneInchData;
+    transaction.withdrawalData = signedData?.withdrawalData;
     transaction.signatureExpiry = signedData?.expiry;
     if (transaction.sourceNetwork.isNonEVM == false) {
       transaction.sourceAmount = signedData.amount;
+      transaction.sourceAmountInMachine = signedData.amount;
       transaction.destinationAmount = signedData.amontOut;
       if (transaction.sourceAmount) {
         transaction.sourceAmount = await swapUtilsHelper.amountToHuman_(

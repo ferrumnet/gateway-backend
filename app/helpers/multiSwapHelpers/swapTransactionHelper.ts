@@ -188,43 +188,13 @@ module.exports = {
   async doSwapAndWithdraw(req: any, swapAndWithdrawTransaction: any) {
     if (
       swapAndWithdrawTransaction?.status ==
-      utils.swapAndWithdrawTransactionStatuses.swapPending
+      utils.swapAndWithdrawTransactionStatuses.swapCompleted
     ) {
-      swapAndWithdrawTransaction = await this.createGeneratorNodeJob(
+      withdrawTransactionHelper.doWithdrawSignedFromFIBER(
         req,
         swapAndWithdrawTransaction
       );
     }
-
-    // if (
-    //   swapAndWithdrawTransaction?.status ==
-    //   utils.swapAndWithdrawTransactionStatuses.generatorSignatureCreated
-    // ) {
-    //   swapAndWithdrawTransaction = await this.createValidatorNodeJob(
-    //     req,
-    //     swapAndWithdrawTransaction
-    //   );
-    // }
-
-    // if (
-    //   swapAndWithdrawTransaction?.status ==
-    //   utils.swapAndWithdrawTransactionStatuses.validatorSignatureCreated
-    // ) {
-    //   swapAndWithdrawTransaction = await this.createMasterNodeJob(
-    //     req,
-    //     swapAndWithdrawTransaction
-    //   );
-    // }
-
-    // if (
-    //   swapAndWithdrawTransaction?.status ==
-    //   utils.swapAndWithdrawTransactionStatuses.swapCompleted
-    // ) {
-    //   withdrawTransactionHelper.doWithdrawSignedFromFIBER(
-    //     req,
-    //     swapAndWithdrawTransaction
-    //   );
-    // }
     return swapAndWithdrawTransaction;
   },
 
