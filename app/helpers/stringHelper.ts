@@ -75,6 +75,7 @@ let transactionFailedMessageOne = "Backend_Transaction_Failed_Message_One";
 let transactionFailedMessageTwo = "Backend_Transaction_Failed_Message_Two";
 let invalidHashMessage = "Backend_Invalid_Hash_Message";
 let swapFailedMessage = "Backend_Swap_Failed_Message";
+var strErrorNodePairAlreadyExist = "This pair already exist.";
 
 // success messages
 let strSuccessResetPasswordLink = "Backend_Success_Reset_Password_Link";
@@ -156,4 +157,5 @@ module.exports = {
   invalidHashMessage,
   swapFailedMessage,
   withdrawlSuccessfulMessage,
+  strErrorNodePairAlreadyExist,
 };

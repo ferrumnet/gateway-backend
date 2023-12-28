@@ -34,7 +34,7 @@ var schema = mongoose.Schema(
     },
     isNonEVM: { type: Boolean, default: false },
     isAllowedDynamicGasValues: { type: Boolean, default: false },
-
+    threshold: { type: Number, default: 0 },
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
   },
