@@ -19,7 +19,11 @@ export const handleValidatorRequest = async (
 
     if (data && transaction) {
       let transactionReceipt = data?.transactionReceipt;
-      if (transactionReceipt?.status && transactionReceipt?.status == true) {
+      if (
+        transactionReceipt?.status &&
+        transactionReceipt?.status == true &&
+        data?.signedData
+      ) {
         transaction = getValidatorSignedData(transaction, data?.signedData);
         if (transaction?.validatorSig?.length == NUMBER_OF_VALIDATORS) {
           transaction.status =

@@ -4,7 +4,6 @@ export const handleGeneratorRequest = async (data: any, swapTxHash: string) => {
       receiveTransactionId: swapTxHash,
       status: utils.swapAndWithdrawTransactionStatuses.swapPending,
     };
-
     let transaction = await db.SwapAndWithdrawTransactions.findOne(filter)
       .populate("sourceNetwork")
       .populate("sourceCabn")
@@ -13,7 +12,11 @@ export const handleGeneratorRequest = async (data: any, swapTxHash: string) => {
 
     if (data && transaction) {
       let transactionReceipt = data?.transactionReceipt;
-      if (transactionReceipt?.status && transactionReceipt?.status == true) {
+      if (
+        transactionReceipt?.status &&
+        transactionReceipt?.status == true &&
+        data?.signedData
+      ) {
         transaction = getGeneratorSignedData(transaction, data?.signedData);
         transaction = await getTransactionDetail(transaction, data?.signedData);
         transaction.status =
@@ -55,6 +58,7 @@ async function getTransactionDetail(transaction: any, signedData: any) {
     transaction.destinationOneInchData = signedData?.destinationOneInchData;
     transaction.withdrawalData = signedData?.withdrawalData;
     transaction.signatureExpiry = signedData?.expiry;
+    transaction.settledAmount = signedData?.settledAmount;
     if (transaction.sourceNetwork.isNonEVM == false) {
       transaction.sourceAmount = signedData.amount;
       transaction.sourceAmountInMachine = signedData.amount;
