@@ -25,7 +25,9 @@ module.exports = function (router: any) {
       swapAndWithdrawTransaction
     );
     return res.http200({
-      swapAndWithdrawTransaction: swapAndWithdrawTransaction,
+      swapAndWithdrawTransaction: swapTransactionHelper.toObject(
+        swapAndWithdrawTransaction
+      ),
     });
   });
 
@@ -296,7 +298,8 @@ module.exports = function (router: any) {
       }
 
       return res.http200({
-        swapAndWithdrawTransactions: transactions,
+        swapAndWithdrawTransactions:
+          swapTransactionHelper.toArrayObject(transactions),
         totalCount: totalCount,
       });
     })
@@ -330,7 +333,8 @@ module.exports = function (router: any) {
         });
 
       return res.http200({
-        swapAndWithdrawTransaction: transactions,
+        swapAndWithdrawTransaction:
+          swapTransactionHelper.toObject(transactions),
       });
     })
   );
