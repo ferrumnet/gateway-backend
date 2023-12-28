@@ -94,6 +94,8 @@ var schema = mongoose.Schema(
     signatureExpiry: { type: Number, default: null },
     responseCode: { type: Number, default: "" },
     responseMessage: {},
+    slippage: { type: Number, default: 2 },
+    settledAmount: { type: String, default: "" },
   },
   { collection: "swapAndWithdrawTransactions" }
 );
