@@ -231,7 +231,9 @@ module.exports = function (router: any) {
       if (req.query.transactionHash) {
         filter.$or = [
           {
-            "useTransactions.transactionId": { $in: req.query.transactionHash },
+            "withdrawTransactions.transactionId": {
+              $in: req.query.transactionHash,
+            },
           },
           { receiveTransactionId: req.query.transactionHash },
         ];
