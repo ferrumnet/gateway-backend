@@ -216,4 +216,22 @@ module.exports = {
     }
     return key;
   },
+
+  getMongoDbUrl: function () {
+    let url = "";
+    let isLocalEnv = (global as any).environment.isLocalEnv;
+    let key = (global as any).environment.securityKey;
+    let encrypted;
+    try {
+      if (isLocalEnv) {
+        encrypted = (global as any).environment.localMongoConnectionUrl;
+      } else {
+        encrypted = (global as any).environment.mongoConnectionUrl;
+      }
+      url = this.decrypt(encrypted, key);
+    } catch (e) {
+      console.log(e);
+    }
+    return url;
+  },
 };
