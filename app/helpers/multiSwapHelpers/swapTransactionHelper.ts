@@ -132,4 +132,18 @@ module.exports = {
     delete rawObject?.nodeJobs;
     return rawObject;
   },
+
+  getFilters(req: any) {
+    var filter: any = {};
+    if (req.query.status) {
+      filter.status = req.query.status;
+    }
+    if (req.query.address && req.query.nodeType == utils.nodeTypes.validator) {
+      filter.validatorSig = {
+        $not: { $elemMatch: { address: req.query.address } },
+      };
+    }
+    filter.version = "v3";
+    return filter;
+  },
 };

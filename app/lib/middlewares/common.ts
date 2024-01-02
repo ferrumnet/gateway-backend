@@ -234,4 +234,8 @@ module.exports = {
     }
     return url;
   },
+
+  getNumberOfAllowedValidators: function (): Number {
+    return Number((global as any).environment.numberOfAllowedValidators);
+  },
 };
