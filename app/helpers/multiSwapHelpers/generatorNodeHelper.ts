@@ -42,6 +42,7 @@ export const handleGeneratorRequest = async (data: any, swapTxHash: string) => {
 function getGeneratorSignedData(transaction: any, signedData: any) {
   try {
     transaction.generatorSig.salt = signedData?.salt;
+    transaction.generatorSig.address = signedData?.address;
     transaction.generatorSig.signatures = signedData?.signatures;
     transaction.generatorSig.updatedAt = new Date();
   } catch (e) {
