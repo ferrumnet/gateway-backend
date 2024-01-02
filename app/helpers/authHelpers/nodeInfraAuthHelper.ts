@@ -7,7 +7,7 @@ export const getKey = (
   address: string
 ): string => {
   if (
-    url.includes(utils.nodeTypes.generator) ||
+    url.includes("from/" + utils.nodeTypes.generator) ||
     nodeType == utils.nodeTypes.generator
   ) {
     return commonFunctions.findKey(
@@ -15,7 +15,7 @@ export const getKey = (
       (global as any).environment.generatorNodeApiKeys
     );
   } else if (
-    url.includes(utils.nodeTypes.validator) ||
+    url.includes("from/" + utils.nodeTypes.validator) ||
     nodeType == utils.nodeTypes.validator
   ) {
     return commonFunctions.findKey(
@@ -23,7 +23,7 @@ export const getKey = (
       (global as any).environment.validatorNodeApiKeys
     );
   } else if (
-    url.includes(utils.nodeTypes.master) ||
+    url.includes("from/" + utils.nodeTypes.master) ||
     nodeType == utils.nodeTypes.master
   ) {
     return (global as any).environment.masterNodeApiKey;
