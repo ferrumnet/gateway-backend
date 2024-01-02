@@ -10,24 +10,9 @@ module.exports = function (router: any) {
   router.get(
     "/list",
     asyncMiddleware(async (req: any, res: any) => {
-      var filter: any = {};
+      var filter = swapTransactionHelper.getFilters(req);
       let sort = { createdAt: -1 };
       let transactions = null;
-
-      if (req.query.status) {
-        filter.status = req.query.status;
-      }
-
-      if (req.query.address && req.query.status == utils.nodeTypes.validator) {
-        filter.validatorSig = {
-          $not: { $elemMatch: { address: req.query.address } },
-        };
-      }
-
-      filter.version = "v3";
-
-      console.log(filter);
-
       if (req.query.isPagination != null && req.query.isPagination == "false") {
         transactions = await db.SwapAndWithdrawTransactions.find(filter)
           .populate({
@@ -69,7 +54,6 @@ module.exports = function (router: any) {
           .skip(req.query.offset ? parseInt(req.query.offset) : 0)
           .limit(req.query.limit ? parseInt(req.query.limit) : 10);
       }
-
       return res.http200({
         transactions: transactions,
       });

@@ -3,6 +3,7 @@ export const handleGeneratorRequest = async (data: any, swapTxHash: string) => {
     let filter: any = {
       receiveTransactionId: swapTxHash,
       status: utils.swapAndWithdrawTransactionStatuses.swapPending,
+      "generatorSig.salt": "",
     };
     let transaction = await db.SwapAndWithdrawTransactions.findOne(filter)
       .populate("sourceNetwork")
@@ -11,6 +12,7 @@ export const handleGeneratorRequest = async (data: any, swapTxHash: string) => {
       .populate("destinationCabn");
 
     if (data && transaction) {
+      filter._id = transaction._id;
       let transactionReceipt = data?.transactionReceipt;
       if (
         transactionReceipt?.status &&
@@ -27,7 +29,7 @@ export const handleGeneratorRequest = async (data: any, swapTxHash: string) => {
       }
       transaction.updatedAt = new Date();
       transaction = await db.SwapAndWithdrawTransactions.findOneAndUpdate(
-        { _id: transaction._id, "generatorSig.salt": "" },
+        filter,
         transaction,
         { new: true }
       );

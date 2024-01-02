@@ -1,5 +1,3 @@
-const NUMBER_OF_VALIDATORS = 1;
-
 export const handleValidatorRequest = async (
   data: any,
   swapTxHash: string,
@@ -10,14 +8,14 @@ export const handleValidatorRequest = async (
       receiveTransactionId: swapTxHash,
       status:
         utils.swapAndWithdrawTransactionStatuses.generatorSignatureCreated,
-      validatorSig: {
-        $not: { $elemMatch: { address: query?.address } },
+      "validatorSig.address": {
+        $ne: query?.address,
       },
     };
 
     let transaction = await db.SwapAndWithdrawTransactions.findOne(filter);
-
     if (data && transaction) {
+      filter._id = transaction._id;
       let transactionReceipt = data?.transactionReceipt;
       if (
         transactionReceipt?.status &&
@@ -25,7 +23,10 @@ export const handleValidatorRequest = async (
         data?.signedData
       ) {
         transaction = getValidatorSignedData(transaction, data?.signedData);
-        if (transaction?.validatorSig?.length == NUMBER_OF_VALIDATORS) {
+        if (
+          transaction?.validatorSig?.length ==
+          commonFunctions.getNumberOfAllowedValidators()
+        ) {
           transaction.status =
             utils.swapAndWithdrawTransactionStatuses.validatorSignatureCreated;
         }
@@ -37,7 +38,7 @@ export const handleValidatorRequest = async (
       transaction.updatedAt = new Date();
 
       transaction = await db.SwapAndWithdrawTransactions.findOneAndUpdate(
-        { _id: transaction._id },
+        filter,
         transaction,
         { new: true }
       );
