@@ -39,6 +39,7 @@ var schema = mongoose.Schema(
         },
       ],
       salt: { type: String, default: "" },
+      address: { type: String, default: "" },
       createdAt: { type: Date, default: new Date() },
       updatedAt: { type: Date, default: new Date() },
     },
