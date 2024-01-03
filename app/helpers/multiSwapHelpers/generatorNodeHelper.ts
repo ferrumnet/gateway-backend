@@ -45,6 +45,8 @@ function getGeneratorSignedData(transaction: any, signedData: any) {
     transaction.generatorSig.address = signedData?.address;
     transaction.generatorSig.signatures = signedData?.signatures;
     transaction.generatorSig.updatedAt = new Date();
+    transaction.sourceToken = signedData?.token;
+    transaction.targetToken = signedData?.targetToken;
   } catch (e) {
     console.log(e);
   }
@@ -67,22 +69,30 @@ async function getTransactionDetail(transaction: any, signedData: any) {
       transaction.sourceAmountInMachine = signedData.amount;
       transaction.destinationAmount = signedData.amontOut;
       if (transaction.sourceAmount) {
-        transaction.sourceAmount = await swapUtilsHelper.amountToHuman_(
-          transaction.sourceNetwork,
-          transaction.sourceCabn,
-          transaction.sourceAmount
-        );
-      }
-      if (transaction.destinationAmount) {
-        transaction.destinationAmount = await swapUtilsHelper.amountToHuman_(
-          transaction.destinationNetwork,
-          transaction.destinationCabn,
-          transaction.destinationAmount
-        );
+        transaction.sourceAmount = await getAmount(transaction);
       }
     }
   } catch (e) {
     console.log(e);
   }
   return transaction;
+}
+
+async function getAmount(transaction: any) {
+  let amount;
+  try {
+    transaction.sourceAmount = await swapUtilsHelper.amountToHuman_(
+      transaction.sourceNetwork,
+      transaction.sourceCabn,
+      transaction.sourceAmount
+    );
+  } catch (e) {
+    console.log("for nativ tokens");
+    transaction.sourceAmount = await swapUtilsHelper.amountToHuman(
+      transaction.sourceAmount,
+      transaction.sourceCabn.decimals
+    );
+  }
+
+  return amount;
 }
