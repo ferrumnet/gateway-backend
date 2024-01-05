@@ -21,6 +21,8 @@ var schema = mongoose.Schema(
     isNonEVM: { type: Boolean, default: false },
     decimals: { type: Number, default: 0 },
     priority: { type: Number, default: 0 },
+    isNative: { type: Boolean, default: false },
+    oneInchAddress: { type: String, default: "" },
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
   },
