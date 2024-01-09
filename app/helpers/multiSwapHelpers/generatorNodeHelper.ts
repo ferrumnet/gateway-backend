@@ -55,7 +55,7 @@ function getGeneratorSignedData(transaction: any, signedData: any) {
 
 async function getTransactionDetail(transaction: any, signedData: any) {
   try {
-    transaction.sourceWalletAddress = signedData?.from;
+    transaction.sourceWalletAddress = signedData?.sourceAddress;
     transaction.destinationWalletAddress = signedData?.targetAddress;
     transaction.destinationAmountIn = signedData?.destinationAmountIn;
     transaction.destinationAmountOut = signedData?.destinationAmountOut;
