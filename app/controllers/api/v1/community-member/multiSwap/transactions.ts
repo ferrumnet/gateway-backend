@@ -34,180 +34,53 @@ module.exports = function (router: any) {
   router.post(
     "/regenerate/swap/and/withdraw/:txId",
     asyncMiddleware(async (req: any, res: any) => {
-      var filter: any = {};
-      let transaction = null;
       let sourceNetwork = null;
       let destinationNetwork = null;
-      let isShowInformationForSupport: boolean = false;
-      let informationForSupport: any = {
-        swapHash: "",
-        sourceChainId: "",
-        status: "",
-        destinationChaindId: "",
-      };
-      const DIFF_IN_MINUTES = 3;
-
-      let resopnseMessage = "success";
-      let onChianStatus = "pending";
-      let systemPreviousStatus = "";
-      let systemCurrentStatus = "";
-
-      filter.receiveTransactionId = req.params.txId;
-
-      if (!req.query.chainId) {
-        return res.http400("chainId is required.");
-      }
-
+      let transactionStatusForSupport = "";
+      let resopnseMessage = stringHelper.strSuccess;
+      let onChianStatus = "";
       sourceNetwork = await db.Networks.findOne({
         chainId: req?.query?.chainId,
       });
-
       if (!sourceNetwork) {
-        return res.http400("Network not supported.");
+        return res.http400(stringHelper.chainIdNotSupported);
       }
-
       let receipt = await getTransactionReceipt(
         req.params.txId,
         sourceNetwork.rpcUrl
       );
-
       if (receipt && receipt?.status != null && receipt?.status == true) {
-        onChianStatus = "success";
-        let data = {
-          logs: receipt.logs,
-          rpcUrl: sourceNetwork.rpcUrl,
-          isDestinationNonEVM: false,
-        };
-        let decodedDtata: any = await getLogsFromTransactionReceipt(data);
-        console.log("decodedDtata isDestinationNonEVM=false", decodedDtata);
-        if (!decodedDtata) {
-          data.isDestinationNonEVM = true;
-          decodedDtata = await getLogsFromTransactionReceipt(data);
-          console.log("decodedDtata isDestinationNonEVM=true", decodedDtata);
-        }
-
-        informationForSupport.swapHash = req.params.txId;
-        informationForSupport.sourceChainId = decodedDtata?.sourceChainId;
-        informationForSupport.destinationChaindId = decodedDtata?.targetChainId;
-
+        onChianStatus = stringHelper.strSuccess;
+        let decodedDtata: any = await swapTransactionHelper.getDecodedData(
+          receipt.logs,
+          sourceNetwork.rpcUrl
+        );
         destinationNetwork = await db.Networks.findOne({
           chainId: decodedDtata?.targetChainId,
         });
-
-        if (
-          (await isValidSwapTransaction(
+        let response =
+          await swapTransactionHelper.hanldeTransactionSuccessForRegenerate(
             sourceNetwork,
             destinationNetwork,
             decodedDtata,
             req.params.txId
-          )) &&
-          destinationNetwork
-        ) {
-          isShowInformationForSupport = true;
-          console.log("1");
-          transaction = await db.SwapAndWithdrawTransactions.findOne(filter)
-            .populate("destinationNetwork")
-            .populate("sourceNetwork")
-            .populate({
-              path: "destinationCabn",
-              populate: {
-                path: "currency",
-                model: "currencies",
-              },
-            })
-            .populate({
-              path: "sourceCabn",
-              populate: {
-                path: "currency",
-                model: "currencies",
-              },
-            });
-
-          if (transaction) {
-            informationForSupport.status = transaction.status;
-            console.log("transactions", transaction.status);
-            if (
-              (global as any).helper.diffInMinuts(
-                new Date(),
-                transaction.updatedAt
-              ) > DIFF_IN_MINUTES
-            ) {
-              if (
-                transaction?.status ==
-                utils.swapAndWithdrawTransactionStatuses.swapPending
-              ) {
-                resopnseMessage =
-                  await commonFunctions.getValueFromStringsPhrase(
-                    stringHelper.transactionFailedMessageOne
-                  );
-                transaction.nodeJob.id = "";
-                transaction.nodeJob.status =
-                  utils.swapAndWithdrawTransactionJobStatuses.pending;
-                transaction.nodeJob.updatedAt = new Date();
-                transaction.updatedAt = new Date();
-                console.log(transaction?.nodeJob);
-                // await db.SwapAndWithdrawTransactions.findOneAndUpdate(
-                //   filter,
-                //   transactions,
-                //   { new: true }
-                // );
-              } else if (
-                transaction?.status ==
-                utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted
-              ) {
-                // swap and witdraw completed
-                resopnseMessage =
-                  await commonFunctions.getValueFromStringsPhrase(
-                    stringHelper.withdrawlSuccessfulMessage
-                  );
-              } else {
-                // swap should be proceed manually
-                resopnseMessage =
-                  await commonFunctions.getValueFromStringsPhrase(
-                    stringHelper.transactionFailedMessageTwo
-                  );
-              }
-            } else {
-              // swap is generator less then 3 minutes
-              resopnseMessage = await commonFunctions.getValueFromStringsPhrase(
-                stringHelper.transactionFailedMessageOne
-              );
-            }
-          } else {
-            // swap does not exist in our system
-            resopnseMessage = await commonFunctions.getValueFromStringsPhrase(
-              stringHelper.transactionFailedMessageTwo
-            );
-          }
-        } else {
-          // swap is not from our contract
-          resopnseMessage = await commonFunctions.getValueFromStringsPhrase(
-            stringHelper.invalidHashMessage
           );
-        }
+        resopnseMessage = response?.message;
+        transactionStatusForSupport = response?.status;
       } else {
-        // swap might not be on the chain or swap is failed
-        if (receipt == null) {
-          // swap is on pending status / it can be fail or success
-          resopnseMessage = await commonFunctions.getValueFromStringsPhrase(
-            stringHelper.transactionFailedMessageOne
+        let response =
+          await swapTransactionHelper.hanldeTransactionFailedForRegenerate(
+            receipt
           );
-        } else if (receipt?.status == false) {
-          // swap is failed on chain
-          onChianStatus = "failed";
-          resopnseMessage = await commonFunctions.getValueFromStringsPhrase(
-            stringHelper.swapFailedMessage
-          );
-          informationForSupport.status = "onChainStatusFailed";
-        }
+        resopnseMessage = response?.message;
+        transactionStatusForSupport = response?.status;
+        onChianStatus = response?.onChianStatus;
       }
-
-      let text = `swapHash: ${req.params.txId}\nonChianStatus: ${onChianStatus}\nsystemPreviousStatus: ${informationForSupport.status}\nsystemCurrentStatus: ${informationForSupport.status}\n========================`;
-      console.log("text", text);
-      // await postMultiswapAlertIntoChannel({
-      //   text: text,
-      // });
-
+      await swapTransactionHelper.sendSlackNotifcationForRegenerate(
+        req.params.txId,
+        onChianStatus,
+        transactionStatusForSupport
+      );
       return res.http200({
         message: resopnseMessage,
       });

@@ -1,8 +1,8 @@
-import Web3 from "web3";
-var { Big } = require("big.js");
-let TRANSACTION_TIMEOUT = 36 * 1000;
-const abiDecoder = require("abi-decoder"); // NodeJS
 var mongoose = require("mongoose");
+import {
+  getLogsFromTransactionReceipt,
+  isValidSwapTransaction,
+} from "../../helpers/web3Helpers/web3Utils";
 
 module.exports = {
   validationForDoSwapAndWithdraw(req: any) {
@@ -145,5 +145,148 @@ module.exports = {
     }
     filter.version = "v3";
     return filter;
+  },
+
+  async getDecodedData(logs: any, rpcUrl: string) {
+    let data = {
+      logs: logs,
+      rpcUrl: rpcUrl,
+      isDestinationNonEVM: false,
+    };
+    let decodedDtata: any = await getLogsFromTransactionReceipt(data);
+    if (!decodedDtata) {
+      data.isDestinationNonEVM = true;
+      decodedDtata = await getLogsFromTransactionReceipt(data);
+    }
+    return decodedDtata;
+  },
+
+  async hanldeTransactionSuccessForRegenerate(
+    sourceNetwork: any,
+    destinationNetwork: any,
+    decodedDtata: any,
+    swapHash: string
+  ) {
+    let response = { message: "", status: "" };
+    if (
+      (await isValidSwapTransaction(
+        sourceNetwork,
+        destinationNetwork,
+        decodedDtata,
+        swapHash
+      )) &&
+      destinationNetwork
+    ) {
+      let res = await this.doTransactionOperationsForRegenerate(swapHash);
+      response.message = res?.message;
+      response.status = res?.status;
+    } else {
+      response.message = await commonFunctions.getValueFromStringsPhrase(
+        stringHelper.invalidHashMessage
+      );
+    }
+    return response;
+  },
+
+  async hanldeTransactionFailedForRegenerate(receipt: any) {
+    let response = { message: "", status: "", onChianStatus: "pending" };
+    if (receipt == null) {
+      response.message = await commonFunctions.getValueFromStringsPhrase(
+        stringHelper.transactionFailedMessageOne
+      );
+    } else if (receipt?.status == false) {
+      response.onChianStatus = "failed";
+      response.message = await commonFunctions.getValueFromStringsPhrase(
+        stringHelper.swapFailedMessage
+      );
+      response.status = "onChainStatusFailed";
+    }
+    return response;
+  },
+
+  async doTransactionOperationsForRegenerate(swapHash: string) {
+    const DIFF_IN_MINUTES = 5;
+    let transaction = null;
+    let response = { message: "", status: "" };
+    transaction = await db.SwapAndWithdrawTransactions.findOne({
+      receiveTransactionId: swapHash,
+    })
+      .populate("destinationNetwork")
+      .populate("sourceNetwork")
+      .populate({
+        path: "destinationCabn",
+        populate: {
+          path: "currency",
+          model: "currencies",
+        },
+      })
+      .populate({
+        path: "sourceCabn",
+        populate: {
+          path: "currency",
+          model: "currencies",
+        },
+      });
+
+    if (transaction) {
+      response.status = transaction.status;
+      if (
+        (global as any).helper.diffInMinuts(new Date(), transaction.updatedAt) >
+        DIFF_IN_MINUTES
+      ) {
+        if (
+          transaction?.status ==
+            utils.swapAndWithdrawTransactionStatuses.swapPending ||
+          transaction?.status ==
+            utils.swapAndWithdrawTransactionStatuses.generatorSignatureFailed
+        ) {
+          response.message = await commonFunctions.getValueFromStringsPhrase(
+            stringHelper.transactionFailedMessageOne
+          );
+          transaction.generatorSig.salt = "";
+          transaction.updatedAt = new Date();
+          await db.SwapAndWithdrawTransactions.findOneAndUpdate(
+            {
+              receiveTransactionId: swapHash,
+            },
+            transaction,
+            { new: true }
+          );
+        } else if (
+          transaction?.status ==
+          utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted
+        ) {
+          response.message = await commonFunctions.getValueFromStringsPhrase(
+            stringHelper.withdrawlSuccessfulMessage
+          );
+        } else {
+          response.message = await commonFunctions.getValueFromStringsPhrase(
+            stringHelper.transactionFailedMessageTwo
+          );
+        }
+      } else {
+        response.message = await commonFunctions.getValueFromStringsPhrase(
+          stringHelper.transactionFailedMessageOne
+        );
+      }
+    } else {
+      // swap does not exist in our system
+      response.message = await commonFunctions.getValueFromStringsPhrase(
+        stringHelper.transactionFailedMessageTwo
+      );
+    }
+    return response;
+  },
+
+  async sendSlackNotifcationForRegenerate(
+    swapHash: string,
+    onChianStatus: string,
+    transactionStatusForSupport: string
+  ) {
+    let text = `swapHash: ${swapHash}\nonChianStatus: ${onChianStatus}\nsystemPreviousStatus: ${transactionStatusForSupport}\nsystemCurrentStatus: ${transactionStatusForSupport}\n========================`;
+    console.log("text", text);
+    // await postMultiswapAlertIntoChannel({
+    //   text: text,
+    // });
   },
 };
