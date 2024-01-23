@@ -25,7 +25,7 @@ export const handleGeneratorRequest = async (data: any, swapTxHash: string) => {
           utils.swapAndWithdrawTransactionStatuses.generatorSignatureCreated;
       } else {
         transaction.status =
-          utils.swapAndWithdrawTransactionStatuses.swapFailed;
+          utils.swapAndWithdrawTransactionStatuses.generatorSignatureFailed;
       }
       transaction.updatedAt = new Date();
       transaction = await db.SwapAndWithdrawTransactions.findOneAndUpdate(

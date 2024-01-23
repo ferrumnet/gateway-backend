@@ -92,6 +92,9 @@ let strSuccess = "Success";
 let tagStartBlock = "startBlock";
 let tagEndBlock = "endBlock";
 
+// validation messages
+let chainIdNotSupported = "ChainId not supported.";
+
 module.exports = {
   strErrorNotFoundOrganization,
   strSuccessOtp,
@@ -158,4 +161,5 @@ module.exports = {
   swapFailedMessage,
   withdrawlSuccessfulMessage,
   strErrorNodePairAlreadyExist,
+  chainIdNotSupported,
 };
