@@ -67,11 +67,11 @@ export const getLogsFromTransactionReceipt = (data: any) => {
 
 const findSwapEvent = (topics: any[], data: any) => {
   let swapEventHash = Web3.utils.sha3(
-    "Swap(address,address,uint256,uint256,uint256,address,address,uint256)"
+    "Swap(address,address,uint256,uint256,uint256,address,address,uint256,bytes32)"
   );
   if (data.isDestinationNonEVM != null && data.isDestinationNonEVM) {
     swapEventHash = Web3.utils.sha3(
-      "NonEvmSwap(address,string,uint256,string,uint256,address,string,uint256)"
+      "NonEvmSwap(address,string,uint256,string,uint256,address,string)"
     );
   }
 
