@@ -3,6 +3,7 @@ import {
   getLogsFromTransactionReceipt,
   isValidSwapTransaction,
 } from "../../helpers/web3Helpers/web3Utils";
+import { postMultiswapAlertIntoChannel } from "../../lib/httpCalls/slackAxiosHelper";
 
 module.exports = {
   validationForDoSwapAndWithdraw(req: any) {
@@ -284,9 +285,8 @@ module.exports = {
     transactionStatusForSupport: string
   ) {
     let text = `swapHash: ${swapHash}\nonChianStatus: ${onChianStatus}\nsystemPreviousStatus: ${transactionStatusForSupport}\nsystemCurrentStatus: ${transactionStatusForSupport}\n========================`;
-    console.log("text", text);
-    // await postMultiswapAlertIntoChannel({
-    //   text: text,
-    // });
+    await postMultiswapAlertIntoChannel({
+      text: text,
+    });
   },
 };
