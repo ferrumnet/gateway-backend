@@ -10,10 +10,9 @@ export const postMultiswapAlertIntoChannel = async (body: any) => {
       },
     };
     let res = await axios.post(`${url}`, body, config);
-    console.log("res.data", res.data);
     return res.data;
   } catch (error: any) {
-    console.log(error.data);
+    console.log(error);
   }
   return null;
 };
