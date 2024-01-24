@@ -31,7 +31,7 @@ module.exports = function (router: any) {
     });
   });
 
-  router.post(
+  router.put(
     "/regenerate/swap/and/withdraw/:txId",
     asyncMiddleware(async (req: any, res: any) => {
       let sourceNetwork = null;
