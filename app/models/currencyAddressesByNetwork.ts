@@ -23,6 +23,7 @@ var schema = mongoose.Schema(
     priority: { type: Number, default: 0 },
     isNative: { type: Boolean, default: false },
     oneInchAddress: { type: String, default: "" },
+    isDefault: { type: Boolean, default: true },
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
   },
