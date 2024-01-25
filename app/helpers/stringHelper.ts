@@ -75,6 +75,7 @@ let transactionFailedMessageOne = "Backend_Transaction_Failed_Message_One";
 let transactionFailedMessageTwo = "Backend_Transaction_Failed_Message_Two";
 let invalidHashMessage = "Backend_Invalid_Hash_Message";
 let swapFailedMessage = "Backend_Swap_Failed_Message";
+var strErrorCabnAlreadyExist = "Backend_Error_Cabn_Already_Exist";
 var strErrorNodePairAlreadyExist = "This pair already exist.";
 
 // success messages
@@ -162,4 +163,5 @@ module.exports = {
   withdrawlSuccessfulMessage,
   strErrorNodePairAlreadyExist,
   chainIdNotSupported,
+  strErrorCabnAlreadyExist,
 };
