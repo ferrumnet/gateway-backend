@@ -60,5 +60,6 @@
   "Backend_Transaction_Failed_Message_Two": "We are having trouble processing the Transaction, please contact support to proceed further.",
   "Backend_Invalid_Hash_Message": "Swap unsuccessful due to invalid hash.",
   "Backend_Swap_Failed_Message": "Swap transaction has failed.",
-  "Backend_Withdrawl_Successful_Message": "Transaction withdrawal successful."
+  "Backend_Withdrawl_Successful_Message": "Transaction withdrawal successful.",
+  "Backend_Error_Cabn_Already_Exist": "This cabn already exist."
 }

@@ -10,6 +10,12 @@ var schema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "organizations",
     },
+    createdByusers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "users",
+      },
+    ],
     tokenContractAddress: { type: String, default: "" },
     isAllowedOnMultiSwap: { type: Boolean, default: false },
     isFeeToken: { type: Boolean, default: false },
@@ -24,6 +30,10 @@ var schema = mongoose.Schema(
     isNative: { type: Boolean, default: false },
     oneInchAddress: { type: String, default: "" },
     isDefault: { type: Boolean, default: true },
+    nonDefaultCurrencyInformation: {
+      name: { type: String, default: "" },
+      symbol: { type: String, default: "" },
+    },
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
   },
