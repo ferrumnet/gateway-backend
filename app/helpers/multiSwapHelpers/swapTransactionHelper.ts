@@ -237,13 +237,13 @@ module.exports = {
       ) {
         if (
           transaction?.status ==
-            utils.swapAndWithdrawTransactionStatuses.swapPending ||
-          transaction?.status ==
-            utils.swapAndWithdrawTransactionStatuses.generatorSignatureFailed
+          utils.swapAndWithdrawTransactionStatuses.generatorSignatureFailed
         ) {
           response.message = await commonFunctions.getValueFromStringsPhrase(
             stringHelper.transactionFailedMessageOne
           );
+          transaction.status =
+            utils.swapAndWithdrawTransactionStatuses.swapPending;
           transaction.generatorSig.salt = "";
           transaction.updatedAt = new Date();
           await db.SwapAndWithdrawTransactions.findOneAndUpdate(
