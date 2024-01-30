@@ -8,6 +8,17 @@ import {
 } from "../../../../../helpers/multiSwapHelpers/cabnsHelper";
 
 module.exports = function (router: any) {
+  router.post(
+    "/create",
+    asyncMiddleware(async (req: any, res: any) => {
+      doValidationForCreateUserCabn(req);
+      let cabn = await createUserCabn(req);
+      return res.http200({
+        cabn: cabn,
+      });
+    })
+  );
+
   router.delete(
     "/all",
     asyncMiddleware(async (req: any, res: any) => {
