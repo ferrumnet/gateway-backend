@@ -29,7 +29,7 @@ module.exports = function (router: any) {
       currency: currency,
     });
   });
-
+  // remove this api
   router.get("/cabn/list", async (req: any, res: any) => {
     var matchFilter: any = {};
     var filterOrList = [];
@@ -43,6 +43,12 @@ module.exports = function (router: any) {
       filterOrList.push({ "currency.nameInLower": reg });
       filterOrList.push({ "currency.symbol": reg });
       filterOrList.push({ tokenContractAddress: reg });
+      filterOrList.push({ "nonDefaultCurrencyInformation.name": reg });
+      filterOrList.push({ "nonDefaultCurrencyInformation.symbol": reg });
+    }
+
+    if (req.query.isDefault) {
+      filterAndList.push({ isDefault: req.query.isDefault });
     }
 
     if (req.query.tokenContractAddress) {
@@ -161,6 +167,16 @@ module.exports = function (router: any) {
     var filter = [];
     let cabns = [];
     var sort: any = { createdAt: -1 };
+
+    if (req.query.isDefault) {
+      if (req.query.isDefault == "true") {
+        filterAndList.push({ isDefault: true });
+      } else {
+        filterAndList.push({ isDefault: false });
+      }
+    } else {
+      filterAndList.push({ isDefault: true });
+    }
 
     if (req.query.sortKey) {
       Object.keys(sort).forEach((key) => {
@@ -287,6 +303,16 @@ module.exports = function (router: any) {
 
     if (!req.query.tokenContractAddress || !req.query.chainId) {
       return res.http400("tokenContractAddress & chainId are required.");
+    }
+
+    if (req.query.isDefault) {
+      if (req.query.isDefault == "true") {
+        filterAndList.push({ isDefault: true });
+      } else {
+        filterAndList.push({ isDefault: false });
+      }
+    } else {
+      filterAndList.push({ isDefault: true });
     }
 
     filterAndList.push({
