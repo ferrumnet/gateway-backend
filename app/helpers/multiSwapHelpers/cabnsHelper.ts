@@ -133,8 +133,7 @@ const getNonDefaultCurrencyInformationObject = (body: any): any => {
 const addUserIdIntoCabn = async (cabnFilter: any, req: any): Promise<any> => {
   let cabn;
   cabnFilter.createdByusers = { $in: req.user._id };
-  let temp = true;
-  if ((await countCabnByFilter(cabnFilter)) == 0 || temp) {
+  if ((await countCabnByFilter(cabnFilter)) == 0) {
     delete cabnFilter.createdByusers;
     cabn = await findCabnByFilter(cabnFilter);
     if (cabn) {
