@@ -23,6 +23,7 @@ export const createUserCabn = async (req: any): Promise<any> => {
   req.body.tokenContractAddress = req.body.tokenContractAddress.toLowerCase();
   cabnFilter.network = network._id;
   cabnFilter.tokenContractAddress = req.body.tokenContractAddress;
+  await checkDefaultCabnAlreadyExist({ ...cabnFilter, isDefault: true });
   if ((await countCabnByFilter(cabnFilter)) == 0) {
     req.body.nonDefaultCurrencyInformation =
       getNonDefaultCurrencyInformationObject(req.body);
@@ -30,6 +31,7 @@ export const createUserCabn = async (req: any): Promise<any> => {
     req.body.network = network._id;
     req.body.isAllowedOnMultiSwap = true;
     req.body.isDefault = false;
+    req.body.priority = 1;
     req.body.createdAt = new Date();
     req.body.updatedAt = new Date();
     return await db.CurrencyAddressesByNetwork.create(req.body);
@@ -68,6 +70,16 @@ export const deleteUserIdFromCabn = async (
       cabnFilter,
       cabn,
       { new: true }
+    );
+  }
+};
+
+export const checkDefaultCabnAlreadyExist = async (
+  cabnFilter: any
+): Promise<any> => {
+  if ((await countCabnByFilter(cabnFilter)) > 0) {
+    throw await commonFunctions.getValueFromStringsPhrase(
+      stringHelper.strErrorCabnAlreadyExist
     );
   }
 };
