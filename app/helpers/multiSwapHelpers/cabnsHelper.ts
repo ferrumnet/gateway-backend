@@ -23,7 +23,6 @@ export const createUserCabn = async (req: any): Promise<any> => {
   req.body.tokenContractAddress = req.body.tokenContractAddress.toLowerCase();
   cabnFilter.network = network._id;
   cabnFilter.tokenContractAddress = req.body.tokenContractAddress;
-  console.log("cabn count", await countCabnByFilter(cabnFilter));
   if ((await countCabnByFilter(cabnFilter)) == 0) {
     req.body.nonDefaultCurrencyInformation =
       getNonDefaultCurrencyInformationObject(req.body);
@@ -37,6 +36,69 @@ export const createUserCabn = async (req: any): Promise<any> => {
   } else {
     return addUserIdIntoCabn(cabnFilter, req);
   }
+};
+
+export const deleteUserIdFromAllCabns = async (user: any): Promise<any> => {
+  let cabnFilter: any = {};
+  cabnFilter.createdByusers = { $in: user._id };
+  cabnFilter.isDefault = false;
+  let cabns = await db.CurrencyAddressesByNetwork.find(cabnFilter);
+  if (cabns && cabns.length > 0) {
+    for (let cabn of cabns) {
+      await deleteUserIdFromCabn(user, cabn._id);
+    }
+  }
+};
+
+export const deleteUserIdFromCabn = async (
+  user: any,
+  cabnId: string
+): Promise<any> => {
+  let cabnFilter: any = {};
+  cabnFilter.createdByusers = { $in: user._id };
+  cabnFilter._id = cabnId;
+  cabnFilter.isDefault = false;
+  let cabn = await findCabnByFilter(cabnFilter);
+  if (cabn) {
+    let users = cabn.createdByusers;
+    users = removeItemFromList(users, user._id);
+    cabn.createdByusers = users;
+    cabn.updatedAt = new Date();
+    cabn = await db.CurrencyAddressesByNetwork.findOneAndUpdate(
+      cabnFilter,
+      cabn,
+      { new: true }
+    );
+  }
+};
+
+export const makeCabnDefault = async (cabnId: string): Promise<any> => {
+  let cabnFilter: any = {};
+  cabnFilter._id = cabnId;
+  cabnFilter.isDefault = false;
+  let cabn = await findCabnByFilter(cabnFilter);
+  if (cabn) {
+    cabn.createdByusers = [];
+    cabn.isDefault = true;
+    cabn.updatedAt = new Date();
+    cabn = await db.CurrencyAddressesByNetwork.findOneAndUpdate(
+      cabnFilter,
+      cabn,
+      { new: true }
+    );
+  }
+};
+
+const removeItemFromList = (arr: any, value: any) => {
+  var i = 0;
+  while (i < arr.length) {
+    if (arr[i].toString() == value.toString()) {
+      arr.splice(i, 1);
+    } else {
+      ++i;
+    }
+  }
+  return arr;
 };
 
 const countCabnByFilter = async (cabnFilter: any): Promise<any> => {
@@ -59,8 +121,8 @@ const getNonDefaultCurrencyInformationObject = (body: any): any => {
 const addUserIdIntoCabn = async (cabnFilter: any, req: any): Promise<any> => {
   let cabn;
   cabnFilter.createdByusers = { $in: req.user._id };
-  let byPass = true;
-  if ((await countCabnByFilter(cabnFilter)) == 0 || byPass) {
+  let temp = true;
+  if ((await countCabnByFilter(cabnFilter)) == 0 || temp) {
     delete cabnFilter.createdByusers;
     cabn = await findCabnByFilter(cabnFilter);
     if (cabn) {
