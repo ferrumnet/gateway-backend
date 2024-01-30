@@ -55,3 +55,14 @@ export const getUser = async (id: string) => {
 export const invalidRequest = async (res: any) => {
   return res.http401(INVALID_TOKEN);
 };
+
+export const getUserForPublicApis = async (req: any): Promise<any> => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded = jwt.verify(token, (global as any).environment.jwtSecret);
+    const user = await getUser(decoded?._id);
+    return user;
+  } catch (e) {
+    return null;
+  }
+};

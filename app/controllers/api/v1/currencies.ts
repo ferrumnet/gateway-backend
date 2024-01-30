@@ -1,4 +1,5 @@
 var mongoose = require("mongoose");
+import { getUserForPublicApis } from "../../../helpers/authHelpers/rootAuthHelper";
 
 module.exports = function (router: any) {
   router.get("/:name", async (req: any, res: any) => {
@@ -28,7 +29,7 @@ module.exports = function (router: any) {
       currency: currency,
     });
   });
-
+  // remove this api
   router.get("/cabn/list", async (req: any, res: any) => {
     var matchFilter: any = {};
     var filterOrList = [];
@@ -42,6 +43,12 @@ module.exports = function (router: any) {
       filterOrList.push({ "currency.nameInLower": reg });
       filterOrList.push({ "currency.symbol": reg });
       filterOrList.push({ tokenContractAddress: reg });
+      filterOrList.push({ "nonDefaultCurrencyInformation.name": reg });
+      filterOrList.push({ "nonDefaultCurrencyInformation.symbol": reg });
+    }
+
+    if (req.query.isDefault) {
+      filterAndList.push({ isDefault: req.query.isDefault });
     }
 
     if (req.query.tokenContractAddress) {
@@ -160,6 +167,16 @@ module.exports = function (router: any) {
     var filter = [];
     let cabns = [];
     var sort: any = { createdAt: -1 };
+
+    if (req.query.isDefault) {
+      if (req.query.isDefault == "true") {
+        filterAndList.push({ isDefault: true });
+      } else {
+        filterAndList.push({ isDefault: false });
+      }
+    } else {
+      filterAndList.push({ isDefault: true });
+    }
 
     if (req.query.sortKey) {
       Object.keys(sort).forEach((key) => {
@@ -288,6 +305,16 @@ module.exports = function (router: any) {
       return res.http400("tokenContractAddress & chainId are required.");
     }
 
+    if (req.query.isDefault) {
+      if (req.query.isDefault == "true") {
+        filterAndList.push({ isDefault: true });
+      } else {
+        filterAndList.push({ isDefault: false });
+      }
+    } else {
+      filterAndList.push({ isDefault: true });
+    }
+
     filterAndList.push({
       tokenContractAddress: req.query.tokenContractAddress.toLowerCase(),
     });
@@ -391,7 +418,7 @@ module.exports = function (router: any) {
     let filter: any[] = [];
     const query: { [key: string]: any } = {};
     const embeddedDocumentQuery: { [key: string]: any } = {};
-
+    const user = await getUserForPublicApis(req);
     if (req.query.network) {
       query["network"] = new mongoose.Types.ObjectId(req.query.network);
     }
@@ -489,6 +516,9 @@ module.exports = function (router: any) {
           isAllowedOnMultiSwap: 1,
           decimals: 1,
           isNative: 1,
+          isDefault: 1,
+          nonDefaultCurrencyInformation: 1,
+          createdByusers: 1,
           "network._id": 1,
           "network.name": 1,
           "network.nameInLower": 1,
@@ -508,6 +538,14 @@ module.exports = function (router: any) {
     if (req.query.chainId) {
       embeddedDocumentQuery["network.chainId"] = req.query.chainId;
     }
+    if (user && user._id) {
+      embeddedDocumentQuery.$or = [
+        { createdByusers: new mongoose.Types.ObjectId(user._id) },
+        { isDefault: true },
+      ];
+    } else {
+      embeddedDocumentQuery["isDefault"] = true;
+    }
     if (req.query.search) {
       const reg = new RegExp(req.query.search, "i");
       embeddedDocumentQuery.$or = [
@@ -515,6 +553,8 @@ module.exports = function (router: any) {
         { "currency.nameInLower": reg },
         { "currency.symbol": reg },
         { tokenContractAddress: reg },
+        { "nonDefaultCurrencyInformation.name": reg },
+        { "nonDefaultCurrencyInformation.symbol": reg },
       ];
     }
 
