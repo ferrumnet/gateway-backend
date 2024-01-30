@@ -1,4 +1,5 @@
 var mongoose = require("mongoose");
+import { getUserForPublicApis } from "../../../helpers/authHelpers/rootAuthHelper";
 
 module.exports = function (router: any) {
   router.get("/:name", async (req: any, res: any) => {
@@ -391,7 +392,7 @@ module.exports = function (router: any) {
     let filter: any[] = [];
     const query: { [key: string]: any } = {};
     const embeddedDocumentQuery: { [key: string]: any } = {};
-
+    const user = await getUserForPublicApis(req);
     if (req.query.network) {
       query["network"] = new mongoose.Types.ObjectId(req.query.network);
     }
@@ -489,6 +490,9 @@ module.exports = function (router: any) {
           isAllowedOnMultiSwap: 1,
           decimals: 1,
           isNative: 1,
+          isDefault: 1,
+          nonDefaultCurrencyInformation: 1,
+          createdByusers: 1,
           "network._id": 1,
           "network.name": 1,
           "network.nameInLower": 1,
@@ -508,6 +512,14 @@ module.exports = function (router: any) {
     if (req.query.chainId) {
       embeddedDocumentQuery["network.chainId"] = req.query.chainId;
     }
+    if (user && user._id) {
+      embeddedDocumentQuery.$or = [
+        { createdByusers: new mongoose.Types.ObjectId(user._id) },
+        { isDefault: true },
+      ];
+    } else {
+      embeddedDocumentQuery["isDefault"] = true;
+    }
     if (req.query.search) {
       const reg = new RegExp(req.query.search, "i");
       embeddedDocumentQuery.$or = [
@@ -515,6 +527,8 @@ module.exports = function (router: any) {
         { "currency.nameInLower": reg },
         { "currency.symbol": reg },
         { tokenContractAddress: reg },
+        { "nonDefaultCurrencyInformation.name": reg },
+        { "nonDefaultCurrencyInformation.symbol": reg },
       ];
     }
 
