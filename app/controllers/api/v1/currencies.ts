@@ -432,11 +432,7 @@ module.exports = function (router: any) {
       query["isAllowedOnMultiSwap"] = false;
     }
 
-    if (
-      Object.keys(query).length &&
-      req.query.network &&
-      req.query.priority === "true"
-    ) {
+    if (Object.keys(query).length && req.query.priority === "true") {
       filter = [
         {
           $facet: {
