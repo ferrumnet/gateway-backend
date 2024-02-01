@@ -537,7 +537,7 @@ module.exports = function (router: any) {
     if (user && user._id) {
       embeddedDocumentQuery.$or = [
         { createdByusers: new mongoose.Types.ObjectId(user._id) },
-        { isDefault: false },
+        { isDefault: true },
       ];
     } else {
       embeddedDocumentQuery["isDefault"] = true;
