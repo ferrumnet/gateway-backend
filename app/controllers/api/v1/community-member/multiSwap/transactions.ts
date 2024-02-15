@@ -83,6 +83,8 @@ module.exports = function (router: any) {
       );
       return res.http200({
         message: resopnseMessage,
+        onChianStatus: onChianStatus,
+        systemStatus: transactionStatusForSupport,
       });
     })
   );
