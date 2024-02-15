@@ -190,13 +190,13 @@ module.exports = {
   },
 
   async hanldeTransactionFailedForRegenerate(receipt: any) {
-    let response = { message: "", status: "", onChianStatus: "pending" };
+    let response = { message: "", status: "", onChainStatus: "pending" };
     if (receipt == null) {
       response.message = await commonFunctions.getValueFromStringsPhrase(
         stringHelper.transactionFailedMessageOne
       );
     } else if (receipt?.status == false) {
-      response.onChianStatus = "failed";
+      response.onChainStatus = "failed";
       response.message = await commonFunctions.getValueFromStringsPhrase(
         stringHelper.swapFailedMessage
       );
@@ -281,10 +281,10 @@ module.exports = {
 
   async sendSlackNotifcationForRegenerate(
     swapHash: string,
-    onChianStatus: string,
+    onChainStatus: string,
     transactionStatusForSupport: string
   ) {
-    let text = `swapHash: ${swapHash}\nonChianStatus: ${onChianStatus}\nsystemPreviousStatus: ${transactionStatusForSupport}\nsystemCurrentStatus: ${transactionStatusForSupport}\n========================`;
+    let text = `swapHash: ${swapHash}\nonChainStatus: ${onChainStatus}\nsystemPreviousStatus: ${transactionStatusForSupport}\nsystemCurrentStatus: ${transactionStatusForSupport}\n========================`;
     await postMultiswapAlertIntoChannel({
       text: text,
     });

@@ -38,7 +38,7 @@ module.exports = function (router: any) {
       let destinationNetwork = null;
       let transactionStatusForSupport = "";
       let resopnseMessage = stringHelper.strSuccess;
-      let onChianStatus = "";
+      let onChainStatus = "";
       sourceNetwork = await db.Networks.findOne({
         chainId: req?.query?.chainId,
       });
@@ -50,7 +50,7 @@ module.exports = function (router: any) {
         sourceNetwork.rpcUrl
       );
       if (receipt && receipt?.status != null && receipt?.status == true) {
-        onChianStatus = stringHelper.strSuccess;
+        onChainStatus = stringHelper.strSuccess.toLowerCase();
         let decodedDtata: any = await swapTransactionHelper.getDecodedData(
           receipt.logs,
           sourceNetwork.rpcUrl
@@ -74,15 +74,17 @@ module.exports = function (router: any) {
           );
         resopnseMessage = response?.message;
         transactionStatusForSupport = response?.status;
-        onChianStatus = response?.onChianStatus;
+        onChainStatus = response?.onChainStatus;
       }
       await swapTransactionHelper.sendSlackNotifcationForRegenerate(
         req.params.txId,
-        onChianStatus,
+        onChainStatus,
         transactionStatusForSupport
       );
       return res.http200({
         message: resopnseMessage,
+        onChainStatus: onChainStatus,
+        systemStatus: transactionStatusForSupport,
       });
     })
   );
