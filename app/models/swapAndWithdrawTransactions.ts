@@ -99,6 +99,18 @@ var schema = mongoose.Schema(
     settledAmount: { type: String, default: "" },
     sourceToken: { type: String, default: "" },
     targetToken: { type: String, default: "" },
+    gasPrices: {
+      source: {
+        gasPrice: { type: String, default: "" },
+        gasPriceInUSD: { type: String, default: "" },
+      },
+      destination: {
+        gasPrice: { type: String, default: "" },
+        gasPriceInMachine: { type: String, default: "" },
+        gasPriceInUSD: { type: String, default: "" },
+        gasLimit: { type: String, default: "" },
+      },
+    },
   },
   { collection: "swapAndWithdrawTransactions" }
 );

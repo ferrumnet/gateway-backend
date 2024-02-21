@@ -14,9 +14,13 @@ module.exports = {
       !req.query.sourceCabnId ||
       !req.query.destinationCabnId ||
       !req.body.sourceAssetType ||
-      !req.body.destinationAssetType
+      !req.body.destinationAssetType ||
+      !req.body.sourceGasPriceInNumber ||
+      !req.body.sourceGasPriceInMachine ||
+      !req.body.destinationGasPriceInNumber ||
+      !req.body.destinationGasPriceInMachine
     ) {
-      throw "swapTxId & sourceNetworkId & destinationNetworkId & sourceCabnId & destinationCabnId & sourceAssetType & destinationAssetType are required.";
+      throw "swapTxId & sourceNetworkId & destinationNetworkId & sourceCabnId & destinationCabnId & sourceAssetType & destinationAssetType & sourceGasPriceInNumber & sourceGasPriceInMachine & destinationGasPriceInNumber & destinationGasPriceInMachine are required.";
     }
 
     if (!mongoose.Types.ObjectId.isValid(req.query.sourceNetworkId)) {
