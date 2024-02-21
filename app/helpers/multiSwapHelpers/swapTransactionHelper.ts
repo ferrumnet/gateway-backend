@@ -15,8 +15,9 @@ module.exports = {
       !req.query.destinationCabnId ||
       !req.body.sourceAssetType ||
       !req.body.destinationAssetType
+      // !req.body.gasPrices
     ) {
-      throw "swapTxId & sourceNetworkId & destinationNetworkId & sourceCabnId & destinationCabnId & sourceAssetType & destinationAssetType are required.";
+      throw "swapTxId & sourceNetworkId & destinationNetworkId & sourceCabnId & destinationCabnId & sourceAssetType & destinationAssetType & gasPrices are required.";
     }
 
     if (!mongoose.Types.ObjectId.isValid(req.query.sourceNetworkId)) {
