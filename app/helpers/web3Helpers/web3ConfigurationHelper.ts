@@ -1,14 +1,12 @@
 // import Web3 from 'web3';
-var Web3 = require('web3');
-import { AbiItem } from 'web3-utils';
-import erc20Abi from '../../../../../resources/IERC20.json';
-import bridgeAbi from '../../../../../resources/BridgePool.json';
-import fiberRouter from '../../../../../resources/FiberRouter.json';
+var Web3 = require("web3");
+import { AbiItem } from "web3-utils";
+import erc20Abi from "../../../resources/IERC20.json";
+import bridgeAbi from "../../../resources/BridgePool.json";
+import fiberRouter from "../../../resources/FiberRouter.json";
 
 module.exports = {
-
   web3(rpcUrl: string) {
-
     if (rpcUrl) {
       return new Web3(new Web3.providers.HttpProvider(rpcUrl));
     }
@@ -32,14 +30,17 @@ module.exports = {
 
   getBridgeSwapInputs() {
     let abis = bridgeAbi.abi;
-    let bridgeSwapInputs = abis.find(abi => abi.name === 'BridgeSwap' && abi.type === 'event');
+    let bridgeSwapInputs = abis.find(
+      (abi) => abi.name === "BridgeSwap" && abi.type === "event"
+    );
     return bridgeSwapInputs;
   },
 
   getfiberSwapInputs() {
     let abis = fiberRouter.abi;
-    let inputs = abis.find(abi => abi.name === 'Withdrawal' && abi.type === 'event');
+    let inputs = abis.find(
+      (abi) => abi.name === "Withdrawal" && abi.type === "event"
+    );
     return inputs;
-  }
-
-}
+  },
+};
