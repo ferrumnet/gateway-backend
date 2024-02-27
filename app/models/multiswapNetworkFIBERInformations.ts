@@ -9,6 +9,7 @@ var schema = mongoose.Schema(
     router: { type: String, default: "" },
     foundryTokenAddress: { type: String, default: "" },
     forgeContractAddress: { type: String, default: "" },
+    forgeFundManager: { type: String, default: "" },
     weth: { type: String, default: "" },
 
     createdAt: { type: Date, default: new Date() },
