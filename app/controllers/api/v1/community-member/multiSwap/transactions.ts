@@ -132,7 +132,12 @@ module.exports = function (router: any) {
       totalCount = await db.SwapAndWithdrawTransactions.countDocuments(filter);
 
       if (req.query.isPagination != null && req.query.isPagination == "false") {
-        transactions = await db.SwapAndWithdrawTransactions.find(filter)
+        transactions = await db.SwapAndWithdrawTransactions.find(filter, {
+          generatorSig: 0,
+          validatorSig: 0,
+          withdrawalSig: 0,
+          nodeJobs: 0,
+        })
           .populate("destinationNetwork")
           .populate("sourceNetwork")
           .populate({
@@ -151,7 +156,12 @@ module.exports = function (router: any) {
           })
           .sort(sort);
       } else {
-        transactions = await db.SwapAndWithdrawTransactions.find(filter)
+        transactions = await db.SwapAndWithdrawTransactions.find(filter, {
+          generatorSig: 0,
+          validatorSig: 0,
+          withdrawalSig: 0,
+          nodeJobs: 0,
+        })
           .populate("networks")
           .populate("destinationNetwork")
           .populate("sourceNetwork")
@@ -175,8 +185,7 @@ module.exports = function (router: any) {
       }
 
       return res.http200({
-        swapAndWithdrawTransactions:
-          swapTransactionHelper.toArrayObject(transactions),
+        swapAndWithdrawTransactions: transactions,
         totalCount: totalCount,
       });
     })
