@@ -8,7 +8,7 @@ var mongoose = require("mongoose");
 mongoose.Promise = require("bluebird");
 (async () => {
   await (global as any).awsHelper.awsSecretsManagerInit();
-  var mongoString = (global as any).environment.mongoConnectionUrl;
+  var mongoString = (global as any).commonFunctions.getMongoDbUrl();
   var mongoLogger = function (coll: any, method: any, query: any, doc: any) {
     (global as any).log.debug(
       coll +

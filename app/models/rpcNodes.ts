@@ -1,22 +1,20 @@
 "use strict";
 
 var mongoose = require("mongoose");
-var collectionName = "gasFees";
+var collectionName = "rpcNodes";
 
 var schema = mongoose.Schema(
   {
-    maxFeePerGas: { type: String, default: "" },
-    maxPriorityFeePerGas: { type: String, default: "" },
-    gasLimit: { type: String, default: "" },
-    type: { type: String, default: "" },
+    url: { type: String, default: "" },
     chainId: { type: String, default: "" },
+    address: { type: String, default: "" },
+    type: { type: String, default: "" },
     isActive: { type: Boolean, default: true },
-
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
   },
   { collection: collectionName }
 );
 
-var gasFeesModel = mongoose.model(collectionName, schema);
-module.exports = gasFeesModel;
+var nodeConfigurationsModel = mongoose.model(collectionName, schema);
+module.exports = nodeConfigurationsModel;

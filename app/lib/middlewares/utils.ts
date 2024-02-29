@@ -30,19 +30,17 @@ declare const db: any,
   packagesHelper: any,
   web3ConfigurationHelper: any,
   web3Helper: any,
-  contractHelper: any,
-  signatureHelper: any,
   swapTransactionHelper: any,
   utils: any,
-  ecdsaHelper: any,
-  addressFromPublicKeyHelper: any,
   swapUtilsHelper: any,
   standardStatuses: any,
   smartContractHelper: any,
   withdrawTransactionHelper: any,
   fiberAxiosHelper: any,
   multiswapNodeAxiosHelper: any,
-  nonEvmHelper: any;
+  nonEvmHelper: any,
+  nodeConfigurationsHelper: any,
+  nodeInfraAuthHelper: any;
 
 module.exports = function () {
   const utils: any = {};
@@ -75,6 +73,11 @@ module.exports = function () {
   utils.expectedSchemaVersionV1_2 = "1.2";
   utils.globalTokenExpiryTime = "1800s";
   utils.swapAndWithdrawTransactionStatuses = {
+    generatorSignatureCreated: "generatorSignatureCreated",
+    generatorSignatureFailed: "generatorSignatureFailed",
+    validatorSignatureCreated: "validatorSignatureCreated",
+    validatorSignatureFailed: "validatorSignatureFailed",
+    masterValidationFailed: "masterValidationFailed",
     swapPending: "swapPending",
     swapCreated: "swapCreated",
     swapCompleted: "swapCompleted",
@@ -89,6 +92,12 @@ module.exports = function () {
     created: "created",
     failed: "failed",
     completed: "completed",
+  };
+  utils.nodeTypes = {
+    generator: "generator",
+    validator: "validator",
+    master: "master",
+    fiber: "fiber",
   };
   return utils;
 };

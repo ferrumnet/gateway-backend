@@ -1,6 +1,7 @@
 export {};
 const LIMIT = 100;
-const DELAY = 120000;
+// const DELAY = 120000;
+const DELAY = 15000;
 
 module.exports = function () {
   if (
@@ -25,15 +26,36 @@ async function triggerJobs(offset: any) {
   let filter: any = {};
   filter.$or = [
     { status: { $eq: utils.swapAndWithdrawTransactionStatuses.swapPending } },
+    {
+      status: {
+        $eq: utils.swapAndWithdrawTransactionStatuses.generatorSignatureCreated,
+      },
+    },
+    {
+      status: {
+        $eq: utils.swapAndWithdrawTransactionStatuses.validatorSignatureCreated,
+      },
+    },
     { status: { $eq: utils.swapAndWithdrawTransactionStatuses.swapCompleted } },
-    { responseCode: 701 },
   ];
-  filter.version = "v2";
+  filter.version = "v3";
   let transactions = await db.SwapAndWithdrawTransactions.find(filter)
-    .populate("sourceNetwork")
-    .populate("destinationNetwork")
     .populate("sourceCabn")
     .populate("destinationCabn")
+    .populate({
+      path: "destinationNetwork",
+      populate: {
+        path: "multiswapNetworkFIBERInformation",
+        model: "multiswapNetworkFIBERInformations",
+      },
+    })
+    .populate({
+      path: "sourceNetwork",
+      populate: {
+        path: "multiswapNetworkFIBERInformation",
+        model: "multiswapNetworkFIBERInformations",
+      },
+    })
     .skip(offset)
     .limit(LIMIT);
   console.log("transactions", transactions.length);
@@ -49,8 +71,8 @@ async function triggerJobs(offset: any) {
       req.query.sourceBridgeAmount = transaction.sourceBridgeAmount
         ? transaction.sourceBridgeAmount
         : 0;
-      req.query.destinationBridgeAmount = transaction.destinationBridgeAmount
-        ? transaction.destinationBridgeAmount
+      req.query.destinationAmountIn = transaction.destinationAmountIn
+        ? transaction.destinationAmountIn
         : 0;
       user._id = transaction.createdByUser;
       req.user = user;

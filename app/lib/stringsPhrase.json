@@ -55,5 +55,11 @@
   "Backend_Update_Base_Fee_Token": "Base fee token network is not setup for oldCabnId. If you want to add the base fee token for this network use the following api 'updateCabnForAddBaseFeeTokenByCabnId'",
   "Backend_Base_Fee_Token_Is_Not_Setup": "Base fee token network is not setup against this cabn",
   "Backend_Estimated_Swap_Time_Already_Exist": "Estimated time already exist on this network",
-  "Backend_No_Currency_Found_Against_Token_Address": "No currency found for this tokenContractAddress and chainId combination, please consider adding the currency and currency addresses by network for this currency"
+  "Backend_No_Currency_Found_Against_Token_Address": "No currency found for this tokenContractAddress and chainId combination, please consider adding the currency and currency addresses by network for this currency",
+  "Backend_Transaction_Failed_Message_One": "Transaction is currently in progress. Please wait!. If transaction does not proceed in next 5 minutes, please contact support.",
+  "Backend_Transaction_Failed_Message_Two": "We are having trouble processing the Transaction, please contact support to proceed further.",
+  "Backend_Invalid_Hash_Message": "Swap unsuccessful due to invalid hash.",
+  "Backend_Swap_Failed_Message": "Swap transaction has failed.",
+  "Backend_Withdrawl_Successful_Message": "Transaction withdrawal successful.",
+  "Backend_Error_Cabn_Already_Exist": "This cabn already exist."
 }

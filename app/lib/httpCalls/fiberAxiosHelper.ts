@@ -33,7 +33,7 @@ module.exports = {
         return res.data.body;
       }
     } catch (error: any) {
-      console.log(error.data);
+      console.log(error);
     }
     return null;
   },
@@ -74,13 +74,17 @@ module.exports = {
     body.destinationTokenContractAddress =
       model.destinationCabn.tokenContractAddress;
     body.destinationWalletAddress = model.destinationWalletAddress;
-    body.salt = model.payBySig.salt;
-    body.hash = model.payBySig.hash;
-    body.signatures = model.payBySig.signatures;
-    body.destinationBridgeAmount = model.destinationBridgeAmount;
+    body.salt = model.withdrawalSig.salt;
+    body.hash = model.withdrawalSig.hash;
+    body.signatures = model.withdrawalSig.signatures;
+    body.destinationAmountIn = model.destinationAmountIn;
+    body.destinationAmountOut = model.destinationAmountOut;
+    body.destinationOneInchData = model.destinationOneInchData;
+    body.signatureExpiry = model.signatureExpiry;
     body.sourceBridgeAmount = model.sourceBridgeAmount;
     body.sourceAssetType = model.sourceAssetType;
     body.destinationAssetType = model.destinationAssetType;
+    body.gasLimit = model.gasPrices?.destination?.gasLimit;
 
     console.log("getWithdrawBody body", body);
     return body;
