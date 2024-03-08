@@ -562,4 +562,14 @@ module.exports = function (router: any) {
       message: stringHelper.success,
     });
   });
+
+  router.post(
+    "/create/bulk/cabns",
+    asyncMiddleware(async (req: any, res: any) => {
+      await currencyHelper.createBulkCabns(req, res);
+      return res.http200({
+        message: stringHelper.strSuccess,
+      });
+    })
+  );
 };
