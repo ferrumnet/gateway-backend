@@ -111,6 +111,8 @@ var schema = mongoose.Schema(
         gasLimit: { type: String, default: "" },
       },
     },
+    sourceOneInchSelector: { type: String, default: "" },
+    destinationOneInchSelector: { type: String, default: "" },
   },
   { collection: "swapAndWithdrawTransactions" }
 );
