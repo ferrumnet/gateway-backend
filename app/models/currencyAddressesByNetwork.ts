@@ -35,6 +35,8 @@ var schema = mongoose.Schema(
       symbol: { type: String, default: "" },
     },
     isCreatedFromBulk: { type: Boolean, default: false },
+    sourceSlippage: { type: Number, default: 2 },
+    destinationSlippage: { type: Number, default: 2 },
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
   },
