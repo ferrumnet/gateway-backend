@@ -515,6 +515,8 @@ module.exports = function (router: any) {
           isDefault: 1,
           nonDefaultCurrencyInformation: 1,
           createdByusers: 1,
+          sourceSlippage: 1,
+          destinationSlippage: 1,
           "network._id": 1,
           "network.name": 1,
           "network.nameInLower": 1,

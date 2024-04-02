@@ -84,7 +84,6 @@ module.exports = {
     body.sourceBridgeAmount = model.sourceBridgeAmount;
     body.sourceAssetType = model.sourceAssetType;
     body.destinationAssetType = model.destinationAssetType;
-    body.gasLimit = model.gasPrices?.destination?.gasLimit;
     body.destinationOneInchSelector = model.destinationOneInchSelector;
 
     console.log("getWithdrawBody body", body);

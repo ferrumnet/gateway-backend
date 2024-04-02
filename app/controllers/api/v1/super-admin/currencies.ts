@@ -563,6 +563,26 @@ module.exports = function (router: any) {
     });
   });
 
+  router.put("/cabn/update/slippage/:id", async (req: any, res: any) => {
+    let body: any = {};
+    let filters: any = { _id: req.params.id };
+    if (req.body.sourceSlippage) {
+      body.sourceSlippage = req.body.sourceSlippage;
+    }
+    if (req.body.destinationSlippage) {
+      body.destinationSlippage = req.body.destinationSlippage;
+    }
+    let cabn = await db.CurrencyAddressesByNetwork.findOneAndUpdate(
+      filters,
+      body,
+      { new: true }
+    );
+
+    return res.http200({
+      cabn: cabn,
+    });
+  });
+
   router.post(
     "/create/bulk/cabns",
     asyncMiddleware(async (req: any, res: any) => {
