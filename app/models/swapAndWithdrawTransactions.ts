@@ -114,6 +114,7 @@ var schema = mongoose.Schema(
     },
     sourceOneInchSelector: { type: String, default: "" },
     destinationOneInchSelector: { type: String, default: "" },
+    isSameNetworkSwap: { type: Boolean, default: false },
   },
   { collection: "swapAndWithdrawTransactions" }
 );
