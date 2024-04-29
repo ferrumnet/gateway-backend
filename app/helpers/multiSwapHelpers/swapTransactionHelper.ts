@@ -80,6 +80,9 @@ module.exports = {
         : "";
 
       let body: any = {};
+      if (sourceNetwork._id == destinationNetwork._id) {
+        body.isSameNetworkSwap = true;
+      }
       body.receiveTransactionId = req.params.swapTxId;
       body.version = "v3";
       body.createdByUser = req.user._id;

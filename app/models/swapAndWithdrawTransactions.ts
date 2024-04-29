@@ -95,7 +95,8 @@ var schema = mongoose.Schema(
     signatureExpiry: { type: Number, default: null },
     responseCode: { type: Number, default: "" },
     responseMessage: {},
-    slippage: { type: Number, default: 2 },
+    sourceSlippage: { type: Number, default: 2 },
+    destinationSlippage: { type: Number, default: 2 },
     settledAmount: { type: String, default: "" },
     sourceToken: { type: String, default: "" },
     targetToken: { type: String, default: "" },
@@ -113,6 +114,7 @@ var schema = mongoose.Schema(
     },
     sourceOneInchSelector: { type: String, default: "" },
     destinationOneInchSelector: { type: String, default: "" },
+    isSameNetworkSwap: { type: Boolean, default: false },
   },
   { collection: "swapAndWithdrawTransactions" }
 );
