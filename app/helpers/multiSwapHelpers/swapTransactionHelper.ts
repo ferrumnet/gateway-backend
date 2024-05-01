@@ -14,8 +14,8 @@ module.exports = {
       !req.query.sourceCabnId ||
       !req.query.destinationCabnId ||
       !req.body.sourceAssetType ||
-      !req.body.destinationAssetType
-      // !req.body.gasPrices
+      !req.body.destinationAssetType ||
+      !req.body.gasPrices
     ) {
       throw "swapTxId & sourceNetworkId & destinationNetworkId & sourceCabnId & destinationCabnId & sourceAssetType & destinationAssetType & gasPrices are required.";
     }
@@ -80,6 +80,9 @@ module.exports = {
         : "";
 
       let body: any = {};
+      if (sourceNetwork._id == destinationNetwork._id) {
+        body.isSameNetworkSwap = true;
+      }
       body.receiveTransactionId = req.params.swapTxId;
       body.version = "v3";
       body.createdByUser = req.user._id;

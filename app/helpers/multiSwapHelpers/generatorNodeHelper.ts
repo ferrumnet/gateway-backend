@@ -1,3 +1,5 @@
+import { handleFiberRequest } from "../../helpers/multiSwapHelpers/fiberHelper";
+
 export const handleGeneratorRequest = async (data: any, swapTxHash: string) => {
   try {
     let filter: any = {
@@ -19,10 +21,18 @@ export const handleGeneratorRequest = async (data: any, swapTxHash: string) => {
         transactionReceipt?.status == true &&
         data?.signedData
       ) {
-        transaction = getGeneratorSignedData(transaction, data?.signedData);
-        transaction = await getTransactionDetail(transaction, data?.signedData);
-        transaction.status =
-          utils.swapAndWithdrawTransactionStatuses.generatorSignatureCreated;
+        if (data?.signedData?.isSameNetworkSwap) {
+          await handleSameNetworkSwap(transaction, data?.signedData);
+          return;
+        } else {
+          transaction = getGeneratorSignedData(transaction, data?.signedData);
+          transaction = await getTransactionDetail(
+            transaction,
+            data?.signedData
+          );
+          transaction.status =
+            utils.swapAndWithdrawTransactionStatuses.generatorSignatureCreated;
+        }
       } else {
         transaction.status =
           utils.swapAndWithdrawTransactionStatuses.generatorSignatureFailed;
@@ -95,4 +105,44 @@ async function getAmount(transaction: any) {
   }
 
   return amount;
+}
+
+async function getSettledAmount(transaction: any, settledAmount: any) {
+  let amount;
+  try {
+    amount = await swapUtilsHelper.amountToHuman_(
+      transaction.destinationNetwork,
+      transaction.destinationCabn,
+      settledAmount
+    );
+  } catch (e) {
+    console.log("for nativ tokens");
+    amount = await swapUtilsHelper.amountToHuman(
+      settledAmount,
+      transaction.destinationCabn.decimals
+    );
+  }
+
+  return amount;
+}
+
+async function handleSameNetworkSwap(transaction: any, signedData: any) {
+  try {
+    if (signedData.settledAmount) {
+      let destinationAmount = await getSettledAmount(
+        transaction,
+        signedData.settledAmount
+      );
+      let data = {
+        data: transaction?.receiveTransactionId,
+        withdraw: { destinationAmount: destinationAmount },
+        responseCode: 200,
+        responseMessage: "",
+      };
+      await handleFiberRequest(data, data?.data);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+  return transaction;
 }
