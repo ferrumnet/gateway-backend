@@ -11,7 +11,7 @@ var schema = mongoose.Schema(
     forgeContractAddress: { type: String, default: "" },
     forgeFundManager: { type: String, default: "" },
     weth: { type: String, default: "" },
-
+    aggregateRouterContractAddress: { type: String, default: "" },
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
   },

@@ -84,7 +84,6 @@ module.exports = {
     body.sourceBridgeAmount = model.sourceBridgeAmount;
     body.sourceAssetType = model.sourceAssetType;
     body.destinationAssetType = model.destinationAssetType;
-    body.destinationOneInchSelector = model.destinationOneInchSelector;
 
     console.log("getWithdrawBody body", body);
     return body;
