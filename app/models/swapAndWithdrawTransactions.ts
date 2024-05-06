@@ -113,6 +113,11 @@ var schema = mongoose.Schema(
       },
     },
     isSameNetworkSwap: { type: Boolean, default: false },
+    isCCTP: { type: Boolean, default: false },
+    cctpData: {
+      messageBytes: { type: String, default: "" },
+      messageHash: { type: String, default: "" },
+    },
   },
   { collection: "swapAndWithdrawTransactions" }
 );
