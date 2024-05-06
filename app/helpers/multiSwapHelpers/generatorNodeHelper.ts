@@ -57,6 +57,11 @@ function getGeneratorSignedData(transaction: any, signedData: any) {
     transaction.generatorSig.updatedAt = new Date();
     transaction.sourceToken = signedData?.token;
     transaction.targetToken = signedData?.targetToken;
+    if (signedData.cctpLogs) {
+      let cctpData = signedData.cctpLogs;
+      transaction.cctpData.messageBytes = cctpData.messageBytes;
+      transaction.cctpData.messageHash = cctpData.messageHash;
+    }
   } catch (e) {
     console.log(e);
   }
