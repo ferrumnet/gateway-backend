@@ -1,5 +1,3 @@
-import { handleFiberRequest } from "../../helpers/multiSwapHelpers/fiberHelper";
-
 export const handleGeneratorRequest = async (data: any, swapTxHash: string) => {
   try {
     let filter: any = {
@@ -22,8 +20,10 @@ export const handleGeneratorRequest = async (data: any, swapTxHash: string) => {
         data?.signedData
       ) {
         if (data?.signedData?.isSameNetworkSwap) {
-          await handleSameNetworkSwap(transaction, data?.signedData);
-          return;
+          transaction = await handleSameNetworkSwap(
+            transaction,
+            data?.signedData
+          );
         } else {
           transaction = getGeneratorSignedData(transaction, data?.signedData);
           transaction = await getTransactionDetail(
@@ -138,13 +138,35 @@ async function handleSameNetworkSwap(transaction: any, signedData: any) {
         transaction,
         signedData.settledAmount
       );
-      let data = {
-        data: transaction?.receiveTransactionId,
-        withdraw: { destinationAmount: destinationAmount },
-        responseCode: 200,
-        responseMessage: "",
+      let useTransaction = {
+        transactionId: transaction?.receiveTransactionId,
+        status: utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted,
+        timestamp: new Date(),
       };
-      await handleFiberRequest(data, data?.data);
+      if (
+        transaction.withdrawTransactions &&
+        transaction.withdrawTransactions.length > 0
+      ) {
+        let txItem = (transaction.withdrawTransactions || []).find(
+          (t: any) => t.transactionId === transaction?.receiveTransactionId
+        );
+        if (!txItem) {
+          transaction.withdrawTransactions.push(useTransaction);
+        }
+      } else {
+        transaction.withdrawTransactions.push(useTransaction);
+      }
+      transaction.destinationAmount = destinationAmount
+        ? destinationAmount
+        : null;
+      transaction.status =
+        utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted;
+      transaction.generatorSig.salt = "same swap salt";
+      transaction.isSameNetworkSwap = true;
+      transaction.sourceWalletAddress = signedData?.sourceAddress;
+      transaction.destinationWalletAddress = signedData?.targetAddress;
+      transaction.settledAmount = signedData?.settledAmount;
+      transaction.responseCode = 200;
     }
   } catch (e) {
     console.log(e);
