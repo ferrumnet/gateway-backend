@@ -118,6 +118,7 @@ var schema = mongoose.Schema(
       messageBytes: { type: String, default: "" },
       messageHash: { type: String, default: "" },
     },
+    distributedFee: { type: String, default: "" },
   },
   { collection: "swapAndWithdrawTransactions" }
 );
