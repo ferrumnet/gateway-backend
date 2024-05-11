@@ -5,7 +5,7 @@ var collectionName = "referrals";
 
 var schema = mongoose.Schema(
   {
-    code: { type: String, default: "" },
+    code: { type: String, unique: true, required: true },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
