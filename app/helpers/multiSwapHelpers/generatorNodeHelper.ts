@@ -79,6 +79,7 @@ async function getTransactionDetail(transaction: any, signedData: any) {
     transaction.withdrawalData = signedData?.withdrawalData;
     transaction.signatureExpiry = signedData?.expiry;
     transaction.settledAmount = signedData?.settledAmount;
+    transaction.distributedFee = signedData?.distributedFee;
     if (transaction.sourceNetwork.isNonEVM == false) {
       transaction.sourceAmount = signedData.amount;
       transaction.sourceAmountInMachine = signedData.amount;

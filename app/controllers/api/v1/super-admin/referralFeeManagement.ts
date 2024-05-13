@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 module.exports = function (router: any) {
-  router.post("/referral/fee/management", async (req: any, res: any) => {
+  router.post("/create", async (req: any, res: any) => {
     if (!req.body.tier && !req.body.fee && !req.body.feeType) {
       return res.http400("tier, fee, feeType are required.");
     }
@@ -12,7 +12,7 @@ module.exports = function (router: any) {
     return res.http200({ referralFeeManagement });
   });
 
-  router.put("/referral/fee/management/:id", async (req: any, res: any) => {
+  router.put("/update/:id", async (req: any, res: any) => {
     if (!req.params.id) {
       return res.http400("id is required.");
     }
