@@ -19,7 +19,7 @@ module.exports = function () {
       }
 
       if (!response?.isFromNodeInfra) {
-        const user = await getUser(response.id);
+        const user = await getUser(response.id, response?.role);
         if (!user) {
           return invalidRequest(res);
         }
