@@ -27,7 +27,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "totalFee",
+          "name": "totalPlatformFee",
           "type": "uint256"
         }
       ],
