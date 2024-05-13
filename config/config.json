@@ -103,6 +103,14 @@
         "name": "path:./app/lib/auth"
       }
     },
+    "authenticationFeeDistribution": {
+      "enabled": true,
+      "priority": 100,
+      "route": "/api/v1/referrals((?!$))*",
+      "module": {
+        "name": "path:./app/lib/auth"
+      }
+    },
     "pagination": {
       "enabled": true,
       "priority": 100,

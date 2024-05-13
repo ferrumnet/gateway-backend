@@ -5,6 +5,7 @@ const INVALID_TOKEN = "Invalid token";
 export interface Response {
   isFromNodeInfra: boolean;
   isValid: boolean;
+  role: string;
   id: string;
 }
 
@@ -27,10 +28,17 @@ const filterRoutesAndVerify = (
   let authResponse: Response = {
     isFromNodeInfra: false,
     isValid: false,
+    role: "",
     id: "",
   };
   console.log(url);
-  if (url.includes("/v1/transactions/") || url.includes("/v1/rpcNodes/")) {
+  if (url.includes("/v1/admin/")) {
+    authResponse.isValid = false;
+  } else if (
+    url.includes("/v1/transactions/") ||
+    url.includes("/v1/rpcNodes/") ||
+    url.includes("/v1/referrals/fee-distribution")
+  ) {
     let key = getKey(url, nodeType, address);
     if (isTokenValid(token, key)) {
       authResponse.isFromNodeInfra = true;
@@ -41,15 +49,20 @@ const filterRoutesAndVerify = (
     if (decoded) {
       authResponse.isValid = true;
       authResponse.id = decoded._id;
+      if (url.includes("/super-admin/")) {
+        authResponse.role = "superAdmin";
+      }
     }
   }
   return authResponse;
 };
 
-export const getUser = async (id: string) => {
-  return await db.Users.findOne({
-    _id: id,
-  });
+export const getUser = async (id: string, role = "") => {
+  let filter: any = { _id: id };
+  if (role == "superAdmin") {
+    filter.role = "superAdmin";
+  }
+  return await db.Users.findOne(filter);
 };
 
 export const invalidRequest = async (res: any) => {
