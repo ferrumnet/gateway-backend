@@ -80,6 +80,7 @@ module.exports = {
     body.destinationAmountIn = model.destinationAmountIn;
     body.destinationAmountOut = model.destinationAmountOut;
     body.destinationOneInchData = model.destinationOneInchData;
+    body.destinationSlippage = model.destinationSlippage;
     body.signatureExpiry = model.signatureExpiry;
     body.sourceBridgeAmount = model.sourceBridgeAmount;
     body.sourceAssetType = model.sourceAssetType;
