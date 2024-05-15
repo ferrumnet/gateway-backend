@@ -88,6 +88,7 @@ var schema = mongoose.Schema(
     version: { type: String, default: "" },
     sourceBridgeAmount: { type: String, default: "" },
     destinationAmountIn: { type: String, default: "" },
+    minDestinationAmountIn: { type: String, default: "" },
     destinationAmountOut: { type: String, default: "" },
     sourceOneInchData: { type: String, default: "" },
     destinationOneInchData: { type: String, default: "" },
