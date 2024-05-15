@@ -80,9 +80,10 @@ module.exports = {
         : "";
 
       let body: any = {};
-      if (req.query.sourceCabnId == req.query.destinationCabnId) {
+      if (req.query.sourceNetworkId == req.query.destinationNetworkId) {
         body.isSameNetworkSwap = true;
       }
+      body.minDestinationAmountIn = req.body.destinationAmountIn;
       body.receiveTransactionId = req.params.swapTxId;
       body.version = "v3";
       body.createdByUser = req.user._id;
