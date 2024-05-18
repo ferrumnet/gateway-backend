@@ -2,8 +2,13 @@ import mongoose from "mongoose";
 
 module.exports = function (router: any) {
   router.post("/create", async (req: any, res: any) => {
-    if (!req.body.tier && !req.body.fee && !req.body.feeType) {
-      return res.http400("tier, fee, feeType are required.");
+    if (
+      !req.body.tier ||
+      req.body.fee < 0 ||
+      req.body.discount < 0 ||
+      !req.body.feeType
+    ) {
+      return res.http400("tier, fee, discount, feeType are required.");
     }
     const referralFeeManagement = await db.ReferralFeeManagement.create(
       req.body
@@ -16,8 +21,13 @@ module.exports = function (router: any) {
     if (!req.params.id) {
       return res.http400("id is required.");
     }
-    if (!req.body.tier && !req.body.fee && !req.body.feeType) {
-      return res.http400("tier, fee, feeType are required.");
+    if (
+      !req.body.tier ||
+      req.body.fee < 0 ||
+      req.body.discount < 0 ||
+      !req.body.feeType
+    ) {
+      return res.http400("tier, fee, discount, feeType are required.");
     }
     const referralFeeManagement =
       await db.ReferralFeeManagement.findOneAndUpdate(

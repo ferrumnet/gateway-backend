@@ -21,7 +21,8 @@ module.exports = function (router: any) {
     return res.http200({
       feeDistribution: {
         recipient: userAddress.address,
-        rateInBps: feeManagement?.fee,
+        fee: feeManagement?.fee,
+        discount: feeManagement?.discount,
       },
     });
   });
