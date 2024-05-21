@@ -77,6 +77,7 @@ let invalidHashMessage = "Backend_Invalid_Hash_Message";
 let swapFailedMessage = "Backend_Swap_Failed_Message";
 var strErrorCabnAlreadyExist = "Backend_Error_Cabn_Already_Exist";
 var strErrorNodePairAlreadyExist = "This pair already exist.";
+var strErrorNoRandmonKeyAvailable = "No randmon key available";
 
 // success messages
 let strSuccessResetPasswordLink = "Backend_Success_Reset_Password_Link";
@@ -164,4 +165,5 @@ module.exports = {
   strErrorNodePairAlreadyExist,
   chainIdNotSupported,
   strErrorCabnAlreadyExist,
+  strErrorNoRandmonKeyAvailable,
 };
