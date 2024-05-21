@@ -1,7 +1,7 @@
 "use strict";
 
 var mongoose = require("mongoose");
-import crypto from 'crypto';
+import crypto from "crypto";
 var jwt = require("jsonwebtoken");
 var _ = require("lodash");
 
@@ -45,9 +45,19 @@ var schema = mongoose.Schema(
     },
     forgotPasswordAuthenticationToken: { type: String, default: "" },
     apiKey: { type: String, default: "" },
-    parentOrganizationAdmin: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
-    approvalStatusAsOrganizationAdminBySuperAdmin: { type: String, enum :{values: ['approved', 'declined', 'pending',''], message: 'Invalid approval status'}, default: "pending" },
-
+    parentOrganizationAdmin: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "users",
+    },
+    approvalStatusAsOrganizationAdminBySuperAdmin: {
+      type: String,
+      enum: {
+        values: ["approved", "declined", "pending", ""],
+        message: "Invalid approval status",
+      },
+      default: "pending",
+    },
+    referral: { type: mongoose.Schema.Types.ObjectId, ref: "referrals" },
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
     timeZone: { type: String, default: "" },
@@ -61,10 +71,16 @@ schema.statics.getHashedPassword = function (password: any) {
 
 schema.methods.createAPIToken = function () {
   var payload = this.toClientObject();
-  let planObject = { _id: payload._id, email: payload.email }
-  return (global as any).commonFunctions.createToken(planObject, utils.globalTokenExpiryTime);
+  let planObject = { _id: payload._id, email: payload.email };
+  return (global as any).commonFunctions.createToken(
+    planObject,
+    utils.globalTokenExpiryTime
+  );
 };
-schema.methods.createProfileUpdateToken = function (token: any, signature: any) {
+schema.methods.createProfileUpdateToken = function (
+  token: any,
+  signature: any
+) {
   return jwt.sign({ token, signature }, (global as any).environment.jwtSecret);
 };
 schema.methods.toClientObject = function () {
@@ -78,5 +94,5 @@ schema.methods.toClientObject = function () {
   return rawObject;
 };
 
-var usersModel = mongoose.model("users",schema);
+var usersModel = mongoose.model("users", schema);
 module.exports = usersModel;

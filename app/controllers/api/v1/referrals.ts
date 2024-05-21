@@ -1,6 +1,20 @@
 module.exports = function (router: any) {
   router.get("/fee-distribution", async (req: any, res: any) => {
-    const referral = await db.Referrals.findOne({ code: req.query.code });
+    let referral;
+    const address = await db.Addresses.findOne({
+      address: req.query.walletAddress.toLowerCase(),
+    }).populate("user");
+    if (address?.user && address?.user?.referral) {
+      referral = await db.Referrals.findOne({ _id: address.user.referral });
+    } else if (address.user && req.query.code) {
+      referral = await db.Referrals.findOne({ code: req.query.code });
+      if (referral) {
+        await db.Users.updateOne(
+          { _id: address.user._id },
+          { $set: { referral: referral._id } }
+        );
+      }
+    }
     if (!referral) {
       return res.http200({
         feeDistribution: undefined,
