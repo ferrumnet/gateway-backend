@@ -8,10 +8,11 @@ module.exports = function (router: any) {
   router.post(
     "/attach/address",
     asyncMiddleware(async (req: any, res: any) => {
-      const { address } = req.body;
+      let { address } = req.body;
       if (!address) {
         return res.http400("address is required.");
       }
+      address = address.toLowerCase();
       return res.http200({
         data: await attachAddressWithRandomKey(address),
       });
