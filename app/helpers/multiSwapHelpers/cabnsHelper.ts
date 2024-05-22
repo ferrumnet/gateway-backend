@@ -32,6 +32,9 @@ export const createUserCabn = async (req: any): Promise<any> => {
     req.body.isAllowedOnMultiSwap = true;
     req.body.isDefault = false;
     req.body.priority = 1;
+    if (req.body.decimals) {
+      req.body.dynamicDecimals = req.body.decimals;
+    }
     req.body.createdAt = new Date();
     req.body.updatedAt = new Date();
     return await db.CurrencyAddressesByNetwork.create(req.body);

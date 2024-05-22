@@ -26,6 +26,7 @@ var schema = mongoose.Schema(
     isActive: { type: Boolean, default: true },
     isNonEVM: { type: Boolean, default: false },
     decimals: { type: Number, default: 0 },
+    dynamicDecimals: { type: Number, default: 0 },
     priority: { type: Number, default: 0 },
     isNative: { type: Boolean, default: false },
     oneInchAddress: { type: String, default: "" },
