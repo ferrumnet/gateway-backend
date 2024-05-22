@@ -466,6 +466,7 @@ module.exports = function (router: any) {
 
     let body: any = {};
     body.decimals = req.body.decimals;
+    body.dynamicDecimals = req.body.decimals;
     body.updatedAt = new Date();
 
     let cabn = await db.CurrencyAddressesByNetwork.findOneAndUpdate(
