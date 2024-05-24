@@ -19,10 +19,20 @@ export const handleGeneratorRequest = async (data: any, swapTxHash: string) => {
         transactionReceipt?.status == true &&
         data?.signedData
       ) {
-        transaction = getGeneratorSignedData(transaction, data?.signedData);
-        transaction = await getTransactionDetail(transaction, data?.signedData);
-        transaction.status =
-          utils.swapAndWithdrawTransactionStatuses.generatorSignatureCreated;
+        if (data?.signedData?.isSameNetworkSwap) {
+          transaction = await handleSameNetworkSwap(
+            transaction,
+            data?.signedData
+          );
+        } else {
+          transaction = getGeneratorSignedData(transaction, data?.signedData);
+          transaction = await getTransactionDetail(
+            transaction,
+            data?.signedData
+          );
+          transaction.status =
+            utils.swapAndWithdrawTransactionStatuses.generatorSignatureCreated;
+        }
       } else {
         transaction.status =
           utils.swapAndWithdrawTransactionStatuses.generatorSignatureFailed;
@@ -47,6 +57,11 @@ function getGeneratorSignedData(transaction: any, signedData: any) {
     transaction.generatorSig.updatedAt = new Date();
     transaction.sourceToken = signedData?.token;
     transaction.targetToken = signedData?.targetToken;
+    if (signedData.cctpLogs) {
+      let cctpData = signedData.cctpLogs;
+      transaction.cctpData.messageBytes = cctpData.messageBytes;
+      transaction.cctpData.messageHash = cctpData.messageHash;
+    }
   } catch (e) {
     console.log(e);
   }
@@ -64,6 +79,7 @@ async function getTransactionDetail(transaction: any, signedData: any) {
     transaction.withdrawalData = signedData?.withdrawalData;
     transaction.signatureExpiry = signedData?.expiry;
     transaction.settledAmount = signedData?.settledAmount;
+    transaction.distributedFee = signedData?.distributedFee;
     if (transaction.sourceNetwork.isNonEVM == false) {
       transaction.sourceAmount = signedData.amount;
       transaction.sourceAmountInMachine = signedData.amount;
@@ -95,4 +111,66 @@ async function getAmount(transaction: any) {
   }
 
   return amount;
+}
+
+async function getSettledAmount(transaction: any, settledAmount: any) {
+  let amount;
+  try {
+    amount = await swapUtilsHelper.amountToHuman_(
+      transaction.destinationNetwork,
+      transaction.destinationCabn,
+      settledAmount
+    );
+  } catch (e) {
+    console.log("for nativ tokens");
+    amount = await swapUtilsHelper.amountToHuman(
+      settledAmount,
+      transaction.destinationCabn.decimals
+    );
+  }
+
+  return amount;
+}
+
+async function handleSameNetworkSwap(transaction: any, signedData: any) {
+  try {
+    if (signedData.settledAmount) {
+      let destinationAmount = await getSettledAmount(
+        transaction,
+        signedData.settledAmount
+      );
+      let useTransaction = {
+        transactionId: transaction?.receiveTransactionId,
+        status: utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted,
+        timestamp: new Date(),
+      };
+      if (
+        transaction.withdrawTransactions &&
+        transaction.withdrawTransactions.length > 0
+      ) {
+        let txItem = (transaction.withdrawTransactions || []).find(
+          (t: any) => t.transactionId === transaction?.receiveTransactionId
+        );
+        if (!txItem) {
+          transaction.withdrawTransactions.push(useTransaction);
+        }
+      } else {
+        transaction.withdrawTransactions.push(useTransaction);
+      }
+      transaction.destinationAmount = destinationAmount
+        ? destinationAmount
+        : null;
+      transaction.status =
+        utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted;
+      transaction.generatorSig.salt = "same swap salt";
+      transaction.isSameNetworkSwap = true;
+      transaction.sourceWalletAddress = signedData?.sourceAddress;
+      transaction.destinationWalletAddress = signedData?.targetAddress;
+      transaction.settledAmount = signedData?.settledAmount;
+      transaction.responseCode = 200;
+    }
+  } catch (e) {
+    console.log(e);
+  }
+  return transaction;
 }

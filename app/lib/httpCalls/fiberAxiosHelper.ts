@@ -80,11 +80,14 @@ module.exports = {
     body.destinationAmountIn = model.destinationAmountIn;
     body.destinationAmountOut = model.destinationAmountOut;
     body.destinationOneInchData = model.destinationOneInchData;
+    body.destinationSlippage = model.destinationSlippage;
     body.signatureExpiry = model.signatureExpiry;
     body.sourceBridgeAmount = model.sourceBridgeAmount;
     body.sourceAssetType = model.sourceAssetType;
     body.destinationAssetType = model.destinationAssetType;
-
+    body.isCCTP = model?.isCCTP;
+    body.cctpMessageBytes = model?.cctpData?.messageBytes;
+    body.cctpMessageHash = model?.cctpData?.messageHash;
     console.log("getWithdrawBody body", body);
     return body;
   },

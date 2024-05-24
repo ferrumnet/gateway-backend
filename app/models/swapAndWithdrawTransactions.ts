@@ -88,6 +88,7 @@ var schema = mongoose.Schema(
     version: { type: String, default: "" },
     sourceBridgeAmount: { type: String, default: "" },
     destinationAmountIn: { type: String, default: "" },
+    minDestinationAmountIn: { type: String, default: "" },
     destinationAmountOut: { type: String, default: "" },
     sourceOneInchData: { type: String, default: "" },
     destinationOneInchData: { type: String, default: "" },
@@ -112,6 +113,14 @@ var schema = mongoose.Schema(
         gasLimit: { type: String, default: "" },
       },
     },
+    isSameNetworkSwap: { type: Boolean, default: false },
+    isCCTP: { type: Boolean, default: false },
+    cctpData: {
+      messageBytes: { type: String, default: "" },
+      messageHash: { type: String, default: "" },
+    },
+    distributedFee: { type: String, default: "" },
+    referralCode: { type: String, default: "" },
   },
   { collection: "swapAndWithdrawTransactions" }
 );
