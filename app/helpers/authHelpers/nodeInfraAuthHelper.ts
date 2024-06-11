@@ -27,7 +27,10 @@ export const getKey = (
     nodeType == utils.nodeTypes.master
   ) {
     return (global as any).environment.masterNodeApiKey;
-  } else if (url.includes(utils.nodeTypes.fiber)) {
+  } else if (
+    url.includes(utils.nodeTypes.fiber) ||
+    url.includes(utils.nodeTypes.fiberFeeDistribution)
+  ) {
     return (global as any).environment.fiberApiKey;
   }
   return "";

@@ -139,6 +139,7 @@ module.exports = {
         currency = await db.Currencies.create(currencyBody);
       }
       req.body.cabns[i].currency = currency._id;
+      req.body.cabns[i].dynamicDecimals = req.body.cabns[i].decimals;
     }
     return req;
   },

@@ -98,6 +98,7 @@ module.exports = function () {
     validator: "validator",
     master: "master",
     fiber: "fiber",
+    fiberFeeDistribution: "/v1/referrals/fee-distribution",
   };
   return utils;
 };
