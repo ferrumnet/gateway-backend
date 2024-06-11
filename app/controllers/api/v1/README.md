@@ -72,32 +72,6 @@ Functionality:
 4.  Performs a database lookup using `db.GasFees.findOne(filter)` to fetch the relevant gas fees data.
 5.  Returns the fetched data wrapped in a `http200` response with the gas fees included in the response body.
 
-Code Snippet:
-
-typescript
-
-Copy code
-
-`router.get("/:chainId", async (req: any, res: any) => {
-var filter: any = { type: "general" };
-
-if (req.params.chainId) {
-filter.chainId = req.params.chainId;
-}
-
-if (req.query.type) {
-filter.type = req.query.type;
-}
-
-let gasFees = await db.GasFees.findOne(filter);
-
-return res.http200({
-gasFees: gasFees,
-});
-});`
-
-This structure and functionality allow API users to query for gas fees data based on blockchain ID and the type of fee information they need, making it a crucial component for applications that deal with blockchain transactions and require up-to-date gas cost information.
-
 # networks.ts
 
 1.  GET '/' Route
@@ -356,3 +330,35 @@ Internal Logic:
 Response Structure:
 
 - Returns a JSON object with a key `walletByNetworks` containing an array of the filtered and sorted wallet records.
+
+# referrals.ts
+
+#### Endpoint: `/fee-distribution`
+
+**Method**: GET
+
+**Description**: This endpoint retrieves the fee distribution details for a user based on their wallet address and, optionally, a referral code. It performs various database operations to fetch the necessary information about the user's referral status and the associated fee management details.
+
+**Detailed Explanation**:
+
+1.  **Fetch Address**:
+
+    - The function starts by querying the `Addresses` collection to find a document matching the `walletAddress` provided in the query parameters. It ensures the address is in lowercase and populates the `user` field.
+
+2.  **Determine Referral**:
+
+    - If the address's associated user has a referral, it fetches the referral details from the `Referrals` collection.
+    - If the user does not have a referral but a referral code is provided in the query parameters, it searches for the referral by the code and updates the user's referral field if found.
+
+3.  **No Referral Case**:
+
+    - If no referral is found, the function responds with an undefined fee distribution.
+
+4.  **Fetch Fee Management**:
+
+    - The function attempts to find the user's address in the `ReferralFeeManagement` collection to fetch the fee and discount details.
+    - If not found, it defaults to the general tier fee management.
+
+5.  **Response**:
+
+    - Finally, it responds with the fee distribution details, including the recipient's address, the fee, and the discount.

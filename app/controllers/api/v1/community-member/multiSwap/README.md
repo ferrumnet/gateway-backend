@@ -55,3 +55,62 @@ This GET route lists all transactions associated with the user. It constructs a 
 This endpoint retrieves a specific transaction by its ID (`req.params.txId`). It constructs a filter with the transaction ID, fetches the transaction from the database, and populates related data from associated collections. It then returns the transaction data to the client.
 
 Each of these routes uses a series of helper functions and middleware to process and handle transactions related to multi-swap functionalities in a blockchain context. This includes network validations, transaction receipt handling, and notifications through Slack for status updates.
+
+# referrals.ts
+
+#### POST /create/referral/code
+
+**Description**: Creates a unique referral code for the user if it doesn't already exist.
+
+**Request**:
+
+- **Headers**: User authentication required (uses `req.user._id`).
+- **Body**: None.
+
+**Response**:
+
+- **Success (200)**: Returns the referral code.
+- **Failure (400)**: N/A.
+
+**Implementation**:
+
+1.  Generates a unique referral code using `generateUniqueReferralCode()`.
+2.  Checks if the user already has a referral code using `getUserReferral(req.user._id)`.
+3.  If the referral code exists, returns it.
+4.  If the referral code does not exist, creates a new entry in the `db.Referrals` collection with the user's ID and the generated code.
+5.  Returns the newly created referral code.
+
+#### GET /referral/code
+
+**Description**: Retrieves the referral code for the authenticated user.
+
+**Request**:
+
+- **Headers**: User authentication required (uses `req.user._id`).
+- **Body**: None.
+
+**Response**:
+
+- **Success (200)**: Returns the referral code.
+- **Failure (400)**: Returns an error message if the referral code does not exist.
+
+**Implementation**:
+
+1.  Retrieves the referral code for the user using `getUserReferral(req.user._id)`.
+2.  If the referral code exists, returns it.
+3.  If the referral code does not exist, returns a 400 error with a message indicating the referral code does not exist.
+
+### Functions
+
+#### generateUniqueReferralCode
+
+**Description**: Generates a unique referral code. Imported from `referralHelper`.
+
+#### getUserReferral
+
+**Description**: Retrieves referral information for a specific user. Imported from `referralHelper`.
+
+### Dependencies
+
+- **multiSwapHelpers/referralHelper**: Helper functions for referral code generation and retrieval.
+- **db.Referrals**: Database model for referral information.

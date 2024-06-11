@@ -197,17 +197,20 @@ This TypeScript file defines a Mongoose model for managing information related t
 
 A `schema` is defined using `mongoose.Schema` with the following fields:
 
-- rpcUrl: String type with default empty string. Represents the RPC URL for the network.
-- fundManager: String type with default empty string. Represents the fund manager.
-- fiberRouter: String type with default empty string. Possibly a router specific to FIBER protocol.
-- router: String type with default empty string. A generic router address.
-- foundryTokenAddress: String type with default empty string. Represents the token address associated with the foundry.
-- forgeContractAddress: String type with default empty string. Address of the forge contract.
-- forgeFundManager: String type with default empty string. Fund manager specific to the forge contract.
-- weth: String type with default empty string. Represents the wrapped Ether address in the network.
-- aggregateRouterContractAddress: String type with default empty string. Address of the aggregate router contract.
-- createdAt: Date type with default value of the current date. Stores the creation timestamp of the record.
-- updatedAt: Date type with default value of the current date. Stores the last update timestamp of the record.
+- **rpcUrl**: A string field to store the RPC URL. Default value is an empty string.
+- **fundManager**: A string field to store the fund manager's information. Default value is an empty string.
+- **fiberRouter**: A string field to store the fiber router information. Default value is an empty string.
+- **router**: A string field to store the router information. Default value is an empty string.
+- **foundryTokenAddress**: A string field to store the foundry token address. Default value is an empty string.
+- **forgeContractAddress**: A string field to store the forge contract address. Default value is an empty string.
+- **forgeFundManager**: A string field to store the forge fund manager's information. Default value is an empty string.
+- **weth**: A string field to store the WETH address. Default value is an empty string.
+- **aggregateRouterContractAddress**: A string field to store the aggregate router contract address. Default value is an empty string.
+- **cctpFundManager**: A string field to store the CCTP fund manager's information. Default value is an empty string.
+- **forgeCCTPFundManager**: A string field to store the forge CCTP fund manager's information. Default value is an empty string.
+- **cctpmessageTransmitterAddress**: A string field to store the CCTP message transmitter address. Default value is an empty string.
+- **createdAt**: A date field to store the creation date of the document. Default value is the current date.
+- **updatedAt**: A date field to store the last update date of the document. Default value is the current date.
 
 The schema is associated with the `multiswapNetworkFIBERInformations` collection within the database.
 
@@ -460,3 +463,110 @@ module.exports = crucibleMintCapsModel;`
 #### Model Export:
 
 - `crucibleMintCapsModel`: The Mongoose model is created using the defined schema and is exported for use elsewhere in the application.
+
+# swapAndWithdrawTransactions.ts
+
+- **createdByUser**: References the user who created the transaction. (Type: ObjectId, Reference: users)
+- **updatedByUser**: References the user who last updated the transaction. (Type: ObjectId, Reference: users)
+- **createdAt**: Timestamp of when the transaction was created. (Type: Date, Default: current date)
+- **updatedAt**: Timestamp of when the transaction was last updated. (Type: Date, Default: current date)
+- **isActive**: Status indicating if the transaction is active. (Type: Boolean, Default: false)
+- **destinationNetwork**: References the destination network of the transaction. (Type: ObjectId, Reference: networks)
+- **sourceNetwork**: References the source network of the transaction. (Type: ObjectId, Reference: networks)
+- **destinationCabn**: References the destination currency address by network. (Type: ObjectId, Reference: currencyAddressesByNetwork)
+- **sourceCabn**: References the source currency address by network. (Type: ObjectId, Reference: currencyAddressesByNetwork)
+- **destinationCurrency**: The currency for the destination network. (Type: String, Default: empty string)
+- **receiveTransactionId**: The ID of the received transaction. (Type: String, Default: empty string)
+- **destinationTransactionTimestamp**: Timestamp of the destination transaction. (Type: Number, Default: null)
+- **destinationWalletAddress**: Wallet address on the destination network. (Type: String, Default: empty string)
+- **destinationAmount**: Amount of currency for the destination network. (Type: String, Default: empty string)
+- **sourceWalletAddress**: Wallet address on the source network. (Type: String, Default: empty string)
+- **sourceTimestamp**: Timestamp of the source transaction. (Type: Number, Default: null)
+- **sourceCurrency**: The currency for the source network. (Type: String, Default: empty string)
+- **sourceAmount**: Amount of currency for the source network. (Type: String, Default: empty string)
+- **sourceAmountInMachine**: Machine-processed amount of the source currency. (Type: String, Default: empty string)
+- **generatorSig**: Generator signature details including hash, signature, salt, address, createdAt, and updatedAt. (Type: Object)
+- **validatorSig**: Array of validator signatures each containing hash, signature, salt, address, createdAt, and updatedAt. (Type: Array of Objects)
+- **withdrawalSig**: Withdrawal signature details including hash, signatures, salt, createdAt, and updatedAt. (Type: Object)
+- **status**: Status of the transaction, can be 'swapPending' by default. (Type: String, Default: 'swapPending')
+- **withdrawTransactions**: Array of withdrawal transactions each containing transactionId and status. (Type: Array of Objects)
+- **creator**: Creator of the transaction. (Type: String, Default: empty string)
+- **sourceSmartContractAddress**: Smart contract address on the source network. (Type: String, Default: empty string)
+- **destinationSmartContractAddress**: Smart contract address on the destination network. (Type: String, Default: empty string)
+- **nodeJobs**: Array of node jobs each containing id, status, type, createdAt, and updatedAt. (Type: Array of Objects)
+- **sourceAssetType**: Type of asset on the source network. (Type: String, Default: empty string)
+- **destinationAssetType**: Type of asset on the destination network. (Type: String, Default: empty string)
+- **version**: Version of the transaction. (Type: String, Default: empty string)
+- **sourceBridgeAmount**: Amount bridged from the source network. (Type: String, Default: empty string)
+- **destinationAmountIn**: Amount received on the destination network. (Type: String, Default: empty string)
+- **minDestinationAmountIn**: Minimum amount expected on the destination network. (Type: String, Default: empty string)
+- **destinationAmountOut**: Amount sent out from the destination network. (Type: String, Default: empty string)
+- **sourceOneInchData**: OneInch data for the source network. (Type: String, Default: empty string)
+- **destinationOneInchData**: OneInch data for the destination network. (Type: String, Default: empty string)
+- **withdrawalData**: Data related to withdrawal. (Type: String, Default: empty string)
+- **signatureExpiry**: Expiry time for the signature. (Type: Number, Default: null)
+- **responseCode**: Response code of the transaction. (Type: Number, Default: empty string)
+- **responseMessage**: Response message of the transaction. (Type: Mixed)
+- **sourceSlippage**: Slippage percentage for the source network. (Type: Number, Default: 2)
+- **destinationSlippage**: Slippage percentage for the destination network. (Type: Number, Default: 2)
+- **settledAmount**: Settled amount for the transaction. (Type: String, Default: empty string)
+- **sourceToken**: Token used on the source network. (Type: String, Default: empty string)
+- **targetToken**: Token used on the destination network. (Type: String, Default: empty string)
+- **gasPrices**: Gas prices for the source and destination networks. Contains gasPrice, gasPriceInUSD for the source and gasPrice, gasPriceInMachine, gasPriceInUSD, gasLimit for the destination. (Type: Object)
+- **isSameNetworkSwap**: Indicates if the swap is within the same network. (Type: Boolean, Default: false)
+- **isCCTP**: Indicates if the transaction is a Cross-Chain Transfer Protocol (CCTP) transaction. (Type: Boolean, Default: false)
+- **cctpData**: Data for CCTP transactions, includes messageBytes and messageHash. (Type: Object)
+- **distributedFee**: Fee distributed in the transaction. (Type: String, Default: empty string)
+- **referralCode**: Referral code used in the transaction. (Type: String, Default: empty string)
+
+# referralFeeManagement.ts
+
+- **tier**:
+
+  - **Type**: String
+  - **Default**: "General"
+  - **Unique**: true
+  - **Description**: Represents the tier of the referral fee. Each tier is unique.
+
+- **fee**:
+
+  - **Type**: Number
+  - **Default**: 0
+  - **Description**: The fee associated with the referral tier.
+
+- **discount**:
+
+  - **Type**: Number
+  - **Default**: 0
+  - **Description**: The discount applied to the referral tier.
+
+- **feeType**:
+
+  - **Type**: String
+  - **Enum Values**: "PERCENTAGE", "ABSOLUTE"
+  - **Description**: Indicates whether the fee is a percentage or an absolute value.
+
+- **userAddresses**:
+
+  - **Type**: Array of Strings
+  - **Default**: []
+  - **Description**: A list of user addresses associated with this referral tier.
+
+- **createdAt**:
+
+  - **Type**: Date
+  - **Default**: `new Date()`
+  - **Description**: The date and time when the referral fee tier was created.
+
+- **updatedAt**:
+
+  - **Type**: Date
+  - **Default**: `new Date()`
+  - **Description**: The date and time when the referral fee tier was last updated.
+
+# referrals.ts
+
+- **code**: A unique string representing the referral code. This field is required.
+- **user**: An ObjectId that references the `users` collection. This links the referral to a specific user.
+- **createdAt**: A date representing when the referral was created. Defaults to the current date.
+- **updatedAt**: A date representing when the referral was last updated. Defaults to the current date.

@@ -55,14 +55,6 @@ Auxiliary functions:
 
 ### Function: `handleFiberRequest`
 
-Signature:
-
-typescript
-
-Copy code
-
-`export const handleFiberRequest = async (data: any, swapTxHash: string) => { ... }`
-
 Parameters:
 
 - `data`: An `any` type parameter that holds data related to the fiber request. It's expected to contain fields like `responseCode`, `responseMessage`, and details about the withdrawal process.
@@ -97,65 +89,61 @@ Utility Dependencies:
 
 # generatorNodeHelper.ts
 
-### 1\. `handleGeneratorRequest(data: any, swapTxHash: string): Promise<void>`
+1.  **`handleGeneratorRequest`**:
 
-This asynchronous function manages the generator's request processing related to swap transactions. It performs various checks and updates on the transaction's status based on the incoming data.
+    - **Parameters**:
+      - `data` (any): The data received for the generator request.
+      - `swapTxHash` (string): The hash of the swap transaction.
+    - **Description**:
+      - This function handles the generator request by finding the relevant transaction from the database and updating its status based on the data received.
+      - It first constructs a filter to find the transaction with the given `swapTxHash` and a pending status.
+      - If the transaction is found and the data is valid, it updates the transaction status and details, including handling same-network swaps.
+    - **Error Handling**: Logs any errors that occur during the process.
 
-- Parameters:
-  - `data`: The data related to the transaction, expected to contain transaction receipts and signed data.
-  - `swapTxHash`: The transaction hash of the swap to filter transactions.
-- Operation:
-  - Retrieves a transaction based on the provided hash and updates it depending on the transaction receipt's status and the content of the signed data.
-  - Handles both same-network swaps and cross-network swaps by delegating to other utility functions.
+2.  **`getGeneratorSignedData`**:
 
-### 2\. `getGeneratorSignedData(transaction: any, signedData: any): any`
+    - **Parameters**:
+      - `transaction` (any): The transaction object to be updated.
+      - `signedData` (any): The signed data to be used for updating the transaction.
+    - **Description**:
+      - Updates the transaction with generator signature data, including salt, address, signatures, token details, and CCTP logs.
+    - **Error Handling**: Logs any errors that occur during the process.
 
-A helper function to attach signed data to a transaction.
+3.  **`getTransactionDetail`**:
 
-- Parameters:
-  - `transaction`: The current state of the transaction.
-  - `signedData`: Contains cryptographic signatures and additional transaction metadata.
-- Returns:
-  - The transaction updated with the new signed data.
+    - **Parameters**:
+      - `transaction` (any): The transaction object to be updated.
+      - `signedData` (any): The signed data to be used for updating the transaction.
+    - **Description**:
+      - Updates the transaction with detailed information such as wallet addresses, amounts, OneInch data, withdrawal data, and more.
+    - **Error Handling**: Logs any errors that occur during the process.
 
-### 3\. `getTransactionDetail(transaction: any, signedData: any): Promise<any>`
+4.  **`getAmount`**:
 
-Updates a transaction with more detailed data from signedData.
+    - **Parameters**:
+      - `transaction` (any): The transaction object to be updated.
+    - **Description**:
+      - Converts the source amount to a human-readable format using `swapUtilsHelper`.
+    - **Error Handling**: Logs any errors that occur during the process and handles native tokens separately.
 
-- Parameters:
-  - `transaction`: The transaction object to update.
-  - `signedData`: Detailed data including wallet addresses, token amounts, and one-inch API data.
-- Returns:
-  - The updated transaction object with added detailed data.
+5.  **`getSettledAmount`**:
 
-### 4\. `getAmount(transaction: any): Promise<any>`
+    - **Parameters**:
+      - `transaction` (any): The transaction object to be updated.
+      - `settledAmount` (any): The settled amount to be converted.
+    - **Description**:
+      - Converts the settled amount to a human-readable format using `swapUtilsHelper`.
+    - **Error Handling**: Logs any errors that occur during the process and handles native tokens separately.
 
-Converts the transaction amount to a human-readable format based on the network and token decimals.
+6.  **`handleSameNetworkSwap`**:
 
-- Parameters:
-  - `transaction`: Transaction object containing amount details.
-- Returns:
-  - The amount converted into a human-readable format.
-
-### 5\. `getSettledAmount(transaction: any, settledAmount: any): Promise<any>`
-
-Converts the settled amount for a transaction to a human-readable format.
-
-- Parameters:
-  - `transaction`: Transaction object containing network and token details.
-  - `settledAmount`: The amount that needs conversion.
-- Returns:
-  - The settled amount in a human-readable format.
-
-### 6\. `handleSameNetworkSwap(transaction: any, signedData: any): Promise<any>`
-
-Processes transactions within the same network by updating the transaction details and calling a helper function to handle the fiber request.
-
-- Parameters:
-  - `transaction`: The transaction to be processed.
-  - `signedData`: Additional data required to process the transaction.
-- Returns:
-  - The transaction updated based on the same network swap processing.
+    - **Parameters**:
+      - `transaction` (any): The transaction object to be updated.
+      - `signedData` (any): The signed data to be used for updating the transaction.
+    - **Description**:
+      - Handles same-network swaps by updating the transaction status and details.
+      - Updates the transaction with relevant information and marks it as a same-network swap.
+    - **Error Handling**: Logs any errors that occur during the process.
 
 # masterNodeHelper.ts
 
