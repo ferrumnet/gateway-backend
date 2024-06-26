@@ -54,20 +54,4 @@ Detailed Behavior:
 4.  Error Handling: If an error occurs during the request (e.g., network issues, invalid URL), the error is logged to the console and the function returns `null`.
 5.  Successful Response: If no error occurs, the response data from the POST request is returned.
 
-Example Usage:
-
-typescript
-
-Copy code
-
-`// Example of how to use postMultiswapAlertIntoChannel
-const alertPayload = {
-message: "Multiswap event occurred",
-details: { ... }
-};
-
-postMultiswapAlertIntoChannel(alertPayload)
-.then(response => console.log("Response from Slack:", response))
-.catch(err => console.error("Error posting to Slack:", err));`
-
 This function is designed to integrate with Slack APIs by utilizing a webhook URL provided in the global environment configuration, allowing for seamless alerts about multiswap events directly to a configured Slack channel.

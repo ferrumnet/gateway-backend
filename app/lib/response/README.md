@@ -2,14 +2,6 @@
 
 ### Function: `asyncMiddlewareLayer`
 
-Syntax:
-
-typescript
-
-Copy code
-
-`const asyncMiddlewareLayer = (fn: (req: any, res: any, next: any) => any) => (req: any, res: any, next: any) => void`
-
 Parameters:
 
 - `fn`: A function that takes three parameters `req`, `res`, and `next`. This is the middleware function you want to handle asynchronously.
@@ -36,14 +28,6 @@ Error Handling:
 Usage:
 
 - This middleware wrapper is used in scenarios where you want to ensure that asynchronous middleware does not lead to unhandled promises and provides consistent error handling across your API.
-
-typescript
-
-Copy code
-
-`module.exports = asyncMiddlewareLayer`
-
-This line exports the `asyncMiddlewareLayer` function to be used elsewhere in the application.
 
 # responseAppender.ts
 
@@ -85,13 +69,6 @@ This middleware can be added to specific routes or globally within an Express ap
   - Extracts `message` and `phraseKey` from the `data` object.
   - Deletes these properties from the `data` object.
   - Returns a JSON response with a `status` object (includes code, message, and phraseKey) and the modified `data` as the `body`.
-- Example Usage:
-
-  js
-
-  Copy code
-
-  `http200({ message: "Operation successful", phraseKey: "SUCCESS", additionalData: "info" })`
 
 ### 2\. `http400(err: any, key: string = '')`
 
@@ -101,13 +78,6 @@ This middleware can be added to specific routes or globally within an Express ap
   - `key`: Optional phrase key to provide additional error context.
 - Behavior:
   - Returns a response with a status code of 400 and a `status` object containing the error details and phrase key.
-- Example Usage:
-
-  js
-
-  Copy code
-
-  `http400("Invalid request parameters", "INVALID_PARAMS")`
 
 ### 3\. `http401(err: any)`
 
@@ -116,13 +86,6 @@ This middleware can be added to specific routes or globally within an Express ap
   - `err`: The error message or object to indicate why authentication failed.
 - Behavior:
   - Returns a response with a status code of 401 and a `status` object containing the error details.
-- Example Usage:
-
-  js
-
-  Copy code
-
-  `http401("Authentication required")`
 
 ### 4\. `http404(err: any, key: string = '')`
 
@@ -132,13 +95,6 @@ This middleware can be added to specific routes or globally within an Express ap
   - `key`: Optional phrase key to provide additional context about the error.
 - Behavior:
   - Returns a response with a status code of 404 and a `status` object containing the error details and phrase key.
-- Example Usage:
-
-  js
-
-  Copy code
-
-  `http404("Resource not found", "NOT_FOUND")`
 
 This documentation should provide a clear understanding of how each function operates within the context of handling standard HTTP responses.
 

@@ -45,22 +45,9 @@ Imports:
 
 ### Content of `app/lib/logger.ts`:
 
-typescript
-
-Copy code
-
-`var bunyan = require('bunyan');
-module.exports = bunyan.createLogger({"name": "Leaderboard backend", "level": 10});`
-
 ### Detailed Explanation:
 
 - Importing Bunyan: The code begins by importing the Bunyan library using `require`. Bunyan is a simple and fast JSON logging library for Node.js services.
-
-  typescript
-
-  Copy code
-
-  `var bunyan = require('bunyan');`
 
 - Creating and Exporting Logger: The logger is created with specific configurations using `bunyan.createLogger` and then exported. The configuration object passed to `createLogger` includes:
 
