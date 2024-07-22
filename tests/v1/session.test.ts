@@ -7,7 +7,8 @@ const inValidConnectApiUrl =
   "/api/v1/application-user/addresses/connect/to/addresses";
 const encodedApplicationUserApiKey =
   "U2FsdGVkX18unxNjH8nQdcXKdl6kWsnv+D04fPUMTqGvcUIosWk1yo3eoowbKCkh8+cqquyVySG7x7FX00MeeQ==";
-let token = "";
+let apiToken = "";
+export let sessionToken = "";
 const role = "communityMember";
 const address = "0xeEDFDd620629C7432970d22488124fC92Ad6D426";
 const chainId = 8453;
@@ -20,7 +21,7 @@ describe("API Endpoint Testing", () => {
       .set("apikey", encodedApplicationUserApiKey);
     expect(res.statusCode).toEqual(200);
     expect(res.body.body).toHaveProperty("token");
-    token = res?.body?.body?.token;
+    apiToken = res?.body?.body?.token;
   });
 
   it("should return an error for missing API key", async () => {
@@ -52,14 +53,14 @@ describe("POST API Endpoint Testing", () => {
     const res = await request(baseURL)
       .post(validConnectApiUrl)
       .query({ isFromOrganizationAdminPath: false })
-      .set("Authorization", `Bearer ${token}`)
+      .set("Authorization", `Bearer ${apiToken}`)
       .send({
         address: address,
         ferrumNetworkIdentifier: chainId,
         role: role,
       });
-
     expect(res.statusCode).toEqual(200);
+    sessionToken = res?.body?.body?.token;
   });
 
   it("should return an error with invalid token", async () => {
@@ -79,7 +80,7 @@ describe("POST API Endpoint Testing", () => {
     const res = await request(baseURL)
       .post(validConnectApiUrl)
       .query({ isFromOrganizationAdminPath: false })
-      .set("Authorization", `Bearer ${token}`)
+      .set("Authorization", `Bearer ${apiToken}`)
       .send({
         // Missing address field
         ferrumNetworkIdentifier: chainId,
@@ -91,14 +92,14 @@ describe("POST API Endpoint Testing", () => {
   it("should handle non-existent endpoint with status 404", async () => {
     const res = await request(baseURL)
       .post(inValidConnectApiUrl)
-      .set("Authorization", `Bearer ${token}`);
+      .set("Authorization", `Bearer ${apiToken}`);
     expect(res.statusCode).toEqual(404);
   });
 
   it("should return 404 for invalid method (GET)", async () => {
     const res = await request(baseURL)
       .get(validConnectApiUrl)
-      .set("Authorization", `Bearer ${token}`);
+      .set("Authorization", `Bearer ${apiToken}`);
     expect(res.statusCode).toEqual(404);
   });
 });
