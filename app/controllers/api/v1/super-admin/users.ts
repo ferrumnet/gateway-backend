@@ -4,59 +4,6 @@ var mongoose = require("mongoose");
 const { v4: uuidv4 } = require("uuid");
 
 module.exports = function (router: any) {
-  router.post("/sign-up", async (req: any, res: any) => {
-    if (
-      !req.body.firstName ||
-      !req.body.lastName ||
-      !req.body.email ||
-      !req.body.password
-    ) {
-      return res.http400(
-        "firstName & lastName & & email & password are required."
-      );
-    }
-
-    let emailCount = await db.Users.count({ email: req.body.email });
-
-    if (emailCount > 0) {
-      return res.http400(
-        await commonFunctions.getValueFromStringsPhrase(
-          stringHelper.strErrorEmailIdAlreadyExists
-        ),
-        stringHelper.strErrorEmailIdAlreadyExists
-      );
-    }
-
-    if (req.body.firstName) {
-      req.body.firstNameInLower = req.body.firstName.toLowerCase();
-    }
-
-    if (req.body.lastName) {
-      req.body.lastNameInLower = req.body.lastName.toLowerCase();
-    }
-
-    req.body.name = req.body.firstName + " " + req.body.lastName;
-    req.body.nameInLower = req.body.name.toLowerCase();
-    req.body.role = "superAdmin";
-    req.body.createdAt = new Date();
-
-    if (req.body.password) {
-      req.body.password = db.Users.getHashedPassword(req.body.password);
-    }
-
-    let user;
-    try {
-      user = await db.Users.create(req.body);
-    } catch (err: any) {
-      return res.http400(err.message);
-    }
-
-    res.http200({
-      user: user.toClientObject(),
-      token: user.createAPIToken(user),
-    });
-  });
-
   router.post("/sign-in", async (req: any, res: any) => {
     var filter: any = {};
     if (!req.body.email || !req.body.password) {
