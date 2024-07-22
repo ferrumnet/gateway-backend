@@ -6,7 +6,6 @@ var request = require("supertest");
 describe(`GET ${validApiUrl}`, () => {
   it("should return a list of wallets with status 200", async () => {
     const res = await request(baseURL).get(validApiUrl);
-    console.log(res.body.body);
     expect(res.statusCode).toEqual(200);
     expect(res.body.body).toHaveProperty("walletByNetworks");
   });

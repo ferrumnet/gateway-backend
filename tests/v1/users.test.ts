@@ -91,7 +91,6 @@ describe("GET API Endpoint Testing", () => {
     const res = await request(baseURL)
       .get(`${validProfileApiUrl}/${userProfileId}`)
       .set("Authorization", `Bearer ${superAdminSessionToken}`);
-    console.log(res);
     expect(res.statusCode).toEqual(200);
   });
 
