@@ -6,7 +6,7 @@ const validConnectApiUrl =
 const inValidConnectApiUrl =
   "/api/v1/application-user/addresses/connect/to/addresses";
 const encodedApplicationUserApiKey =
-  "U2FsdGVkX18unxNjH8nQdcXKdl6kWsnv+D04fPUMTqGvcUIosWk1yo3eoowbKCkh8+cqquyVySG7x7FX00MeeQ==";
+  "U2FsdGVkX182AEO+BgCbNaS9eA3pggBw7pk8RKTEMRLjKvJ8xtCFx7gfWmWtW7VOUWAE5QQMMpRY+nN4KKe/Ng==";
 let apiToken = "";
 export let sessionToken = "";
 const role = "communityMember";
