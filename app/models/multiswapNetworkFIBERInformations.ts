@@ -15,6 +15,7 @@ var schema = mongoose.Schema(
     cctpFundManager: { type: String, default: "" },
     forgeCCTPFundManager: { type: String, default: "" },
     cctpmessageTransmitterAddress: { type: String, default: "" },
+    stargateEndpointID: { type: String, default: "" },
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
   },
