@@ -90,3 +90,99 @@ describe("API Endpoint Testing", () => {
     expect(res.statusCode).toEqual(404);
   });
 });
+
+describe("API Endpoint Testing", () => {
+  it("should return a list of generatorSignatureCreated transactions with status 200", async () => {
+    const res = await request(baseURL)
+      .get(
+        `${validTransactionListApiUrl}?status=generatorSignatureCreated&limit=20&nodeType=validator&address=${validatorNodePublicKey}`
+      )
+      .set(
+        "Authorization",
+        `Bearer ${await createAuthTokenForNodeInfra(validatorNodeApiKey)}`
+      );
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.body).toHaveProperty("transactions");
+  });
+
+  it("should return an error with invalid token", async () => {
+    const res = await request(baseURL)
+      .get(
+        `${validTransactionListApiUrl}?status=generatorSignatureCreated&limit=20&nodeType=validator&address=${validatorNodePublicKey}`
+      )
+      .set("Authorization", "Bearer invalid_token");
+    expect(res.statusCode).toEqual(401);
+  });
+
+  it("should handle non-existent endpoint with status 404", async () => {
+    const res = await request(baseURL)
+      .get(
+        `${inValidTransactionListApiUrl}?status=generatorSignatureCreated&limit=20&nodeType=validator&address=${validatorNodePublicKey}`
+      )
+      .set(
+        "Authorization",
+        `Bearer ${await createAuthTokenForNodeInfra(validatorNodeApiKey)}`
+      );
+    expect(res.statusCode).toEqual(404);
+  });
+
+  it("should return 404 for invalid method (POST)", async () => {
+    const res = await request(baseURL)
+      .post(
+        `${validTransactionListApiUrl}?status=generatorSignatureCreated&limit=20&nodeType=validator&address=${validatorNodePublicKey}`
+      )
+      .set(
+        "Authorization",
+        `Bearer ${await createAuthTokenForNodeInfra(validatorNodeApiKey)}`
+      );
+    expect(res.statusCode).toEqual(404);
+  });
+});
+
+describe("API Endpoint Testing", () => {
+  it("should return a list of validatorSignatureCreated transactions with status 200", async () => {
+    const res = await request(baseURL)
+      .get(
+        `${validTransactionListApiUrl}?status=validatorSignatureCreated&limit=20&nodeType=master&address=${masterNodePublicKey}`
+      )
+      .set(
+        "Authorization",
+        `Bearer ${await createAuthTokenForNodeInfra(masterNodeApiKey)}`
+      );
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.body).toHaveProperty("transactions");
+  });
+
+  it("should return an error with invalid token", async () => {
+    const res = await request(baseURL)
+      .get(
+        `${validTransactionListApiUrl}?status=validatorSignatureCreated&limit=20&nodeType=master&address=${masterNodePublicKey}`
+      )
+      .set("Authorization", "Bearer invalid_token");
+    expect(res.statusCode).toEqual(401);
+  });
+
+  it("should handle non-existent endpoint with status 404", async () => {
+    const res = await request(baseURL)
+      .get(
+        `${inValidTransactionListApiUrl}?status=validatorSignatureCreated&limit=20&nodeType=master&address=${masterNodePublicKey}`
+      )
+      .set(
+        "Authorization",
+        `Bearer ${await createAuthTokenForNodeInfra(masterNodeApiKey)}`
+      );
+    expect(res.statusCode).toEqual(404);
+  });
+
+  it("should return 404 for invalid method (POST)", async () => {
+    const res = await request(baseURL)
+      .post(
+        `${validTransactionListApiUrl}?status=validatorSignatureCreated&limit=20&nodeType=master&address=${masterNodePublicKey}`
+      )
+      .set(
+        "Authorization",
+        `Bearer ${await createAuthTokenForNodeInfra(masterNodeApiKey)}`
+      );
+    expect(res.statusCode).toEqual(404);
+  });
+});
