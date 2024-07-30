@@ -9,6 +9,10 @@ const validSignleTransactionApiUrl =
   "/api/v1/community-member/multiSwap/transactions/";
 const inValidSignleTransactionApiUrl =
   "/api/v1/community-member/multiSwap//transactions/";
+const validRegenrateTransactionApiUrl =
+  "/api/v1/community-member/multiSwap/transactions/regenerate/swap/and/withdraw";
+const inValidRegenrateTransactionApiUrl =
+  "/api/v1/community-member/multiSwap/transactions/regenerate/swap/and/withdraws";
 const validPublicTransactionListApiUrl =
   "/api/v1/swapTransactions/transactions/list";
 const inValidPublicTransactionListApiUrl =
@@ -106,6 +110,56 @@ describe("API Endpoint Testing", () => {
   it("should return 404 for invalid method (POST)", async () => {
     const res = await request(baseURL)
       .post(`${validSignleTransactionApiUrl}/${transactionTxId}`)
+      .set("Authorization", `Bearer ${sessionToken}`);
+    expect(res.statusCode).toEqual(404);
+  });
+});
+
+describe("API Endpoint Testing", () => {
+  it("should return with status 200", async () => {
+    const res = await request(baseURL)
+      .put(`${validRegenrateTransactionApiUrl}/${transactionTxId}`)
+      .query({ chainId: "8453" })
+      .set("Authorization", `Bearer ${sessionToken}`);
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.body).toHaveProperty("onChainStatus");
+  });
+
+  it("should return an error for chainId not valid with status 400", async () => {
+    const res = await request(baseURL)
+      .put(`${validRegenrateTransactionApiUrl}/${transactionTxId}`)
+      .set("Authorization", `Bearer ${sessionToken}`);
+    expect(res.statusCode).toEqual(400);
+    expect(res.body.status).toHaveProperty("message");
+  });
+
+  it("should return an error for invalid token", async () => {
+    const res = await request(baseURL)
+      .put(`${validRegenrateTransactionApiUrl}/${transactionTxId}`)
+      .query({ chainId: "8453" })
+      .set("Authorization", "invalid-api-key");
+    expect(res.statusCode).toEqual(401);
+    expect(res.body.status).toHaveProperty("message");
+  });
+
+  it("should return an error for missing token", async () => {
+    const res = await request(baseURL).put(
+      `${validRegenrateTransactionApiUrl}/${transactionTxId}`
+    );
+    expect(res.statusCode).toEqual(401);
+  });
+
+  it("should handle non-existent endpoint with status 404", async () => {
+    const res = await request(baseURL)
+      .put(`${inValidRegenrateTransactionApiUrl}/${transactionTxId}`)
+      .set("Authorization", `Bearer ${sessionToken}`);
+    expect(res.statusCode).toEqual(404);
+  });
+
+  it("should return 404 for invalid method (POST)", async () => {
+    const res = await request(baseURL)
+      .post(`${validRegenrateTransactionApiUrl}/${transactionTxId}`)
+      .query({ chainId: "8453" })
       .set("Authorization", `Bearer ${sessionToken}`);
     expect(res.statusCode).toEqual(404);
   });
