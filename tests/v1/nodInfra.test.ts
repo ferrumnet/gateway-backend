@@ -186,3 +186,65 @@ describe("API Endpoint Testing", () => {
     expect(res.statusCode).toEqual(404);
   });
 });
+
+// This api will not do any updation. Becuase of empty body. Due to security reason we haven't impelemented body validations
+describe("API Endpoint Testing", () => {
+  it("should return with status 200", async () => {
+    const res = await request(baseURL)
+      .put(
+        `${validUpdateGeneratorApiUrl}/${transactionTxId}?address=${generatorNodePublicKey}`
+      )
+      .set(
+        "Authorization",
+        `Bearer ${await createAuthTokenForNodeInfra(generatorNodeApiKey)}`
+      )
+      .send({}); // sent empty body. Reason is already given above
+    expect(res.statusCode).toEqual(200);
+  });
+
+  it("should return an error for invalid token", async () => {
+    const res = await request(baseURL)
+      .put(
+        `${validUpdateGeneratorApiUrl}/${transactionTxId}?address=${generatorNodePublicKey}`
+      )
+      .set("Authorization", `Bearer invalid-token`)
+      .send({});
+    expect(res.statusCode).toEqual(401);
+    expect(res.body.status).toHaveProperty("message");
+  });
+
+  it("should return an error for missing token", async () => {
+    const res = await request(baseURL)
+      .put(
+        `${validUpdateGeneratorApiUrl}/${transactionTxId}?address=${generatorNodePublicKey}`
+      )
+      .send({});
+    expect(res.statusCode).toEqual(401);
+  });
+
+  it("should handle non-existent endpoint with status 404", async () => {
+    const res = await request(baseURL)
+      .put(
+        `${inValidUpdateGeneratorApiUrl}/${transactionTxId}?address=${generatorNodePublicKey}`
+      )
+      .set(
+        "Authorization",
+        `Bearer ${await createAuthTokenForNodeInfra(generatorNodeApiKey)}`
+      )
+      .send({});
+    expect(res.statusCode).toEqual(404);
+  });
+
+  it("should return 404 for invalid method (POST)", async () => {
+    const res = await request(baseURL)
+      .post(
+        `${validUpdateGeneratorApiUrl}/${transactionTxId}?address=${generatorNodePublicKey}`
+      )
+      .set(
+        "Authorization",
+        `Bearer ${await createAuthTokenForNodeInfra(generatorNodeApiKey)}`
+      )
+      .send({});
+    expect(res.statusCode).toEqual(404);
+  });
+});
