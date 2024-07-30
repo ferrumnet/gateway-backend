@@ -121,6 +121,7 @@ var schema = mongoose.Schema(
     },
     distributedFee: { type: String, default: "" },
     referralCode: { type: String, default: "" },
+    isStargate: { type: Boolean, default: true },
   },
   { collection: "swapAndWithdrawTransactions" }
 );

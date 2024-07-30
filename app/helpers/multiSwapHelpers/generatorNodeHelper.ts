@@ -19,11 +19,11 @@ export const handleGeneratorRequest = async (data: any, swapTxHash: string) => {
         transactionReceipt?.status == true &&
         data?.signedData
       ) {
-        if (data?.signedData?.isSameNetworkSwap) {
-          transaction = await handleSameNetworkSwap(
-            transaction,
-            data?.signedData
-          );
+        if (
+          data?.signedData?.isSameNetworkSwap ||
+          data?.signedData?.isStargate
+        ) {
+          transaction = await handleOnChainSwap(transaction, data?.signedData);
         } else {
           transaction = getGeneratorSignedData(transaction, data?.signedData);
           transaction = await getTransactionDetail(
@@ -132,7 +132,7 @@ async function getSettledAmount(transaction: any, settledAmount: any) {
   return amount;
 }
 
-async function handleSameNetworkSwap(transaction: any, signedData: any) {
+async function handleOnChainSwap(transaction: any, signedData: any) {
   try {
     if (signedData.settledAmount) {
       let destinationAmount = await getSettledAmount(
@@ -162,8 +162,9 @@ async function handleSameNetworkSwap(transaction: any, signedData: any) {
         : null;
       transaction.status =
         utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted;
-      transaction.generatorSig.salt = "same swap salt";
-      transaction.isSameNetworkSwap = true;
+      transaction.generatorSig.salt = "swap salt";
+      transaction.isSameNetworkSwap = signedData?.isSameNetworkSwap;
+      transaction.isStargate = signedData?.isStargate;
       transaction.sourceWalletAddress = signedData?.sourceAddress;
       transaction.destinationWalletAddress = signedData?.targetAddress;
       transaction.settledAmount = signedData?.settledAmount;
