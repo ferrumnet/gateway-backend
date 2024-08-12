@@ -1,14 +1,15 @@
 var request = require("supertest");
 import {
+  ENV,
   baseURL,
   createAuthTokenForNodeInfra,
-  generatorNodeApiKey,
-  validatorNodeApiKey,
-  masterNodeApiKey,
   generatorNodePublicKey,
   validatorNodePublicKey,
   masterNodePublicKey,
 } from "../constants/constants";
+import { address } from "./session.test";
+const validRpcNodeListApiUrl = `/api/v1/rpcNodes/list?address=${generatorNodePublicKey}&nodeType=generator`;
+const inValidRpcNodeListApiUrl = "/api/v1/rpcNode/list";
 const validNetworkListApiUrl = "/api/v1/networks/list";
 const inValidNetworkListApiUrl = "/api/v1/network/list";
 const validTransactionListApiUrl = "/api/v1/transactions/list";
@@ -22,8 +23,90 @@ const inValidUpdateValidatorApiUrl =
   "/api/v1/transactions/update/from/validators";
 const validUpdateMasterApiUrl = "/api/v1/transactions/update/from/master";
 const inValidUpdateMasterApiUrl = "/api/v1/transactions/update/from/masters";
+const validGetFeeDistributionApiUrl = `/api/v1/referrals/fee-distribution?walletAddress=${address}`;
+const inValidGetFeeDistributionApiUrl = "/api/referrals/fee-distributions";
 const transactionTxId =
   "0x9401a086c1eb1bc104a95ee0ff980a456033bac10f2d7cbc5139a33dd0636190";
+
+describe("API Endpoint Testing", () => {
+  it("should return fee distribution with status 200", async () => {
+    const res = await request(baseURL)
+      .get(`${validGetFeeDistributionApiUrl}`)
+      .set(
+        "Authorization",
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.fiberApiKey)}`
+      );
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.body).toHaveProperty("feeDistribution");
+  });
+
+  it("should return an error with invalid token", async () => {
+    const res = await request(baseURL)
+      .get(`${validGetFeeDistributionApiUrl}`)
+      .set("Authorization", "Bearer invalid_token");
+    expect(res.statusCode).toEqual(401);
+  });
+
+  it("should handle non-existent endpoint with status 404", async () => {
+    const res = await request(baseURL)
+      .get(`${inValidGetFeeDistributionApiUrl}`)
+      .set(
+        "Authorization",
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.fiberApiKey)}`
+      );
+    expect(res.statusCode).toEqual(404);
+  });
+
+  it("should return 404 for invalid method (POST)", async () => {
+    const res = await request(baseURL)
+      .post(`${validGetFeeDistributionApiUrl}`)
+      .set(
+        "Authorization",
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.fiberApiKey)}`
+      );
+    expect(res.statusCode).toEqual(404);
+  });
+});
+
+describe("API Endpoint Testing", () => {
+  it("should return a list of rpc nodes with status 200", async () => {
+    const res = await request(baseURL)
+      .get(`${validRpcNodeListApiUrl}`)
+      .set(
+        "Authorization",
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.generatorNodeApiKey)}`
+      );
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.body).toHaveProperty("data");
+  });
+
+  it("should return an error with invalid token", async () => {
+    const res = await request(baseURL)
+      .get(`${validRpcNodeListApiUrl}`)
+      .set("Authorization", "Bearer invalid_token");
+    expect(res.statusCode).toEqual(401);
+  });
+
+  it("should handle non-existent endpoint with status 404", async () => {
+    const res = await request(baseURL)
+      .get(`${inValidRpcNodeListApiUrl}`)
+      .set(
+        "Authorization",
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.generatorNodeApiKey)}`
+      );
+    expect(res.statusCode).toEqual(404);
+  });
+
+  it("should return 404 for invalid method (POST)", async () => {
+    const res = await request(baseURL)
+      .post(`${validRpcNodeListApiUrl}`)
+      .set(
+        "Authorization",
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.generatorNodeApiKey)}`
+      );
+    expect(res.statusCode).toEqual(404);
+  });
+});
 
 describe("API Endpoint Testing", () => {
   it("should return a list of networks with status 200", async () => {
@@ -51,7 +134,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(generatorNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.generatorNodeApiKey)}`
       );
     expect(res.statusCode).toEqual(200);
     expect(res.body.body).toHaveProperty("transactions");
@@ -73,7 +156,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(generatorNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.generatorNodeApiKey)}`
       );
     expect(res.statusCode).toEqual(404);
   });
@@ -85,7 +168,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(generatorNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.generatorNodeApiKey)}`
       );
     expect(res.statusCode).toEqual(404);
   });
@@ -99,7 +182,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(validatorNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.validatorNodeApiKey)}`
       );
     expect(res.statusCode).toEqual(200);
     expect(res.body.body).toHaveProperty("transactions");
@@ -121,7 +204,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(validatorNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.validatorNodeApiKey)}`
       );
     expect(res.statusCode).toEqual(404);
   });
@@ -133,7 +216,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(validatorNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.validatorNodeApiKey)}`
       );
     expect(res.statusCode).toEqual(404);
   });
@@ -147,7 +230,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(masterNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.masterNodeApiKey)}`
       );
     expect(res.statusCode).toEqual(200);
     expect(res.body.body).toHaveProperty("transactions");
@@ -169,7 +252,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(masterNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.masterNodeApiKey)}`
       );
     expect(res.statusCode).toEqual(404);
   });
@@ -181,7 +264,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(masterNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.masterNodeApiKey)}`
       );
     expect(res.statusCode).toEqual(404);
   });
@@ -196,7 +279,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(generatorNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.generatorNodeApiKey)}`
       )
       .send({}); // sent empty body. Reason is already given above
     expect(res.statusCode).toEqual(200);
@@ -229,7 +312,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(generatorNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.generatorNodeApiKey)}`
       )
       .send({});
     expect(res.statusCode).toEqual(404);
@@ -242,7 +325,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(generatorNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.generatorNodeApiKey)}`
       )
       .send({});
     expect(res.statusCode).toEqual(404);
@@ -258,7 +341,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(validatorNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.validatorNodeApiKey)}`
       )
       .send({}); // sent empty body. Reason is already given above
     expect(res.statusCode).toEqual(200);
@@ -291,7 +374,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(validatorNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.validatorNodeApiKey)}`
       )
       .send({});
     expect(res.statusCode).toEqual(404);
@@ -304,7 +387,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(validatorNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.validatorNodeApiKey)}`
       )
       .send({});
     expect(res.statusCode).toEqual(404);
@@ -320,7 +403,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(masterNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.masterNodeApiKey)}`
       )
       .send({}); // sent empty body. Reason is already given above
     expect(res.statusCode).toEqual(200);
@@ -353,7 +436,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(masterNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.masterNodeApiKey)}`
       )
       .send({});
     expect(res.statusCode).toEqual(404);
@@ -366,7 +449,7 @@ describe("API Endpoint Testing", () => {
       )
       .set(
         "Authorization",
-        `Bearer ${await createAuthTokenForNodeInfra(masterNodeApiKey)}`
+        `Bearer ${await createAuthTokenForNodeInfra(ENV?.masterNodeApiKey)}`
       )
       .send({});
     expect(res.statusCode).toEqual(404);
