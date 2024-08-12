@@ -1,5 +1,5 @@
 var request = require("supertest");
-import { baseURL } from "../constants/constants";
+import { ENV, baseURL } from "../constants/constants";
 // super admin apis end points
 const validSignInApiUrl = "/api/v1/super-admin/users/sign-in";
 const inValidSignInpiUrl = "/api/v1/super-admin/users/sign-inn";
@@ -16,8 +16,8 @@ export let superAdminSessionToken = "";
 describe("POST API Endpoint Testing", () => {
   it("should sign in successfully", async () => {
     const res = await request(baseURL).post(validSignInApiUrl).send({
-      email: "", // please create super admin directly into database and use that email here
-      password: "", // please create super admin directly into database and use that password here
+      email: ENV?.superAdminEmail, // please create super admin directly into database and use that email here
+      password: ENV?.superAdminPassword, // please create super admin directly into database and use that password here
     });
     expect(res.statusCode).toEqual(200);
     superAdminSessionToken = res?.body?.body?.token;

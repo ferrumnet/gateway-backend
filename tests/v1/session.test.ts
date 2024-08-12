@@ -10,7 +10,7 @@ const encodedApplicationUserApiKey =
 let apiToken = "";
 export let sessionToken = "";
 const role = "communityMember";
-const address = "0xeEDFDd620629C7432970d22488124fC92Ad6D426";
+export const address = "0xeEDFDd620629C7432970d22488124fC92Ad6D426";
 const chainId = 8453;
 var request = require("supertest");
 

@@ -2,11 +2,8 @@ import moment from "moment";
 const Crypto = require("crypto");
 const CryptoJS = require("crypto-js");
 
+export const ENV = require("../../config/dev.qa.uat.environment.json");
 export const baseURL = "https://api-leaderboard.dev.svcs.ferrumnetwork.io";
-export const fiberApiKey = "";
-export const generatorNodeApiKey = "";
-export const validatorNodeApiKey = "";
-export const masterNodeApiKey = "";
 export const generatorNodePublicKey =
   "0xf81f80c04c421f98c06232d2df7e2ac8790bb19b";
 export const validatorNodePublicKey =
