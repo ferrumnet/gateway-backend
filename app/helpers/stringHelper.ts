@@ -78,7 +78,8 @@ let swapFailedMessage = "Backend_Swap_Failed_Message";
 var strErrorCabnAlreadyExist = "Backend_Error_Cabn_Already_Exist";
 var strErrorNodePairAlreadyExist = "This pair already exist.";
 var strErrorNoRandmonKeyAvailable = "No randmon key available";
-
+let strErrorGenericProvider = "Provider is not responding. please try again";
+let strErrorInsufficientLiquidity = "Insufficient Liquidity";
 // success messages
 let strSuccessResetPasswordLink = "Backend_Success_Reset_Password_Link";
 let strSuccessOtp = "Backend_Success_Otp";
@@ -166,4 +167,6 @@ module.exports = {
   chainIdNotSupported,
   strErrorCabnAlreadyExist,
   strErrorNoRandmonKeyAvailable,
+  strErrorGenericProvider,
+  strErrorInsufficientLiquidity,
 };
