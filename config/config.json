@@ -42,23 +42,23 @@
     "authenticationCommunityMemberV1": {
       "enabled": true,
       "priority": 100,
-      "route": "/api/v1/community-member((?!$))((?!/users/forgot-password))((?!/users/reset-password))((?!/users/sign-in))((?!/users/sign-up))((?!/users/test))*",
+      "route": "/api/v1/community-member((?!$))((?!/multiSwap))((?!/users/forgot-password))((?!/users/reset-password))((?!/users/sign-in))((?!/users/sign-up))((?!/users/test))*",
       "module": {
         "name": "path:./app/lib/auth"
       }
     },
-    "authenticationCommunityMemberV2": {
+    "authenticationMultiswapCommunityMember": {
       "enabled": true,
       "priority": 100,
-      "route": "/api/v2/community-member((?!$))*",
+      "route": "/api/v1/community-member/multiSwap((?!$))*",
       "module": {
-        "name": "path:./app/lib/auth"
+        "name": "path:./app/lib/multiswapAuth"
       }
     },
     "authenticationApplicationUser": {
       "enabled": true,
       "priority": 100,
-      "route": "/api/v1/application-user((?!$))((?!/token))*",
+      "route": "/api/v1/application-user((?!$))((?!/token))((?!/addresses))*",
       "module": {
         "name": "path:./app/lib/auth"
       }
