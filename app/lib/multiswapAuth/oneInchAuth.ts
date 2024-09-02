@@ -1,9 +1,9 @@
 import {
-  decodeToken,
   getUser,
   invalidRequest,
+  oneInchDecodeToken,
   Response,
-} from "../helpers/authHelpers/rootAuthHelper";
+} from "../../helpers/authHelpers/rootAuthHelper";
 const AUTHORIZATION_MISSING = "Authorization header missing";
 
 module.exports = function () {
@@ -13,15 +13,10 @@ module.exports = function () {
     }
 
     try {
-      let response: Response = decodeToken(req);
+      let response: Response = oneInchDecodeToken(req);
       if (!response?.isValid) {
         return invalidRequest(res);
       }
-      const user = await getUser(response.id, response?.role);
-      if (!user) {
-        return invalidRequest(res);
-      }
-      req.user = user;
       next();
     } catch (error) {
       console.log(error);

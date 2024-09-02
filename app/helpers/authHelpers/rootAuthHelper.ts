@@ -79,3 +79,18 @@ export const getUserForPublicApis = async (req: any): Promise<any> => {
     return null;
   }
 };
+
+export const oneInchDecodeToken = (req: any): Response => {
+  let authResponse: Response = {
+    isFromNodeInfra: false,
+    isValid: false,
+    role: "",
+    id: "",
+  };
+  const token = req.headers.authorization.split(" ")[1];
+  let key = (global as any).environment.fiberApiKey;
+  if (isTokenValid(token, key)) {
+    authResponse.isValid = true;
+  }
+  return authResponse;
+};

@@ -52,7 +52,7 @@
       "priority": 100,
       "route": "/api/v1/community-member/multiSwap((?!$))*",
       "module": {
-        "name": "path:./app/lib/multiswapAuth"
+        "name": "path:./app/lib/multiswapAuth/multiswapAuth"
       }
     },
     "authenticationApplicationUser": {
@@ -109,6 +109,14 @@
       "route": "/api/v1/referrals((?!$))*",
       "module": {
         "name": "path:./app/lib/auth"
+      }
+    },
+    "authenticationOneInch": {
+      "enabled": true,
+      "priority": 100,
+      "route": "/api/v1/oneInch((?!$))*",
+      "module": {
+        "name": "path:./app/lib/multiswapAuth/oneInchAuth"
       }
     },
     "pagination": {
