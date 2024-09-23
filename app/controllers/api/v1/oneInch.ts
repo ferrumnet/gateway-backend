@@ -1,5 +1,5 @@
 import { getOneInchExcludedProtocols } from "../../../helpers/multiSwapHelpers/configurationHelper";
-import { oneInchSwap } from "../../../lib/httpCalls/quoteProvideAxios";
+import { oneInchSwap } from "../../../lib/httpCalls/quoteProvideAxiosHelper";
 let asyncMiddleware = require("../../../lib/response/asyncMiddleware");
 
 module.exports = function (router: any) {

@@ -16,6 +16,38 @@ export const getTransactionReceipt = async (
   return transaction;
 };
 
+export const getTransactionReceiptWithThreshold = async (
+  txId: string,
+  rpcURL: string,
+  fiberRouterAddress: string,
+  threshold: number,
+  tries = 0
+): Promise<any> => {
+  let transaction: any = null;
+  const web3 = new Web3(rpcURL);
+  transaction = await web3.eth.getTransactionReceipt(txId);
+  console.log("transaction", transaction?.status, txId, tries);
+  if (tries < threshold) {
+    tries += 1;
+    if (!transaction || transaction === null || transaction.status === null) {
+      await delay();
+      await getTransactionReceiptWithThreshold(
+        txId,
+        rpcURL,
+        fiberRouterAddress,
+        threshold,
+        tries
+      );
+    }
+  }
+  return await checkValidTransactionAndReturnReceipt(
+    txId,
+    rpcURL,
+    await web3.eth.getTransactionReceipt(txId),
+    fiberRouterAddress
+  );
+};
+
 export const getTransactionByHash = async (
   txHash: string,
   rpcURL: string
@@ -90,16 +122,37 @@ export const isValidSwapTransaction = async (
 ) => {
   if (sourceNetwork && destinationNetwork && decodedDtata) {
     let transaction = await getTransactionByHash(txId, sourceNetwork.rpcUrl);
-    // if (
-    //   transaction &&
-    //   transaction.to &&
-    //   sourceNetwork.multiSwapFiberRouterSmartContractAddress &&
-    //   transaction.to.toLowerCase() ==
-    //     sourceNetwork.multiSwapFiberRouterSmartContractAddress.toLowerCase()
-    // ) {
-    console.log("transaction", transaction?.to);
-    return true;
-    // }
+    if (
+      transaction &&
+      transaction.to &&
+      sourceNetwork.multiSwapFiberRouterSmartContractAddress &&
+      transaction.to.toLowerCase() ==
+        sourceNetwork.multiSwapFiberRouterSmartContractAddress.toLowerCase()
+    ) {
+      console.log("transaction", transaction?.to);
+      return true;
+    }
   }
   return false;
 };
+
+export const checkValidTransactionAndReturnReceipt = async (
+  txId: string,
+  rpcURL: string,
+  receipt: any,
+  fiberRouterAddress: string
+): Promise<any> => {
+  let transaction = await getTransactionByHash(txId, rpcURL);
+  if (
+    transaction &&
+    transaction.to &&
+    receipt &&
+    transaction.to.toLowerCase() == fiberRouterAddress.toLowerCase()
+  ) {
+    console.log("transaction to address", transaction?.to, receipt?.status);
+    return receipt;
+  }
+  return null;
+};
+
+const delay = () => new Promise((res) => setTimeout(res, 15000));

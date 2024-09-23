@@ -8,7 +8,7 @@ module.exports = function () {
     (global as any).starterEnvironment
       .isCronEnvironmentSupportedForSwapAndWithdrawTransactionsJob === "no"
   ) {
-    start();
+    // start();
   }
 };
 

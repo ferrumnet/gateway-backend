@@ -1,11 +1,3 @@
-import { handleGeneratorRequest } from "../../../helpers/multiSwapHelpers/generatorNodeHelper";
-import { handleValidatorRequest } from "../../../helpers/multiSwapHelpers/validatorNodeHelper";
-import {
-  handleMasterSignatureCreationRequest,
-  handleMasterValidationFailureRequest,
-} from "../../../helpers/multiSwapHelpers/masterNodeHelper";
-import { handleFiberRequest } from "../../../helpers/multiSwapHelpers/fiberHelper";
-
 module.exports = function (router: any) {
   router.get(
     "/list",
@@ -56,57 +48,6 @@ module.exports = function (router: any) {
       }
       return res.http200({
         transactions: transactions,
-      });
-    })
-  );
-
-  router.put(
-    "/update/from/fiber/:swapTxHash",
-    asyncMiddleware(async (req: any, res: any) => {
-      await handleFiberRequest(req?.body, req?.params?.swapTxHash);
-      return res.http200({
-        message: stringHelper.strSuccess,
-      });
-    })
-  );
-
-  router.put(
-    "/update/from/generator/:swapTxHash",
-    asyncMiddleware(async (req: any, res: any) => {
-      await handleGeneratorRequest(req?.body, req?.params?.swapTxHash);
-      return res.http200({
-        message: stringHelper.strSuccess,
-      });
-    })
-  );
-
-  router.put(
-    "/update/from/validator/:swapTxHash",
-    asyncMiddleware(async (req: any, res: any) => {
-      await handleValidatorRequest(
-        req?.body,
-        req?.params?.swapTxHash,
-        req?.query
-      );
-      return res.http200({
-        message: stringHelper.strSuccess,
-      });
-    })
-  );
-
-  router.put(
-    "/update/from/master/:swapTxHash",
-    asyncMiddleware(async (req: any, res: any) => {
-      if (req.query.isValidationFailed) {
-        await handleMasterValidationFailureRequest(req?.params?.swapTxHash);
-      } else {
-        await handleMasterSignatureCreationRequest(
-          req?.body,
-          req?.params?.swapTxHash
-        );
-      }
-      return res.http200({
-        message: stringHelper.strSuccess,
       });
     })
   );

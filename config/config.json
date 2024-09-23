@@ -116,7 +116,15 @@
       "priority": 100,
       "route": "/api/v1/oneInch((?!$))*",
       "module": {
-        "name": "path:./app/lib/multiswapAuth/oneInchAuth"
+        "name": "path:./app/lib/multiswapAuth/thirdPartyApisAuth"
+      }
+    },
+    "authenticationCMC": {
+      "enabled": true,
+      "priority": 100,
+      "route": "/api/v1/cmc((?!$))*",
+      "module": {
+        "name": "path:./app/lib/multiswapAuth/thirdPartyApisAuth"
       }
     },
     "pagination": {

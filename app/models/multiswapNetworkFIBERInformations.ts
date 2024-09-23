@@ -5,6 +5,7 @@ var schema = mongoose.Schema(
   {
     rpcUrl: { type: String, default: "" },
     fundManager: { type: String, default: "" },
+    pool: { type: String, default: "" },
     fiberRouter: { type: String, default: "" },
     router: { type: String, default: "" },
     foundryTokenAddress: { type: String, default: "" },
