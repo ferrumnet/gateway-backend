@@ -28,6 +28,7 @@ var schema = mongoose.Schema(
     backupRpcUrl: { type: String, default: "" },
     positionForMultiSwap: { type: Number, default: 0 },
     multiSwapFiberRouterSmartContractAddress: { type: String, default: "" },
+    ferrumFeeContractAddress: { type: String, default: "" },
     multiswapNetworkFIBERInformation: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "multiswapNetworkFIBERInformations",
