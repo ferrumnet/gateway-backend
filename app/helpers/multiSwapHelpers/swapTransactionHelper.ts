@@ -37,6 +37,20 @@ module.exports = {
     }
   },
 
+  validationForUpdareSwapAndWithdrawStatus(req: any) {
+    const { status } = req.query;
+    const allowedStatuses = [
+      utils.swapAndWithdrawTransactionStatuses.swapCompleted,
+      utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted,
+      utils.swapAndWithdrawTransactionStatuses.swapFailed,
+      utils.swapAndWithdrawTransactionStatuses.swapWithdrawFailed,
+    ];
+    let isValidStatus = allowedStatuses.find((item) => item == status);
+    if (!status || !isValidStatus) {
+      throw "Invalid status";
+    }
+  },
+
   async doSwapAndWithdraw(req: any, swapAndWithdrawTransaction: any) {
     if (
       swapAndWithdrawTransaction?.status ==
