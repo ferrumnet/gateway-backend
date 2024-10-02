@@ -32,6 +32,30 @@ module.exports = function (router: any) {
   });
 
   router.put(
+    "/:txId",
+    asyncMiddleware(async (req: any, res: any) => {
+      swapTransactionHelper.validationForUpdareSwapAndWithdrawStatus(req);
+      const { status } = req.query;
+      const { txId } = req.params;
+      const { user } = req;
+      let swapAndWithdrawTransaction =
+        await db.SwapAndWithdrawTransactions.findOneAndUpdate(
+          {
+            receiveTransactionId: txId,
+            createdByUser: user?._id,
+          },
+          { status: status },
+          { new: true }
+        );
+      return res.http200({
+        swapAndWithdrawTransaction: swapTransactionHelper.toObject(
+          swapAndWithdrawTransaction
+        ),
+      });
+    })
+  );
+
+  router.put(
     "/regenerate/swap/and/withdraw/:txId",
     asyncMiddleware(async (req: any, res: any) => {
       let sourceNetwork = null;
