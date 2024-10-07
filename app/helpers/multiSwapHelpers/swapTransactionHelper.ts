@@ -38,7 +38,7 @@ module.exports = {
   },
 
   validationForUpdareSwapAndWithdrawStatus(req: any) {
-    const { status } = req.query;
+    const { status } = req.body;
     const allowedStatuses = [
       utils.swapAndWithdrawTransactionStatuses.swapCompleted,
       utils.swapAndWithdrawTransactionStatuses.swapWithdrawCompleted,
