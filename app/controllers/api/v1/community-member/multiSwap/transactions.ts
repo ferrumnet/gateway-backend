@@ -35,16 +35,15 @@ module.exports = function (router: any) {
     "/:txId",
     asyncMiddleware(async (req: any, res: any) => {
       swapTransactionHelper.validationForUpdareSwapAndWithdrawStatus(req);
-      const { status } = req.query;
       const { txId } = req.params;
-      const { user } = req;
+      const { body, user } = req;
       let swapAndWithdrawTransaction =
         await db.SwapAndWithdrawTransactions.findOneAndUpdate(
           {
             receiveTransactionId: txId,
             createdByUser: user?._id,
           },
-          { status: status },
+          { body },
           { new: true }
         );
       return res.http200({
