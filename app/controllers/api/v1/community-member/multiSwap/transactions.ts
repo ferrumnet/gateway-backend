@@ -43,7 +43,7 @@ module.exports = function (router: any) {
             receiveTransactionId: txId,
             createdByUser: user?._id,
           },
-          { body },
+          body,
           { new: true }
         );
       return res.http200({
